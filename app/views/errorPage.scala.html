@@ -1,0 +1,8 @@
+@(ex: Throwable)
+
+@main("An error occurred while trying to run megam_play. contact support.") {
+<h1>Sucked into nirvana ! </h1>
+<image src="@routes.Assets.at("images/nirvana_400.png")"/>
+<h2>for what<strong>@(ex getMessage)</h2>
+<h3>@(ex getStackTrace)</h3>
+}
