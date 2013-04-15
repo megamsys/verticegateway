@@ -3,6 +3,8 @@
 .*
 # except for .gitignore
 !.gitignore
+!.classpath
+!.project
 
 !*.sql
 
