@@ -31,7 +31,9 @@ object Global extends GlobalSettings {
     Logger.info("Application has started")
      if (Accounts.findAll.isEmpty) {
       Seq(
-        Account(1, "admin@node.com", "admin", "secret3", Administrator)
+        Account(1, "admin@node.com", "admin", "secret3", Administrator),
+        Account(2, "bob@example.com", "secret", "Bob", NormalUser),
+        Account(3, "chris@example.com", "secret", "Chris", NormalUser)
       ) foreach Accounts.create
     }
   }

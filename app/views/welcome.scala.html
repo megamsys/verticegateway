@@ -1,12 +1,13 @@
 @(message: String, style: String = "Scala", playhome: String ="http://www.playframework.org")
 
 @play.api.Play.maybeApplication.filterNot(_.mode != play.api.Mode.Dev).map { _ =>
-
-<h1>@message</h1>
-
+<div class="message-body">	
+		<div class="container">
+            <h1>@message</h1>
+		</div>
+</div>
 
 }.getOrElse {
 
 <h1>@message</h1>
-
 }
