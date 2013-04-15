@@ -28,7 +28,7 @@ object Permission {
   def valueOf(value: String): Permission = value match {
     case "Administrator" => Administrator
     case "NormalUser"    => NormalUser
-    case _ => throw new IllegalArgumentException()
+    case _               => throw new IllegalArgumentException()
   }
 
 }

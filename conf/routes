@@ -5,6 +5,10 @@
 # Home page
 GET     /					controllers.Application.index
 
+# Authentication - HMAC
+POST    /auth                   controllers.Application.authenticate
+POST    /staleauth                 controllers.Application.staleauth
+
 
 # Nodes
 GET   /v1/nodes	   		    controllers.Nodes.list()
