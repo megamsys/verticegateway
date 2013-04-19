@@ -13,27 +13,14 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package models
+
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
-/*sealed abstract class Permission {
-
-}
-
-case object Administrator extends Permission
-case object NormalUser extends Permission*/
-sealed trait Permission
-case object Administrator extends Permission
-case object NormalUser extends Permission
-object Permission {
-
-  def valueOf(value: String): Permission = value match {
-    case "Administrator" => Administrator
-    case "NormalUser"    => NormalUser
-    case _               => throw new IllegalArgumentException()
-  }
-
+package object models {
+  
+type AccountId = Int
+  type MessageId = Int
 }

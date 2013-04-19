@@ -6,12 +6,12 @@
 GET     /					controllers.Application.index
 
 # Authentication - HMAC
-POST    /auth                   controllers.Application.authenticate
-POST    /staleauth                 controllers.Application.staleauth
+#POST   /auth                   controllers.Application.authenticate
+#POST    /staleauth                 controllers.Application.staleauth
 
 
 # Nodes
-GET   /v1/nodes	   		    controllers.Nodes.list()
+GET   /v1/nodes	   		    controllers.Nodes.list
 GET   /v1/nodes/:id			controllers.Nodes.show(id: Long)
 POST  /v1/nodes/content		controllers.Nodes.post
 

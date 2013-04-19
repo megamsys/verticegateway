@@ -1,3 +1,24 @@
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.slf4j.LoggerFactory;
+
+import com.basho.riak.client.http.response.HttpResponse;
+
 /* 
  ** Copyright [2012] [Megam Systems]
  **
@@ -27,10 +48,10 @@ public class MegamPlayHMAC {
 		private final static String SECRET = "secretsecret";
 		private final static String USERNAME = "jos";
 	 
-		private static final Logger LOG = LoggerFactory.getLogger(HMACClient.class);
+		private static final Logger LOG = (Logger) LoggerFactory.getLogger(MegamPlayHMAC.class);
 	 
 		public static void main(String[] args) throws HttpException, IOException, NoSuchAlgorithmException {
-			HMACClient client = new HMACClient();
+			MegamPlayHMAC client = new MegamPlayHMAC();
 			client.makeHTTPCallUsingHMAC(USERNAME);
 		}
 	 
@@ -38,9 +59,10 @@ public class MegamPlayHMAC {
 			String contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}";
 			String contentType = "application/vnd.geo.comment+json";
 			//String contentType = "text/plain";
-			String currentDate = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+			String currentDate = new SimpleDateFormat(DATE_FORMAT).format(new Date(0));
 	 
-			HttpPost post = new HttpPost("http://localhost:9000/resources/rest/geo/comment");
+			HttpPost post = new HttpPost("http://localhost:9000/v1/nodes");
+			@SuppressWarnings("deprecation")
 			StringEntity data = new StringEntity(contentToEncode,contentType,"UTF-8");
 			post.setEntity(data);
 	 
@@ -52,14 +74,14 @@ public class MegamPlayHMAC {
 	 
 			String hmac = calculateHMAC(SECRET, toSign);
 	 
-			post.addHeader("hmac", username + ":" + hmac);
+			post.addHeader("hmac", "bob@example.com" + ":" + "secret");
 			post.addHeader("Date", currentDate);
 			post.addHeader("Content-Md5", contentMd5);
 	 
 			HttpClient client = new DefaultHttpClient();
-			HttpResponse response = client.execute(post);
+			HttpResponse response = (HttpResponse) client.execute(post);
 	 
-			System.out.println("client response:" + response.getStatusLine().getStatusCode());
+			System.out.println("client response:" + ((org.apache.http.HttpResponse) response).getStatusLine().getStatusCode());
 		}
 	 
 		private String calculateHMAC(String secret, String data) {
@@ -71,7 +93,7 @@ public class MegamPlayHMAC {
 				String result = new String(Base64.encodeBase64(rawHmac));
 				return result;
 			} catch (GeneralSecurityException e) {
-				LOG.warn("Unexpected error while creating hash: " + e.getMessage(),	e);
+				((org.slf4j.Logger) LOG).warn("Unexpected error while creating hash: " + e.getMessage(),	e);
 				throw new IllegalArgumentException();
 			}
 		}

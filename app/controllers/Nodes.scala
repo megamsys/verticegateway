@@ -17,33 +17,46 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-
-import jp.t2v.lab.play2.stackc.{RequestWithAttributes, RequestAttributeKey, StackableController}
+import jp.t2v.lab.play2.auth.Auth
+import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 import jp.t2v.lab.play2.auth._
 import models._
-
+import app.controllers.stack._
 
 /**
  * @author ram
  *
  */
-object Nodes  extends Controller with AuthElement with AuthConfigImpl {
-  
-  def list = Action {
-    Ok(views.html.index("Your new application is ready."))
+object Nodes extends Controller with HMACAccessElement  with Auth with AuthConfigImpl {
+
+  /*def Authenticated(f: (User, Request[AnyContent]) => Result) = {
+  Action { request =>
+    val result = for {      
+       user <- Accounts.authenticate("bob@exam.com","secret")
+    } yield f(user, request)
+    result getOrElse Ok(views.html.index("Error Page"))
   }
+}
   
-    
-  def show(id: Long) = StackAction(AuthorityKey -> NormalUser) { implicit request =>
+def index = StackAction { implicit request =>
+   Ok(views.html.index("Nodes Page"))
+}*/
+
+  def list = StackAction { implicit request =>
+    Ok("Nodes Page succeeded")
+  }
+
+  def show(id: Long) = StackAction { implicit request =>
     val title = "messages detail "
     Ok(views.html.index(title + id))
   }
 
-  def post  = StackAction(AuthorityKey -> NormalUser) { implicit request =>
+  def post = StackAction { implicit request =>
     val title = "messages detail "
     Ok(views.html.index(title))
-  }
-    
+  } 
+  
+  
 }
 
 

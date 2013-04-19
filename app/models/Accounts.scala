@@ -18,7 +18,7 @@ package models
 //import org.mindrot.jbcrypt.BCrypt
 import scalikejdbc._
 import scalikejdbc.SQLInterpolation._
-
+import models._
 /**
  * @author ram
  *
@@ -37,19 +37,27 @@ object Accounts {
     )
   }
 
-  def authenticate(email: String, password: String): Option[Account] = {
+  /*def authenticate(email: String, password: String): Option[Account] = {
+    println("Authenticate model")
     //findByEmail(email).filter { account => BCrypt.checkpw(password, account.password) }
     findByEmail(email).filter { account => true }
-
+  }*/
+  def authenticate(email: String, password: String): Boolean = {
+    println("Authenticate model")
+    //findByEmail(email).filter { account => BCrypt.checkpw(password, account.password) }
+    findByEmail(email)//.filter { account => true }
   }
 
-  def findByEmail(email: String): Option[Account] = {
+  
+  def findByEmail(email: String): Boolean = {
+    println("email check")
     DB localTx { implicit s =>
       sql"SELECT * FROM account WHERE email = ${email}".map(*).single.apply()
     }
   }
 
   def findById(id: Int): Option[Account] = {
+    println("id check")
     DB localTx { implicit s =>
       sql"SELECT * FROM account WHERE id = ${id}".map(*).single.apply()
     }

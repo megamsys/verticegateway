@@ -23,12 +23,12 @@ import scalikejdbc.SQLInterpolation._
  *
  */
 
-case class Nodes(id: Int, email: String, password: String, name: String, permission: Permission)
+case class Node(id: Int, email: String, password: String, name: String, permission: Permission)
 
 object Nodes {
 
   val * = { rs: WrappedResultSet =>
-    Account(
+    Node(
       id = rs.int("id"),
       email = rs.string("email"),
       password = rs.string("password"),
@@ -36,31 +36,31 @@ object Nodes {
       permission = Permission.valueOf(rs.string("permission")))
   }
 
-  def authenticate(email: String, password: String): Option[Account] = {
+  def authenticate(email: String, password: String): Option[Node] = {
   //  findByEmail(email).filter { account => BCrypt.checkpw(password, account.password) }
    findByEmail(email).filter { account => true }
 
   }
 
-  def findByEmail(email: String): Option[Account] = {
+  def findByEmail(email: String): Option[Node] = {
     DB localTx { implicit s =>
       sql"SELECT * FROM account WHERE email = ${email}".map(*).single.apply()
     }
   }
 
-  def findById(id: Int): Option[Account] = {
+  def findById(id: Int): Option[Node] = {
     DB localTx { implicit s =>
       sql"SELECT * FROM account WHERE id = ${id}".map(*).single.apply()
     }
   }
 
-  def findAll: Seq[Account] = {
+  def findAll: Seq[Node] = {
     DB localTx { implicit s =>
       sql"SELECT * FROM account".map(*).list.apply()
     }
   }
 
-  def create(account: Account) {
+  def create(account: Node) {
     DB localTx { implicit s =>
       import account._
       //val pass = BCrypt.hashpw(account.password, BCrypt.gensalt())

@@ -22,7 +22,7 @@ import play.api.mvc._
 import play.api.mvc.Results._
 import jp.t2v.lab.play2.auth._
 import jp.t2v.lab.play2.stackc.{RequestWithAttributes, RequestAttributeKey, StackableController}
-
+import scalikejdbc._
 /**
  * @author ram
  *
@@ -74,22 +74,24 @@ trait AuthConfigImpl extends AuthConfig {
    * A function that returns a `User` object from an `Id`.
    * You can alter the procedure to suit your application.
    */
-  def resolveUser(id: Id): Option[User] = Accounts.findById(id)
+ 
+  
+  def resolveUser(id: Id): Option[User] = DB.localTx { implicit s => Accounts.findById(id) }
 
   /**
    * Where to redirect the user after a successful login.
    */
-  def loginSucceeded(request: RequestHeader): Result = Redirect(routes.Application.index)
+  def loginSucceeded(request: RequestHeader): Result = Ok("")
 
   /**
    * Where to redirect the user after logging out
    */
-  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.index)
+  def logoutSucceeded(request: RequestHeader): Result = Ok("")
 
   /**
    * If the user is not logged in and tries to access a protected resource then redirct them as follows:
    */
-  def authenticationFailed(request: RequestHeader): Result = Redirect(routes.Application.index)
+  def authenticationFailed(request: RequestHeader): Result = Unauthorized("")
 
   /**
    * If authorization failed (usually incorrect password) redirect the user as follows:

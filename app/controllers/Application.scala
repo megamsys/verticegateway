@@ -2,16 +2,23 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-import jp.t2v.lab.play2.auth._
+//import jp.t2v.lab.play2.auth._
+import jp.t2v.lab.play2.auth.Auth
+import app.controllers.stack._
+import jp.t2v.lab.play2.stackc.{RequestWithAttributes, RequestAttributeKey, StackableController}
+import models._
 
-object Application extends Controller with LoginLogout with AuthConfigImpl {
+object Application extends Controller with HMACAccessElement  with Auth with AuthConfigImpl {
 
+ 
+  
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
-  }
+   Ok(views.html.index("Your new application is Ready."))
+  }  
 
-  def authenticate = Action { implicit request =>
+ /* def authenticate = Action { implicit request =>
     println("start act")
+    Ok(views.html.index("Authentication page"))
     /**
      *  Here we need to plugin the http://soa.dzone.com/articles/protect-rest-service-using-0
      *
@@ -20,6 +27,7 @@ object Application extends Controller with LoginLogout with AuthConfigImpl {
     val maybeUser: Option[User] = null
     val user: User = maybeUser.getOrElse(guser)
     gotoLoginSucceeded(user.id)
+    
   }
 
   /**
@@ -33,8 +41,8 @@ object Application extends Controller with LoginLogout with AuthConfigImpl {
    *   )
    */
   def staleauth = Action { implicit request =>
-    // do something...
+     //do something...
     gotoLogoutSucceeded
-  }
+  }*/
 
 }
