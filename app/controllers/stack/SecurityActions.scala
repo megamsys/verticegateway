@@ -53,8 +53,8 @@ object SecurityActions {
 *
 *
 */
-//def Authenticated[A](f: (RequestWithAttributes[A]) => Result): Boolean = {
-    def Authenticated[A](f: (Request[Any]) => Result): Boolean = {
+def Authenticated[A](f: (RequestWithAttributes[A]) => Result): Boolean = {
+   // def Authenticated[A](f: (Request[Any]) => Result): Boolean = {
 // we parse this as tolerant text, since our content type
 // is application/vnd.geo.comment+json, which isn't picked
 // up by the default body parsers. Alternative would be
