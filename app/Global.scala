@@ -18,7 +18,6 @@
  *
  */
 
-
 import play.api._
 import play.api.mvc._
 import play.api.mvc.Results._
@@ -29,12 +28,11 @@ object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     Logger.info("Application has started")
-     if (Accounts.findAll.isEmpty) {
+    if (Accounts.findAll.isEmpty) {
       Seq(
         Account(1, "admin@node.com", "admin", "secret3", Administrator),
         Account(2, "bob@example.com", "secret", "Bob", NormalUser),
-        Account(3, "chris@example.com", "secret", "Chris", NormalUser)
-      ) foreach Accounts.create
+        Account(3, "chris@example.com", "secret", "Chris", NormalUser)) foreach Accounts.create
     }
   }
 
@@ -43,8 +41,8 @@ object Global extends GlobalSettings {
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
-   InternalServerError(
-     views.html.errorPage(ex))
+    InternalServerError(
+      views.html.errorPage(ex))
   }
 
 }

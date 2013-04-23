@@ -17,17 +17,16 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-import jp.t2v.lab.play2.auth.Auth
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
-import jp.t2v.lab.play2.auth._
+
 import models._
-import app.controllers.stack._
+import controllers.stack.HMACElement
 
 /**
  * @author ram
  *
  */
-object Nodes extends Controller with HMACAccessElement  with Auth with AuthConfigImpl {
+object Nodes extends Controller with HMACElement  {
 
   /*def Authenticated(f: (User, Request[AnyContent]) => Result) = {
   Action { request =>
@@ -54,9 +53,8 @@ def index = StackAction { implicit request =>
   def post = StackAction { implicit request =>
     val title = "messages detail "
     Ok(views.html.index(title))
-  } 
-  
-  
+  }
+
 }
 
 

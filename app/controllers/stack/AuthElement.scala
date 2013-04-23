@@ -13,19 +13,19 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package app.controllers.stack
+package controllers.stack
 
 /**
  * @author rajthilak
  *
  */
-import play.api.mvc.{Result, Controller}
-import jp.t2v.lab.play2.stackc.{RequestAttributeKey, RequestWithAttributes, StackableController}
-import jp.t2v.lab.play2.auth.{Auth, AuthConfig}
+import play.api.mvc.{ Result, Controller }
+import jp.t2v.lab.play2.stackc.{ RequestAttributeKey, RequestWithAttributes, StackableController }
+import jp.t2v.lab.play2.auth.{ Auth, AuthConfig }
 
-trait AuthElement extends StackableController{
+trait AuthElement extends StackableController {
 
-   self: Controller with Auth with AuthConfig =>
+  self: Controller with Auth with AuthConfig =>
 
   case object AuthKey extends RequestAttributeKey[User]
   case object AuthorityKey extends RequestAttributeKey[Authority]
@@ -38,6 +38,5 @@ trait AuthElement extends StackableController{
   }
 
   implicit def loggedIn[A](implicit req: RequestWithAttributes[A]): User = req.get(AuthKey).get
-
 
 }
