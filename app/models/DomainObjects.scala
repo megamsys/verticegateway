@@ -17,16 +17,14 @@ package models
 
 import scalaz._
 import Scalaz._
-import effects._
-import org.slf4j.LoggerFactory
+import scalaz.effect.IO
 import com.stackmob.scaliak._
-
+import org.slf4j.LoggerFactory
 
 /**
  * @author ram
  *
  */
-
 
 
 case class SomeDomainObject(key: String, value: String)
@@ -47,19 +45,19 @@ object DomainObjects extends App {
   val client = Scaliak.httpClient("http://127.0.0.1:8098/riak")
   client.generateAndSetClientId()
 
-  val bucket = client.bucket("scaliak-example").unsafePerformIO match {
+  val bucket = client.bucket("scaliak-example").unsafePerformIO() match {
     case Success(b) => b
     case Failure(e) => throw e
   }
   
   // store a domain object
   val key = "some-key"
-  if (bucket.store(new SomeDomainObject(key, "value")).unsafePerformIO.isFailure) {
+  if (bucket.store(new SomeDomainObject(key, "value")).unsafePerformIO().isFailure) {
     throw new Exception("failed to store object")
   }
   
   // fetch a domain object
-  val fetchResult: ValidationNEL[Throwable, Option[SomeDomainObject]] = bucket.fetch(key).unsafePerformIO
+  val fetchResult: ValidationNel[Throwable, Option[SomeDomainObject]] = bucket.fetch(key).unsafePerformIO()
   fetchResult match {
     case Success(mbFetched) => {
       logger.debug(mbFetched some { v => v.key + ":" + v.value } none { "did not find key" })
@@ -67,7 +65,7 @@ object DomainObjects extends App {
     case Failure(es) => throw es.head
   }
 
-  def printFetchRes(v: ValidationNEL[Throwable, Option[SomeDomainObject]]): IO[Unit] = v match {
+  def printFetchRes(v: ValidationNel[Throwable, Option[SomeDomainObject]]): IO[Unit] = v match {
     case Success(mbFetched) => {
       logger.debug(
         mbFetched some { "fetched: " + _.toString } none { "key does not exist" }
@@ -91,5 +89,7 @@ object DomainObjects extends App {
     }
   }
   
-  action.unsafePerformIO
+  action.unsafePerformIO()
 }
+
+

@@ -2,21 +2,15 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-//import jp.t2v.lab.play2.auth._
-import jp.t2v.lab.play2.auth.Auth
-import app.controllers.stack._
-import jp.t2v.lab.play2.stackc.{RequestWithAttributes, RequestAttributeKey, StackableController}
 import models._
 
-object Application extends Controller with HMACAccessElement  with Auth with AuthConfigImpl {
+object Application extends Controller  {
 
- 
-  
   def index = Action {
-   Ok(views.html.index("Your new application is Ready."))
-  }  
+    Ok(views.html.index("Your new application is Ready."))
+  }
 
- /* def authenticate = Action { implicit request =>
+  /* def authenticate = Action { implicit request =>
     println("start act")
     Ok(views.html.index("Authentication page"))
     /**

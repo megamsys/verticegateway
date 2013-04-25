@@ -21,17 +21,23 @@ object ApplicationBuild extends Build {
    *   (the difference is the double %% after the groupID), sbt will add your project’s Scala version
    *   to the artifact name.
    */
+
+  val scalazVersion = "7.0.0-RC2"
+
   val appDependencies = Seq(
     javaCore, javaEbean, jdbc, javaJdbc,
-    "com.stackmob" %% "scaliak" % "0.4.0",
+    "org.scalaz" %% "scalaz-core" % scalazVersion,
+    "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
+    "org.scalaz" %% "scalaz-effect" % scalazVersion,
+    "org.scalaz" %% "scalaz-iterv" % scalazVersion,
+    "com.stackmob" %% "scaliak" % "0.6.0-SNAPSHOT",
     "jp.t2v" %% "play2.auth" % "0.9",
     "jp.t2v" %% "play2.auth.test" % "0.9" % "test",
     "com.rabbitmq" % "amqp-client" % "3.0.4",
     "com.github.seratch" %% "scalikejdbc" % "1.5.2",
     "com.github.seratch" %% "scalikejdbc-play-plugin" % "1.5.2",
     "com.github.seratch" %% "scalikejdbc-interpolation" % "1.5.2",
-    "postgresql" % "postgresql" % "9.1-901.jdbc4",// your JDBC driver
-    "org.scalaz" % "scalaz_2.10" % "6.0.4") 
+    "postgresql" % "postgresql" % "9.1-901.jdbc4")
 
   val main = play.Project(appName, appVersion, appDependencies).settings( // Add your own project settings here      
   )
