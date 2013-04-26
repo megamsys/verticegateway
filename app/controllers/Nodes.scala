@@ -21,7 +21,7 @@ import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, Sta
 
 import models._
 import controllers.stack.HMACElement
-
+import controllers.stack._
 /**
  * @author ram
  *
@@ -44,6 +44,11 @@ def index = StackAction { implicit request =>
   def list = StackAction { implicit request =>
     Ok("Nodes Page succeeded")
   }
+ 
+  //def list = SecurityActions.Authenticated { implicit request => 
+   //         println("Validate entry")
+   // Ok("Nodes Page succeeded")
+  //}
 
   def show(id: Long) = StackAction { implicit request =>
     val title = "messages detail "

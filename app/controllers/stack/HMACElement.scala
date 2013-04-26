@@ -15,12 +15,16 @@ trait HMACElement extends StackableController {
   case object HMACSessionKey extends RequestAttributeKey[(DB, DBSession)]
 
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-        if (validateToken(req)) super.proceed(req)(f) else BadRequest
+        println("HMAC entry  "+req )   
+        
+        //if (validateToken(req)) super.proceed(req)(f) else BadRequest
+        if(SecurityActions.Authenticated(req)) super.proceed(req)(f) else BadRequest
     }
       
  
-   private def validateToken[A](req: RequestWithAttributes[A]): Boolean = {
-    val result = SecurityActions.Authenticated { implicit request => 
+   /*private def validateToken[A](req: RequestWithAttributes[A]): Boolean = {
+    val result = SecurityActions.Authenticated{ implicit request => 
+            println("Validate entry")
             Accepted 
             /**
              * Store the HMAC session. 
@@ -30,8 +34,9 @@ trait HMACElement extends StackableController {
     /**
      * This is just to make sure the code compiles. 
      */
+     println("Validate entry1")
     false
-   }
+   }*/
 
   /**Authenticated {
     (user, request) => {
