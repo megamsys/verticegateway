@@ -1,23 +1,19 @@
-import static org.junit.Assert.*;
+package test
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
+//import org.junit.Assert.*;
+import org.specs2.mutable._
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
+import org.specs2.Specification
+import java.net.URL
+import org.specs2.matcher.MatchResult
+import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
+import com.stackmob.newman._
+import com.stackmob.newman.dsl._
+import java.security.MessageDigest
+import javax.crypto.spec.SecretKeySpec
+import javax.crypto.Mac
+import org.apache.commons.codec.binary.Base64
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.junit.Test;
 
 /* 
  ** Copyright [2012-2013] [Megam Systems]
@@ -37,57 +33,57 @@ import org.junit.Test;
 
 /**
  * @author rajthilak
- * 
+ *
  */
 
-/**
- * 
- * 
- * Convert this class to use spec2. and using newman api.
- * http://etorreborre.github.io/specs2/
- * https://github.com/stackmob/newman/
- * https://github.com/stackmob/newman/blob/master/src/test/scala/com/stackmob/newman/test/ApacheHttpClientSpecs.scala
- *
- * Create a class BaseContext which is there in the scalaz7 branch of newman.
- * https://github.com/stackmob/newman/blob/scalaz7/src/test/scala/com/stackmob/newman/test/BaseContext.scala
- * 
- * Create a Specification class.(Extend HMACSpec to extend Specification)
- * 
- * Inside it create a trait and fill in your own headers, body.
- * 
+class HMACSpec extends Specification {  def is =
+     "ApacheHttpClientSpecs".title                                                                                         ^ end ^
+  """
+  ApacheHttpClient is the HttpClient implementation that actually hits the internet
+  """                                                                                                                     ^ end ^
+  "The Client Should"                                                                                                     ^   
+    "Correctly do POST requests"                                                                                          ! Post().succeeds ^
+                                                                                                                          end
+   val MD5 = "MD5"
+   val HMACSHA1 = "HmacSHA1"
   trait Context extends BaseContext {
+    implicit protected val httpClient = new ApacheHttpClient
     protected val headers = Headers("header1" -> "header1")
     protected val body = RawBody("abcd")
-    protected lazy val url = new URL("http://stackmob.com")
-    
+    protected lazy val url = new URL("http://localhost:9000/v1/nodes")
 
-    protected def execute[T](t: Builder,
-                             expectedCode: HttpResponseCode = HttpResponseCode.Ok)
-                            (fn: HttpResponse => MatchResult[T]) = {
+    protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
       val r = t.executeUnsafe
       r.code must beEqualTo(expectedCode) and fn(r)
     }
 
-   
+    private def calculateHMAC(secret: String, data: String): String = {
+       val signingKey = new SecretKeySpec(secret.getBytes(), HMACSHA1)
+       val mac = Mac.getInstance(HMACSHA1)
+       mac.init(signingKey)
+       val rawHmac = mac.doFinal(data.getBytes())
+       new String(Base64.encodeBase64(rawHmac))
+     }
+
+	private def calculateMD5(content: String): String = {
+       val digest = MessageDigest.getInstance(MD5)
+       digest.update(content.getBytes())
+       new String(Base64.encodeBase64(digest.digest()))
+     }
+
     implicit private val encoding = Constants.UTF8Charset
 
     protected def ensureHttpOk(h: HttpResponse) = h.code must beEqualTo(HttpResponseCode.Ok)
-    
+
   }
-  
-  
-  Create a case class by extending the Context.
-  
+
   case class Post() extends Context {
-    private val post = POST(postURL)
+    private val post = POST(url)
     def succeeds = execute(post)(ensureHttpOk(_))
   }
-
-
- * 
- *
- */
-public class HMACSpec {
+}
+  
+/*public class HMACSpec {
 
 	private final static String DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss z";
 	private final static String HMAC_SHA1_ALGORITHM = "HmacSHA1";
@@ -150,4 +146,4 @@ public class HMACSpec {
 		return result;
 	}
 
-}
+}*/
