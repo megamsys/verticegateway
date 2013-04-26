@@ -20,7 +20,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 
 /* 
- ** Copyright [2012] [Megam Systems]
+ ** Copyright [2012-2013] [Megam Systems]
  **
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
@@ -39,7 +39,55 @@ import org.junit.Test;
  * @author rajthilak
  * 
  */
-public class MegamPlayHMACTest {
+
+/**
+ * 
+ * 
+ * Convert this class to use spec2. and using newman api.
+ * http://etorreborre.github.io/specs2/
+ * https://github.com/stackmob/newman/
+ * https://github.com/stackmob/newman/blob/master/src/test/scala/com/stackmob/newman/test/ApacheHttpClientSpecs.scala
+ *
+ * Create a class BaseContext which is there in the scalaz7 branch of newman.
+ * https://github.com/stackmob/newman/blob/scalaz7/src/test/scala/com/stackmob/newman/test/BaseContext.scala
+ * 
+ * Create a Specification class.(Extend HMACSpec to extend Specification)
+ * 
+ * Inside it create a trait and fill in your own headers, body.
+ * 
+  trait Context extends BaseContext {
+    protected val headers = Headers("header1" -> "header1")
+    protected val body = RawBody("abcd")
+    protected lazy val url = new URL("http://stackmob.com")
+    
+
+    protected def execute[T](t: Builder,
+                             expectedCode: HttpResponseCode = HttpResponseCode.Ok)
+                            (fn: HttpResponse => MatchResult[T]) = {
+      val r = t.executeUnsafe
+      r.code must beEqualTo(expectedCode) and fn(r)
+    }
+
+   
+    implicit private val encoding = Constants.UTF8Charset
+
+    protected def ensureHttpOk(h: HttpResponse) = h.code must beEqualTo(HttpResponseCode.Ok)
+    
+  }
+  
+  
+  Create a case class by extending the Context.
+  
+  case class Post() extends Context {
+    private val post = POST(postURL)
+    def succeeds = execute(post)(ensureHttpOk(_))
+  }
+
+
+ * 
+ *
+ */
+public class HMACSpec {
 
 	private final static String DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss z";
 	private final static String HMAC_SHA1_ALGORITHM = "HmacSHA1";
