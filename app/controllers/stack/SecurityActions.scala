@@ -53,23 +53,25 @@ object SecurityActions {
    *
    *
    */
-  def Authenticated(f: Request[Any] => Result) = {
+  /*def Authenticated(f: (Request[Any]) => Result) = {   
+    //def Authenticated[A](req: RequestWithAttributes[A]): Result = {
     // we parse this as tolerant text, since our content type
     // is application/vnd.geo.comment+json, which isn't picked
     // up by the default body parsers. Alternative would be
-    // to parse the RawBuffer manually    	   
-    Action {
-      implicit request =>
+    // to parse the RawBuffer manually    	 
+     println("security Actions entry")    
+    Action {      
+        implicit request =>
         {
+          println("security Actions entry1   "+request)
           // get the header we're working with
-          val sendHmac = request.headers.get(HMAC_HEADER);
+         /* val sendHmac = request.headers.get(HMAC_HEADER);
 
           // Check whether we've recevied an hmac header
-          sendHmac match {
-
+          sendHmac match {          
             // if we've got a value that looks like our header
             case Some(x) if x.contains(":") && x.split(":").length == 2 => {
-
+            	 println("security Actions entry2")
               // first part is username, second part is hash
               val headerParts = x.split(":");
               //val userInfo = User.find(headerParts(0))
@@ -97,26 +99,83 @@ object SecurityActions {
               val calculatedHMAC = calculateHMAC("secret1", toSign)
               // if the supplied value and the received values are equal
               // return the response from the delegate action, else return
-              // unauthorized
-              val authMaybe = Accounts.authenticate(headerParts(0), headerParts(1))
+              // unauthorized*/
+              val authMaybe = Accounts.authenticate("chris@example.com","secret")
+              //val authMaybe = Accounts.authenticate(headerParts(0), headerParts(1))
               authMaybe match {
                 case Some(account) =>
                   println("authorizied successfully buddy. " + account)
-                  f(request)
+                  f(request)              
                 case None =>
+                  println("Authentication Failed buddy")
                   Unauthorized
               }
 
-            }
+           // }
 
             // All the other possibilities return to 401
-            case _ => Unauthorized
+          //  case _ => Unauthorized
 
-          }
+         // }
         }
     }
-  }
+  }*/
 
+  //def Authenticated(f: (Request[Any]) => Result) = {  
+  def Authenticated[A](req: RequestWithAttributes[A]): Boolean = {
+    {
+      println("security Actions entry")
+      val sendHmac = req.headers.get(HMAC_HEADER);
+
+      // Check whether we've recevied an hmac header
+      sendHmac match {
+        // if we've got a value that looks like our header
+        case Some(x) if x.contains(":") && x.split(":").length == 2 => {
+          println("security Actions entry2")
+          // first part is username, second part is hash
+          val headerParts = x.split(":");
+          //val userInfo = User.find(headerParts(0))
+
+          // Retrieve all the headers we're going to use, we parse the complete
+          // content-type header, since our client also does this
+          val input = List(
+            req.method,
+            //calculateMD5(request.body),
+            req.headers.get(CONTENT_TYPE_HEADER),
+            req.headers.get(DATE_HEADER),
+            req.path)
+
+          // create the string that we'll have to sign
+          val toSign = input.map(
+            a => {
+              a match {
+                case None           => ""
+                case a: Option[Any] => a.asInstanceOf[Option[Any]].get
+                case _              => a
+              }
+            }).mkString("\n")
+
+          // use the input to calculate the hmac
+          val calculatedHMAC = calculateHMAC("secret1", toSign)
+          // if the supplied value and the received values are equal
+          // return the response from the delegate action, else return
+          // unauthorized
+          //val authMaybe = Accounts.authenticate("chris@example.com","secret")
+          val authMaybe = Accounts.authenticate(headerParts(0), headerParts(1))
+          authMaybe match {
+            case Some(account) =>
+              println("authorizied successfully buddy. " + account)
+              true
+            //f(request)              
+            case None =>
+              println("Authentication Failed buddy")
+              //Unauthorized
+              false
+          }
+        }
+      }
+    }
+  }
   /**
    * Calculate the MD5 hash for the specified content
    */
