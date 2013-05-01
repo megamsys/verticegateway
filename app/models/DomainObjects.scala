@@ -20,7 +20,8 @@ import Scalaz._
 import scalaz.effect.IO
 import com.stackmob.scaliak._
 import org.slf4j.LoggerFactory
-
+import play.api._
+import play.api.mvc._
 /**
  * @author ram
  *
@@ -37,7 +38,7 @@ object SomeDomainObject {
 
 }
 
-object DomainObjects extends App {
+object DomainObjects  {
   import SomeDomainObject._ // put the implicits at a higher priority scope
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
@@ -90,6 +91,10 @@ object DomainObjects extends App {
   }
   
   action.unsafePerformIO()
+
+
+def authenticate(email: String): Result = {   
+    Ok("dfjhkj")   
+
+  }
 }
-
-

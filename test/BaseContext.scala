@@ -22,8 +22,8 @@ package test
 
 import com.stackmob.newman._
 import com.stackmob.newman.response._
-import org.specs2.matcher.{MatchResult, Expectable, Matcher}
-import org.specs2.execute.{Failure => SpecsFailure, Result => SpecsResult}
+import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
+import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
 import scalaz._
 import Scalaz._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -46,7 +46,6 @@ trait BaseContext {
     }
   }
 
-
   protected def haveTheSameHeadersAs(h: Headers) = new HeadersAreEqualMatcher(h)
 
   protected def beTheSameResponseAs(h: HttpResponse) = new HttpResponsesAreEqualMatcher(h)
@@ -56,8 +55,8 @@ trait BaseContext {
   }
 
   private def errorString(err: Error) = err match {
-    case UnexpectedJSONError(was, expected) => "unexpected JSON. was %s, expected %s".format(was.toString, expected.toString)
-    case NoSuchFieldError(name, json) => "no such field %s in json %s".format(name, json.toString)
+    case UnexpectedJSONError(was, expected)  => "unexpected JSON. was %s, expected %s".format(was.toString, expected.toString)
+    case NoSuchFieldError(name, json)        => "no such field %s in json %s".format(name, json.toString)
     case UncategorizedError(key, desc, args) => "uncategorized JSON error for key %s: %s (args %s)".format(key, desc, args.mkString("&"))
   }
 

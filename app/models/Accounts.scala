@@ -23,27 +23,25 @@ import models._
  * @author ram
  *
  */
-case class Account(id: Int, email: String, password: String, name: String, permission: Permission)
+case class Account(id: Int, email: String, secret: String, name: String, permission: Permission)
 
 object Accounts {
 
-  val * = { rs: WrappedResultSet => 
+  val * = { rs: WrappedResultSet =>
     Account(
-      id         = rs.int("id"),
-      email      = rs.string("email"),
-      password   = rs.string("password"),
-      name       = rs.string("name"),
-      permission = Permission.valueOf(rs.string("permission"))
-    )
+      id = rs.int("id"),
+      email = rs.string("email"),
+      secret = rs.string("secret"),
+      name = rs.string("name"),
+      permission = Permission.valueOf(rs.string("permission")))
   }
 
-  
-  def authenticate(email: String, password: String): Option[Account] = {
+  def authenticate(email: String): Option[Account] = {
     //findByEmail(email).filter { account => BCrypt.checkpw(password, account.password) }
     findByEmail(email).filter { account => true }
 
   }
-  
+
   def findByEmail(email: String): Option[Account] = {
     DB localTx { implicit s =>
       sql"SELECT * FROM account WHERE email = ${email}".map(*).single.apply()
@@ -65,9 +63,9 @@ object Accounts {
   def create(account: Account) {
     DB localTx { implicit s =>
       import account._
-    //  val pass = BCrypt.hashpw(account.password, BCrypt.gensalt())
-      val pass = "howdy"
-      sql"INSERT INTO account VALUES (${id}, ${email}, ${pass}, ${name}, ${permission.toString})".update.apply()
+      //  val pass = BCrypt.hashpw(account.password, BCrypt.gensalt())
+      //val secret = "howdy"
+      sql"INSERT INTO account VALUES (${id}, ${email}, ${secret}, ${name}, ${permission.toString})".update.apply()
     }
   }
 

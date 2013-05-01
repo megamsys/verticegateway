@@ -28,7 +28,6 @@ import org.apache.commons.codec.binary.Base64
 import play.api.mvc.RawBuffer
 import play.api.mvc.Codec
 import models._
-
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 /**
  * @author rajthilak
@@ -38,11 +37,11 @@ object SecurityActions {
 
   val HMAC_HEADER = "hmac"
   val CONTENT_TYPE_HEADER = "content-type"
-  val DATE_HEADER = "Date"
-
+  val DATE_HEADER = "date"
+  val CONTENT_MD5 = "content-Md5"
   val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
-
+  //private final val SECRET = "secret1";
   /**
    * Function authenticated is defined as a function that takes as parameter
    * a function. This function takes as argumens a user and a request. The authenticated
@@ -53,129 +52,80 @@ object SecurityActions {
    *
    *
    */
-  /*def Authenticated(f: (Request[Any]) => Result) = {   
-    //def Authenticated[A](req: RequestWithAttributes[A]): Result = {
+
+  def Authenticated[A](req: RequestWithAttributes[A]): Boolean = {
     // we parse this as tolerant text, since our content type
     // is application/vnd.geo.comment+json, which isn't picked
     // up by the default body parsers. Alternative would be
-    // to parse the RawBuffer manually    	 
-     println("security Actions entry")    
-    Action {      
-        implicit request =>
-        {
-          println("security Actions entry1   "+request)
-          // get the header we're working with
-         /* val sendHmac = request.headers.get(HMAC_HEADER);
+    // to parse the RawBuffer manually
+    // get the header we're working with
 
-          // Check whether we've recevied an hmac header
-          sendHmac match {          
-            // if we've got a value that looks like our header
-            case Some(x) if x.contains(":") && x.split(":").length == 2 => {
-            	 println("security Actions entry2")
-              // first part is username, second part is hash
-              val headerParts = x.split(":");
-              //val userInfo = User.find(headerParts(0))
+    val sendHmac = req.headers.get(HMAC_HEADER);
 
-              // Retrieve all the headers we're going to use, we parse the complete
-              // content-type header, since our client also does this
-              val input = List(
-                request.method,
-                //calculateMD5(request.body),
-                request.headers.get(CONTENT_TYPE_HEADER),
-                request.headers.get(DATE_HEADER),
-                request.path)
+    // Check whether we've recevied an hmac header
+    sendHmac match {
 
-              // create the string that we'll have to sign
-              val toSign = input.map(
-                a => {
-                  a match {
-                    case None => ""
-                    case a: Option[Any] => a.asInstanceOf[Option[Any]].get
-                    case _ => a
-                  }
-                }).mkString("\n")
+      // if we've got a value that looks like our header 
+      case Some(x) if x.contains(":") && x.split(":").length == 2 => {
 
-              // use the input to calculate the hmac
-              val calculatedHMAC = calculateHMAC("secret1", toSign)
-              // if the supplied value and the received values are equal
-              // return the response from the delegate action, else return
-              // unauthorized*/
-              val authMaybe = Accounts.authenticate("chris@example.com","secret")
-              //val authMaybe = Accounts.authenticate(headerParts(0), headerParts(1))
-              authMaybe match {
-                case Some(account) =>
-                  println("authorizied successfully buddy. " + account)
-                  f(request)              
-                case None =>
-                  println("Authentication Failed buddy")
-                  Unauthorized
-              }
+        // first part is username, second part is hash
+        val headerParts = x.split(":");
 
-           // }
+        // Retrieve all the headers we're going to use, we parse the complete 
+        // content-type header, since our client also does this
+        val input = List(
+          req.headers.get(DATE_HEADER),
+          req.path,
+          calculateMD5((req.body).toString()))
 
-            // All the other possibilities return to 401
-          //  case _ => Unauthorized
+        // create the string that we'll have to sign       
+        val toSign = input.map(
+          a => {
+            a match {
+              case None           => ""
+              case a: Option[Any] => a.asInstanceOf[Option[Any]].get
+              case _              => a
+            }
+          }).mkString("\n")
 
-         // }
-        }
-    }
-  }*/
+        // use the input to calculate the hmac        
+        // if the supplied value and the received values are equal
+        // return the response from the delegate action, else return
+        // unauthorized
+        val authMaybe = Accounts.authenticate(headerParts(0))
+        authMaybe match {
+          case Some(account) => {
 
-  //def Authenticated(f: (Request[Any]) => Result) = {  
-  def Authenticated[A](req: RequestWithAttributes[A]): Boolean = {
-    {
-      println("security Actions entry")
-      val sendHmac = req.headers.get(HMAC_HEADER);
-
-      // Check whether we've recevied an hmac header
-      sendHmac match {
-        // if we've got a value that looks like our header
-        case Some(x) if x.contains(":") && x.split(":").length == 2 => {
-          println("security Actions entry2")
-          // first part is username, second part is hash
-          val headerParts = x.split(":");
-          //val userInfo = User.find(headerParts(0))
-
-          // Retrieve all the headers we're going to use, we parse the complete
-          // content-type header, since our client also does this
-          val input = List(
-            req.method,
-            //calculateMD5(request.body),
-            req.headers.get(CONTENT_TYPE_HEADER),
-            req.headers.get(DATE_HEADER),
-            req.path)
-
-          // create the string that we'll have to sign
-          val toSign = input.map(
-            a => {
-              a match {
-                case None           => ""
-                case a: Option[Any] => a.asInstanceOf[Option[Any]].get
-                case _              => a
-              }
-            }).mkString("\n")
-
-          // use the input to calculate the hmac
-          val calculatedHMAC = calculateHMAC("secret1", toSign)
-          // if the supplied value and the received values are equal
-          // return the response from the delegate action, else return
-          // unauthorized
-          //val authMaybe = Accounts.authenticate("chris@example.com","secret")
-          val authMaybe = Accounts.authenticate(headerParts(0), headerParts(1))
-          authMaybe match {
-            case Some(account) =>
-              println("authorizied successfully buddy. " + account)
+            val calculatedHMAC = calculateHMAC(account.secret, toSign)
+            println("HMAC value :" + calculatedHMAC + "........" + account.secret)
+            //check calculated HMAC value and response HMAc value 
+            //If this check also included user's SECRET key
+            if (calculatedHMAC == headerParts(1)) {
+              println("authorizied successfully buddy. ")
               true
-            //f(request)              
-            case None =>
-              println("Authentication Failed buddy")
+              //f(request)
+            } else {
+              println("HMAC Fail")
               //Unauthorized
               false
+            }
           }
+          case None =>
+            println("UserName Not Found")
+            //Unauthorized
+            false
         }
+      }
+
+      // All the other possibilities return to 401 
+      case _ => {
+        println("Headers Fail")
+        //Unauthorized
+        false
       }
     }
   }
+
   /**
    * Calculate the MD5 hash for the specified content
    */
@@ -189,20 +139,11 @@ object SecurityActions {
    * Calculate the HMAC for the specified data and the supplied secret
    */
   private def calculateHMAC(secret: String, toEncode: String): String = {
-    /*val signingKey = new SecretKeySpec(secret.getBytes(), HMACSHA1)
+    val signingKey = new SecretKeySpec(secret.getBytes(), HMACSHA1)
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
     new String(Base64.encodeBase64(rawHmac))
-    * */
-    "secret"
   }
-}
-
-
-
-
-  
-   
-
+}   
  

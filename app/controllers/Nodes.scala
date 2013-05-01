@@ -18,10 +18,10 @@ package controllers
 import play.api._
 import play.api.mvc._
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
-
 import models._
 import controllers.stack.HMACElement
 import controllers.stack._
+
 /**
  * @author ram
  *
@@ -41,26 +41,21 @@ def index = StackAction { implicit request =>
    Ok(views.html.index("Nodes Page"))
 }*/
 
-  def list = StackAction { implicit request =>
+  def post = StackAction(parse.tolerantText) { implicit request =>      
+    println("Request Body1  :"+request.body)
     Ok("Nodes Page succeeded")
-  }
- 
-  //def list = SecurityActions.Authenticated { implicit request => 
-   //         println("Validate entry")
-   // Ok("Nodes Page succeeded")
-  //}
+  } 
+  
 
   def show(id: Long) = StackAction { implicit request =>
     val title = "messages detail "
     Ok(views.html.index(title + id))
   }
 
-  def post = StackAction { implicit request =>
-    val title = "messages detail "
-    Ok(views.html.index(title))
+  def list = StackAction { implicit request =>
+    Ok("Nodes Page succeeded")    
   }
 
 }
-
 
 

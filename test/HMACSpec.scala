@@ -2,7 +2,6 @@ package test
 
 //import org.junit.Assert.*;
 import org.specs2.mutable._
-
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
@@ -13,8 +12,8 @@ import java.security.MessageDigest
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
-
-
+import java.util.Calendar
+import java.text.SimpleDateFormat
 /* 
  ** Copyright [2012-2013] [Megam Systems]
  **
@@ -36,114 +35,96 @@ import org.apache.commons.codec.binary.Base64
  *
  */
 
-class HMACSpec extends Specification {  def is =
-     "ApacheHttpClientSpecs".title                                                                                         ^ end ^
-  """
+class HMACSpec extends Specification {
+  def is =
+    "ApacheHttpClientSpecs".title ^ end ^
+      """
   ApacheHttpClient is the HttpClient implementation that actually hits the internet
-  """                                                                                                                     ^ end ^
-  "The Client Should"                                                                                                     ^   
-    "Correctly do POST requests"                                                                                          ! Post().succeeds ^
-                                                                                                                          end
-   val MD5 = "MD5"
-   val HMACSHA1 = "HmacSHA1"
+  """ ^ end ^
+      "The Client Should" ^
+      // "Correctly do GET requests" ! Get().succeeds ^
+      "Correctly do POST requests" ! Post().succeeds ^
+      end
+
+  val MD5 = "MD5"
+  val HMACSHA1 = "HmacSHA1"
+
   trait Context extends BaseContext {
-    implicit protected val httpClient = new ApacheHttpClient
-    protected val headers = Headers("header1" -> "header1")
-    protected val body = RawBody("abcd")
-    protected lazy val url = new URL("http://localhost:9000/v1/nodes")
+
+    //create htttp client
+    val httpClient = new ApacheHttpClient
+    protected lazy val url = new URL("http://localhost:9000/v1/nodes/content")
+
+    //create the contentToEncode as request Body
+    val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"
+
+    //this is request headers and body http content type's    
+    val contentType = "application/vnd.geo.comment+json"
+
+    //get the current date and change date format  
+    val formatString = "yyy-MM-dd HH:mm"
+    val cal = Calendar.getInstance
+    val currentDate = new SimpleDateFormat(formatString) format cal.getTime
+
+    //this is the user's secret key
+    private final val SECRET = "secret"
+
+    //content added to RawBody with encode at default UTF8  
+    protected val body = RawBody(contentToEncode)
+
+    val contentMd5 = calculateMD5(contentToEncode)
+
+    // create the string that we'll have to sign   
+    val toSign = currentDate + "\n" + url.getPath() + "\n" + contentMd5
+
+    //calculate the HMAC value using "user secret key" and "toSign" values
+    val hmac = calculateHMAC(SECRET, toSign)
+
+    //set Headers using hmac, date and content type 
+    val userHMAC = "chris@example.com:" + hmac
+    protected val headers = Headers("content-type" -> "application/vnd.geo.comment+json",
+      "hmac" -> userHMAC,
+      "date" -> currentDate)
 
     protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
+
       val r = t.executeUnsafe
+
       r.code must beEqualTo(expectedCode) and fn(r)
     }
 
+    /**
+     * Calculate the MD5 hash for the specified content
+     */
     private def calculateHMAC(secret: String, data: String): String = {
-       val signingKey = new SecretKeySpec(secret.getBytes(), HMACSHA1)
-       val mac = Mac.getInstance(HMACSHA1)
-       mac.init(signingKey)
-       val rawHmac = mac.doFinal(data.getBytes())
-       new String(Base64.encodeBase64(rawHmac))
-     }
+      val signingKey = new SecretKeySpec(secret.getBytes(), HMACSHA1)
+      val mac = Mac.getInstance(HMACSHA1)
+      mac.init(signingKey)
+      val rawHmac = mac.doFinal(data.getBytes())
+      new String(Base64.encodeBase64(rawHmac))
+    }
 
-	private def calculateMD5(content: String): String = {
-       val digest = MessageDigest.getInstance(MD5)
-       digest.update(content.getBytes())
-       new String(Base64.encodeBase64(digest.digest()))
-     }
+    /**
+     * Calculate the HMAC for the specified data and the supplied secret
+     */
+    private def calculateMD5(content: String): String = {
+      val digest = MessageDigest.getInstance(MD5)
+      digest.update(content.getBytes())
+      new String(Base64.encodeBase64(digest.digest()))
+    }
 
     implicit private val encoding = Constants.UTF8Charset
 
     protected def ensureHttpOk(h: HttpResponse) = h.code must beEqualTo(HttpResponseCode.Ok)
-
   }
 
+  //post the headers and their body for specifing url
   case class Post() extends Context {
-    private val post = POST(url)
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
     def succeeds = execute(post)(ensureHttpOk(_))
   }
 }
-  
-/*public class HMACSpec {
+ 
 
-	private final static String DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss z";
-	private final static String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-
-	private final static String SECRET = "secretsecret";
-
-	// private final static String USERNAME = "jos";
-
-	@Test
-	public void test() throws NoSuchAlgorithmException,
-			ClientProtocolException, IOException {
-
-		String contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}";
-		String contentType = "application/vnd.geo.comment+json";
-		// String contentType = "text/plain";
-		String currentDate = new SimpleDateFormat(DATE_FORMAT).format(new Date(
-				0));
-
-		HttpPost post = new HttpPost("http://localhost:9000/v1/nodes");
-		@SuppressWarnings("deprecation")
-		StringEntity data = new StringEntity(contentToEncode, contentType,
-				"UTF-8");
-		post.setEntity(data);
-
-		String verb = post.getMethod();
-		String contentMd5 = calculateMD5(contentToEncode);
-		String toSign = verb + "\n" + contentMd5 + "\n"
-				+ data.getContentType().getValue() + "\n" + currentDate + "\n"
-				+ post.getURI().getPath();
-
-		String hmac = calculateHMAC(SECRET, toSign);
-
-		post.addHeader("hmac", "bob@example.com" + ":" + "secret");
-		post.addHeader("Date", currentDate);
-		post.addHeader("Content-Md5", contentMd5);
-
-		HttpClient client = new DefaultHttpClient();
-		HttpResponse response = client.execute(post);
-	}
-
-	private String calculateHMAC(String secret, String data) {
-		try {
-			SecretKeySpec signingKey = new SecretKeySpec(secret.getBytes(),
-					HMAC_SHA1_ALGORITHM);
-			Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-			mac.init(signingKey);
-			byte[] rawHmac = mac.doFinal(data.getBytes());
-			String result = new String(Base64.encodeBase64(rawHmac));
-			return result;
-		} catch (GeneralSecurityException e) {
-			throw new IllegalArgumentException();
-		}
-	}
-
-	private String calculateMD5(String contentToEncode)
-			throws NoSuchAlgorithmException {
-		MessageDigest digest = MessageDigest.getInstance("MD5");
-		digest.update(contentToEncode.getBytes());
-		String result = new String(Base64.encodeBase64(digest.digest()));
-		return result;
-	}
-
-}*/

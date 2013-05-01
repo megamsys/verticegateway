@@ -36,7 +36,7 @@ object Nodes {
       permission = Permission.valueOf(rs.string("permission")))
   }
 
-  def authenticate(email: String, password: String): Option[Node] = {
+  def authenticate(email: String, secret: String): Option[Node] = {
   //  findByEmail(email).filter { account => BCrypt.checkpw(password, account.password) }
    findByEmail(email).filter { account => true }
 
@@ -44,7 +44,13 @@ object Nodes {
 
   def findByEmail(email: String): Option[Node] = {
     DB localTx { implicit s =>
-      sql"SELECT * FROM account WHERE email = ${email}".map(*).single.apply()
+      sql"SELECT * FROM account WHERE email = ${email}".map(*).single.apply() 
+    }
+  }
+  
+  def findBySecret(name: String): Option[Node] = {
+    DB localTx { implicit s =>
+      sql"SELECT * FROM account WHERE name = ${name}".map(*).single.apply()
     }
   }
 
