@@ -91,13 +91,13 @@ object SecurityActions {
         // use the input to calculate the hmac        
         // if the supplied value and the received values are equal
         // return the response from the delegate action, else return
-        // unauthorized
+        // unauthorized         
         val authMaybe = Accounts.authenticate(headerParts(0))
         authMaybe match {
           case Some(account) => {
 
             val calculatedHMAC = calculateHMAC(account.secret, toSign)
-            println("HMAC value :" + calculatedHMAC + "........" + account.secret)
+            println("HMAC value :" + calculatedHMAC + "........" + account.secret + "............" + headerParts(1))
             //check calculated HMAC value and response HMAc value 
             //If this check also included user's SECRET key
             if (calculatedHMAC == headerParts(1)) {

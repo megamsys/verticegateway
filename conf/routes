@@ -6,7 +6,7 @@
 GET     /					controllers.Application.index
 
 # Authentication - HMAC
-#POST   /auth                   controllers.Application.authenticate
+POST    /v1/auth                       controllers.Application.authenticate
 #POST    /staleauth                 controllers.Application.staleauth
 
 

@@ -2,14 +2,21 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 import models._
+import controllers.stack._
 
-object Application extends Controller  {
+object Application extends Controller with AuthElement {
 
   def index = Action {
     Ok(views.html.index("Your new application is Ready."))
   }
 
+  def authenticate = StackAction(parse.tolerantText) { implicit request =>
+    Ok("Your Authentication success")
+  }
+  
+  
   /* def authenticate = Action { implicit request =>
     println("start act")
     Ok(views.html.index("Authentication page"))

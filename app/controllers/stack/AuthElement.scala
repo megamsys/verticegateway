@@ -20,23 +20,34 @@ package controllers.stack
  *
  */
 import play.api.mvc.{ Result, Controller }
-import jp.t2v.lab.play2.stackc.{ RequestAttributeKey, RequestWithAttributes, StackableController }
-import jp.t2v.lab.play2.auth.{ Auth, AuthConfig }
+import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
+import models._
+import play.api._
+import play.api.mvc._
+import controllers.stack._
 
+/*
+ * sub trait for stackable controller,
+ * proceed method was override here for our request changes, 
+ * And result return in super trait proceed method,
+ * when stack action is called then this stackable controller is executed 
+ * 
+ */
 trait AuthElement extends StackableController {
 
-  self: Controller with Auth with AuthConfig =>
-
-  case object AuthKey extends RequestAttributeKey[User]
-  case object AuthorityKey extends RequestAttributeKey[Authority]
+  self: Controller =>
 
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-    (for {
-      authority <- req.get(AuthorityKey).toRight(authorizationFailed(req)).right
-      user <- authorized(authority)(req).right
-    } yield super.proceed(req.set(AuthKey, user))(f)).merge
+
+    /*
+     * If HMAC authentication is true, the req send in super class
+     * otherwise badrequest return   
+     */
+    if (SecurityActions.Authenticated(req))      
+      super.proceed(req)(f)
+    else
+      BadRequest
   }
 
-  implicit def loggedIn[A](implicit req: RequestWithAttributes[A]): User = req.get(AuthKey).get
-
 }
+

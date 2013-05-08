@@ -23,6 +23,7 @@ import play.api.mvc.{ Result, Controller }
 import controllers.{ AuthConfigImpl }
 import scalikejdbc._
 import com.stackmob.scaliak.ScaliakClient
+
 /**
  * @author rajthilak
  *
