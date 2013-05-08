@@ -1,6 +1,21 @@
+/* 
+** Copyright [2012] [Megam Systems]
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+** http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+
 package test
 
-//import org.junit.Assert.*;
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
@@ -14,28 +29,14 @@ import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 import java.util.Calendar
 import java.text.SimpleDateFormat
-/* 
- ** Copyright [2012-2013] [Megam Systems]
- **
- ** Licensed under the Apache License, Version 2.0 (the "License");
- ** you may not use this file except in compliance with the License.
- ** You may obtain a copy of the License at
- **
- ** http://www.apache.org/licenses/LICENSE-2.0
- **
- ** Unless required by applicable law or agreed to in writing, software
- ** distributed under the License is distributed on an "AS IS" BASIS,
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ** See the License for the specific language governing permissions and
- ** limitations under the License.
- */
 
 /**
  * @author rajthilak
  *
  */
 
-class HMACSpec extends Specification {
+class SourceSpec extends Specification {
+
   def is =
     "ApacheHttpClientSpecs".title ^ end ^
       """
@@ -53,10 +54,10 @@ class HMACSpec extends Specification {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/v1/nodes")
+    protected lazy val url = new URL("http://localhost:9000/v1/nodes/content")
 
     //create the contentToEncode as request Body
-    val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"
+    val contentToEncode = "{\"inputs\":\"goog\", \"query\":[{\"map\":{\"language\":\"javascript\",\"name\":\"Riak.mapValuesJson\",\"keep\":true}} ] }"
 
     //this is request headers and body http content type's    
     val contentType = "application/vnd.geo.comment+json"
@@ -126,5 +127,3 @@ class HMACSpec extends Specification {
     def succeeds = execute(post)(ensureHttpOk(_))
   }
 }
- 
-

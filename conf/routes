@@ -11,9 +11,9 @@ GET     /					controllers.Application.index
 
 
 # Nodes
-GET   /v1/nodes	   		    controllers.Nodes.list
-GET   /v1/nodes/:id			controllers.Nodes.show(id: Long)
-POST  /v1/nodes/content		controllers.Nodes.post
+POST   /v1/nodes	   		    controllers.Nodes.list
+GET    /v1/nodes/:id			controllers.Nodes.show(id: Long)
+POST   /v1/nodes/content		controllers.Nodes.post
 
 # Logs for Nodes 
 GET   /v1/nodes/logs	   		    controllers.Logs.list()

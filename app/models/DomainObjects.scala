@@ -22,79 +22,71 @@ import com.stackmob.scaliak._
 import org.slf4j.LoggerFactory
 import play.api._
 import play.api.mvc._
+import com.basho.riak.client.raw.http.HTTPClientAdapter
+import play.api.libs.json.Json
+import play.api.libs.json.JsString
 /**
  * @author ram
  *
  */
 
-
-case class SomeDomainObject(key: String, value: String)
-object SomeDomainObject {
-
-  implicit val domainConverter: ScaliakConverter[SomeDomainObject] = ScaliakConverter.newConverter[SomeDomainObject](
-    (o: ReadObject) => new SomeDomainObject(o.key, o.stringValue).successNel,
-    (o: SomeDomainObject) => WriteObject(o.key, o.value.getBytes)
-  )
-
-}
-
-object DomainObjects  {
-  import SomeDomainObject._ // put the implicits at a higher priority scope
+object DomainObjects {
+  import Nodes._ // put the implicits at a higher priority scope
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
-  val client = Scaliak.httpClient("http://127.0.0.1:8098/riak")
-  client.generateAndSetClientId()
+  //Create the scaliak client from riak
+  def clientCreate(): ScaliakClient = {
+    val client = Scaliak.httpClient("http://127.0.0.1:8098/riak")
+    client
+  }
 
-  val bucket = client.bucket("scaliak-example").unsafePerformIO() match {
-    case Success(b) => b
-    case Failure(e) => throw e
-  }
-  
-  // store a domain object
-  val key = "some-key"
-  if (bucket.store(new SomeDomainObject(key, "value")).unsafePerformIO().isFailure) {
-    throw new Exception("failed to store object")
-  }
-  
-  // fetch a domain object
-  val fetchResult: ValidationNel[Throwable, Option[SomeDomainObject]] = bucket.fetch(key).unsafePerformIO()
-  fetchResult match {
-    case Success(mbFetched) => {
-      logger.debug(mbFetched some { v => v.key + ":" + v.value } none { "did not find key" })
+  /*
+   * connect the existing bucket in riak client
+   * if doesn't bucket then to create the new bucket
+   */
+  def bucketCreate(client: ScaliakClient, bucketName: String): ScaliakBucket = {
+    client.generateAndSetClientId()
+    val bucket = client.bucket(bucketName).unsafePerformIO() match {
+      case Success(b) => b
+      case Failure(e) => throw e
     }
-    case Failure(es) => throw es.head
+    bucket
   }
 
-  def printFetchRes(v: ValidationNel[Throwable, Option[SomeDomainObject]]): IO[Unit] = v match {
+  /*
+   * put the specified key and their value to riak bucket
+   */
+  def put(client: ScaliakClient, bucket: ScaliakBucket, key: String, value: String) {
+    // store a domain object   
+    if (bucket.store(new Node(key, value)).unsafePerformIO().isFailure) {
+      throw new Exception("failed to store object")
+    }
+  }
+
+  /*
+   * fetch a domain object
+   * and return the option node object
+   */
+  def fetch(bucket: ScaliakBucket, key: String): Option[Node] = {
+    val fetchResult: ValidationNel[Throwable, Option[Node]] = bucket.fetch(key).unsafePerformIO()
+    fetchResult match {
+      case Success(mbFetched) => {
+        logger.debug(mbFetched some { v => v.key + ":" + v.value } none { "did not find key" })
+        mbFetched
+      }
+      case Failure(es) => throw es.head
+    }
+  }
+
+  def printFetchRes(v: ValidationNel[Throwable, Option[Node]]): IO[Unit] = v match {
     case Success(mbFetched) => {
       logger.debug(
-        mbFetched some { "fetched: " + _.toString } none { "key does not exist" }
-      ).pure[IO]
+        mbFetched some { "fetched: " + _.toString } none { "key does not exist" }).pure[IO]
     }
     case Failure(es) => {
       (es.foreach(e => logger.warn(e.getMessage))).pure[IO]
     }
-  }    
-
-  // taking advantage of the IO monad
-  val action = bucket.fetch(key) flatMap { r =>
-    (r.toOption | none) some { obj =>
-      for {
-        _ <- printFetchRes(r)
-        _ <- bucket.delete(obj)
-        _ <- logger.debug("deleted").pure[IO]
-      } yield ()
-    } none {
-      logger.debug("no object to delete").pure[IO]
-    }
   }
-  
-  action.unsafePerformIO()
 
-
-def authenticate(email: String): Result = {   
-    Ok("dfjhkj")   
-
-  }
 }

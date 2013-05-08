@@ -46,8 +46,7 @@ trait AuthConfigImpl extends AuthConfig {
    * A type that represents a user in your application.
    * `User`, `Account` and so on.
    */
-  type GuestUser = Account
-
+  type GuestUser = Account  
   
   /**
    * A type that is defined by every action for authorization.
@@ -58,7 +57,7 @@ trait AuthConfigImpl extends AuthConfig {
    * case object NormalUser extends Permission
    */
   type Authority = Permission
-
+ 
   /**
    * A `ClassManifest` is used to retrieve an id from the Cache API.
    * Use something like this:

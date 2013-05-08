@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2012] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
 */
 package controllers.stack
 
-import play.api.mvc.{ Result, Controller }
-import scalikejdbc.{ DB, DBSession }
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 import models._
 import play.api._
 import play.api.mvc._
-import controllers.stack._
-
+import play.api.mvc.{ Result, Controller }
+import controllers.{ AuthConfigImpl }
+import scalikejdbc._
+import com.stackmob.scaliak.ScaliakClient
 /**
  * @author rajthilak
  *
@@ -35,25 +35,25 @@ import controllers.stack._
  * when stack action is called then this stackable controller is executed 
  * 
  */
-trait HMACElement extends StackableController {
+trait SourceElement extends StackableController {
+
   self: Controller =>
 
-  case object HMACSessionKey extends RequestAttributeKey[(DB, DBSession)]
+  case object DomainObjectKey extends RequestAttributeKey[ScaliakClient]
 
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-    
-    /*
-     * If HMAC authentication is true, the req send in super class
-     * otherwise badrequest return   
-     */
-    if (SecurityActions.Authenticated(req))
-      super.proceed(req)(f)
-    else
-      BadRequest
 
+    /*
+    * Domain Objects client creation, 
+    * db was connected and req return in super class with domainobjectkey and db 
+    * otherwise bad request return
+    */
+    val db = DomainObjects.clientCreate()
+    db match {
+      case db => super.proceed(req.set(DomainObjectKey, db))(f)
+      case _  => BadRequest
+    }
   }
 
-  implicit def hmacSession[A](implicit req: RequestWithAttributes[A]): DBSession = req.get(HMACSessionKey).get._2 // throw
-
+  implicit def domainImplicit[A](implicit req: RequestWithAttributes[A]): ScaliakClient = req.get(DomainObjectKey).get
 }
-

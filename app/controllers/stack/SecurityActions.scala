@@ -41,7 +41,7 @@ object SecurityActions {
   val CONTENT_MD5 = "content-Md5"
   val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
-  //private final val SECRET = "secret1";
+
   /**
    * Function authenticated is defined as a function that takes as parameter
    * a function. This function takes as argumens a user and a request. The authenticated

@@ -21,41 +21,58 @@ import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, Sta
 import models._
 import controllers.stack.HMACElement
 import controllers.stack._
-
+import com.stackmob.scaliak.ScaliakClient
+import play.api.libs.json.Json
+import play.api.libs.json.JsString
+import java.security.MessageDigest
+import javax.crypto.spec.SecretKeySpec
+import javax.crypto.Mac
+import org.apache.commons.codec.binary.Base64
 /**
  * @author ram
  *
  */
-object Nodes extends Controller with HMACElement  {
 
-  /*def Authenticated(f: (User, Request[AnyContent]) => Result) = {
-  Action { request =>
-    val result = for {      
-       user <- Accounts.authenticate("bob@exam.com","secret")
-    } yield f(user, request)
-    result getOrElse Ok(views.html.index("Error Page"))
+/*
+ * this controller for HMAC authentication and access riak
+ * If HMAC authentication is true then post or list the nodes are executed
+ *  
+ */
+object Nodes extends Controller with HMACElement with SourceElement {
+
+  /*
+   * parse.tolerantText to parse the RawBody 
+   * get requested body and put into the riak bucket
+   */
+  def post = StackAction(parse.tolerantText) { implicit request =>
+    val input = (request.body).toString()
+    models.Nodes.put("accounts", "4", input)
+    Ok("Post Action succeeded")
   }
-}
-  
-def index = StackAction { implicit request =>
-   Ok(views.html.index("Nodes Page"))
-}*/
 
-  def post = StackAction(parse.tolerantText) { implicit request =>      
-    println("Request Body1  :"+request.body)
-    Ok("Nodes Page succeeded")
-  } 
-  
-
+  /*
+   * show the message details
+   * 
+   */
   def show(id: Long) = StackAction { implicit request =>
     val title = "messages detail "
     Ok(views.html.index(title + id))
   }
 
-  def list = StackAction { implicit request =>
-    Ok("Nodes Page succeeded")    
+  /*
+   * list the particular Id values
+   * 
+   */
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    val result = models.Nodes.findById("accounts", "2")
+    result match {
+      case Some(node) => {
+        Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
+      }
+      case None =>
+        Ok("Key not Found")
+    }
   }
 
 }
-
 
