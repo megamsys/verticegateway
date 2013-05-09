@@ -33,7 +33,7 @@ object ApplicationBuild extends Build {
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-iterv" % scalazVersion,
     "com.stackmob" %% "scaliak" % "0.7.0",
-    "com.stackmob" %% "newman" % "0.15.0-SNAPSHOT",
+    "com.stackmob" %% "newman" % "0.16.0",
     "jp.t2v" %% "play2.auth" % "0.9",
     "jp.t2v" %% "play2.auth.test" % "0.9" % "test",
     "com.rabbitmq" % "amqp-client" % "3.0.4",
