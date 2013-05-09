@@ -33,13 +33,7 @@ import play.api.libs.json.JsString
  *
  */
 
-case class Node(key: String, value: String)
-
 object Nodes {
-
-  implicit val domainConverter: ScaliakConverter[Node] = ScaliakConverter.newConverter[Node](
-    (o: ReadObject) => new Node(o.key, o.stringValue).successNel,
-    (o: Node) => WriteObject(o.key, o.value.getBytes))
 
   /*
      * create the riak source 
@@ -60,8 +54,7 @@ object Nodes {
   /*
    * fetch the object using their key from bucket
    */
-  def findById(bucketName: String, key: String)(implicit source: ScaliakClient): Option[Node] = {
-
+  def findById(bucketName: String, key: String)(implicit source: ScaliakClient): Option[Domain] = {
     val bucket = bucketCreate(source, bucketName)
     val fetch = DomainObjects.fetch(bucket, key)
     println("Fetched Value.............:" + fetch)

@@ -54,10 +54,10 @@ class SourceSpec extends Specification {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/v1/nodes/content")
+    protected lazy val url = new URL("http://localhost:9000/accounts/content")
 
     //create the contentToEncode as request Body
-    val contentToEncode = "{\"inputs\":\"goog\", \"query\":[{\"map\":{\"language\":\"javascript\",\"name\":\"Riak.mapValuesJson\",\"keep\":true}} ] }"
+    val contentToEncode = "{\"id\":\"1\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
 
     //this is request headers and body http content type's    
     val contentType = "application/vnd.geo.comment+json"

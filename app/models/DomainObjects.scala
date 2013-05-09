@@ -29,9 +29,12 @@ import play.api.libs.json.JsString
  * @author ram
  *
  */
-
+case class Domain(key: String, value: String)
 object DomainObjects {
-  import Nodes._ // put the implicits at a higher priority scope
+
+  implicit val domainConverter: ScaliakConverter[Domain] = ScaliakConverter.newConverter[Domain](
+    (o: ReadObject) => new Domain(o.key, o.stringValue).successNel,
+    (o: Domain) => WriteObject(o.key, o.value.getBytes))
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
@@ -59,7 +62,7 @@ object DomainObjects {
    */
   def put(client: ScaliakClient, bucket: ScaliakBucket, key: String, value: String) {
     // store a domain object   
-    if (bucket.store(new Node(key, value)).unsafePerformIO().isFailure) {
+    if (bucket.store(new Domain(key, value)).unsafePerformIO().isFailure) {
       throw new Exception("failed to store object")
     }
   }
@@ -68,8 +71,8 @@ object DomainObjects {
    * fetch a domain object
    * and return the option node object
    */
-  def fetch(bucket: ScaliakBucket, key: String): Option[Node] = {
-    val fetchResult: ValidationNel[Throwable, Option[Node]] = bucket.fetch(key).unsafePerformIO()
+  def fetch(bucket: ScaliakBucket, key: String): Option[Domain] = {
+    val fetchResult: ValidationNel[Throwable, Option[Domain]] = bucket.fetch(key).unsafePerformIO()
     fetchResult match {
       case Success(mbFetched) => {
         logger.debug(mbFetched some { v => v.key + ":" + v.value } none { "did not find key" })
@@ -79,7 +82,7 @@ object DomainObjects {
     }
   }
 
-  def printFetchRes(v: ValidationNel[Throwable, Option[Node]]): IO[Unit] = v match {
+  def printFetchRes(v: ValidationNel[Throwable, Option[Domain]]): IO[Unit] = v match {
     case Success(mbFetched) => {
       logger.debug(
         mbFetched some { "fetched: " + _.toString } none { "key does not exist" }).pure[IO]

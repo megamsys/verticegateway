@@ -8,7 +8,7 @@ GET     /					controllers.Application.index
 # Authentication - HMAC
 POST    /v1/auth                       controllers.Application.authenticate
 #POST    /staleauth                 controllers.Application.staleauth
-
+POST    /accounts/content           controllers.Accounts.post
 
 # Nodes
 POST   /v1/nodes	   		    controllers.Nodes.list

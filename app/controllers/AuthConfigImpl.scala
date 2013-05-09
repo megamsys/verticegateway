@@ -40,13 +40,13 @@ trait AuthConfigImpl extends AuthConfig {
    * A type that represents a user in your application.
    * `User`, `Account` and so on.
    */
-  type User = Account
+  type User = Domain
 
   /**
    * A type that represents a user in your application.
    * `User`, `Account` and so on.
    */
-  type GuestUser = Account  
+  type GuestUser = Domain  
   
   /**
    * A type that is defined by every action for authorization.
@@ -75,7 +75,7 @@ trait AuthConfigImpl extends AuthConfig {
    */
  
   
-  def resolveUser(id: Id): Option[User] = DB.localTx { implicit s => Accounts.findById(id) }
+  //def resolveUser(id: Id): Option[User] = DB.localTx { implicit s => Accounts.findById(id) }
 
   /**
    * Where to redirect the user after a successful login.
@@ -101,12 +101,12 @@ trait AuthConfigImpl extends AuthConfig {
    * A function that determines what `Authority` a user has.
    * You should alter this procedure to suit your application.
    */
-  def authorize(user: User, authority: Authority): Boolean =
+  /*def authorize(user: User, authority: Authority): Boolean =
     (user.permission, authority) match {
       case (Administrator, _) => true
       case (NormalUser, NormalUser) => true
       case _ => false
-    }
+    }*/
 
   /**
    * Whether use the secure option or not use it in the cookie.

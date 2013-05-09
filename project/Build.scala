@@ -42,8 +42,8 @@ object ApplicationBuild extends Build {
     "com.github.seratch" %% "scalikejdbc-interpolation" % "1.5.2",
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
-    "org.specs2" %% "specs2" % specs2Version % "test")
-
+    "org.specs2" %% "specs2" % specs2Version % "test",
+    "net.liftweb" % "lift-json" % "2.0")
   val main = play.Project(appName, appVersion, appDependencies).settings( // Add your own project settings here      
   )
 

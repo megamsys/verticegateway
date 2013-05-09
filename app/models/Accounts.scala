@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2012] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,58 +15,58 @@
 */
 package models
 
-//import org.mindrot.jbcrypt.BCrypt
+import scalaz._
+import Scalaz._
+import scalaz.effect.IO
+import com.stackmob.scaliak._
+import org.slf4j.LoggerFactory
+import play.api._
+import play.api.mvc._
+import models._
 import scalikejdbc._
 import scalikejdbc.SQLInterpolation._
-import models._
+import play.api.libs.json.Json
+import play.api.libs.json.JsString
+
 /**
- * @author ram
+ * @author rajthilak
  *
  */
-case class Account(id: Int, email: String, secret: String, name: String, permission: Permission)
 
 object Accounts {
 
-  val * = { rs: WrappedResultSet =>
-    Account(
-      id = rs.int("id"),
-      email = rs.string("email"),
-      secret = rs.string("secret"),
-      name = rs.string("name"),
-      permission = Permission.valueOf(rs.string("permission")))
+  /*
+   * create the riak source 
+   */
+  def create()(implicit source: ScaliakClient): ScaliakClient = {
+    val client = source
+    client
   }
 
-  def authenticate(email: String): Option[Account] = {
-    //findByEmail(email).filter { account => BCrypt.checkpw(password, account.password) }
-    findByEmail(email).filter { account => true }
-
+  /*
+   * connect the existing bucket in riak
+   */
+  def bucketCreate(source: ScaliakClient, bucketName: String): ScaliakBucket = {
+    val bucket = DomainObjects.bucketCreate(source, bucketName)
+    bucket
   }
 
-  def findByEmail(email: String): Option[Account] = {
-    DB localTx { implicit s =>
-      sql"SELECT * FROM account WHERE email = ${email}".map(*).single.apply()
-    }
+  /*
+   * fetch the object using their key from bucket
+   */
+  def findById(source: ScaliakClient, bucketName: String, key: String): Option[Domain] = {
+    val bucket = bucketCreate(source, bucketName)
+    val fetch = DomainObjects.fetch(bucket, key)
+    println("Fetched Value.............:" + fetch)
+    fetch
   }
 
-  def findById(id: Int): Option[Account] = {
-    DB localTx { implicit s =>
-      sql"SELECT * FROM account WHERE id = ${id}".map(*).single.apply()
-    }
+  /*
+   * put the value in riak bucket
+   */
+  def put(bucketName: String, key: String, value: String)(implicit source: ScaliakClient) {
+    val bucket = bucketCreate(source, bucketName)
+    DomainObjects.put(source, bucket, key, value)
+    val fetch = DomainObjects.fetch(bucket, key)
   }
-
-  def findAll: Seq[Account] = {
-    DB localTx { implicit s =>
-      sql"SELECT * FROM account".map(*).list.apply()
-    }
-  }
-
-  def create(account: Account) {
-    DB localTx { implicit s =>
-      import account._
-      //  val pass = BCrypt.hashpw(account.password, BCrypt.gensalt())
-      //val secret = "howdy"
-      sql"INSERT INTO account VALUES (${id}, ${email}, ${secret}, ${name}, ${permission.toString})".update.apply()
-    }
-  }
-
 }
