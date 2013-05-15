@@ -130,7 +130,7 @@ object SecurityActions {
     }
   }*/
 
-  def Authenticated[A](req: RequestWithAttributes[A]): Boolean = { 
+  def Authenticated[A](req: RequestWithAttributes[A]): Boolean = {
     // we parse this as tolerant text, since our content type
     // is application/vnd.geo.comment+json, which isn't picked
     // up by the default body parsers. Alternative would be
@@ -178,7 +178,7 @@ object SecurityActions {
             val calculatedHMAC = calculateHMAC(m.sharedprivatekey, toSign)
             println("HMAC value :" + calculatedHMAC + "........" + m.sharedprivatekey + "............" + headerParts(1))
 
-            //check calculated HMAC value and response HMAc value 
+            //check calculated HMAC value and response HMAC value 
             //If this check also included user's SECRET key
             if (calculatedHMAC == headerParts(1)) {
               println("authorizied successfully buddy. ")

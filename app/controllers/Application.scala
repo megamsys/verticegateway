@@ -15,8 +15,7 @@ object Application extends Controller with AuthElement {
   def authenticate = StackAction(parse.tolerantText) { implicit request =>
     Ok("Your Authentication success")
   }
-  
-  
+
   /* def authenticate = Action { implicit request =>
     println("start act")
     Ok(views.html.index("Authentication page"))

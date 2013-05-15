@@ -16,19 +16,21 @@
 package controllers
 import play.api._
 import play.api.mvc._
-
+import models._
+import controllers.stack.HMACElement
+import controllers.stack._
 /**
  * @author ram
  *
  */
-object Logs  extends Controller {
-  
-  def list = Action {
-    Ok(views.html.index("Your new application is ready."))
+object Logs extends Controller with HMACElement with SourceElement {
+
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    Redirect("http://localhost:7000/streams/syslog")
   }
-  
-  def show(id: Long) = Action {
-    Ok(views.html.index("Your new application is ready."))
+
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    Redirect("http://localhost:7000/streams/" + id)
   }
-    
+
 }
