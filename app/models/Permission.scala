@@ -19,12 +19,6 @@ package models
  * @author ram
  *
  */
-/*sealed abstract class Permission {
-
-}
-
-case object Administrator extends Permission
-case object NormalUser extends Permission*/
 sealed trait Permission
 case object Administrator extends Permission
 case object NormalUser extends Permission

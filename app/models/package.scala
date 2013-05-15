@@ -14,13 +14,12 @@
 ** limitations under the License.
 */
 
-
 /**
  * @author rajthilak
  *
  */
 package object models {
-  
-type AccountId = Int
+
+  type AccountId = Int
   type MessageId = Int
 }
