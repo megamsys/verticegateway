@@ -8,7 +8,7 @@ GET     /					controllers.Application.index
 # Authentication - HMAC
 POST    /v1/auth                       controllers.Application.authenticate
 #POST    /staleauth                 controllers.Application.staleauth
-
+POST    /accounts/content           controllers.Accounts.post
 
 # Nodes
 POST   /v1/nodes	   		    controllers.Nodes.list
@@ -16,8 +16,10 @@ GET    /v1/nodes/:id			controllers.Nodes.show(id: Long)
 POST   /v1/nodes/content		controllers.Nodes.post
 
 # Logs for Nodes 
-GET   /v1/nodes/logs	   		    controllers.Logs.list()
-GET   /v1/nodes/logs/:nodeid		controllers.Logs.show(nodeid: Long)
+#just declare POST for testing
+POST   /v1/logs	   		    controllers.Logs.list()                          
+POST   /v1/logs/:nodeid		controllers.Logs.show(nodeid: String)
+
 
 # Map static resources from the /public folder to the /public path
 GET     /assets/*file		controllers.Assets.at(path="/public", file)

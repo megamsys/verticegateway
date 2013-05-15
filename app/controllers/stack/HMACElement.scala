@@ -41,7 +41,7 @@ trait HMACElement extends StackableController {
   case object HMACSessionKey extends RequestAttributeKey[(DB, DBSession)]
 
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-    
+
     /*
      * If HMAC authentication is true, the req send in super class
      * otherwise badrequest return   

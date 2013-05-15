@@ -13,6 +13,10 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+/**
+ * @author rajthilak
+ *
+ */
 
 package test
 
@@ -34,16 +38,15 @@ import java.text.SimpleDateFormat
  * @author rajthilak
  *
  */
-
-class SourceSpec extends Specification {
-
+class LogSpec extends Specification {
+  
   def is =
     "ApacheHttpClientSpecs".title ^ end ^
       """
   ApacheHttpClient is the HttpClient implementation that actually hits the internet
   """ ^ end ^
       "The Client Should" ^
-      // "Correctly do GET requests" ! Get().succeeds ^
+      //"Correctly do GET requests" ! Get().succeeds ^
       "Correctly do POST requests" ! Post().succeeds ^
       end
 
@@ -53,9 +56,8 @@ class SourceSpec extends Specification {
   trait Context extends BaseContext {
 
     //create htttp client
-    val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/accounts/content")
-    //protected lazy val url = new URL("http://localhost:9000/v1/logs")
+    val httpClient = new ApacheHttpClient   
+    protected lazy val url = new URL("http://localhost:9000/v1/logs/logstashTest")
     
     //create the contentToEncode as request Body
     val contentToEncode = "{\"id\":\"1\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
@@ -127,4 +129,6 @@ class SourceSpec extends Specification {
       .addBody(body)
     def succeeds = execute(post)(ensureHttpOk(_))
   }
+
+
 }

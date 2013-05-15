@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2012] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -22,49 +22,25 @@ import controllers.stack.HMACElement
 import controllers.stack._
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 
 /*
  * this controller for HMAC authentication and access riak
- * If HMAC authentication is true then post or list the nodes are executed
+ * If HMAC authentication is true then post or list the accounts are executed
  *  
  */
-object Nodes extends Controller with HMACElement with SourceElement {
+object Accounts extends Controller with HMACElement with SourceElement {
+
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    models.Nodes.put("accounts", "4", input)
+    models.Accounts.put("accounts", "content2", input)
     Ok("Post Action succeeded")
   }
 
-  /*
-   * show the message details
-   * 
-   */
-  def show(id: Long) = StackAction { implicit request =>
-    val title = "messages detail "
-    Ok(views.html.index(title + id))
-  }
-
-  /*
-   * list the particular Id values
-   * 
-   */
-  def list = StackAction(parse.tolerantText) { implicit request =>
-    val result = models.Nodes.findById("accounts", "content1")
-    result match {
-      case Some(node) => {
-        Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
-      }
-      case None =>
-        Ok("Key not Found")
-    }
-  }
-
 }
-
