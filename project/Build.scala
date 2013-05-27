@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
    *   (the difference is the double %% after the groupID), sbt will add your project’s Scala version
    *   to the artifact name.
    */
-
+ 
   val scalazVersion = "7.0.0"
   val scalaCheckVersion = "1.10.1"
   val specs2Version = "1.14"
@@ -43,8 +43,13 @@ object ApplicationBuild extends Build {
     "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",
-    "net.liftweb" % "lift-json" % "2.0")
-  val main = play.Project(appName, appVersion, appDependencies).settings( // Add your own project settings here      
+    "net.liftweb" % "lift-json" % "2.0",
+    "com.github.indykish" % "megam_common_2.10" % "0.1.0-SNAPSHOT")
+  val main = play.Project(appName, appVersion, appDependencies).settings( 
+      resolvers += "Sonatype Snapshots"  at "https://oss.sonatype.org/content/repositories/snapshots",
+      resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+      resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
+      // Add your own project settings here      
   )
 
 }

@@ -20,7 +20,8 @@ import play.api.mvc._
 import models._
 import controllers.stack.HMACElement
 import controllers.stack._
-
+import org.megam.common.amqp._
+import java.util.concurrent.atomic.AtomicInteger
 /**
  * @author ram
  *
@@ -32,16 +33,31 @@ import controllers.stack._
  *  
  */
 object Nodes extends Controller with HMACElement with SourceElement {
+  //val nodeCounter = new AtomicInteger(0)
+  //val newCount = nodeCounter.incrementAndGet() 
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
+    //val nodeCounter = new AtomicInteger(0)               
+    //println("============================"+(nodeCounter.incrementAndGet())+1)
     models.Nodes.put("accounts", "5", input)
     Ok("Post Action succeeded")
   }
 
+  def create = StackAction(parse.tolerantText) { implicit request =>
+    val result = models.Nodes.findById("accounts", "content1")
+    result match {
+      case Some(node) => {
+        MessageObjects.Publish(node.key).succeeds
+        Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
+      }
+      case None =>
+        Ok("Key not Found")
+    }
+  }
   /*
    * show the message details
    * 
