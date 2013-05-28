@@ -39,7 +39,7 @@ object Accounts extends Controller with HMACElement with SourceElement {
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    models.Accounts.put("accounts", "content2", input)
+    models.Accounts.put("accounts", "content3", input)
     Ok("Post Action succeeded")
   }
 

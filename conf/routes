@@ -14,6 +14,7 @@ POST    /accounts/content           controllers.Accounts.post
 POST   /v1/nodes	   		    controllers.Nodes.list
 GET    /v1/nodes/:id			controllers.Nodes.show(id: Long)
 POST   /v1/nodes/content		controllers.Nodes.post
+POST   /v1/nodes/create         controllers.Nodes.create
 
 # Logs for Nodes 
 #just declare POST for testing

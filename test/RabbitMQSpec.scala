@@ -17,9 +17,7 @@
  * @author rajthilak
  *
  */
-
 package test
-
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
@@ -34,21 +32,16 @@ import org.apache.commons.codec.binary.Base64
 import java.util.Calendar
 import java.text.SimpleDateFormat
 
-/**
- * @author rajthilak
- *
- */
 
-class AuthenticateSpec extends Specification {
-
-  def is =
+class RabbitMQSpec extends Specification {
+def is =
     "ApacheHttpClientSpecs".title ^ end ^
       """
   ApacheHttpClient is the HttpClient implementation that actually hits the internet
   """ ^ end ^
       "The Client Should" ^
       // "Correctly do GET requests" ! Get().succeeds ^
-      "Correctly do POST requests" ! Post().succeeds ^      
+      "Correctly do POST requests" ! Post().succeeds ^
       end
 
   val MD5 = "MD5"
@@ -58,7 +51,7 @@ class AuthenticateSpec extends Specification {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/v1/auth ")
+    protected lazy val url = new URL("http://localhost:9000/v1/nodes/create")
 
     //create the contentToEncode as request Body
     val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"

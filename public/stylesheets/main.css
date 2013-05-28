@@ -115,7 +115,7 @@ aside a[href^="http"]:after,.doc a[href^="http"]:after{vertical-align:middle;mar
 /*Modification */
 
 .message-body{margin-top:200px;}
-#footer{margin-top:400px; margin-left:300px; position:fixed;}
+#footer{margin-bottom:2%; margin-left:10%; position:fixed;}
 
 
 

@@ -2,10 +2,11 @@
 logLevel := Level.Info
 
 // Typesafe snapshots
-resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
-
 
 resolvers += "Sonatype Snapshots"  at "https://oss.sonatype.org/content/repositories/snapshots"
+
+resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
+
 
 resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 
@@ -20,3 +21,4 @@ resolvers += "Sonatype Releases"  at "https://oss.sonatype.org/content/repositor
 
 // Use the Play sbt plugin for Play projects
 addSbtPlugin("play" % "sbt-plugin" % "2.1.1")
+
