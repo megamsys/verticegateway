@@ -32,7 +32,6 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsString
 import net.liftweb.json._
 
-
 /**
  * @author rajthilak
  *
@@ -226,5 +225,6 @@ object SecurityActions {
     val rawHmac = mac.doFinal(toEncode.getBytes())
     new String(Base64.encodeBase64(rawHmac))
   }
+
 }   
  

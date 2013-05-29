@@ -20,7 +20,7 @@ import play.api.mvc._
 import models._
 import controllers.stack.HMACElement
 import controllers.stack._
-
+import java.util.concurrent.atomic.AtomicInteger
 /**
  * @author rajthilak
  *
@@ -32,14 +32,15 @@ import controllers.stack._
  *  
  */
 object Accounts extends Controller with HMACElement with SourceElement {
-
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    models.Accounts.put("accounts", "content3", input)
+    val increment = new AtomicInteger()
+    val id = "content" + increment.incrementAndGet()     
+    models.Accounts.put("accounts", id, input)
     Ok("Post Action succeeded")
   }
 

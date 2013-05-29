@@ -1,5 +1,4 @@
 import sbt._
-import Keys._
 import PlayProject._
 
 object ApplicationBuild extends Build {
@@ -45,11 +44,12 @@ object ApplicationBuild extends Build {
     "org.specs2" %% "specs2" % specs2Version % "test",
     "net.liftweb" % "lift-json" % "2.0",
     "com.github.indykish" % "megam_common_2.10" % "0.1.0-SNAPSHOT")
-  val main = play.Project(appName, appVersion, appDependencies).settings( 
-      resolvers += "Sonatype Snapshots"  at "https://oss.sonatype.org/content/repositories/snapshots",
-      resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-      resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
+  val main = play.Project(appName, appVersion, appDependencies).settings(       
+      sbt.Keys.resolvers += "Sonatype Snapshots"  at "https://oss.sonatype.org/content/repositories/snapshots",
+      sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+      sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
       // Add your own project settings here      
   )
+  
 
 }

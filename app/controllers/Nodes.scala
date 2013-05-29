@@ -33,22 +33,21 @@ import java.util.concurrent.atomic.AtomicInteger
  *  
  */
 object Nodes extends Controller with HMACElement with SourceElement {
-  //val nodeCounter = new AtomicInteger(0)
-  //val newCount = nodeCounter.incrementAndGet() 
+
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    //val nodeCounter = new AtomicInteger(0)               
-    //println("============================"+(nodeCounter.incrementAndGet())+1)
-    models.Nodes.put("accounts", "5", input)
+   val increment = new AtomicInteger()
+    val id = "content" + increment.incrementAndGet() 
+    models.Nodes.put("megam", id, input)
     Ok("Post Action succeeded")
   }
 
   def create = StackAction(parse.tolerantText) { implicit request =>
-    val result = models.Nodes.findById("accounts", "content1")
+    val result = models.Nodes.findById("megam", "content1")
     result match {
       case Some(node) => {
         MessageObjects.Publish(node.key).succeeds
@@ -58,6 +57,7 @@ object Nodes extends Controller with HMACElement with SourceElement {
         Ok("Key not Found")
     }
   }
+
   /*
    * show the message details
    * 

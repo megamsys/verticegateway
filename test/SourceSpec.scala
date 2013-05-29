@@ -44,7 +44,7 @@ class SourceSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       // "Correctly do GET requests" ! Get().succeeds ^
-      "Correctly do POST requests" ! Post().succeeds ^
+      "Correctly do POST requests" ! Post().succeeds ^      
       end
 
   val MD5 = "MD5"
@@ -58,7 +58,7 @@ class SourceSpec extends Specification {
     //protected lazy val url = new URL("http://localhost:9000/v1/logs")
     
     //create the contentToEncode as request Body
-    val contentToEncode = "{\"id\":\"1\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
+    val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
 
     //this is request headers and body http content type's    
     val contentType = "application/vnd.geo.comment+json"
