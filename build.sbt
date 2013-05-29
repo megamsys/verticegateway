@@ -12,6 +12,7 @@ packageSummary := "Simple Build Tool for Scala-driven builds"
 
 packageDescription := """This script provides a native way to run the Simple Build Tool, a build tool for Scala software, also called SBT."""
 
+seq(packagerSettings:_*)
 
 // DEBIAN SPECIFIC
 sbt.Keys.name in Debian := "sbt"
