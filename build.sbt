@@ -2,22 +2,43 @@ import sbt._
 import Process._
 import com.typesafe.sbt.SbtNativePackager._
 import com.typesafe.sbt.packager.debian.Keys._
+import com.typesafe.sbt.packager.linux.LinuxPackageMapping
 import sbtrelease._
 import ReleasePlugin._
 import ReleaseKeys._
 
-maintainer := "Rajthilak <git@github.com:rajthilakmca/megam_play.git>"
-
-packageSummary := "Simple Build Tool for Scala-driven builds"
-
-packageDescription := """This script provides a native way to run the Simple Build Tool, a build tool for Scala software, also called SBT."""
-
 seq(packagerSettings:_*)
 
-// DEBIAN SPECIFIC
-sbt.Keys.name in Debian := "sbt"
+maintainer in Debian:= "Rajthilak <rajthilak@rajthilak>"
 
-sbt.Keys.version in Debian <<= (sbt.Keys.version, sbtVersion) apply { (v, sv) =>
+packageSummary := "API server (REST based) for the megam platform."
+
+packageDescription in Debian:= "API server (REST based) for the megam platform."
+
+linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
+  (packageMapping((bd / "target/start") -> "/usr/local/megam_play/target/start")
+   withUser "root" withGroup "root" withPerms "0755")
+}
+
+linuxPackageMappings <+= (baseDirectory) map { bd =>
+  val src = bd / "target/staged"
+  val dest = "/usr/local/megam_play/target/staged"
+  LinuxPackageMapping(
+    for {
+      path <- (src ***).get
+      if !path.isDirectory
+    } yield path -> path.toString.replaceFirst(src.toString, dest)
+  )
+}
+
+linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
+  (packageMapping((bd / "conf/application-production.conf") -> "/usr/local/megam_play/conf/application-production.conf")
+   withConfig())
+}
+
+com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
+
+com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbtVersion) apply { (v, sv) =>
   sv + "-build-" + (v split "\\." map (_.toInt) dropWhile (_ == 0) map ("%02d" format _) mkString "")
 }
 
@@ -25,8 +46,8 @@ debianPackageDependencies in Debian ++= Seq("curl", "java2-runtime", "bash (>= 2
 
 debianPackageRecommends in Debian += "git"
 
-linuxPackageMappings in Debian <+= (sbt.Keys.sourceDirectory) map { bd =>
+linuxPackageMappings in Debian <+= (com.typesafe.sbt.packager.debian.Keys.sourceDirectory) map { bd =>
   (packageMapping(
-    (bd / "debian/changelog") -> "/usr/share/doc/sbt/changelog.gz"
+    (bd / "debian/changelog") -> "/usr/share/doc/megam_play/changelog.gz"
   ) withUser "root" withGroup "root" withPerms "0644" gzipped) asDocs()
 }
