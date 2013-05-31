@@ -19,8 +19,8 @@ API server (REST based) for the "megam platform". The API server allows the foll
 | **logs\:node_id**    |    GET
 
 The resources are portected using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
-mean when a customer is onboarded a shared key is generated in stored in a datasource. [Riak](http:\\basho.com) is 
-used as the datastore to onboard a customer.
+mean when a customer is onboarded a shared key is generated in stored in a datasource. 
+[Riak](http:\\basho.com) is used as the datastore to onboard a customer.
  
 For future reading, 
 * [megam_api](https:\\github.com\indykish\megam_api.git)
@@ -84,8 +84,21 @@ This is interfaced from megam_api ruby [megam_api](https://github.com/indykish/m
 > Run behind nginx server, load balanced.
 
 > Riak datastore is clustered.
-   
 
+#### DEB Package using sbt.
+
+The package structure shall be as per the debian guidelines. This uses sbt-native-packager plugin.
+
+> sbt clean compile stage
+
+> sbt debian:package-bin
+
+Generates the .deb package for this project.
+
+> sbt debian:lintian
+
+Generates the .deb file and runs the lintian command to look for issues in the package. Useful for debugging.
+   
 
 We are glad to help if you have questions, or request for new features..
 
