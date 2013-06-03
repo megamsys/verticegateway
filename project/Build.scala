@@ -47,7 +47,8 @@ object ApplicationBuild extends Build {
   val main = play.Project(appName, appVersion, appDependencies).settings(       
       sbt.Keys.resolvers += "Sonatype Snapshots"  at "https://oss.sonatype.org/content/repositories/snapshots",
       sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-      sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
+      sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots",
+      sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com"   
       // Add your own project settings here      
   )
   
