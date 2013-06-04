@@ -7,9 +7,10 @@ API server (REST based) for the "megam platform". The API server allows the foll
 
 |                      |            |
 |:---------------------|:-----------|
-| **auth**       	   |    GET
+| **auth**       	   |    POST
 | 			     	   | 
 | **accounts**    	   |    GET
+| **accounts\content   |	POST
 | 			     	   | 
 | **nodes**     	   |    GET
 | **nodes\:node_id**   |    GET
@@ -18,8 +19,9 @@ API server (REST based) for the "megam platform". The API server allows the foll
 | **logs**             |    GET
 | **logs\:node_id**    |    GET
 
-The resources are portected using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
-mean when a customer is onboarded a shared key is generated in stored in a datasource. 
+The resources are protected using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
+mean when a customer is onboarded a shared key is generated in stored in a datasource.
+ 
 [Riak](http:\\basho.com) is used as the datastore to onboard a customer.
  
 For future reading, 
@@ -37,68 +39,101 @@ For future reading,
 [Erlang R15B01](http://www.erlang.org/)
 
 
-#### Tested on Ubuntu 13.04, AWS - EC2
+### Tested on Ubuntu 13.04, AWS - EC2
 
 ## Usage
 
-At the minimum you need a riak bucket changed in the conf\application.conf file.
+### Configuration
 
-```json
+* Create a bucket in Riak named `megam-prov`
 
-# Riak
-# ~~~~~
-riak.url="http://localhost:8690/bucket"
+```
+riak start
+
+ps aux | grep riak
+
+curl -v http://localhost:8098/riak/megam-prov
+
+```
+
+* Insert sanbox data  as below in riak into 
+
+  key `content1` to perform auth verification. The key is `content` plus an unique id `1` generated automatically. 
+
+email:`sandy@megamsandbox.com`, api_key:`IamAtlas{74}NobodyCanSeeME#07`, authority: `user` 
+
+```
+
+curl -v -XPUT -d '{"id":"1","email":"sandy@megamsandbox.com", "api_key":"IamAtlas{74}NobodyCanSeeME#07","authority":"user"}' -H "Content-Type: application/json" http://localhost:8098/riak/accounts/content1         
+
+
+curl http://localhost:8098/riak/accounts/content1
+
+{"id":"1","email":"sandy@megamsandbox.com", "api_key":"IamAtlas{74}NobodyCanSeeME#07","authority":"user"}
 
 
 ```
 
+* Update the conf\application.conf file with the `riak.url` 
 
-### Running megam_play
+```json
+
+## Riak
+## ~~~~~
+riak.url="http://localhost:8690/megam-prov"
+
+
+```
+ 
+### Running megam_play (dev)
 
 Before your run it,
 
 * RabbitMQ Server is running
 
-
 * Riak is running
+
+###
+
 
 ### Testing (localhost)
 
-> git clone https://github.com/indykish/megam_play.git
+* git clone https://github.com/indykish/megam_play.git
 
-> sbt
+* sbt
 
-> play run
+* play run
 
 Open another terminal
 
-> sbt test
+* sbt test
 
 This is interfaced from megam_api ruby [megam_api](https://github.com/indykish/megam_api.git) 
 
 
 ### Production (`api.megam.co` in our case)
 
-* Chef cookbooks used at megam * coming soon. [megamn chef-repo](https://github.com/indykish/chef-repo)
+* Chef cookbooks used at megam [megam chef-repo](https://github.com/indykish/chef-repo)
 
-> Run behind nginx server, load balanced.
+* Run behind nginx server, load balanced.
 
-> Riak datastore is clustered.
+* Riak datastore is clustered.
 
 #### DEB Package using sbt.
 
 The package structure shall be as per the debian guidelines. This uses sbt-native-packager plugin.
 
-> sbt clean compile stage
+* sbt clean compile stage
 
-> sbt debian:package-bin
+* sbt debian:package-bin
 
 Generates the .deb package for this project.
 
-> sbt debian:lintian
+* sbt debian:lintian
 
-Generates the .deb file and runs the lintian command to look for issues in the package. Useful for debugging.
-   
+Generates the .deb file and runs the lintian command to look for issues in the package. 
+
+Once the megam_play_<v>.deb is built, its stored in S3 using [sbt-s3](https://github.com/sbt/sbt-s3)   
 
 We are glad to help if you have questions, or request for new features..
 
@@ -106,9 +141,7 @@ We are glad to help if you have questions, or request for new features..
 
 #### TO - DO
 
-* Cookbook for megam_play which runs behind - in progress [nginx](http://nginx.org)
-
-* Interface to megam_common to utilize RabbitMQ
+* Interface to megam_api (ruby API)
 
 	
 # License
@@ -116,7 +149,7 @@ We are glad to help if you have questions, or request for new features..
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
 | **Author:**          | Rajthilak (<rajthilak@megam.co.in>)
-|		       | KishorekumarNeelamegam (<nkishore@megam.co.in>)
+|		       	       | KishorekumarNeelamegam (<nkishore@megam.co.in>)
 | **Copyright:**       | Copyright (c) 2012-2013 Megam Systems.
 | **License:**         | Apache License, Version 2.0
 
