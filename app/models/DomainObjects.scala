@@ -19,8 +19,8 @@ import scalaz._
 import Scalaz._
 import scalaz.effect.IO
 import com.stackmob.scaliak._
-import org.slf4j.LoggerFactory
 import play.api._
+import play.api.Logger
 import play.api.mvc._
 import com.basho.riak.client.raw.http.HTTPClientAdapter
 import play.api.libs.json.Json
@@ -29,18 +29,26 @@ import play.api.libs.json.JsString
  * @author ram
  *
  */
+
 case class Domain(key: String, value: String)
+
 object DomainObjects {
+
+  val app = play.api.Play.current
+
+  
+  val riakurl = play.api.Play.application(app).configuration.getString("riak.url") match {
+      case Some(s) => s
+      case None    => "?"
+    }
 
   implicit val domainConverter: ScaliakConverter[Domain] = ScaliakConverter.newConverter[Domain](
     (o: ReadObject) => new Domain(o.key, o.stringValue).successNel,
     (o: Domain) => WriteObject(o.key, o.value.getBytes))
 
-  private lazy val logger = LoggerFactory.getLogger(getClass)
-
   //Create the scaliak client from riak
   def clientCreate(): ScaliakClient = {
-    val client = Scaliak.httpClient("http://127.0.0.1:8098/riak")
+    val client = Scaliak.httpClient(riakurl)
     client
   }
 
@@ -75,7 +83,7 @@ object DomainObjects {
     val fetchResult: ValidationNel[Throwable, Option[Domain]] = bucket.fetch(key).unsafePerformIO()
     fetchResult match {
       case Success(mbFetched) => {
-        logger.debug(mbFetched some { v => v.key + ":" + v.value } none { "did not find key" })
+        Logger.debug(mbFetched some { v => v.key + ":" + v.value } none { "did not find key" })
         mbFetched
       }
       case Failure(es) => throw es.head
@@ -84,11 +92,11 @@ object DomainObjects {
 
   def printFetchRes(v: ValidationNel[Throwable, Option[Domain]]): IO[Unit] = v match {
     case Success(mbFetched) => {
-      logger.debug(
+      Logger.debug(
         mbFetched some { "fetched: " + _.toString } none { "key does not exist" }).pure[IO]
     }
     case Failure(es) => {
-      (es.foreach(e => logger.warn(e.getMessage))).pure[IO]
+      (es.foreach(e => Logger.warn(e.getMessage))).pure[IO]
     }
   }
 

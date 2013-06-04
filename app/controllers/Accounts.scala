@@ -27,21 +27,26 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 
 /*
- * this controller for HMAC authentication and access riak
+ * This controller performs HMAC authentication and access riak
  * If HMAC authentication is true then post or list the accounts are executed
  *  
  */
 object Accounts extends Controller with HMACElement with SourceElement {
+  
+  //This ain't the rightway, but we'll move to use snowflake.
+  val counter = new AtomicInteger()
+  
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    val increment = new AtomicInteger()
-    val id = "content" + increment.incrementAndGet()     
+  
+    val id = "content" + counter.incrementAndGet()     
     models.Accounts.put("accounts", id, input)
-    Ok("Post Action succeeded")
+    
+    Ok("Account created successfully for id" + "with account_id:"+id)
   }
 
 }

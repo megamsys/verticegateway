@@ -19,12 +19,12 @@ package controllers.stack
  * @author rajthilak
  *
  */
-import play.api.mvc.{ Result, Controller }
-import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
-import models._
+import scalaz._
 import play.api._
 import play.api.mvc._
+import models._
 import controllers.stack._
+import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
 /*
  * sub trait for stackable controller,
@@ -43,10 +43,13 @@ trait AuthElement extends StackableController {
      * If HMAC authentication is true, the req send in super class
      * otherwise badrequest return   
      */
-    if (SecurityActions.Authenticated(req))      
-      super.proceed(req)(f)
-    else
-      BadRequest
+
+    SecurityActions.Authenticated(req) match {
+      case Success(msgs) =>
+        BadRequest
+      case Failure(msg) => super.proceed(req)(f)
+    }
+
   }
 
 }
