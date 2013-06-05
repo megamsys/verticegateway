@@ -6,27 +6,25 @@ mean when a customer is onboarded an api_key is generated an stored in a secure 
 
 ### Resources
 
-|                      |            |
-|:---------------------|:-----------|
-| **auth**       	   |    POST
-| 			     	   | 
-| **accounts**    	   |    GET
-| **accounts\content   |	POST
-| 			     	   | 
-| **nodes**     	   |    GET
-| **nodes\:node_id**   |    GET
-| **nodes\content**    |    POST
-|		 		       | 
-| **logs**             |    GET
-| **logs\:node_id**    |    GET
+|                      |            |                                             |
+|:---------------------|:-----------|---------------------------------------------|
+| **auth**       	   |    POST    | Verifies auth (for an email/api_key combo)  |
+| 			     	   |            |                                             |
+| **accounts**    	   |    GET     | List details of an account by email         |  
+| **accounts\content** |	POST    | Onboard a new account using email/api_key   |
+| 			     	   |            |                                             |
+| **nodes**     	   |    GET     | List all the nodes list by node_id per email|
+| **nodes\:node_id**   |    GET     | Show the detail of an node per email        |
+| **nodes\content**    |    POST    | Onboard a new node per email                |
+|		 		       |            |                                             |
+| **logs**             |    GET     | Show all the logs per email                 |
+| **logs\:node_id**    |    GET     | Show the log by node_id                     |
 
  
-[Riak](http:\\basho.com) is used as the datastore to onboard a customer.
- 
 For future reading, 
-* [megam_api](https:\\github.com\indykish\megam_api.git)
-* [docs.megam.co](http:\\docs.megam.co)
-* [slideshare - indykish](https:\\slideshare.net\indykish)
+* [megam_api](https://github.com/indykish/megam_api.git)
+* [docs.megam.co](http://docs.megam.co)
+* [slideshare - indykish](https://slideshare.net/indykish)
 
 
 ### Requirements
@@ -43,6 +41,9 @@ For future reading,
 ## Usage
 
 ### Configuration
+
+[Riak](http://basho.com) is used as the datastore to onboard a customer.
+
 
 * Create a bucket in Riak named `megam-prov`
 
