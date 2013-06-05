@@ -2,7 +2,12 @@ megam_play
 ==========
 
 API server (REST based) for the "megam platform". The API server protectes the resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
-mean when a customer is onboarded an api_key is generated an stored in a secure datasource.. 
+mean when a customer is onboarded an api_key is generated an stored in a secure datasource.
+
+[![Build Status](https://travis-ci.org/indykish/megam_play.png)](https://travis-ci.org/indykish/megam_play)
+
+Launching soon. For early access [register at:](http://www.megam.co)
+ 
 
 ### Resources
 
@@ -141,6 +146,7 @@ We are glad to help if you have questions, or request for new features..
 
 #### TO - DO
 
+* Upload built deb bundles to S3.
 * Interface to [megam_api - ruby](https://github.com/indykish/megam_api.git) , [Rail App](https://github.com/indykish/nilavu.git) and
   [CLI - Pug](https://github.com/indykish/meggy.git)
 
