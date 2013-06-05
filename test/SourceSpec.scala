@@ -61,8 +61,8 @@ class SourceSpec extends Specification {
     val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
 
     //this is request headers and body http content type's    
-    val contentType = "application/vnd.geo.comment+json"
-
+    //val contentType = "application/vnd.geo.comment+json"
+     val contentType = "application/json"
     //get the current date and change date format  
     val formatString = "yyy-MM-dd HH:mm"
     val cal = Calendar.getInstance
@@ -72,8 +72,8 @@ class SourceSpec extends Specification {
     private final val SECRET = "secret"
 
     //content added to RawBody with encode at default UTF8  
-    protected val body = RawBody(contentToEncode)
-
+    protected val body = RawBody(contentToEncode)   
+    
     val contentMd5 = calculateMD5(contentToEncode)
 
     // create the string that we'll have to sign   

@@ -83,6 +83,7 @@ class HMACSpec extends Specification {
 
     //set Headers using hmac, date and content type 
     val userHMAC = "chris@example.com:" + hmac
+    
     protected val headers = Headers("content-type" -> "application/vnd.geo.comment+json",
       "hmac" -> userHMAC,
       "date" -> currentDate)

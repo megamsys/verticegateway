@@ -150,7 +150,7 @@ object SecurityActions {
         val headerParts = x.split(":");
 
         // Retrieve all the headers we're going to use, we parse the complete 
-        // content-type header, since our client also does this
+        // content-type header, since our client also does this        
         val input = List(
           req.headers.get(DATE_HEADER),
           req.path,
