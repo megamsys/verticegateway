@@ -1,7 +1,8 @@
 megam_play
 ==========
 
-API server (REST based) for the "megam platform". The API server allows the following resources. 
+API server (REST based) for the "megam platform". The API server protectes the resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
+mean when a customer is onboarded an api_key is generated an stored in a secure datasource.. 
 
 ### Resources
 
@@ -19,8 +20,6 @@ API server (REST based) for the "megam platform". The API server allows the foll
 | **logs**             |    GET
 | **logs\:node_id**    |    GET
 
-The resources are protected using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
-mean when a customer is onboarded a shared key is generated in stored in a datasource.
  
 [Riak](http:\\basho.com) is used as the datastore to onboard a customer.
  
@@ -56,11 +55,8 @@ curl -v http://localhost:8098/riak/megam-prov
 
 ```
 
-* Insert sanbox data  as below in riak into 
-
-  key `content1` to perform auth verification. The key is `content` plus an unique id `1` generated automatically. 
-
-email:`sandy@megamsandbox.com`, api_key:`IamAtlas{74}NobodyCanSeeME#07`, authority: `user` 
+* Insert sanbox data  as below in riak. The key is `content` plus an unique id `1` generated automatically. 
+  email:`sandy@megamsandbox.com`, api_key:`IamAtlas{74}NobodyCanSeeME#07`, authority: `user` 
 
 ```
 
@@ -123,15 +119,18 @@ This is interfaced from megam_api ruby [megam_api](https://github.com/indykish/m
 
 The package structure shall be as per the debian guidelines. This uses sbt-native-packager plugin.
 
-* sbt clean compile stage
+* `sbt clean compile stage`
 
-* sbt debian:package-bin
+* `sbt debian:package-bin`
 
 Generates the .deb package for this project.
 
-* sbt debian:lintian
+* `sbt debian:package-bin`
 
 Generates the .deb file and runs the lintian command to look for issues in the package. 
+
+* `sbt debian:package-lintian`
+
 
 Once the megam_play_<v>.deb is built, its stored in S3 using [sbt-s3](https://github.com/sbt/sbt-s3)   
 
@@ -141,7 +140,8 @@ We are glad to help if you have questions, or request for new features..
 
 #### TO - DO
 
-* Interface to megam_api (ruby API)
+* Interface to [megam_api - ruby](https://github.com/indykish/megam_api.git) , [Rail App](https://github.com/indykish/nilavu.git) and
+  [CLI - Pug](https://github.com/indykish/meggy.git)
 
 	
 # License
