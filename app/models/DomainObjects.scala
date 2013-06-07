@@ -22,11 +22,7 @@ import com.stackmob.scaliak._
 import play.api._
 import play.api.Logger
 import play.api.mvc._
-import com.basho.riak.client.raw.http.HTTPClientAdapter
-import play.api.libs.json.Json
-import play.api.libs.json.JsString
 
-import com.github.nscala_time.time.Imports._
 /**
  * @author ram
  *
@@ -36,13 +32,7 @@ case class Domain(key: String, value: String)
 
 object DomainObjects {
 
-  val app = play.api.Play.current
-
-  
-  val riakurl = play.api.Play.application(app).configuration.getString("riak.url") match {
-      case Some(s) => s
-      case None    => "?"
-    }
+  val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get 
 
   implicit val domainConverter: ScaliakConverter[Domain] = ScaliakConverter.newConverter[Domain](
     (o: ReadObject) => new Domain(o.key, o.stringValue).successNel,

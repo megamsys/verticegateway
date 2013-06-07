@@ -23,10 +23,7 @@ import play.api._
 import play.api.Logger
 import play.api.mvc._
 import models._
-import scalikejdbc._
-import scalikejdbc.SQLInterpolation._
-import play.api.libs.json.Json
-import play.api.libs.json.JsString
+
 
 /**
  * @author rajthilak
