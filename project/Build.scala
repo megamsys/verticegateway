@@ -20,10 +20,15 @@ object ApplicationBuild extends Build {
    *   (the difference is the double %% after the groupID), sbt will add your project’s Scala version
    *   to the artifact name.
    */
- 
+
   val scalazVersion = "7.0.0"
   val scalaCheckVersion = "1.10.1"
+  val play2AuthVersion = "0.9"
   val specs2Version = "1.14"
+  val jodaTimeVersion = "0.4.2"
+  val postgreSQLVersion = "9.1-901.jdbc4"
+  val liftJsonVersion = "2.0"
+  val megamVersion = "0.1.0-SNAPSHOT"
 
   val appDependencies = Seq(
     javaCore, javaEbean, jdbc, javaJdbc,
@@ -33,24 +38,21 @@ object ApplicationBuild extends Build {
     "org.scalaz" %% "scalaz-iterv" % scalazVersion,
     "com.stackmob" %% "scaliak" % "0.7.0",
     "com.stackmob" %% "newman" % "0.16.0",
-    "jp.t2v" %% "play2.auth" % "0.9",
-    "jp.t2v" %% "play2.auth.test" % "0.9" % "test",
+    "jp.t2v" %% "play2.auth" % play2AuthVersion,
+    "jp.t2v" %% "play2.auth.test" % play2AuthVersion % "test",
     "com.rabbitmq" % "amqp-client" % "3.0.4",
-    "com.github.seratch" %% "scalikejdbc" % "1.5.2",
-    "com.github.seratch" %% "scalikejdbc-play-plugin" % "1.5.2",
-    "com.github.seratch" %% "scalikejdbc-interpolation" % "1.5.2",
-    "postgresql" % "postgresql" % "9.1-901.jdbc4",
+    "com.github.nscala-time" %% "nscala-time" % jodaTimeVersion,    
+    "postgresql" % "postgresql" % postgreSQLVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",
-    "net.liftweb" % "lift-json" % "2.0",
-    "com.github.indykish" % "megam_common_2.10" % "0.1.0-SNAPSHOT")
-  val main = play.Project(appName, appVersion, appDependencies).settings(       
-      sbt.Keys.resolvers += "Sonatype Snapshots"  at "https://oss.sonatype.org/content/repositories/snapshots",
-      sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-      sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots",
-      sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com"   
-      // Add your own project settings here      
-  )
-  
+    "net.liftweb" % "lift-json" % liftJsonVersion,
+    "com.github.indykish" % "megam_common_2.10" % megamVersion)
+    
+  val main = play.Project(appName, appVersion, appDependencies).settings(
+    sbt.Keys.resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+    sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+    sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots",
+    sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com" // Add your own project settings here      
+    )
 
 }

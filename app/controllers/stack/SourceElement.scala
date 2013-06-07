@@ -20,8 +20,6 @@ import models._
 import play.api._
 import play.api.mvc._
 import play.api.mvc.{ Result, Controller }
-import controllers.{ AuthConfigImpl }
-import scalikejdbc._
 import com.stackmob.scaliak.ScaliakClient
 
 /**
@@ -49,8 +47,7 @@ trait SourceElement extends StackableController {
     * db was connected and req return in super class with domainobjectkey and db 
     * otherwise bad request return
     */
-    val db = DomainObjects.clientCreate()
-    db match {
+    DomainObjects.clientCreate() match {
       case db => super.proceed(req.set(DomainObjectKey, db))(f)
       case _  => BadRequest
     }

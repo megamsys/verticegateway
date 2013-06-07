@@ -18,7 +18,7 @@ package controllers
 import play.api._
 import play.api.mvc._
 import models._
-import controllers.stack.HMACElement
+import controllers.stack.APIAuthElement
 import controllers.stack._
 import java.util.concurrent.atomic.AtomicInteger
 /**
@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * If HMAC authentication is true then post or list the accounts are executed
  *  
  */
-object Accounts extends Controller with HMACElement with SourceElement {
+object Accounts extends Controller with APIAuthElement with SourceElement {
   
   //This ain't the rightway, but we'll move to use snowflake.
   val counter = new AtomicInteger()

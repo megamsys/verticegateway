@@ -18,7 +18,7 @@ package controllers
 import play.api._
 import play.api.mvc._
 import models._
-import controllers.stack.HMACElement
+import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
 import java.util.concurrent.atomic.AtomicInteger
@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * If HMAC authentication is true then post or list the nodes are executed
  *  
  */
-object Nodes extends Controller with HMACElement with SourceElement {
+object Nodes extends Controller with APIAuthElement with SourceElement {
 
   /*
    * parse.tolerantText to parse the RawBody 
