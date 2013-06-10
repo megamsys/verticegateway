@@ -15,14 +15,17 @@ packageSummary := "API server (REST based) for the megam platform."
 
 packageDescription in Debian:= "API server (REST based) for the megam platform."
 
+com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
+
+
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
-  (packageMapping((bd / "target/start") -> "/usr/local/megam_play/target/start")
+  (packageMapping((bd / "bin/mp") -> "/usr/local/share/megamplay/bin/mp")
    withUser "root" withGroup "root" withPerms "0755")
 }
 
 linuxPackageMappings <+= (baseDirectory) map { bd =>
   val src = bd / "target/staged"
-  val dest = "/usr/local/megam_play/target/staged"
+  val dest = "/usr/local/share/megamplay/lib"
   LinuxPackageMapping(
     for {
       path <- (src ***).get
@@ -32,12 +35,12 @@ linuxPackageMappings <+= (baseDirectory) map { bd =>
 }
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
-  (packageMapping((bd / "conf/application-production.conf") -> "/usr/local/megam_play/conf/application-production.conf")
+  (packageMapping((bd / "conf/application-production.conf") -> "/usr/local/share/megamplay/conf/application-production.conf")
    withConfig())
 }
 
-com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 
+ 
 com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbtVersion) apply { (v, sv) =>
   sv + "-build-" + (v split "\\." map (_.toInt) dropWhile (_ == 0) map ("%02d" format _) mkString "")
 }

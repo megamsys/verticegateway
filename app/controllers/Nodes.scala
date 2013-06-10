@@ -75,6 +75,7 @@ object Nodes extends Controller with HMACElement with SourceElement {
     val result = models.Nodes.findById("accounts", "content1")
     result match {
       case Some(node) => {
+        println("Nodes page succeeded=====================")
         Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
       }
       case None =>

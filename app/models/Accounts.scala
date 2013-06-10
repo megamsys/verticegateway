@@ -19,8 +19,8 @@ import scalaz._
 import Scalaz._
 import scalaz.effect.IO
 import com.stackmob.scaliak._
-import org.slf4j.LoggerFactory
 import play.api._
+import play.api.Logger
 import play.api.mvc._
 import models._
 import scalikejdbc._
@@ -57,7 +57,7 @@ object Accounts {
   def findById(source: ScaliakClient, bucketName: String, key: String): Option[Domain] = {
     val bucket = bucketCreate(source, bucketName)
     val fetch = DomainObjects.fetch(bucket, key)
-    println("Fetched Value.............:" + fetch)
+    Logger.debug("Fetched (%s) => %s".format(bucketName, fetch))
     fetch
   }
 

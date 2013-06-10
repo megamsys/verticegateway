@@ -26,14 +26,14 @@ import play.api.Play._
  */
 object MessageObjects {
 
-  trait TestContext {
+  trait MessageContext {
 
     /*
      * play.api.Play.current to get the current configuration
      * getString() method return the current configuration file value
      */
     val app = play.api.Play.current
-    val url = play.api.Play.application(app).configuration.getString("amqp.url")
+
     val uris = show(play.api.Play.application(app).configuration.getString("amqp.url"))
     val exchange_name = show(play.api.Play.application(app).configuration.getString("amqp.global.exchange"))
     val queue_name = show(play.api.Play.application(app).configuration.getString("amqp.global.conf.queue"))
@@ -70,7 +70,7 @@ object MessageObjects {
    * and then to publish the messages
    *  
    */
-  case class Publish(messages: String) extends TestContext {
+  case class Publish(messages: String) extends MessageContext {
     println("Run PUB")
     val message1 = Messages("id" -> messages)
     println("------------>" + message1)
