@@ -18,6 +18,7 @@ package controllers.stack
 import org.megam.common._
 import org.megam.common.amqp._
 import com.typesafe.config._
+import play.api.Logger
 import play.api.Play._
 
 /**
@@ -28,41 +29,23 @@ object MessageObjects {
 
   trait MessageContext {
 
-    /*
-     * play.api.Play.current to get the current configuration
-     * getString() method return the current configuration file value
-     */
-    val app = play.api.Play.current
 
-    val uris = show(play.api.Play.application(app).configuration.getString("amqp.url"))
-    val exchange_name = show(play.api.Play.application(app).configuration.getString("amqp.global.exchange"))
-    val queue_name = show(play.api.Play.application(app).configuration.getString("amqp.global.conf.queue"))
-    val routingKey = "megam_key"
-
-    println("Setting up RabbitMQClient")
+    Logger.debug("Setting up RabbitMQClient")
 
     /*
      * create the RabbitMQ Client using url, exchange name and queue name
      */
-    val client = new RabbitMQClient(uris, exchange_name, queue_name)
+    val client = new RabbitMQClient(MConfig.amqpuri, MConfig.exchange_name, MConfig.queue_name)
 
     /*
      * these was execute Publish or subscribe the messages 
      * 
      */
     protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok) = {
-      println("Executing AMQPRequest")
+      Logger.debug("Executing AMQPRequest")
       val r = t.executeUnsafe
     }
-
-    /*
-     * these method get input option[string] and return string value
-     * 
-     */
-    def show(x: Option[String]) = x match {
-      case Some(s) => s
-      case None    => "?"
-    }
+   
   }
 
   /*
@@ -71,9 +54,8 @@ object MessageObjects {
    *  
    */
   case class Publish(messages: String) extends MessageContext {
-    println("Run PUB")
     val message1 = Messages("id" -> messages)
-    println("------------>" + message1)
-    def succeeds = execute(client.publish(message1, routingKey))
+    Logger.debug("Publishing messagee " + message1)
+    def succeeds = execute(client.publish(message1, MConfig.routing_key))
   }
 }

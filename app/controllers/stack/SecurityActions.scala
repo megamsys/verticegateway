@@ -31,18 +31,17 @@ import java.security.MessageDigest
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
-import net.liftweb.json._
+
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
+
 import com.github.nscala_time.time.Imports._
 
-import models.{ Accounts, DomainObjects }
+import models.{ Accounts }
 
 /**
  * @author rajthilak
  *
  */
-
-case class AccountJson(id: String, email: String, api_key: String, authority: String)
 
 object SecurityActions {
 
@@ -51,17 +50,13 @@ object SecurityActions {
   val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
 
-  implicit val formats = DefaultFormats
 
   /**
-   * Function authenticated takes a function with request attributes. The authenticated
-   * function itself, returns a result.
-   *
    * This Authenticated function will extract information from the request and calculate
-   * an HMAC value. The request is parsed as tolerant text, as content type is application/json, which isn't picked
-   * up by the default body parsers in the controller.
+   * an HMAC value. The request is parsed as tolerant text, as content type is application/json,
+   * which isn't picked up by the default body parsers in the controller.
    * If the header exists then
-   * the string is split on : and the header is parse
+   * the string is split on : and the header is parsed
    * else
    */
   def Authenticated[A](req: RequestWithAttributes[A]): ValidationNel[ResultInError, RawResult] = {
@@ -72,11 +67,7 @@ object SecurityActions {
 
       case Some(x) if x.contains(":") && x.split(":").length == 2 => {
 
-        // first part is username, second part is hash
         val headerParts = x.split(":")
-
-        // Retrieve all the headers we're going to use, we parse the complete 
-        // content-type header, since our client also does this
         val input = List(
           req.headers.get(DATE_HEADER),
           req.path,
@@ -91,38 +82,30 @@ object SecurityActions {
               case _              => a
             }
           }).mkString("\n")
-        
-          Logger.debug("sign         =>" + toSign)
 
-        // use the input to calculate the hmac        
-        // if the supplied value and the received values are equal
-        // return the response from the delegate action, else return
-        // unauthorized           
-        val db = DomainObjects.clientCreate()
-        val authMayBe = models.Accounts.findById(db, "accounts", "content1")
-        
-        authMayBe match {
-          case Some(foundAccount) => {
-            val accountParsed = parse(foundAccount.value).extract[AccountJson]
-            
-            val calculatedHMAC = calculateHMAC(accountParsed.api_key, toSign)
-            
-            Logger.debug("A :%-20s B :%-20s C :%-20s".format(calculatedHMAC,accountParsed.api_key,headerParts(1)))
-            
+        Logger.debug(("-%20s  -->[%s]").format("input header", toSign))
+
+        Accounts.findByEmail(headerParts(1)) match {
+          case Success(optAcc) => {
+            val foundAccount = optAcc.get
+            val calculatedHMAC = calculateHMAC(foundAccount.api_key, toSign)
+
+            Logger.debug("A :%-20s B :%-20s C :%-20s".format(calculatedHMAC, foundAccount.api_key, headerParts(1)))
+
             if (calculatedHMAC === headerParts(1)) {
-              Validation.success[ResultInError, RawResult](RawResult(1,Map[String,String](
-                  "id" -> accountParsed.id,
-                   "api_key" -> accountParsed.email,
-                   "access_timestamp" -> DateTime.now.toString))).toValidationNel
+              Validation.success[ResultInError, RawResult](RawResult(1, Map[String, String](
+                "id" -> foundAccount.id,
+                "api_key" -> foundAccount.email,
+                "created_at" -> DateTime.now.toString))).toValidationNel
             } else {
               Validation.failure[ResultInError, RawResult](ResultInError(UNAUTHORIZED,
                 """Authorization failure for 'email:' HMAC doesn't match: '%s'
             |
             |Please verify your email and api_key  combination. This  needs to  appear  as-is  during onboarding
-            |from the megam.co webiste. If this error persits, ask for help on the forums.""".format(accountParsed.email).stripMargin + "\n ")).toValidationNel
+            |from the megam.co webiste. If this error persits, ask for help on the forums.""".format(foundAccount.email).stripMargin + "\n ")).toValidationNel
             }
           }
-          case None => {
+          case Failure(err) => {
             Validation.failure[ResultInError, RawResult](ResultInError(FORBIDDEN,
               """Autorization failure for 'email:' Couldn't locate the 'email':'
             |
@@ -149,7 +132,7 @@ object SecurityActions {
     Logger.debug("body content =>" + content)
     val digest = MessageDigest.getInstance(MD5)
     digest.update(content.getBytes())
-    Logger.debug("body digest  =>" + digest)
+    Logger.debug(("-%20s  -->[%s]").format("body digest md5", digest))
     new String(Base64.encodeBase64(digest.digest()))
   }
 
@@ -161,7 +144,16 @@ object SecurityActions {
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
+    Logger.debug(("-%20s  -->[%s] = %s").format("raw hmac", rawHmac,dumpBytes("0X",Some(rawHmac))))
     new String(Base64.encodeBase64(rawHmac))
+  }
+  
+  private def dumpBytes(title: String, bytesOpt: Option[Array[Byte]]) = {
+    val b: Array[String] = (bytesOpt match {
+      case Some(bytes) => bytes.map(byt => ("00" + (byt & 0XFF).toHexString).drop(2).toUpperCase)
+      case None        => Array(0X00.toHexString)
+    })
+    b.mkString(title+"["," ","]")    
   }
 
 }   

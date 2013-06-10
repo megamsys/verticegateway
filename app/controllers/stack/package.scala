@@ -19,7 +19,6 @@ import scalaz._
 import scalaz.NonEmptyList
 import Scalaz._
 
-
 /*
  * @author ram
  *
@@ -28,18 +27,18 @@ package object stack {
 
   val DEFAULT_MSG = ""
 
-  type RawResult = (Int, Option[Map[String,String]])
+  type RawResult = (Int, Option[Map[String, String]])
 
   object RawResult {
-    def apply(Id: Int, results: Map[String,String]) = (Id, results.some)
+    def apply(Id: Int, results: Map[String, String]) = (Id, results.some)
   }
 
   type ResultInError = Option[(Int, String)]
-//  type ResultInErrorList = NonEmptyList[(Int, Option[String])]
-  
+  //  type ResultInErrorList = NonEmptyList[(Int, Option[String])]
+
   object ResultInError {
 
-    def apply[C](m: (Int, String)): ResultInError = m.some    
+    def apply[C](m: (Int, String)): ResultInError = m.some
 
   }
 

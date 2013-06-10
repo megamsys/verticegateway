@@ -15,13 +15,15 @@
 */
 package controllers
 
+import scalaz._
+import Scalaz._
+
 import play.api._
 import play.api.mvc._
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
-import java.util.concurrent.atomic.AtomicInteger
 /**
  * @author ram
  *
@@ -40,20 +42,19 @@ object Nodes extends Controller with APIAuthElement with SourceElement {
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-   val increment = new AtomicInteger()
-    val id = "content" + increment.incrementAndGet() 
-    models.Nodes.put("megam", id, input)
+    models.Nodes.create("key1", input)
     Ok("Post Action succeeded")
   }
 
   def create = StackAction(parse.tolerantText) { implicit request =>
-    val result = models.Nodes.findById("megam", "content1")
+    val result = models.Nodes.findByEmail("email@id")
     result match {
-      case Some(node) => {
-        MessageObjects.Publish(node.key).succeeds
-        Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
+      case Success(node) => {
+        //    MessageObjects.Publish(node.key).succeeds
+        //   Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
+        Ok("Nodes Not Implemented.")
       }
-      case None =>
+      case Failure(node) =>
         Ok("Key not Found")
     }
   }
@@ -72,12 +73,12 @@ object Nodes extends Controller with APIAuthElement with SourceElement {
    * 
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    val result = models.Nodes.findById("accounts", "content1")
+    val result = models.Nodes.findById("content1")
     result match {
-      case Some(node) => {
-        Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
+      case Success(node) => {
+        Ok("Nodes Page succeeded ========>")
       }
-      case None =>
+      case Failure(node) =>
         Ok("Key not Found")
     }
   }

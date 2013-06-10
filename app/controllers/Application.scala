@@ -32,13 +32,11 @@ object Application extends Controller with APIAuthElement {
   }
 
   def authenticate = StackAction(parse.tolerantText) { implicit request =>
-    
-    /*  """Authorization successful for 'email:' api_key matched: '%s'
+    Ok("""Authorization successful for 'email:' api_key matched: '%s'
             |
             |Your email and api_key  combination was verified successully.  Try other API invocation. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(m.email).stripMargin + "\n "
-    */
-    Ok("Autenticated email:" + "dummy" + " with api_key:" + "dummy_apikey" + "successfully.\n" + apiAccessed)
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
+      + "\n" + apiAccessed)
   }
 
 }

@@ -33,20 +33,16 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 object Accounts extends Controller with APIAuthElement with SourceElement {
   
-  //This ain't the rightway, but we'll move to use snowflake.
-  val counter = new AtomicInteger()
+  
   
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-  
-    val id = "content" + counter.incrementAndGet()     
-    models.Accounts.put("accounts", id, input)
-    
-    Ok("Account created successfully for id" + "with account_id:"+id)
+    val input = (request.body).toString()  
+    models.Accounts.create(input)    
+    Ok("Account created successfully for with account_id:"+ input)
   }
 
 }

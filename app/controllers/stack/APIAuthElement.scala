@@ -42,7 +42,7 @@ trait APIAuthElement extends StackableController {
 
   self: Controller =>
 
-  case object APIAccessedKey extends RequestAttributeKey[String]
+  case object APIAccessedKey extends RequestAttributeKey[RawResult]
 
   /**
    * If HMAC authentication is true, the req send in super class
@@ -52,7 +52,7 @@ trait APIAuthElement extends StackableController {
   
   
     SecurityActions.Authenticated(req) match {
-      case Success(rawRes) => super.proceed(req.set(APIAccessedKey, "rawRes.some"))(f)
+      case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {        
         val g = Action { implicit request =>
           SimpleResult(header = ResponseHeader(err.head.get._1, Map(CONTENT_TYPE -> "text/plain")),
@@ -65,7 +65,7 @@ trait APIAuthElement extends StackableController {
     }
   }
 
-  implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): String = req.get(APIAccessedKey).get
+  implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): RawResult = req.get(APIAccessedKey).get
 
 }
 
