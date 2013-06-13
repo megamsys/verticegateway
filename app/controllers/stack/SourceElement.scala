@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import models._
 import play.api._
 import play.api.mvc._
 import play.api.mvc.{ Result, Controller }
-import controllers.{ AuthConfigImpl }
-import scalikejdbc._
-import com.stackmob.scaliak.ScaliakClient
 
 /**
  * @author rajthilak
@@ -40,7 +37,7 @@ trait SourceElement extends StackableController {
 
   self: Controller =>
 
-  case object DomainObjectKey extends RequestAttributeKey[ScaliakClient]
+  case object DomainObjectKey extends RequestAttributeKey[String]
 
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
 
@@ -48,13 +45,13 @@ trait SourceElement extends StackableController {
     * Domain Objects client creation, 
     * db was connected and req return in super class with domainobjectkey and db 
     * otherwise bad request return
-    */
-    val db = DomainObjects.clientCreate()
-    db match {
-      case db => super.proceed(req.set(DomainObjectKey, db))(f)
+    
+    DomainObjects.clientCreate() match {
+      case db => super.proceed(req.set(DomainObjectKey, ""))(f)
       case _  => BadRequest
-    }
+    }*/
+    BadRequest
   }
 
-  implicit def domainImplicit[A](implicit req: RequestWithAttributes[A]): ScaliakClient = req.get(DomainObjectKey).get
+  implicit def domainImplicit[A](implicit req: RequestWithAttributes[A]): String = req.get(DomainObjectKey).get
 }

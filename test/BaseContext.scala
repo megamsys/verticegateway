@@ -34,14 +34,14 @@ import org.apache.commons.codec.binary.Base64
 import com.stackmob.newman._
 import java.util.Calendar
 import java.text.SimpleDateFormat
-
+import OutputA._;
 
 trait BaseContext {
 
   val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
   val sandbox_secret="IamAtlas{74}NobodyCanSeeME#07"
-  val sandbox_email ="sandy@megamsanbox.com"
+  val sandbox_email ="sandy@megamsandbox.com"
     
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
     override def apply[S <: Headers](r: Expectable[S]): MatchResult[S] = {
@@ -78,12 +78,13 @@ trait BaseContext {
     SpecsFailure("JSON errors occurred: %s".format(totalErrString))
   }
 
-  protected def calculateHMAC(secret: String, data: String): String = {
-    val signingKey = new SecretKeySpec(secret.getBytes(), HMACSHA1)
+ private def calculateHMAC(secret: String, toEncode: String): String = {
+    val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
-    val rawHmac = mac.doFinal(data.getBytes())
-    new String(Base64.encodeBase64(rawHmac))
+    val rawHmac = mac.doFinal(toEncode.getBytes())   
+   val test = dumpBytes(rawHmac.some)
+    test
   }
 
   protected def calculateMD5(content: String): String = {
@@ -112,3 +113,14 @@ trait BaseContext {
       "date" -> currentDate), RawBody(contentToEncode))
   }
 }
+
+object OutputA {
+  def dumpBytes(bytesOpt: Option[Array[Byte]]) = {
+    val b: Array[String] = (bytesOpt match {
+      case Some(bytes) => bytes.map(byt => (("00" + (byt &
+        0XFF).toHexString)).takeRight(2))
+      case None => Array(0X00.toHexString)
+    })
+    b.mkString("")
+  } 
+}   

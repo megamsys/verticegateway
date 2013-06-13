@@ -14,24 +14,35 @@
 ** limitations under the License.
 */
 package controllers
-import play.api._
-import play.api.mvc._
-import models._
-import controllers.stack.{APIAuthElement, SourceElement}
-import controllers.stack._
 
-/**
+import scalaz._
+import scalaz.NonEmptyList
+import Scalaz._
+
+/*
  * @author ram
  *
  */
-object Logs extends Controller with APIAuthElement with SourceElement {
+package object stack {
 
-  def list = StackAction(parse.tolerantText) { implicit request =>
-    Redirect("http://localhost:7000/streams/syslog")
+  val DEFAULT_MSG = ""
+
+  type RawResult = (Int, Option[Map[String, String]])
+
+  object RawResult {
+    def apply(Id: Int, results: Map[String, String]) = (Id, results.some)
   }
 
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    Redirect("http://localhost:7000/streams/" + id)
+  type ResultInError = Option[(Int, String)]
+  //  type ResultInErrorList = NonEmptyList[(Int, Option[String])]
+
+  object ResultInError {
+
+    def apply[C](m: (Int, String)): ResultInError = m.some
+
   }
 
 }
+
+
+

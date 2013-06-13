@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -17,56 +17,67 @@ package models
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import com.stackmob.scaliak._
+import scalaz.NonEmptyList._
 import play.api._
-import play.api.Logger
 import play.api.mvc._
+import net.liftweb.json._
+import controllers.stack.MConfig
+
 import models._
-import scalikejdbc._
-import scalikejdbc.SQLInterpolation._
-import play.api.libs.json.Json
-import play.api.libs.json.JsString
+import org.megam.common.riak.{ GSRiak, GunnySack }
 
 /**
  * @author rajthilak
  *
  */
 
+case class AccountResult(id: String, email: String, api_key: String, authority: String)
+
 object Accounts {
 
-  /*
-   * create the riak source 
-   */
-  def create()(implicit source: ScaliakClient): ScaliakClient = {
-    val client = source
-    client
+  implicit val formats = DefaultFormats
+
+  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
+  val key = "mykey5"
+  def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
+    riak.store(key, input) match {
+      case Success(msg) => Validation.success[Error, Option[AccountResult]](None).toValidationNel
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Account.create Not Implemented")).toValidationNel
+    }
   }
 
-  /*
-   * connect the existing bucket in riak
-   */
-  def bucketCreate(source: ScaliakClient, bucketName: String): ScaliakBucket = {
-    val bucket = DomainObjects.bucketCreate(source, bucketName)
-    bucket
+  def findById(key: String): ValidationNel[Error, Option[AccountResult]] = {
+    //extract the json into ValidationNel
+    riak.fetch(key) match {
+      case Success(msg) => {
+        println("---------------------------fetch-------" + msg.get)
+        val caseValue = msg.get
+        val json = parse(caseValue.value)
+        val m = json.extract[AccountResult]
+        println("===========" + m)
+        Validation.success[Error, Option[AccountResult]](Some(m)).toValidationNel
+        // parse(msg.value).extract[AccountResult]  
+      }
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Your account is not registered, pls register your account.")).toValidationNel
+    }
   }
 
-  /*
-   * fetch the object using their key from bucket
+  /**
+   * Index on email
    */
-  def findById(source: ScaliakClient, bucketName: String, key: String): Option[Domain] = {
-    val bucket = bucketCreate(source, bucketName)
-    val fetch = DomainObjects.fetch(bucket, key)
-    Logger.debug("Fetched (%s) => %s".format(bucketName, fetch))
-    fetch
+  def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
+    println("----------------------------" + email)
+    riak.fetchIndexByValue(email) match {
+      case Success(msg) => {
+        println("---------------------------fetch-------" + msg)
+        val key = msg match {
+          case List(x) => x
+        }
+        findById(key)
+      }
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Email is not already exists")).toValidationNel
+    }
   }
 
-  /*
-   * put the value in riak bucket
-   */
-  def put(bucketName: String, key: String, value: String)(implicit source: ScaliakClient) {
-    val bucket = bucketCreate(source, bucketName)
-    DomainObjects.put(source, bucket, key, value)
-    val fetch = DomainObjects.fetch(bucket, key)
-  }
+  //def freq[T](seq: List[T]) = seq.groupBy(x => x).mapValues(_.length)
 }

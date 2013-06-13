@@ -25,15 +25,23 @@ import controllers.stack._
  * @author rajthilak
  *
  */
-object Application extends Controller with AuthElement {
+object Application extends Controller with APIAuthElement {
 
   def index = Action {
     Ok(views.html.index("Your new application is Ready."))
   }
 
   def authenticate = StackAction(parse.tolerantText) { implicit request =>
-    Ok("Autenticated email:" + "dummy" + " with api_key:" + "dummy_apikey" + "successfully.")
+    Logger.info("""Authorization successful for 'email:' api_key matched: '%s'
+            |
+            |Your email and api_key  combination was verified successully.  Try other API invocation. 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
+      + "\n" + apiAccessed)
+    Ok("""Authorization successful for 'email:' api_key matched: '%s'
+            |
+            |Your email and api_key  combination was verified successully.  Try other API invocation. 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
+      + "\n" + apiAccessed)
   }
 
-  
 }

@@ -51,8 +51,8 @@ class SourceSpec extends Specification {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/accounts/content1")
-    val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
+    protected lazy val url = new URL("http://localhost:9000/accounts/content")
+   // val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
 
 
     //val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)

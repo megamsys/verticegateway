@@ -53,15 +53,16 @@ HMACSpec is the implementation that calls the megam_play API server with the /no
     protected lazy val url = new URL("http://localhost:9000/v1/nodes")
 
     //create the contentToEncode as request Body
-    val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"
-
+    //val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"
+    //println("================="+contentToEncode)
     //val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)
     val headerAndBody = sandboxHeaderAndBody(url.getPath)
     protected val headers = headerAndBody._1
     protected val body = headerAndBody._2
 
     protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
-      val r = t.executeUnsafe
+      
+      val r = t.executeUnsafe      
       r.code must beEqualTo(expectedCode) and fn(r)
     }
 

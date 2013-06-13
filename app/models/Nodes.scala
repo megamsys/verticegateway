@@ -17,57 +17,57 @@ package models
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import com.stackmob.scaliak._
-import org.slf4j.LoggerFactory
+
 import play.api._
 import play.api.mvc._
 import models._
-import scalikejdbc._
-import scalikejdbc.SQLInterpolation._
-import play.api.libs.json.Json
-import play.api.libs.json.JsString
-
+import org.megam.common.riak.{ GSRiak }
+import controllers.stack.MConfig
 /**
  * @author ram
  *
  */
 
+case class NodeResult(id: String, acc_id: String, request_id: String)
+
+
 object Nodes {
 
-  /*
-     * create the riak source 
-     */
-  def create()(implicit source: ScaliakClient): ScaliakClient = {
-    val client = source
-    client
-  }
+  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
 
   /*
-   * connect the existing bucket in riak
+   * put the value in riak bucket
    */
-  def bucketCreate(source: ScaliakClient, bucketName: String): ScaliakBucket = {
-    val bucket = DomainObjects.bucketCreate(source, bucketName)
-    bucket
+  def create(key: String, value: String): ValidationNel[Error, Option[NodeResult]] = {
+    riak.store(key, value) match  {
+      case Success(msg) =>     Validation.success[Error, Option[NodeResult]](None).toValidationNel
+      case Failure(err) =>     Validation.failure[Error, Option[NodeResult]](new Error("Node.create: Not Implemented.")).toValidationNel
+
+    }
+
   }
 
   /*
    * fetch the object using their key from bucket
    */
-  def findById(bucketName: String, key: String)(implicit source: ScaliakClient): Option[Domain] = {
-    val bucket = bucketCreate(source, bucketName)
-    val fetch = DomainObjects.fetch(bucket, key)
-    println("Fetched Value.............:" + fetch)
-    fetch
+  def findById(key: String): ValidationNel[Error, Option[NodeResult]] = {
+   riak.fetch(key) match {
+      case Success(msg) =>   Validation.success[Error, Option[NodeResult]](None).toValidationNel 
+      case Failure(err) =>   Validation.failure[Error, Option[NodeResult]](new Error("Node.findById: Not Implemented.")).toValidationNel
+    }
+
+  }
+  
+
+   /**
+   * Index on email
+   */
+  def findByEmail(email: String): ValidationNel[Error, Option[NodeResult]] = {
+    riak.fetchIndexByValue(email)  match {
+      case Success(msg) =>   Validation.success[Error, Option[NodeResult]](None).toValidationNel 
+      case Failure(err) =>   Validation.failure[Error, Option[NodeResult]](new Error("Node.findById: Not Implemented.")).toValidationNel
+    }
   }
 
-  /*
-   * put the value in riak bucket
-   */
-  def put(bucketName: String, key: String, value: String)(implicit source: ScaliakClient) {
-    val bucket = bucketCreate(source, bucketName)
-    DomainObjects.put(source, bucket, key, value)
-    val fetch = DomainObjects.fetch(bucket, key)
-  }
 }
 

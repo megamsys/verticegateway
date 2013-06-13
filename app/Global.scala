@@ -27,12 +27,11 @@ import models._
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
-    Logger.info("Application has started")
-    /*if (Accounts.findAll.isEmpty) {
+    Logger.info("Megam Play %s App - started".format("0.1"))
+   /* if (Accounts.findAll.isEmpty) {
       Seq(
-        Account(1, "admin@node.com", "admin", "secret3", Administrator),
-        Account(2, "bob@example.com", "secret", "Bob", NormalUser),
-        Account(3, "chris@example.com", "secret", "Chris", NormalUser)) foreach Accounts.create
+        Account(1, "sandy@megamsandbox.com", "IAMAtlas{74}NobodyCanSeeME#07", Administrator),
+        Account(2, "sandynorm@megamsandbox.com", "IAMAtlas{74}NobodyCanSeeME#07", NormalUser)) foreach Accounts.create
     }*/
   }
 

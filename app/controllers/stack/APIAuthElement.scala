@@ -16,10 +16,14 @@
 package controllers.stack
 
 import scalaz._
+import Scalaz._
 import scalaz.Validation._
 import play.api._
+import play.api.mvc.Request
+import play.api.Logger
 import play.api.mvc._
-import scalikejdbc.{ DB, DBSession }
+import play.api.libs.iteratee.Enumerator
+
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
 import controllers.stack._
@@ -29,35 +33,39 @@ import models._
  * @author rajthilak
  *
  */
-
 /*
- * sub trait for stackable controller,
- * proceed method was override here for our request changes, 
+ * sub trait for stackable controller, proceed method was override here for our request changes, 
  * And result return in super trait proceed method,
- * when stack action is called then this stackable controller is executed 
- * 
+ * when stack action is called then this stackable controller is executed  
  */
-trait HMACElement extends StackableController {
+trait APIAuthElement extends StackableController {
+
   self: Controller =>
 
-  case object HMACSessionKey extends RequestAttributeKey[(DB, DBSession)]
+  case object APIAccessedKey extends RequestAttributeKey[RawResult]
 
+  /**
+   * If HMAC authentication is true, the req send in super class
+   * otherwise badrequest return
+   */
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-
-    /*
-     * If HMAC authentication is true, the req send in super class
-     * otherwise badrequest return   
-     */
-
+  
+     Logger.debug("loaded........")
     SecurityActions.Authenticated(req) match {
-      case Success(msgs) =>
-        BadRequest
-      case Failure(msg) => super.proceed(req)(f)
+      case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
+      case Failure(err) => {        
+        val g = Action { implicit request =>
+          SimpleResult(header = ResponseHeader(err.head.get._1, Map(CONTENT_TYPE -> "text/plain")),
+            body = Enumerator(err.head.get._2)) 
+        }
+        val origReq = req.asInstanceOf[Request[AnyContent]]
+        g(origReq)        
+      }
+      
     }
-
   }
 
-  implicit def hmacSession[A](implicit req: RequestWithAttributes[A]): DBSession = req.get(HMACSessionKey).get._2 // throw
+  implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): RawResult = req.get(APIAccessedKey).get
 
 }
 

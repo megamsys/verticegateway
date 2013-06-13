@@ -49,7 +49,7 @@ class AuthenticateSpec extends Specification {
     //create htttp client
     val httpClient = new ApacheHttpClient
 
-    protected lazy val url = new URL("http://localhost:9000/v1/auth ")
+    protected lazy val url = new URL("http://localhost:9000/v1/auth")
 
     //create the contentToEncode as request Body
     //val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"
