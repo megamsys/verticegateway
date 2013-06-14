@@ -43,10 +43,10 @@ class HMACSpec extends Specification {
 HMACSpec is the implementation that calls the megam_play API server with the /nodes url to verify HMAC only
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post().succeeds ^
+      "Correctly do GET requests" ! Get().succeeds ^
       end
 
-  trait Context extends BaseContext {
+  trait Context extends BaseContextGet {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
@@ -58,11 +58,11 @@ HMACSpec is the implementation that calls the megam_play API server with the /no
     //val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)
     val headerAndBody = sandboxHeaderAndBody(url.getPath)
     protected val headers = headerAndBody._1
-    protected val body = headerAndBody._2
+    //protected val body = headerAndBody._2
 
     protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
-      
-      val r = t.executeUnsafe      
+
+      val r = t.executeUnsafe
       r.code must beEqualTo(expectedCode) and fn(r)
     }
 
@@ -72,11 +72,10 @@ HMACSpec is the implementation that calls the megam_play API server with the /no
   }
 
   //post the headers and their body for specifing url
-  case class Post() extends Context {
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-    def succeeds = execute(post)(ensureHttpOk(_))
+  case class Get() extends Context {
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)     
+    def succeeds = execute(get)(ensureHttpOk(_))
   }
 }
  

@@ -22,7 +22,9 @@ import play.api._
 import play.api.mvc._
 import net.liftweb.json._
 import controllers.stack.MConfig
-
+import com.stackmob.scaliak._
+import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
+import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import models._
 import org.megam.common.riak.{ GSRiak, GunnySack }
 
@@ -31,7 +33,7 @@ import org.megam.common.riak.{ GSRiak, GunnySack }
  *
  */
 
-case class AccountResult(id: String, email: String, api_key: String, authority: String)
+case class AccountResult(acc_id: String, email: String, api_key: String, authority: String)
 
 object Accounts {
 
@@ -39,8 +41,17 @@ object Accounts {
 
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
   val key = "mykey5"
+
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
-    riak.store(key, input) match {
+
+    val metadataKey = "Field"
+    val metadataVal = "1002"
+    val json = parse(input)
+    val m = json.extract[AccountResult]
+    val bindex = BinIndex.named("email")
+    val bvalue = Set(m.email)
+    val storeValue = riak.store(new GunnySack(key, input, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+    storeValue match {
       case Success(msg) => Validation.success[Error, Option[AccountResult]](None).toValidationNel
       case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Account.create Not Implemented")).toValidationNel
     }
@@ -50,11 +61,9 @@ object Accounts {
     //extract the json into ValidationNel
     riak.fetch(key) match {
       case Success(msg) => {
-        println("---------------------------fetch-------" + msg.get)
         val caseValue = msg.get
         val json = parse(caseValue.value)
         val m = json.extract[AccountResult]
-        println("===========" + m)
         Validation.success[Error, Option[AccountResult]](Some(m)).toValidationNel
         // parse(msg.value).extract[AccountResult]  
       }
@@ -66,10 +75,14 @@ object Accounts {
    * Index on email
    */
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
-    println("----------------------------" + email)
-    riak.fetchIndexByValue(email) match {
+    val metadataKey = "Field"
+    val metadataVal = "1002"
+    val bindex = BinIndex.named("")
+    val bvalue = Set("")
+    val fetchValue = riak.fetchIndexByValue(new GunnySack("email", email, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+
+    fetchValue match {
       case Success(msg) => {
-        println("---------------------------fetch-------" + msg)
         val key = msg match {
           case List(x) => x
         }

@@ -24,7 +24,7 @@ import controllers.stack._
  * @author ram
  *
  */
-object Logs extends Controller with APIAuthElement with SourceElement {
+object Logs extends Controller with APIAuthElement {
 
   def list = StackAction(parse.tolerantText) { implicit request =>
     Redirect("http://localhost:7000/streams/syslog")

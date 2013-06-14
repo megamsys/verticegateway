@@ -47,14 +47,14 @@ class LogSpec extends Specification {
     and gets the log redirected to tap.
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post().succeeds ^
+      "Correctly do POST requests" ! Get().succeeds ^
       end
 
   trait Context extends BaseContext {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/v1/logs/logstashTest")
+    protected lazy val url = new URL("http://localhost:9000/v1/logs")
 
     //create the contentToEncode as request Body
     val contentToEncode = "{\"id\":\"1\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
@@ -75,11 +75,10 @@ class LogSpec extends Specification {
   }
 
   //post the headers and their body for specifing url
-  case class Post() extends Context {
-    private val post = POST(url)(httpClient)
+  case class Get() extends Context {
+    private val get = GET(url)(httpClient)
       .addHeaders(headers)
-      .addBody(body)
-    def succeeds = execute(post)(ensureHttpOk(_))
+    def succeeds = execute(get)(ensureHttpOk(_))
   }
 
 }

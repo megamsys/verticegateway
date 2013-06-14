@@ -39,9 +39,9 @@ object Nodes extends Controller with APIAuthElement {
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
-  def post = StackAction(parse.tolerantText) { implicit request =>
+  def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    models.Nodes.create("key1", input)
+    models.Nodes.create(input)
     Ok("Post Action succeeded")
   }
 
@@ -72,13 +72,27 @@ object Nodes extends Controller with APIAuthElement {
    * 
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    val result = models.Nodes.findByEmail("sandy@megamsanbox.com")    
-    result match {
-      case Success(node) => {       
-        Ok("Nodes Page succeeded ========>")
+    val acc = models.Accounts.findByEmail("sandy@megamsandbox.com")
+    acc match {
+      case Success(optAcc) => {
+        val foundAccount = optAcc.get
+        val result = models.Nodes.findByEmail(foundAccount.acc_id)
+        result match {
+          case Success(optNod) => {
+            val nodClass = optNod.get
+            println("Nodes value---" + nodClass.request_id)
+            Ok("Nodes value---" + nodClass.request_id)
+          }
+          case Failure(err) => {
+            println("Error------" + err)
+            Ok("Error------" + err)
+          }
+        }
       }
-      case Failure(node) =>
-        Ok("Key not Found")
+      case Failure(err1) => {
+        println("Error------" + err1)
+        Ok("Error------" + err1)
+      }
     }
   }
 

@@ -50,7 +50,6 @@ object SecurityActions {
   val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
 
-
   /**
    * This Authenticated function will extract information from the request and calculate
    * an HMAC value. The request is parsed as tolerant text, as content type is application/json,
@@ -61,12 +60,12 @@ object SecurityActions {
    */
   def Authenticated[A](req: RequestWithAttributes[A]): ValidationNel[ResultInError, RawResult] = {
 
-    val sentHmacHeader = req.headers.get(HMAC_HEADER);   
+    val sentHmacHeader = req.headers.get(HMAC_HEADER);
     sentHmacHeader match {
 
       case Some(x) if x.contains(":") && x.split(":").length == 2 => {
 
-       val headerParts = x.split(":")
+        val headerParts = x.split(":")
 
         val input = List(
           req.headers.get(DATE_HEADER),
@@ -84,10 +83,10 @@ object SecurityActions {
           }).mkString("\n")
 
         Logger.debug(("-%20s  -->[%s]").format("input header", toSign))
-        Logger.debug("==============Accounts email fetch=="+headerParts(0)+"----------"+ Accounts.findByEmail(headerParts(0)))
+        Logger.debug("==============Accounts email fetch==" + headerParts(0) + "----------" + Accounts.findByEmail(headerParts(0)))
         Accounts.findByEmail(headerParts(0)) match {
           case Success(optAcc) => {
-            Logger.debug("=====------====="+optAcc)
+            Logger.debug("=====------=====" + optAcc)
             val foundAccount = optAcc.get
             val calculatedHMAC = calculateHMAC(foundAccount.api_key, toSign)
 
@@ -95,7 +94,7 @@ object SecurityActions {
 
             if (calculatedHMAC === headerParts(1)) {
               Validation.success[ResultInError, RawResult](RawResult(1, Map[String, String](
-                "id" -> foundAccount.id,
+                "id" -> foundAccount.acc_id,
                 "api_key" -> foundAccount.email,
                 "created_at" -> DateTime.now.toString))).toValidationNel
             } else {
@@ -145,12 +144,11 @@ object SecurityActions {
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
-    Logger.debug(("-%20s  -->[%s] = %s").format("raw hmac", rawHmac,dumpBytes(Some(rawHmac))))
-   val test = dumpBytes(rawHmac.some)
+    Logger.debug(("-%20s  -->[%s] = %s").format("raw hmac", rawHmac, dumpBytes(Some(rawHmac))))
+    val test = dumpBytes(rawHmac.some)
     test
   }
 }
-  
 
 object OutputA {
   def dumpBytes(bytesOpt: Option[Array[Byte]]) = {
@@ -160,6 +158,6 @@ object OutputA {
       case None => Array(0X00.toHexString)
     })
     b.mkString("")
-  } 
+  }
 }   
  

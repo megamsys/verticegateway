@@ -1,6 +1,5 @@
 /* 
 ** Copyright [2012] [Megam Systems]
-
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -34,15 +33,15 @@ import org.apache.commons.codec.binary.Base64
 import com.stackmob.newman._
 import java.util.Calendar
 import java.text.SimpleDateFormat
-import OutputA._;
+import OutputB._;
 
-trait BaseContext {
 
-  val MD5 = "MD5"
+trait BaseContextGet {
+ val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
-  val sandbox_secret = "IamAtlas{74}NobodyCanSeeME#07"
-  val sandbox_email = "sandy@megamsandbox.com"
-
+  val sandbox_secret="IamAtlas{74}NobodyCanSeeME#07"
+  val sandbox_email ="sandy@megamsandbox.com"
+    
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
     override def apply[S <: Headers](r: Expectable[S]): MatchResult[S] = {
       val other: Headers = r.value
@@ -78,12 +77,12 @@ trait BaseContext {
     SpecsFailure("JSON errors occurred: %s".format(totalErrString))
   }
 
-  private def calculateHMAC(secret: String, toEncode: String): String = {
+ private def calculateHMAC(secret: String, toEncode: String): String = {
     val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
-    val rawHmac = mac.doFinal(toEncode.getBytes())
-    val test = dumpBytes(rawHmac.some)
+    val rawHmac = mac.doFinal(toEncode.getBytes())   
+   val test = dumpBytes(rawHmac.some)
     test
   }
 
@@ -92,12 +91,11 @@ trait BaseContext {
     digest.update(content.getBytes())
     new String(Base64.encodeBase64(digest.digest()))
   }
-
+  
   //protected def sandboxHeaderAndBody(contentToEncode: String, path: String):(Headers, RawBody) = {
-  protected def sandboxHeaderAndBody(path: String): (Headers, RawBody) = {
-    //create the contentToEncode as request Body
-    //val contentToEncode = "{\"acc_id\":\"acc_2\", \"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
-    val contentToEncode = "{\"id\":\"2\",\"acc_id\":\"acc_2\",\"request_id\":\"#07\"}"
+  protected def sandboxHeaderAndBody(path: String):(Headers, RawBody) = {
+     //create the contentToEncode as request Body
+    val contentToEncode = ""
     val contentType = "application/json"
     val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
@@ -115,7 +113,7 @@ trait BaseContext {
   }
 }
 
-object OutputA {
+object OutputB {
   def dumpBytes(bytesOpt: Option[Array[Byte]]) = {
     val b: Array[String] = (bytesOpt match {
       case Some(bytes) => bytes.map(byt => (("00" + (byt &
@@ -123,5 +121,5 @@ object OutputA {
       case None => Array(0X00.toHexString)
     })
     b.mkString("")
-  }
+  } 
 }   
