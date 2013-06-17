@@ -30,7 +30,7 @@ object MessageObjects {
   trait MessageContext {
 
 
-    Logger.debug("Setting up RabbitMQClient")
+    Logger.debug("MessageObjects: Setting up RabbitMQClient")
 
     /*
      * create the RabbitMQ Client using url, exchange name and queue name
@@ -54,8 +54,8 @@ object MessageObjects {
    *  
    */
   case class Publish(messages: String) extends MessageContext {
-    val message1 = Messages("id" -> messages)
-    Logger.debug("Publishing messagee " + message1)
-    def succeeds = execute(client.publish(message1, MConfig.routing_key))
+    val pubMsg = Messages("id" -> messages)
+    Logger.debug("Publishing message " + pubMsg)
+    def succeeds = execute(client.publish(pubMsg, MConfig.routing_key))
   }
 }

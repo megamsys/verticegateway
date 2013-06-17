@@ -49,19 +49,19 @@ trait APIAuthElement extends StackableController {
    * otherwise badrequest return
    */
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-  
-     Logger.debug("loaded........")
+
+    Logger.debug("APIAuthElement :" + req)
     SecurityActions.Authenticated(req) match {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
-      case Failure(err) => {        
+      case Failure(err) => {
         val g = Action { implicit request =>
           SimpleResult(header = ResponseHeader(err.head.get._1, Map(CONTENT_TYPE -> "text/plain")),
-            body = Enumerator(err.head.get._2)) 
+            body = Enumerator(err.head.get._2))
         }
         val origReq = req.asInstanceOf[Request[AnyContent]]
-        g(origReq)        
+        g(origReq)
       }
-      
+
     }
   }
 

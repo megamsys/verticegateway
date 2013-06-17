@@ -27,11 +27,11 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 
 /*
- * This controller performs HMAC authentication and access riak
- * If HMAC authentication is true then post or list the accounts are executed
- *  
+ * This controller performs onboarding a customer and registers an email/api_key 
+ * into riak.
+ *   
  */
-object Accounts extends Controller with APIAuthElement with SourceElement {
+object Accounts extends Controller {
 
   /*
    * parse.tolerantText to parse the RawBody 
