@@ -94,7 +94,7 @@ object SecurityActions {
 
             if (calculatedHMAC === headerParts(1)) {
               Validation.success[ResultInError, RawResult](RawResult(1, Map[String, String](
-                "id" -> foundAccount.acc_id,
+                "id" -> foundAccount.id,
                 "api_key" -> foundAccount.email,
                 "created_at" -> DateTime.now.toString))).toValidationNel
             } else {

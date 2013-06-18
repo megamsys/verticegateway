@@ -23,6 +23,8 @@ import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
+import scalaz.Validation._
+import play.api.mvc.Result
 /**
  * @author ram
  *
@@ -35,13 +37,30 @@ import org.megam.common.amqp._
  */
 object Nodes extends Controller with APIAuthElement {
 
+  val HMAC_HEADER = "hmac"
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    models.Nodes.create(input)
+    val sentHmacHeader = request.headers.get(HMAC_HEADER);
+    val email: String = sentHmacHeader match {
+      case Some(x) if x.contains(":") && x.split(":").length == 2 => {
+        val headerParts = x.split(":")
+        headerParts(0)
+      }
+      case _ =>  ""
+    }
+    val id = models.Accounts.findByEmail(email) match {
+      case Success(optAcc) => {
+        val foundAccount = optAcc.get
+        foundAccount.id
+      }
+      case Failure(_) => ""
+    }
+    println("+++++++++++++++++++++++++++++"+id)
+    models.Nodes.create(input, id)
     Ok("Post Action succeeded")
   }
 
@@ -76,12 +95,12 @@ object Nodes extends Controller with APIAuthElement {
     acc match {
       case Success(optAcc) => {
         val foundAccount = optAcc.get
-        val result = models.Nodes.findByEmail(foundAccount.acc_id)
+        val result = models.Nodes.findByEmail(foundAccount.id)
         result match {
           case Success(optNod) => {
             val nodClass = optNod.get
-            println("Nodes value---" + nodClass.request_id)
-            Ok("Nodes value---" + nodClass.request_id)
+            println("Nodes value---" + nodClass.acc_id)
+            Ok("Nodes value---" + nodClass.acc_id)
           }
           case Failure(err) => {
             println("Error------" + err)

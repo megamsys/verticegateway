@@ -96,8 +96,8 @@ trait BaseContext {
   //protected def sandboxHeaderAndBody(contentToEncode: String, path: String):(Headers, RawBody) = {
   protected def sandboxHeaderAndBody(path: String): (Headers, RawBody) = {
     //create the contentToEncode as request Body
-    //val contentToEncode = "{\"acc_id\":\"acc_2\", \"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
-    val contentToEncode = "{\"id\":\"2\",\"acc_id\":\"acc_2\",\"request_id\":\"#07\"}"
+    //val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"                          
+    val contentToEncode = "{\"command\":\"commands\",\"predefs\":{\"rails\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
     val contentType = "application/json"
     val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
