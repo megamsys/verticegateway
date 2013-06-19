@@ -50,14 +50,11 @@ class LogSpec extends Specification {
       "Correctly do POST requests" ! Get().succeeds ^
       end
 
-  trait Context extends BaseContext {
+  trait Context extends BaseContextGet {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/v1/logs")
-
-    //create the contentToEncode as request Body
-    val contentToEncode = "{\"id\":\"1\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
+    protected lazy val url = new URL("http://localhost:9000/v1/logs")   
 
    // val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)
     val headerAndBody = sandboxHeaderAndBody(url.getPath)

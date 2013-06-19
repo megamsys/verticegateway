@@ -35,13 +35,12 @@ import java.util.Calendar
 import java.text.SimpleDateFormat
 import OutputB._;
 
-
 trait BaseContextGet {
- val MD5 = "MD5"
+  val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
-  val sandbox_secret="IamAtlas{74}NobodyCanSeeME#07"
-  val sandbox_email ="sandy@megamsandbox.com"
-    
+  val sandbox_secret = "IamAtlas{74}NobodyCanSeeME#07"
+  val sandbox_email = "sandy@megamsandbox.com"
+
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
     override def apply[S <: Headers](r: Expectable[S]): MatchResult[S] = {
       val other: Headers = r.value
@@ -77,12 +76,12 @@ trait BaseContextGet {
     SpecsFailure("JSON errors occurred: %s".format(totalErrString))
   }
 
- private def calculateHMAC(secret: String, toEncode: String): String = {
+  private def calculateHMAC(secret: String, toEncode: String): String = {
     val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
-    val rawHmac = mac.doFinal(toEncode.getBytes())   
-   val test = dumpBytes(rawHmac.some)
+    val rawHmac = mac.doFinal(toEncode.getBytes())
+    val test = dumpBytes(rawHmac.some)
     test
   }
 
@@ -91,14 +90,14 @@ trait BaseContextGet {
     digest.update(content.getBytes())
     new String(Base64.encodeBase64(digest.digest()))
   }
-  
+
   //protected def sandboxHeaderAndBody(contentToEncode: String, path: String):(Headers, RawBody) = {
-  protected def sandboxHeaderAndBody(path: String):(Headers, RawBody) = {
-     //create the contentToEncode as request Body
+  protected def sandboxHeaderAndBody(path: String): (Headers, RawBody) = {
+    //create the contentToEncode as request Body
     val contentToEncode = ""
     val contentType = "application/json"
     val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
-
+    val accept = "application/vnd.megam+json"
     // create the string that we'll have to sign   
     val signWithHMAC = currentDate + "\n" + path + "\n" + calculateMD5(contentToEncode)
 
@@ -108,8 +107,9 @@ trait BaseContextGet {
     //set Headers using hmac, date and content type 
     val finalHMAC = sandbox_email + ":" + signedWithHMAC
     (Headers("content-type" -> contentType,
-      "hmac" -> finalHMAC,
-      "date" -> currentDate), RawBody(contentToEncode))
+      "X-Megam-HMAC" -> finalHMAC,
+      "X-Megam-Date" -> currentDate,
+      "Accept" -> accept), RawBody(contentToEncode))
   }
 }
 
@@ -121,5 +121,5 @@ object OutputB {
       case None => Array(0X00.toHexString)
     })
     b.mkString("")
-  } 
+  }
 }   

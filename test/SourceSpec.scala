@@ -52,14 +52,12 @@ class SourceSpec extends Specification {
     //create htttp client
     val httpClient = new ApacheHttpClient
     protected lazy val url = new URL("http://localhost:9000/v1/nodes/content")
-   // val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
-
+    // val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
 
     //val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)
-      val headerAndBody = sandboxHeaderAndBody(url.getPath)
+    val headerAndBody = sandboxHeaderAndBody(url.getPath)
     protected val headers = headerAndBody._1
     protected val body = headerAndBody._2
-
 
     protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
       val r = t.executeUnsafe

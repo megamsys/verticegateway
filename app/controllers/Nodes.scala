@@ -25,6 +25,7 @@ import controllers.stack._
 import org.megam.common.amqp._
 import scalaz.Validation._
 import play.api.mvc.Result
+
 /**
  * @author ram
  *
@@ -35,9 +36,8 @@ import play.api.mvc.Result
  * If HMAC authentication is true then post or list the nodes are executed
  *  
  */
-object Nodes extends Controller with APIAuthElement {
+object Nodes extends Controller with APIAuthElement with NodesHelper {
 
-  val HMAC_HEADER = "hmac"
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
@@ -45,45 +45,25 @@ object Nodes extends Controller with APIAuthElement {
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val email: String = sentHmacHeader match {
-      case Some(x) if x.contains(":") && x.split(":").length == 2 => {
-        val headerParts = x.split(":")
-        headerParts(0)
-      }
-      case _ =>  ""
-    }
-    val id = models.Accounts.findByEmail(email) match {
-      case Success(optAcc) => {
-        val foundAccount = optAcc.get
-        foundAccount.id
-      }
-      case Failure(_) => ""
-    }
-    println("+++++++++++++++++++++++++++++"+id)
+    val id = getAccountID(sentHmacHeader)
     models.Nodes.create(input, id)
     Ok("Post Action succeeded")
-  }
-
-  def create = StackAction(parse.tolerantText) { implicit request =>
-    val result = models.Nodes.findByEmail("email@id")
-    result match {
-      case Success(node) => {
-        //    MessageObjects.Publish(node.key).succeeds
-        //   Ok("Nodes Page succeeded ========>" + node.key + "   :   " + node.value)
-        Ok("Nodes Not Implemented.")
-      }
-      case Failure(node) =>
-        Ok("Key not Found")
-    }
   }
 
   /*
    * show the message details
    * 
    */
-  def show(id: Long) = StackAction { implicit request =>
-    val title = "messages detail "
-    Ok(views.html.index(title + id))
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    val res = models.Nodes.findByKey(id) match {
+      case Success(optAcc) => {
+        val foundNode = optAcc.get
+        foundNode
+      }
+      case Failure(_) => None
+    }
+    println("++++++++++++++Result+++++++++" + res)
+    Ok("" + res)
   }
 
   /*
@@ -91,29 +71,18 @@ object Nodes extends Controller with APIAuthElement {
    * 
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    val acc = models.Accounts.findByEmail("sandy@megamsandbox.com")
-    acc match {
-      case Success(optAcc) => {
-        val foundAccount = optAcc.get
-        val result = models.Nodes.findByEmail(foundAccount.id)
-        result match {
-          case Success(optNod) => {
-            val nodClass = optNod.get
-            println("Nodes value---" + nodClass.acc_id)
-            Ok("Nodes value---" + nodClass.acc_id)
-          }
-          case Failure(err) => {
-            println("Error------" + err)
-            Ok("Error------" + err)
-          }
-        }
+    val input = (request.body).toString()
+    val sentHmacHeader = request.headers.get(HMAC_HEADER);
+    val id = getAccountID(sentHmacHeader)
+    val valueJson = models.Nodes.findById(id) match {
+      case Success(v) => {
+        //val m = v.get
+        //m.predefs
+        v
       }
-      case Failure(err1) => {
-        println("Error------" + err1)
-        Ok("Error------" + err1)
-      }
+      case Failure(_) => ""
     }
+    println(valueJson)
+    Ok("" + valueJson)
   }
-
 }
-

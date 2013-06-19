@@ -9,10 +9,10 @@ GET     /					controllers.Application.index
 POST    /v1/auth                       controllers.Application.authenticate
 #POST    /staleauth                 controllers.Application.staleauth
 POST    /v1/accounts/content           controllers.Accounts.post
-
+GET     /v1/accounts/:id               controllers.Accounts.show(id: String)
 # Nodes
 GET     /v1/nodes	   		    controllers.Nodes.list
-GET    /v1/nodes/:id			controllers.Nodes.show(id: Long)
+GET    /v1/nodes/:id			controllers.Nodes.show(id: String)
 POST   /v1/nodes/content		controllers.Nodes.post
 
 # Logs for Nodes 

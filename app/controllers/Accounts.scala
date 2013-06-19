@@ -15,12 +15,17 @@
 */
 package controllers
 
+import scalaz._
+import Scalaz._
 import play.api._
 import play.api.mvc._
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import java.util.concurrent.atomic.AtomicInteger
+import scalaz.Validation._
+import play.api.mvc.Result
+
 /**
  * @author rajthilak
  *
@@ -31,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * into riak.
  *   
  */
-object Accounts extends Controller {
+object Accounts extends Controller with APIAuthElement {
 
   /*
    * parse.tolerantText to parse the RawBody 
@@ -41,6 +46,18 @@ object Accounts extends Controller {
     val input = (request.body).toString()
     models.Accounts.create(input)
     Ok("Account created successfully for with account_id:" + input)
+  }
+
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    val res = models.Accounts.findByEmail(id) match {
+      case Success(optAcc) => {
+        val foundAccount = optAcc.get
+        foundAccount
+      }
+      case Failure(_) => None
+    }
+    println("++++++++++++++Result+++++++++" + res)
+    Ok("" + res)
   }
 
 }

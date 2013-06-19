@@ -14,20 +14,34 @@
 ** limitations under the License.
 */
 package controllers
+
+import scalaz._
+import Scalaz._
 import play.api._
 import play.api.mvc._
 import models._
-import controllers.stack.{APIAuthElement, SourceElement}
+import controllers.stack.{ APIAuthElement, SourceElement }
 import controllers.stack._
 
 /**
  * @author ram
  *
  */
-object Logs extends Controller with APIAuthElement {
+object Logs extends Controller with APIAuthElement with NodesHelper {
 
   def list = StackAction(parse.tolerantText) { implicit request =>
-    Redirect("http://localhost:7000/streams/syslog")
+    val input = (request.body).toString()
+    val sentHmacHeader = request.headers.get(HMAC_HEADER);
+    val id = getAccountID(sentHmacHeader)
+    val nodesJson = models.Nodes.getNodes(id) match {
+      case Success(v) => {
+        v
+      }
+      case Failure(_) => ""
+    }
+    println(nodesJson)
+    Ok("" + nodesJson)
+    //Redirect("http://localhost:7000/streams/syslog")
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
