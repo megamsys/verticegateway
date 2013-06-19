@@ -48,6 +48,7 @@ object Accounts {
 
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
     val id = UID(SFHOST, SFPORT, "act").get
+    println("+++++++++++++++++++++++++++"+id)
     val res: UniqueID = id match {
       case Success(uid) => {
         println("------>" + uid)
