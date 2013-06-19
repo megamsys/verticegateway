@@ -5,7 +5,7 @@
 	<div class="container">
 
 		<div class="tabbable tabs-left">
-			<div class="span12">
+			<div class="span10">
 				<div class="span2">
 					<ul class="nav nav-tabs nav-stacked">
 						<li>
@@ -24,7 +24,7 @@
 					</ul>
 				</div>
 
-				<div class="span8">
+				<div class="span7">
 
 					<!-- auth
 					================================================== -->
@@ -46,7 +46,7 @@
 							<p>
 								<script type="syntaxhighlighter" class="brush: ruby">
 									<![CDATA[
-									http://api.megam.co/auth
+									http://v1/auth
 									]]>
 								</script>
 							</p>
@@ -99,26 +99,6 @@
 
 					</section>
 
-					<div class="btn-group">
-						<button class="btn" href="#authruby">
-							Ruby
-						</button>
-
-					</div>
-					<section id="authruby">
-
-						<p>
-							<script type="syntaxhighlighter" class="brush: ruby">
-								<![CDATA[
-
-								megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-
-								]]>
-							</script>
-						</p>
-
-					</section>
-
 					<!-- accounts
 					================================================== -->
 
@@ -135,7 +115,7 @@
 
 								<script type="syntaxhighlighter" class="brush: ruby">
 									<![CDATA[
-									 "http://api.megam.co/accounts/content"
+									puts "http://v1/accounts/content"
 									]]>
 								</script>
 
@@ -204,7 +184,7 @@
 
 							<script type="syntaxhighlighter" class="brush: ruby">
 								<![CDATA[
-								http://api.megam.co
+								puts "http://v1/accounts"
 								]]>
 							</script>
 
@@ -259,26 +239,6 @@
 								"db":"db",
 								"queue":"queue"}
 								}
-
-								]]>
-							</script>
-						</p>
-
-					</section>
-
-					<div class="btn-group">
-						<button class="btn" href="#accountsruby">
-							Ruby
-						</button>
-
-					</div>
-					<section id="accountsruby">
-
-						<p>
-							<script type="syntaxhighlighter" class="brush: ruby">
-								<![CDATA[
-
-								megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
 
 								]]>
 							</script>
@@ -472,26 +432,6 @@
 						</p>
 					</section>
 
-					<div class="btn-group">
-						<button class="btn" href="#nodesruby">
-							Ruby
-						</button>
-
-					</div>
-					<section id="nodesruby">
-
-						<p>
-							<script type="syntaxhighlighter" class="brush: ruby">
-								<![CDATA[
-
-								megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-
-								]]>
-							</script>
-						</p>
-
-					</section>
-
 					<!-- Logs
 					================================================== -->
 
@@ -508,7 +448,7 @@
 							<p>
 								<script type="syntaxhighlighter" class="brush: ruby">
 									<![CDATA[
-									http://api.megam.co/logs
+									http://v1/logs	
 									]]>
 								</script>
 							</p>
@@ -567,7 +507,7 @@
 							<p>
 								<script type="syntaxhighlighter" class="brush: ruby">
 									<![CDATA[
-									http://api.megam.co/logs/:nodeid
+									http://v1/logs/:nodeid
 									]]>
 								</script>
 							</p>
@@ -618,26 +558,6 @@
 							</script>
 						</p>
 					</section>
-					<div class="btn-group">
-						<button class="btn" href="#logsruby">
-							Ruby
-						</button>
-
-					</div>
-					<section id="logsruby">
-
-						<p>
-							<script type="syntaxhighlighter" class="brush: ruby">
-								<![CDATA[
-
-								megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-
-								]]>
-							</script>
-						</p>
-
-					</section>
-
 				</div>
 
 			</div>
