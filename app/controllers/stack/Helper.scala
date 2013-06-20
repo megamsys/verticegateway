@@ -45,11 +45,7 @@ trait Helper {
         uid
       }
       case Failure(error) => { 
-        Logger.info("""
-            |
-            |The id creation was failed from snowflake server 
-            |If this error persits, ask for help on the forums.""".stripMargin 
-      + "\n" + apiAccessed)
+       None
       }
     }
     (res.get._1 + res.get._2)
@@ -69,9 +65,7 @@ trait Helper {
         foundAccount.id
       }
       case Failure(err) => 
-         Logger.info("""
-            | Your account is doesn't exists in megam.co.
-            | Please register your account in megam.co. After then you can use megam.co high available facilities""")
+           err.toString
     }
     id
   }

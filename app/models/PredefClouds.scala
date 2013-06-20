@@ -77,7 +77,7 @@ object PredefClouds extends Helper {
       }
       case Failure(err) => Validation.failure[Error, Option[PredefCloudResult]](new Error("""
                |In this predef '%s' is doesn't exists in your list 
-               |Please add predef's in your list.""".format(key).stripMargin + "\n "))).toValidationNel
+               |Please add predef's in your list.""".format(key).stripMargin + "\n ")).toValidationNel
     }
   }
 
@@ -109,7 +109,7 @@ object PredefClouds extends Helper {
       }
       case Failure(err) => Validation.failure[Error, List[ValidationNel[Error, Option[PredefCloudResult]]]](new Error("""
                |In this predef '%s' is doesn't exists in your list 
-               |Please add predef's in your list.""".format(id).stripMargin + "\n "))).toValidationNel
+               |Please add predef's in your list.""".format(id).stripMargin + "\n ")).toValidationNel
     }
   }
 
