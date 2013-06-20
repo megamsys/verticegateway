@@ -48,7 +48,7 @@ case class NodePredefs(rails: String, scm: String, db: String, queue: String) {
 
 case class NodeMachines(name: String, public: String, cpuMetrics: String)
 
-object Nodes extends NodesHelper {
+object Nodes extends Helper {
 
   implicit val formats = DefaultFormats
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
@@ -65,8 +65,8 @@ object Nodes extends NodesHelper {
     val bindex = BinIndex.named("accountId")
     val bvalue = Set(acc_id)
 
-    val id = getUID
-    val req_id = getUID
+    val id = getUID("nod")
+    val req_id = getUID("nod")
     val predefsJson = (m.predefs).getPredefsJson
     val json = "{\"id\": \"" + id + "\",\"accounts_ID\":\"" + acc_id + "\",\"request\":{" + NodeRequest(req_id, m.command).getRequestJson + "} ,\"predefs\":{" + predefsJson + "}}"
     val storeValue = riak.store(new GunnySack(m.nod_name, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
@@ -106,15 +106,7 @@ object Nodes extends NodesHelper {
       case Success(msg) => {
         val result = msg.map(a => {
           Nodes.findByKey(a)
-        })
-        /*Nodes.findByKey(a) match {
-            case Success(msg) => {
-              val m = msg.get
-              m
-            }
-            case Failure(_) => ""
-          }
-        })*/
+        })       
         Validation.success[Error, List[ValidationNel[Error, Option[NodeFinal]]]](result).toValidationNel
       }
       case Failure(err) => Validation.failure[Error, List[ValidationNel[Error, Option[NodeFinal]]]](new Error("Email is not already exists")).toValidationNel

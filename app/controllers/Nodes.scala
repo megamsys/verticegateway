@@ -36,7 +36,7 @@ import play.api.mvc.Result
  * If HMAC authentication is true then post or list the nodes are executed
  *  
  */
-object Nodes extends Controller with APIAuthElement with NodesHelper {
+object Nodes extends Controller with APIAuthElement with Helper {
 
   /*
    * parse.tolerantText to parse the RawBody 
@@ -47,7 +47,10 @@ object Nodes extends Controller with APIAuthElement with NodesHelper {
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
     val id = getAccountID(sentHmacHeader)
     models.Nodes.create(input, id)
-    Ok("Post Action succeeded")
+    Ok("""Node creation successfully completed.
+            |
+            |Your node created successully.  Try other node's for your account. 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
   }
 
   /*
@@ -60,9 +63,15 @@ object Nodes extends Controller with APIAuthElement with NodesHelper {
         val foundNode = optAcc.get
         foundNode
       }
-      case Failure(_) => None
+      case Failure(err) => {
+        Logger.info("""In this account doesn't create in this '%s' nodes 
+            |
+            |Please create new Node for your Account 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(id).stripMargin
+          + "\n" + apiAccessed)
+      }
     }
-    println("++++++++++++++Result+++++++++" + res)
+
     Ok("" + res)
   }
 
@@ -80,9 +89,14 @@ object Nodes extends Controller with APIAuthElement with NodesHelper {
         //m.predefs
         v
       }
-      case Failure(_) => ""
-    }
-    println(valueJson)
+      case Failure(err) => {
+        Logger.info("""In this account doesn't create any nodes --> '%s'
+            |
+            |Please create new Nodes in your Account 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(err).stripMargin
+          + "\n" + apiAccessed)
+      }
+    }    
     Ok("" + valueJson)
   }
 }

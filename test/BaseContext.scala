@@ -96,8 +96,12 @@ trait BaseContext {
   //protected def sandboxHeaderAndBody(contentToEncode: String, path: String):(Headers, RawBody) = {
   protected def sandboxHeaderAndBody(path: String): (Headers, RawBody) = {
     //create the contentToEncode as request Body
-    val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"                          
+    
+    
+    //val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"                          
     //val contentToEncode = "{\"nod_name\":\"Node3\",\"command\":\"commands\",\"predefs\":{\"rails\":\"rails3\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+      val contentToEncode = "{\"name\":\"ec2-rails-micro-free\",\"predefType\":{\"typeName\":\"ec2\",\"groups\":\"megam\", \"image\":\"ami-56e6a404\", \"flavor\":\"m1.small\"},\"access\":{\"ssh_key\":\"megam_ec2\",\"identity_file\":\"~/.ssh/megam_ec2.pem\", \"ssh_user\":\"ubuntu\"}}"                         
+
     val contentType = "application/json"
     val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
     val accept = "application/vnd.megam+json"

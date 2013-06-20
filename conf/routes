@@ -24,5 +24,10 @@ GET   /v1/logs/:nodeid		controllers.Logs.show(nodeid: String)
 GET   /v1/predefs                controllers.Predefs.list()
 GET   /v1/predefs/:predefid      controllers.Predefs.show(predefid: String)
 
+#PredefClouds
+POST   /v1/predefclouds/content     controllers.PredefClouds.post
+GET    /v1/predefclouds             controllers.PredefClouds.list
+GET    /v1/predefclouds/:pre_name   controllers.PredefClouds.show(pre_name: String)
+
 # Map static resources from the /public folder to the /public path
 GET     /assets/*file		controllers.Assets.at(path="/public", file)

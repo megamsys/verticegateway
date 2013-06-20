@@ -48,26 +48,29 @@ object Accounts {
 
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
     val id = UID(SFHOST, SFPORT, "act").get
-    println("+++++++++++++++++++++++++++"+id)
-    val res: UniqueID = id match {
-      case Success(uid) => {
-        println("------>" + uid)
-        uid
+     id match {
+      case Success(uid) => {        
+        val metadataKey = "Field"
+        val metadataVal = "1002"
+        val inputJson = parse(input)
+        val m = inputJson.extract[AccountInput]
+        val bindex = BinIndex.named("accountId")
+        val res: UniqueID = uid
+        val bvalue = Set(res.get._1 + res.get._2)
+        val json = "{\"id\": \"" + (res.get._1 + res.get._2) + "\"," + m.getAccountJson + "}"
+        val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+        storeValue match {
+          case Success(msg) => Validation.success[Error, Option[AccountResult]](None).toValidationNel
+          case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
+            | Account creation failed. This  needs to  appear  as-is  during onboarding
+            |from the megam.co website. If this error persits, ask for help on the forums.""")).toValidationNel
+        }
       }
-      case Failure(error) => { None }
-    }
-    val metadataKey = "Field"
-    val metadataVal = "1002"
-    val inputJson = parse(input)
-    val m = inputJson.extract[AccountInput]
-    val bindex = BinIndex.named("accountId")
-    val bvalue = Set(res.get._1 + res.get._2)
-    val json = "{\"id\": \"" + (res.get._1 + res.get._2) + "\"," + m.getAccountJson + "}"
-    val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-    storeValue match {
-      case Success(msg) => Validation.success[Error, Option[AccountResult]](None).toValidationNel
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Account.create Not Implemented")).toValidationNel
-    }
+      case Failure(error) => Validation.failure[Error, Option[AccountResult]](new Error("""      
+            |
+            |The id creation was failed from snowflake server 
+            |If this error persits, ask for help on the forums.""")).toValidationNel
+     }   
   }
 
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
@@ -81,7 +84,9 @@ object Accounts {
         Validation.success[Error, Option[AccountResult]](Some(m)).toValidationNel
         // parse(msg.value).extract[AccountResult]  
       }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Your account is not registered, pls register your account.")).toValidationNel
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
+            | Your account is doesn't exists in megam.co.
+            | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
     }
   }
 
@@ -102,7 +107,9 @@ object Accounts {
         }
         findByEmail(key)
       }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Email is not already exists")).toValidationNel
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
+            | Your account is doesn't exists in megam.co.
+            | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
     }
   }
 

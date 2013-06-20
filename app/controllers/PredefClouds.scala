@@ -32,11 +32,11 @@ import play.api.mvc.Result
  */
 
 /*
- * this controller for HMAC authentication and access riak
+ * 
  * If HMAC authentication is true then post or list the predefs clouds are executed
  *  
  */
-object PredefClouds extends Controller with APIAuthElement with NodesHelper {
+object PredefClouds extends Controller with APIAuthElement with Helper {
 
   /*
    * parse.tolerantText to parse the RawBody 
@@ -47,8 +47,57 @@ object PredefClouds extends Controller with APIAuthElement with NodesHelper {
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
     val id = getAccountID(sentHmacHeader)
     models.PredefClouds.create(input, id)
-    Ok("Post Action succeeded")
+    Ok("""Predef creation successfully completed.
+            |
+            |your predef registered successully.  
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
+  } 
+  
+  /*
+   * show the message details
+   * 
+   */
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    val res = models.PredefClouds.findByKey(id) match {
+      case Success(optAcc) => {
+        val foundNode = optAcc.get
+        foundNode
+      }
+      case Failure(err) => {
+        Logger.info(""" '%s' doesn't exists in your predef's list 
+            |
+            |Please store this Predef's list.  
+            """.format(id).stripMargin
+          + "\n" + apiAccessed)
+      }
+    }    
+    Ok("" + res)
   }
- 
+
+  /*
+   * list the particular Id values
+   * 
+   */
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    val input = (request.body).toString()
+    val sentHmacHeader = request.headers.get(HMAC_HEADER);
+    val id = getAccountID(sentHmacHeader)
+    val valueJson = models.PredefClouds.findById(id) match {
+      case Success(v) => {
+        //val m = v.get
+        //m.predefs
+        v
+      }
+      case Failure(err) => {
+        Logger.info(""" Default predef's doesn't exists in your predef's list 
+            |
+            |Please store default predef's cloud details in your Predef's list. '%s'  
+            """.format(err).stripMargin
+          + "\n" + apiAccessed)
+      }
+    }
+    println(valueJson)
+    Ok("" + valueJson)
+  }
   
 }

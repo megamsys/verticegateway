@@ -27,7 +27,7 @@ import controllers.stack._
  * @author ram
  *
  */
-object Logs extends Controller with APIAuthElement with NodesHelper {
+object Logs extends Controller with APIAuthElement with Helper {
 
   def list = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
@@ -37,9 +37,14 @@ object Logs extends Controller with APIAuthElement with NodesHelper {
       case Success(v) => {
         v
       }
-      case Failure(_) => ""
+      case Failure(_) => {
+        Logger.info("""In this account doesn't create any nodes '%s'
+            |
+            |Please create new Nodes in your Account 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
+      + "\n" + apiAccessed)
     }
-    println(nodesJson)
+    } 
     Ok("" + nodesJson)
     //Redirect("http://localhost:7000/streams/syslog")
   }
