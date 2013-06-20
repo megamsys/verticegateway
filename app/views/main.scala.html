@@ -3,28 +3,71 @@
 <html>
 	<head>
 		<title>@title</title>
-		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")" />
-		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/shCore.css")" />
-		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/shThemeDefault.css")"/>
-		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")" />
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato:300,400,700" />
+		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/theme.css")" >
+				<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/bootstrap.css")" >
+		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/shCore.css")" >
+		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/shThemeDefault.css")">
 		<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+
+		<!-- Bootstrap -->
 		<script src="@routes.Assets.at("javascripts/jquery.js")" type="text/javascript"></script>
-		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.at("javascripts/bootstrap.js")" type="text/javascript"></script>
 		<script  src="@routes.Assets.at("javascripts/shCore.js")" type="text/javascript"></script>
+		<script  src="@routes.Assets.at("javascripts/shBrushBash.js")" type="text/javascript"></script>
+		<script  src="@routes.Assets.at("javascripts/shBrushJScript.js")" type="text/javascript"></script>
 		<script  src="@routes.Assets.at("javascripts/shBrushRuby.js")" type="text/javascript"></script>
 		<script  src="@routes.Assets.at("javascripts/shBrushScala.js")" type="text/javascript"></script>
+
 		<script type="text/javascript">
-            SyntaxHighlighter.all()
+            $(document).ready(function() {
+                SyntaxHighlighter.config.tagName = 'code';
+                SyntaxHighlighter.config.toolbar = false;
+
+                var elementsToBeHighlighted = SyntaxHighlighter.findElements().length, highlightedElements = 0;
+
+                SyntaxHighlighter.all();
+
+                // Create callback for syntax highlight completion
+                SyntaxHighlighter.complete = function(callback) {
+
+                    (function recountHighlightedElements() {
+                        setTimeout(function() {
+                            highlightedElements = $('.syntaxhighlighter');
+                            if (highlightedElements.length < elementsToBeHighlighted) {
+                                recountHighlightedElements();
+                            } else {
+                                callback();
+                            }
+                        }, 200);
+                    })();
+
+                };
+
+            });
 		</script>
+		<style type="text/css">
+			/* <![CDATA[ */
+			#pagetoc li {
+				padding-left: 22px;
+				text-indent: -22px;
+			}
+
+			/* ]]> */
+		</style>
 	</head>
 	<body>
-		<div class="playapp">
-			@header()
-			<div class="container">
+		<div>
+			<div>
+				@leftmenu()
 				@content
 			</div>
-			@footer()
 		</div>
+
 		<!-- JQuery will invoke via the spinner and display a loading modal lock. -->
 		<div id="loading" />
 	</body>
