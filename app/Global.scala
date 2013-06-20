@@ -33,8 +33,8 @@ object Global extends GlobalSettings {
         Account(1, "sandy@megamsandbox.com", "IAMAtlas{74}NobodyCanSeeME#07", Administrator),
         Account(2, "sandynorm@megamsandbox.com", "IAMAtlas{74}NobodyCanSeeME#07", NormalUser)) foreach Accounts.create
     }*/
-    val valueJson = controllers.Predefs.create
-     println("+++++++++++++++++++Predef creation entry++++++++++++++++++++++++++")
+    val valueJson = models.Predefs.createPredef
+     println("+++++++++++++++++++Predef creation entry++++++++++++++++++++++++++"+valueJson)
   }
   override def onStop(app: Application) {
     Logger.info("Application shutdown...")

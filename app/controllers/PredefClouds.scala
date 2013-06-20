@@ -33,42 +33,22 @@ import play.api.mvc.Result
 
 /*
  * this controller for HMAC authentication and access riak
- * If HMAC authentication is true then post or list the predefs are executed
+ * If HMAC authentication is true then post or list the predefs clouds are executed
  *  
  */
-object Predefs extends Controller with APIAuthElement {
+object PredefClouds extends Controller with APIAuthElement with NodesHelper {
 
   /*
-   * show the message details
-   * 
+   * parse.tolerantText to parse the RawBody 
+   * get requested body and put into the riak bucket
    */
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    
-    val res = models.Predefs.findByKey(id) match {
-      case Success(optAcc) => {
-        val foundNode = optAcc.get
-        foundNode
-      }
-      case Failure(_) => None
-    }   
-    println("" + res)
-    Ok("" + res)
+  def post = Action(parse.tolerantText) { implicit request =>
+    val input = (request.body).toString()
+    val sentHmacHeader = request.headers.get(HMAC_HEADER);
+    val id = getAccountID(sentHmacHeader)
+    models.PredefClouds.create(input, id)
+    Ok("Post Action succeeded")
   }
-
-  /*
-   * list the particular Id values
-   * 
-   */
-  def list = StackAction(parse.tolerantText) { implicit request =>       
-    val valueJson = models.Predefs.listKeys match {
-      case Success(t) =>  { 
-           t
-      }
-      case Failure(err) =>
-           println("Value fetch failure")        
-    }
-    println(valueJson)
-    Ok("" + valueJson)
-  } 
  
+  
 }

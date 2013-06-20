@@ -36,13 +36,13 @@ case class PredefsJSON(id: String, name: String, provider: String, role: String,
 object Predefs extends PredefsHelper {
 
   implicit val formats = DefaultFormats
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predefs30")
+  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predeftest10")
 
   def create = {
     val metadataKey = "predef"
     val metadataVal = "predefs Creation"
     val bindex = BinIndex.named("predefName")
-     val bvalue = Set("nodejs")
+     //val bvalue = Set("nodejs")
      //val storeValue = riak.store(new GunnySack("nodejs", nodejsJSON, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
     val storeList = List(riakJSON, nodejsJSON, playJSON, akkaJSON, redisJSON)
     val store = storeList.map(a => {
@@ -70,20 +70,26 @@ object Predefs extends PredefsHelper {
   def listKeys: ValidationNel[Error, List[String]] = {
     riak.keysList match {
       case Success(key) => {
+        println("+++++++++++++++++++++"+(key.toList))
         Validation.success[Error, List[String]](key.toList).toValidationNel
       }
        case Failure(err) => Validation.failure[Error, List[String]](new Error("Predef.list: Not Implemented.")).toValidationNel
     }
   }
   
-   def findAll = {    
-    val valueJson = riak.keysList match {
+   def createPredef  = {    
+    val res = models.Predefs.listKeys match {
       case Success(t) =>  { 
-          t
+           if(Nil == t) {
+              models.Predefs.create              
+           }
+             else 
+               println("list Value fetch failure")
       }
-      case Failure(err) =>         
-          val newcreation = models.Predefs.create     
-    }   
+      case Failure(err) =>
+         println("Value fetch failure")
+         models.Predefs.create        
+    }
   }
   
 }
