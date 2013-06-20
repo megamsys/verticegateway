@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-
-exec java $@ -Dconfig.file=../conf/application-production.conf -cp "../lib/*" play.core.server.NettyServer ../..

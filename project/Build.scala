@@ -46,7 +46,9 @@ object ApplicationBuild extends Build {
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,    
-    "com.github.indykish" % "megam_common_2.10" % megamVersion)
+    "com.github.indykish" % "megam_common_2.10" % megamVersion,
+    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar"
+)
     
   val main = play.Project(appName, appVersion, appDependencies).settings(
     sbt.Keys.resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
