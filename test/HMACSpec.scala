@@ -50,8 +50,8 @@ HMACSpec is the implementation that calls the megam_play API server with the /no
 
     //create htttp client
     val httpClient = new ApacheHttpClient
+    //protected lazy val url = new URL("http://localhost:9000/v1/accounts/sandy@megamsandbox.com")
     protected lazy val url = new URL("http://localhost:9000/v1/nodes")
-
     //create the contentToEncode as request Body
     //val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"
     //println("================="+contentToEncode)
@@ -74,7 +74,7 @@ HMACSpec is the implementation that calls the megam_play API server with the /no
   //post the headers and their body for specifing url
   case class Get() extends Context {
     private val get = GET(url)(httpClient)
-      .addHeaders(headers)     
+      .addHeaders(headers)
     def succeeds = execute(get)(ensureHttpOk(_))
   }
 }

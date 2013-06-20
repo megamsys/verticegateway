@@ -45,8 +45,9 @@ import models.{ Accounts }
 
 object SecurityActions {
 
-  val HMAC_HEADER = "hmac"
-  val DATE_HEADER = "date"
+  val HMAC_HEADER = "X-Megam-HMAC"
+  val DATE_HEADER = "X-Megam-Date"
+  val ACCEPT = "Accept"
   val MD5 = "MD5"
   val HMACSHA1 = "HmacSHA1"
 
@@ -71,7 +72,6 @@ object SecurityActions {
           req.headers.get(DATE_HEADER),
           req.path,
           calculateMD5((req.body).toString()))
-
         // create the string that we'll have to sign       
         val toSign = input.map(
           a => {
@@ -93,6 +93,7 @@ object SecurityActions {
             Logger.debug("A :%-20s B :%-20s C :%-20s".format(calculatedHMAC, foundAccount.api_key, headerParts(1)))
 
             if (calculatedHMAC === headerParts(1)) {
+
               Validation.success[ResultInError, RawResult](RawResult(1, Map[String, String](
                 "id" -> foundAccount.id,
                 "api_key" -> foundAccount.email,

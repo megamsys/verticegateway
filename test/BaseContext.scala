@@ -96,11 +96,11 @@ trait BaseContext {
   //protected def sandboxHeaderAndBody(contentToEncode: String, path: String):(Headers, RawBody) = {
   protected def sandboxHeaderAndBody(path: String): (Headers, RawBody) = {
     //create the contentToEncode as request Body
-    //val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"                          
-    val contentToEncode = "{\"command\":\"commands\",\"predefs\":{\"rails\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+    val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"                          
+    //val contentToEncode = "{\"nod_name\":\"Node3\",\"command\":\"commands\",\"predefs\":{\"rails\":\"rails3\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
     val contentType = "application/json"
     val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
-
+    val accept = "application/vnd.megam+json"
     // create the string that we'll have to sign   
     val signWithHMAC = currentDate + "\n" + path + "\n" + calculateMD5(contentToEncode)
 
@@ -110,8 +110,9 @@ trait BaseContext {
     //set Headers using hmac, date and content type 
     val finalHMAC = sandbox_email + ":" + signedWithHMAC
     (Headers("content-type" -> contentType,
-      "hmac" -> finalHMAC,
-      "date" -> currentDate), RawBody(contentToEncode))
+      "X-Megam-HMAC" -> finalHMAC,
+      "X-Megam-Date" -> currentDate,
+      "Accept" -> accept), RawBody(contentToEncode))
   }
 }
 

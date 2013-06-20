@@ -47,7 +47,8 @@ object Accounts {
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
 
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
-     val id = UID(SFHOST, SFPORT, "act").get
+    val id = UID(SFHOST, SFPORT, "act").get
+    println("+++++++++++++++++++++++++++"+id)
     val res: UniqueID = id match {
       case Success(uid) => {
         println("------>" + uid)
@@ -59,19 +60,9 @@ object Accounts {
     val metadataVal = "1002"
     val inputJson = parse(input)
     val m = inputJson.extract[AccountInput]
-    val bindex = BinIndex.named("accountid")
-    val bvalue = Set(res.get._1 + res.get._2)  
-
-    /*val idJson = parse("{\"id\": \"" + (res.get._1 + res.get._2) + "\"}")  
-     val json = (field[String]("id")(idJson) |@| field[String]("email")(inputJson) |@| field[String]("api_key")(inputJson) |@| field[String]("authority")(inputJson)) { AccountResult }          
-     println("+++++++++++++++++++"+json)
-     val jsonval = json match {
-       case Success(value) => value
-       case Failure(error) => error
-     }
-    println("==================================" + jsonval)*/
-
-    val json = "{\"id\": \"" + (res.get._1 + res.get._2) + "\"," + m.getAccountJson +"}"
+    val bindex = BinIndex.named("accountId")
+    val bvalue = Set(res.get._1 + res.get._2)
+    val json = "{\"id\": \"" + (res.get._1 + res.get._2) + "\"," + m.getAccountJson + "}"
     val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
     storeValue match {
       case Success(msg) => Validation.success[Error, Option[AccountResult]](None).toValidationNel
@@ -102,14 +93,13 @@ object Accounts {
     val metadataVal = "1002"
     val bindex = BinIndex.named("")
     val bvalue = Set("")
-    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountid", id, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountId", id, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
 
     fetchValue match {
       case Success(msg) => {
         val key = msg match {
           case List(x) => x
         }
-        println("key value ------" + key)
         findByEmail(key)
       }
       case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("Email is not already exists")).toValidationNel

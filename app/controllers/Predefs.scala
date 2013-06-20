@@ -22,7 +22,7 @@ import play.api.mvc._
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
-import java.util.concurrent.atomic.AtomicInteger
+import org.megam.common.amqp._
 import scalaz.Validation._
 import play.api.mvc.Result
 
@@ -32,27 +32,22 @@ import play.api.mvc.Result
  */
 
 /*
- * This controller performs onboarding a customer and registers an email/api_key 
- * into riak.
- *   
+ * this controller for HMAC authentication and access riak
+ * If HMAC authentication is true then post or list the predefs are executed
+ *  
  */
-object Accounts extends Controller with APIAuthElement {
+object Predefs extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
-   * get requested body and put into the riak bucket
+   * show the message details
+   * 
    */
-  def post = Action(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    models.Accounts.create(input)
-    Ok("Account created successfully for with account_id:" + input)
-  }
-
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    val res = models.Accounts.findByEmail(id) match {
+    
+    val res = models.Predefs.findByKey(id) match {
       case Success(optAcc) => {
-        val foundAccount = optAcc.get
-        foundAccount
+        val foundNode = optAcc.get
+        foundNode
       }
       case Failure(_) => None
     }
@@ -60,4 +55,25 @@ object Accounts extends Controller with APIAuthElement {
     Ok("" + res)
   }
 
+  /*
+   * list the particular Id values
+   * 
+   */
+  def list = StackAction(parse.tolerantText) { implicit request =>       
+    val valueJson = models.Predefs.listKeys match {
+      case Success(t) =>  { 
+           t
+      }
+      case Failure(err) =>
+           println("Value fetch failure")        
+    }
+    println(valueJson)
+    Ok("" + valueJson)
+  }
+
+  def create = Action { 
+    val res = models.Predefs.findAll 
+    Ok("Post Action succeeded")
+  }
+ 
 }

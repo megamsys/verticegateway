@@ -13,7 +13,10 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-
+/**
+ * @author rajthilak
+ *
+ */
 package test
 
 import org.specs2.mutable._
@@ -30,36 +33,33 @@ import org.apache.commons.codec.binary.Base64
 import java.util.Calendar
 import java.text.SimpleDateFormat
 
-/**
- * @author rajthilak
- *
- */
 
-class SourceSpec extends Specification {
-
-  def is =
-    "SourceSpecs".title ^ end ^
+class PredefSpec extends Specification {
+   def is =
+    "PredefSpec".title ^ end ^
       """
-      SourceSpec is the implementation that calls the megam_play API server with the /accounts/content url
-      which onboards a new account in riak
-      """ ^ end ^
+HMACSpec is the implementation that calls the megam_play API server with the /nodes url to verify HMAC only
+    """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post().succeeds ^
+      "Correctly do GET requests" ! Get().succeeds ^
       end
 
-  trait Context extends BaseContext {
+  trait Context extends BaseContextGet {
 
     //create htttp client
     val httpClient = new ApacheHttpClient
-    protected lazy val url = new URL("http://localhost:9000/v1/accounts/content")
-    // val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
-
+    
+    //protected lazy val url = new URL("http://localhost:9000/v1/accounts/sandy@megamsandbox.com")
+    protected lazy val url = new URL("http://localhost:9000/v1/predefs")
+   
     //val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)
     val headerAndBody = sandboxHeaderAndBody(url.getPath)
+    
     protected val headers = headerAndBody._1
-    protected val body = headerAndBody._2
+    //protected val body = headerAndBody._2
 
     protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
+
       val r = t.executeUnsafe
       r.code must beEqualTo(expectedCode) and fn(r)
     }
@@ -70,10 +70,10 @@ class SourceSpec extends Specification {
   }
 
   //post the headers and their body for specifing url
-  case class Post() extends Context {
-    private val post = POST(url)(httpClient)
+  case class Get() extends Context {
+    private val get = GET(url)(httpClient)
       .addHeaders(headers)
-      .addBody(body)
-    def succeeds = execute(post)(ensureHttpOk(_))
+    def succeeds = execute(get)(ensureHttpOk(_))
   }
+  
 }
