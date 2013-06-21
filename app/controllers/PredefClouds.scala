@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2012] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -27,16 +27,16 @@ import scalaz.Validation._
 import play.api.mvc.Result
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 
 /*
- * this controller for HMAC authentication and access riak
- * If HMAC authentication is true then post or list the nodes are executed
+ * 
+ * If HMAC authentication is true then post or list the predefs clouds are executed
  *  
  */
-object Nodes extends Controller with APIAuthElement with Helper {
+object PredefClouds extends Controller with APIAuthElement with Helper {
 
   /*
    * parse.tolerantText to parse the RawBody 
@@ -46,32 +46,31 @@ object Nodes extends Controller with APIAuthElement with Helper {
     val input = (request.body).toString()
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
     val id = getAccountID(sentHmacHeader)
-    models.Nodes.create(input, id)
-    Ok("""Node creation successfully completed.
+    models.PredefClouds.create(input, id)
+    Ok("""Predef creation successfully completed.
             |
-            |Your node created successully.  Try other node's for your account. 
+            |your predef registered successully.  
             |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
-  }
-
+  } 
+  
   /*
    * show the message details
    * 
    */
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    val res = models.Nodes.findByKey(id) match {
+    val res = models.PredefClouds.findByKey(id) match {
       case Success(optAcc) => {
         val foundNode = optAcc.get
         foundNode
       }
       case Failure(err) => {
-        Logger.info("""In this account doesn't create in this '%s' nodes 
+        Logger.info(""" '%s' doesn't exists in your predef's list 
             |
-            |Please create new Node for your Account 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(id).stripMargin
+            |Please store this Predef's list.  
+            """.format(id).stripMargin
           + "\n" + apiAccessed)
       }
-    }
-
+    }    
     Ok("" + res)
   }
 
@@ -83,20 +82,22 @@ object Nodes extends Controller with APIAuthElement with Helper {
     val input = (request.body).toString()
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
     val id = getAccountID(sentHmacHeader)
-    val valueJson = models.Nodes.findById(id) match {
+    val valueJson = models.PredefClouds.findById(id) match {
       case Success(v) => {
         //val m = v.get
         //m.predefs
         v
       }
       case Failure(err) => {
-        Logger.info("""In this account doesn't create any nodes --> '%s'
+        Logger.info(""" Default predef's doesn't exists in your predef's list 
             |
-            |Please create new Nodes in your Account 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(err).stripMargin
+            |Please store default predef's cloud details in your Predef's list. '%s'  
+            """.format(err).stripMargin
           + "\n" + apiAccessed)
       }
-    }    
+    }
+    println(valueJson)
     Ok("" + valueJson)
   }
+  
 }

@@ -49,9 +49,15 @@ object Predefs extends Controller with APIAuthElement {
         val foundNode = optAcc.get
         foundNode
       }
-      case Failure(_) => None
-    }
-    println("++++++++++++++Result+++++++++" + res)
+      case Failure(err) => {
+        Logger.info(""" '%s' doesn't exists in your predef's list 
+            |
+            |Please store this Predef's list. Because use this predef is used for your instance's.
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
+            + "\n" + apiAccessed)
+      }
+    }   
+    println("" + res)
     Ok("" + res)
   }
 
@@ -64,16 +70,16 @@ object Predefs extends Controller with APIAuthElement {
       case Success(t) =>  { 
            t
       }
-      case Failure(err) =>
-           println("Value fetch failure")        
+      case Failure(err) =>{
+        Logger.info(""" Default predef's doesn't exists in your predef's list 
+            |
+            |Please store default predef's cloud details in your Predef's list. '%s'  
+           |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(err).stripMargin
+          + "\n" + apiAccessed)
+      }      
     }
     println(valueJson)
     Ok("" + valueJson)
-  }
-
-  def create = Action { 
-    val res = models.Predefs.findAll 
-    Ok("Post Action succeeded")
-  }
+  } 
  
 }

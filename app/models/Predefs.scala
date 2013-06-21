@@ -33,23 +33,21 @@ import org.megam.common.riak.{ GSRiak, GunnySack }
  */
 case class PredefsJSON(id: String, name: String, provider: String, role: String, packaging: String)
 
-object Predefs extends PredefsHelper {
+object Predefs extends Helper {
 
   implicit val formats = DefaultFormats
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predefs30")
+  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predeftest10")
 
   def create = {
     val metadataKey = "predef"
     val metadataVal = "predefs Creation"
     val bindex = BinIndex.named("predefName")
-     val bvalue = Set("nodejs")
-     //val storeValue = riak.store(new GunnySack("nodejs", nodejsJSON, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
     val storeList = List(riakJSON, nodejsJSON, playJSON, akkaJSON, redisJSON)
     val store = storeList.map(a => {
       val m = parse(a).extract[PredefsJSON]
       val bvalue = Set(m.name)
       val storeValue = riak.store(new GunnySack(m.name, a, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-    })    
+    })
   }
 
   /*
@@ -63,7 +61,9 @@ object Predefs extends PredefsHelper {
         val m = json.extract[PredefsJSON]
         Validation.success[Error, Option[PredefsJSON]](Some(m)).toValidationNel
       }
-      case Failure(err) => Validation.failure[Error, Option[PredefsJSON]](new Error("Predef.findById: Not Implemented.")).toValidationNel
+      case Failure(err) => Validation.failure[Error, Option[PredefsJSON]](new Error("""
+               |In this predef '%s' is doesn't exists in your list 
+               |Please add predef's in your list.""".format(key).stripMargin + "\n ")).toValidationNel
     }
   }
 
@@ -72,18 +72,28 @@ object Predefs extends PredefsHelper {
       case Success(key) => {
         Validation.success[Error, List[String]](key.toList).toValidationNel
       }
-       case Failure(err) => Validation.failure[Error, List[String]](new Error("Predef.list: Not Implemented.")).toValidationNel
+      case Failure(err) => Validation.failure[Error, List[String]](new Error("""
+               |In this predef's  is doesn't exists in your list 
+               |Please add predef's in your list.""")).toValidationNel
     }
   }
-  
-   def findAll = {    
-    val valueJson = riak.keysList match {
-      case Success(t) =>  { 
-          t
+
+  def createPredef = {
+    val res = models.Predefs.listKeys match {
+      case Success(t) => {
+        if (Nil == t) {
+          models.Predefs.create
+        } else
+           Logger.info("""
+               |Predef is already exists in your list 
+               |So you can use these predef's in your account.""")
       }
-      case Failure(err) =>         
-          val newcreation = models.Predefs.create     
-    }   
+      case Failure(err) =>  
+         Logger.info("""
+               |Predef is doesn't exists in your list 
+               |But the api server create the new predef's list.""")
+        models.Predefs.create
+    }
   }
-  
+
 }

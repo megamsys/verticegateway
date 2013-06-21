@@ -30,21 +30,23 @@ import org.megam.common.uid._
  * @author rajthilak
  *
  */
-trait NodesHelper {
+trait Helper {
 
   private val SFHOST = MConfig.snowflakeHost
   private val SFPORT: Int = MConfig.snowflakePort
-  val uid = UID(SFHOST, SFPORT, "nod")
   val key = "mykey3"
   val HMAC_HEADER = "X-Megam-HMAC"
 
-  def getUID: String = {
+  def getUID(agent: String): String = {
+    val uid = UID(SFHOST, SFPORT, agent)
     val id = uid.get
     val res: UniqueID = id match {
       case Success(uid) => {
         uid
       }
-      case Failure(error) => { None }
+      case Failure(error) => { 
+       None
+      }
     }
     (res.get._1 + res.get._2)
   }
@@ -62,8 +64,22 @@ trait NodesHelper {
         val foundAccount = optAcc.get
         foundAccount.id
       }
-      case Failure(_) => ""
+      case Failure(err) => 
+           err.toString
     }
     id
   }
+  
+  def getPredefJSON(id: String, name: String, provider: String, role: String, packaging: String): String = {
+  
+        val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"role\":\"" + role + "\",\"packaging\":\"" + packaging + "\"}"             
+      json
+  }
+  
+  val riakJSON = getPredefJSON(getUID("pre"), "riak", "chef", "riak", "")
+  val nodejsJSON = getPredefJSON(getUID("pre"), "nodejs", "chef", "nodejs", "")
+  val playJSON = getPredefJSON(getUID("pre"), "play", "chef", "play", "sbt")
+  val akkaJSON = getPredefJSON(getUID("pre"), "akka", "chef", "akka", "sbt")
+  val redisJSON = getPredefJSON(getUID("pre"), "redis", "chef", "redis", "")   
+  
 }

@@ -45,7 +45,10 @@ object Accounts extends Controller with APIAuthElement {
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
     models.Accounts.create(input)
-    Ok("Account created successfully for with account_id:" + input)
+    Ok("""Account creation successfully completed.
+            |
+            |Your email and api_key  registered successully.  Try other API invocation. 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
@@ -54,9 +57,13 @@ object Accounts extends Controller with APIAuthElement {
         val foundAccount = optAcc.get
         foundAccount
       }
-      case Failure(_) => None
-    }
-    println("++++++++++++++Result+++++++++" + res)
+      case Failure(err) => {
+             Logger.info("""Your email doesn't exists from megam.co.
+            |
+            |Please register your account in megam.co.'%s' 
+            |""".format(err).stripMargin + "\n ")
+          }
+    }   
     Ok("" + res)
   }
 
