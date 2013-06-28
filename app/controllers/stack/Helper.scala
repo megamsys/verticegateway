@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ trait Helper {
 
   private val SFHOST = MConfig.snowflakeHost
   private val SFPORT: Int = MConfig.snowflakePort
-  val key = "mykey3"
   val HMAC_HEADER = "X-Megam-HMAC"
 
   def getUID(agent: String): String = {
@@ -44,8 +43,8 @@ trait Helper {
       case Success(uid) => {
         uid
       }
-      case Failure(error) => { 
-       None
+      case Failure(error) => {
+        None
       }
     }
     (res.get._1 + res.get._2)
@@ -64,22 +63,21 @@ trait Helper {
         val foundAccount = optAcc.get
         foundAccount.id
       }
-      case Failure(err) => 
-           err.toString
+      case Failure(err) =>
+        err.toString
     }
     id
   }
-  
+
   def getPredefJSON(id: String, name: String, provider: String, role: String, packaging: String): String = {
-  
-        val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"role\":\"" + role + "\",\"packaging\":\"" + packaging + "\"}"             
-      json
+    val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"role\":\"" + role + "\",\"packaging\":\"" + packaging + "\"}"
+    json
   }
-  
+
   val riakJSON = getPredefJSON(getUID("pre"), "riak", "chef", "riak", "")
   val nodejsJSON = getPredefJSON(getUID("pre"), "nodejs", "chef", "nodejs", "")
   val playJSON = getPredefJSON(getUID("pre"), "play", "chef", "play", "sbt")
   val akkaJSON = getPredefJSON(getUID("pre"), "akka", "chef", "akka", "sbt")
-  val redisJSON = getPredefJSON(getUID("pre"), "redis", "chef", "redis", "")   
-  
+  val redisJSON = getPredefJSON(getUID("pre"), "redis", "chef", "redis", "")
+
 }
