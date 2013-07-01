@@ -27,8 +27,11 @@ import controllers.stack._
  */
 object Application extends Controller with APIAuthElement {
 
-  def index = Action {
-    Ok(views.html.index("Your new application is Ready."))
+  def index = Action { implicit request =>
+    Ok {
+     flash.get("success").getOrElse("Welcome!")
+    }
+   // Ok(views.html.index("Your new application is Ready."))
   }
 
   def authenticate = StackAction(parse.tolerantText) { implicit request =>

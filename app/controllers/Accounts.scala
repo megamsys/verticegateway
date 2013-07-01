@@ -47,7 +47,7 @@ object Accounts extends Controller with APIAuthElement {
     models.Accounts.create(input)
     Ok("""Account creation successfully completed.
             |
-            |Your email and api_key  registered successully.  Try other API invocation. 
+            |Your email and api_key  registered successully.  Hurray ! Run the other API calls now. 
             |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
   }
 
@@ -58,12 +58,12 @@ object Accounts extends Controller with APIAuthElement {
         foundAccount
       }
       case Failure(err) => {
-             Logger.info("""Your email doesn't exists from megam.co.
+        Logger.info("""Your email doesn't exists from megam.co.
             |
             |Please register your account in megam.co.'%s' 
             |""".format(err).stripMargin + "\n ")
-          }
-    }   
+      }
+    }
     Ok("" + res)
   }
 

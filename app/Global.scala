@@ -27,14 +27,14 @@ import models._
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
-    Logger.info("Megam Play %s App - started".format("0.1"))   
-    
+    Logger.info("Megam Play %s App - started".format("0.1"))
+
     /* if (Accounts.findAll.isEmpty) {
       Seq(
         Account(1, "sandy@megamsandbox.com", "IAMAtlas{74}NobodyCanSeeME#07", Administrator),
         Account(2, "sandynorm@megamsandbox.com", "IAMAtlas{74}NobodyCanSeeME#07", NormalUser)) foreach Accounts.create
     }*/
-    val valueJson = models.Predefs.createPredef
+    val valueJson = models.Predefs.firstTimeLoad
     Logger.debug("Predefs successfully created %s".format(valueJson))
   }
   override def onStop(app: Application) {
@@ -45,5 +45,9 @@ object Global extends GlobalSettings {
     InternalServerError(
       views.html.errorPage(ex))
   }
-
+  
+  override def onHandlerNotFound(request: RequestHeader): Result = {
+    NotFound(
+      views.html.errorPage(new Throwable(request.path)))
+  }
 }

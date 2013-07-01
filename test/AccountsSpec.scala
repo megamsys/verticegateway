@@ -17,49 +17,63 @@
  * @author rajthilak
  *
  */
+
 package test
+
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import org.specs2.execute.{ Result => SpecsResult }
 
-import java.security.MessageDigest
-import javax.crypto.spec.SecretKeySpec
-import javax.crypto.Mac
-import org.apache.commons.codec.binary.Base64
-import java.util.Calendar
-import java.text.SimpleDateFormat
+/**
+ * @author rajthilak
+ *
+ */
 
+class AccountsSpec extends Specification {
 
-
-class PredefCloudSpec extends Specification {
-   def is =
-    "PredefCloudSpec".title ^ end ^
-      """
-PredefCloudSpec is the implementation that calls the megam_play API server with the /predefcloud url to create predefclouds
-    """ ^ end ^
+  def is =
+    "AccountsSpec".title ^ end ^ """
+  AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
+  """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       end
 
-
-  //post the headers and their body for specifing url
+  /**
+   * Change the body content in method bodyToStick
+   */
   case object Post extends Context {
-    
-    protected override def urlSuffix: String = "predefclouds/<put_the_email_here>"
-    
+    val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
+
+    protected override def urlSuffix: String = "accounts/content"
+
+    protected override def bodyToStick: Option[String] = Some(new String(contentToEncode))
+
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
+
     def succeeds: SpecsResult = {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  
+
+  case object Get extends Context {
+    protected override def urlSuffix: String = "accounts/<put_the_email_here>"
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+
 }
-  

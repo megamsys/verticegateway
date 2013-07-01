@@ -36,18 +36,34 @@ case class PredefsJSON(id: String, name: String, provider: String, role: String,
 object Predefs extends Helper {
 
   implicit val formats = DefaultFormats
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predeftest10")
+  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predefs")
 
-  def create = {
+  /**
+   * The create calls and puts stuff in Riak if the predefs don't exists for the following
+   * rails
+   * riak
+   * play
+   * akka
+   * redis
+   * postgresql
+   * java
+   * nodejs
+   * rabbitmq
+   * Every key/value stored in riak has the the name "eg: rails, play" as the key, and an index named
+   * predefName = "rails" as well.
+   * TO-DO: We'll use memcache to store it, and retrieve it using StateMonad.
+   */
+  def create: List[Option[ValidationNel[Throwable, Option[GunnySack]]]] = {
     val metadataKey = "predef"
     val metadataVal = "predefs Creation"
     val bindex = BinIndex.named("predefName")
-    val storeList = List(riakJSON, nodejsJSON, playJSON, akkaJSON, redisJSON)
-    val store = storeList.map(a => {
-      val m = parse(a).extract[PredefsJSON]
+    for {
+      predef_full <- List(riakJSON, nodejsJSON, playJSON, akkaJSON, redisJSON)
+    } yield {
+      val m = parse(predef_full).extract[PredefsJSON]
       val bvalue = Set(m.name)
-      val storeValue = riak.store(new GunnySack(m.name, a, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-    })
+      riak.store(new GunnySack(m.name, predef_full, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+    }.some
   }
 
   /*
@@ -67,32 +83,15 @@ object Predefs extends Helper {
     }
   }
 
-  def listKeys: ValidationNel[Error, List[String]] = {
-    riak.keysList match {
-      case Success(key) => {
-        Validation.success[Error, List[String]](key.toList).toValidationNel
-      }
-      case Failure(err) => Validation.failure[Error, List[String]](new Error("""
-               |In this predef's  is doesn't exists in your list 
-               |Please add predef's in your list.""")).toValidationNel
-    }
-  }
+  def listKeys: Validation[Throwable, Stream[String]] = riak.listKeys
 
-  def createPredef = {
-    val res = models.Predefs.listKeys match {
-      case Success(t) => {
-        if (Nil == t) {
-          models.Predefs.create
-        } else
-           Logger.info("""
-               |Predef is already exists in your list 
-               |So you can use these predef's in your account.""")
-      }
-      case Failure(err) =>  
-         Logger.info("""
-               |Predef is doesn't exists in your list 
-               |But the api server create the new predef's list.""")
-        models.Predefs.create
+  /**
+   * Use this with caution. We don't want to call it always.The predefs will be memcached using a key.
+   * TO-DO: We'll use StateMonad to perform Cache get/set.
+   */
+  def firstTimeLoad: List[Option[ValidationNel[Throwable, Option[GunnySack]]]] = {
+    listKeys match {
+      case xs #:: xs1 => models.Predefs.create
     }
   }
 

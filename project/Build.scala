@@ -5,7 +5,7 @@ object ApplicationBuild extends Build {
 
   val appName = "megam_play"
 
-  val appVersion = "1.0"
+  val appVersion = "0.1.0"
 
   val organization = "Megam Systems"
 
@@ -13,7 +13,7 @@ object ApplicationBuild extends Build {
 
   val startYear = Some(2013)
 
-  val description = "A  scalable cloud bridge for messaging systems used to instrument cloud instances."
+  val description = "RESTful API server for the megam platform. Uses Riak and Memcache"
 
   /**
    *   if you use groupID %% artifactID % revision instead of groupID % artifactID % revision
@@ -35,26 +35,27 @@ object ApplicationBuild extends Build {
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
-    "org.scalaz" %% "scalaz-iterv" % scalazVersion,    
+    "org.scalaz" %% "scalaz-iterv" % scalazVersion,
     "com.stackmob" %% "newman" % "0.16.0",
     "com.github.seratch" %% "scalikejdbc-play-plugin" % "1.5.2",
     "jp.t2v" %% "play2.auth" % play2AuthVersion,
     "jp.t2v" %% "play2.auth.test" % play2AuthVersion % "test",
     "com.rabbitmq" % "amqp-client" % "3.0.4",
-    "com.github.nscala-time" %% "nscala-time" % jodaTimeVersion,    
+    "com.github.nscala-time" %% "nscala-time" % jodaTimeVersion,
     "postgresql" % "postgresql" % postgreSQLVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",
-    "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,    
-    "com.github.indykish" % "megam_common_2.10" % megamVersion,
-    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar"
-)
-    
+    "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
+    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar",
+     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
+    "com.github.indykish" % "megam_common_2.10" % megamVersion)
+
   val main = play.Project(appName, appVersion, appDependencies).settings(
     sbt.Keys.resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
     sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots",
-    sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com" // Add your own project settings here      
-    )
+    sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com", // Add your own project settings here      
+    sbt.Keys.resolvers += "Spy Repository" at "http://files.couchbase.com/maven2" // required to resolve `spymemcached`, the plugin's dependency.
+  )
 
 }

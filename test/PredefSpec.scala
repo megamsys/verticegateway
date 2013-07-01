@@ -23,6 +23,8 @@ import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
+
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
@@ -33,47 +35,24 @@ import org.apache.commons.codec.binary.Base64
 import java.util.Calendar
 import java.text.SimpleDateFormat
 
-
 class PredefSpec extends Specification {
-   def is =
+  def is =
     "PredefSpec".title ^ end ^
       """
-HMACSpec is the implementation that calls the megam_play API server with the /nodes url to verify HMAC only
+PredefSpec is the implementation that calls the megam_play API server with the /nodes url to verify HMAC only
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do GET requests" ! Get().succeeds ^
+      "Correctly do GET requests" ! Get.succeeds ^
       end
 
-  trait Context extends BaseContextGet {
+  case object Get extends Context {
+    protected override def urlSuffix: String = "predefs/<put_the_email_here>"
 
-    //create htttp client
-    val httpClient = new ApacheHttpClient
-    
-    //protected lazy val url = new URL("http://localhost:9000/v1/accounts/sandy@megamsandbox.com")
-    protected lazy val url = new URL("http://localhost:9000/v1/predefs")
-   
-    //val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)
-    val headerAndBody = sandboxHeaderAndBody(url.getPath)
-    
-    protected val headers = headerAndBody._1
-    //protected val body = headerAndBody._2
-
-    protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
-
-      val r = t.executeUnsafe
-      r.code must beEqualTo(expectedCode) and fn(r)
-    }
-
-    implicit private val encoding = Constants.UTF8Charset
-
-    protected def ensureHttpOk(h: HttpResponse) = h.code must beEqualTo(HttpResponseCode.Ok)
-  }
-
-  //post the headers and their body for specifing url
-  case class Get() extends Context {
     private val get = GET(url)(httpClient)
       .addHeaders(headers)
-    def succeeds = execute(get)(ensureHttpOk(_))
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
   }
-  
 }

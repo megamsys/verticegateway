@@ -16,8 +16,8 @@
 package controllers.stack
 
 import scalaz._
-import Scalaz._
 import scalaz.Validation._
+import Scalaz._
 import play.api.mvc.Action
 import play.api.Logger
 import play.api.mvc.RequestHeader
@@ -31,7 +31,6 @@ import java.security.MessageDigest
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
-import OutputA._;
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
 import com.github.nscala_time.time.Imports._
@@ -45,11 +44,15 @@ import models.{ Accounts }
 
 object SecurityActions {
 
-  val HMAC_HEADER = "X-Megam-HMAC"
-  val DATE_HEADER = "X-Megam-Date"
-  val ACCEPT = "Accept"
-  val MD5 = "MD5"
-  val HMACSHA1 = "HmacSHA1"
+  val X_Megam_EMAIL = "X-Megam-EMAIL"
+  val X_Megam_APIKEY = "X-Megam-APIKEY"
+  val X_Megam_DATE = "X-Megam-DATE"
+  val X_Megam_HMAC = "X-Megam-HMAC"
+
+  val Content_Type = "Content-Type"
+  val application_json = "application/json"
+  val Accept = "Accept"
+  val application_vnd_megam_json = "application/vnd.megam+json"
 
   /**
    * This Authenticated function will extract information from the request and calculate
@@ -60,8 +63,9 @@ object SecurityActions {
    * else
    */
   def Authenticated[A](req: RequestWithAttributes[A]): ValidationNel[ResultInError, RawResult] = {
+    Logger.debug(("-%20s  -->[%s]").format("Authenticated", "Entry"))
 
-    val sentHmacHeader = req.headers.get(HMAC_HEADER);
+    val sentHmacHeader = req.headers.get(X_Megam_HMAC);
     sentHmacHeader match {
 
       case Some(x) if x.contains(":") && x.split(":").length == 2 => {
@@ -69,9 +73,9 @@ object SecurityActions {
         val headerParts = x.split(":")
 
         val input = List(
-          req.headers.get(DATE_HEADER),
+          req.headers.get(X_Megam_DATE),
           req.path,
-          calculateMD5((req.body).toString()))
+          calculateMD5(req.body.toString().some))
         // create the string that we'll have to sign       
         val toSign = input.map(
           a => {
@@ -83,17 +87,15 @@ object SecurityActions {
           }).mkString("\n")
 
         Logger.debug(("-%20s  -->[%s]").format("input header", toSign))
-        Logger.debug("==============Accounts email fetch==" + headerParts(0) + "----------" + Accounts.findByEmail(headerParts(0)))
         Accounts.findByEmail(headerParts(0)) match {
           case Success(optAcc) => {
-            Logger.debug("=====------=====" + optAcc)
+            Logger.debug(("-%20s  -->[%s]").format("Option Account", optAcc))
             val foundAccount = optAcc.get
             val calculatedHMAC = calculateHMAC(foundAccount.api_key, toSign)
 
             Logger.debug("A :%-20s B :%-20s C :%-20s".format(calculatedHMAC, foundAccount.api_key, headerParts(1)))
 
             if (calculatedHMAC === headerParts(1)) {
-
               Validation.success[ResultInError, RawResult](RawResult(1, Map[String, String](
                 "id" -> foundAccount.id,
                 "api_key" -> foundAccount.email,
@@ -129,10 +131,16 @@ object SecurityActions {
   /**
    * Calculate the MD5 hash for the specified content (UTF-16 encoded)
    */
-  private def calculateMD5(content: String): String = {
-    Logger.debug("body content =>" + content)
+  def calculateMD5(content: Option[String]): String = {
+    val MD5 = "MD5"
+    Logger.debug(("-%20s  -->[%s]").format("body content", content))
     val digest = MessageDigest.getInstance(MD5)
-    digest.update(content.getBytes())
+    digest.update(content.getOrElse(throw new IllegalArgumentException(
+      """Body wasn't found for this API call.  No content in body. API server couldn't parse it.'
+            |
+            |Please verify your information that is sent in the body. This  needs to  appear  as-is  during onboarding
+            |from the megam.co webiste. This is a bug in the API client. If you have accessed   this   using our
+            |api code (megam_api for ruby, scala, java etc..) then PLEASE LOG A JIRA ISSUE.""".stripMargin + "\n ")).getBytes())
     Logger.debug(("-%20s  -->[%s]").format("body digest md5", digest))
     new String(Base64.encodeBase64(digest.digest()))
   }
@@ -140,19 +148,18 @@ object SecurityActions {
   /**
    * Calculate the HMAC for the specified data and the supplied secret (UTF-16 encoded)
    */
-  private def calculateHMAC(secret: String, toEncode: String): String = {
+  def calculateHMAC(secret: String, toEncode: String): String = {
+    val HMACSHA1 = "HmacSHA1"
     val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
-    Logger.debug(("-%20s  -->[%s] = %s").format("raw hmac", rawHmac, dumpBytes(Some(rawHmac))))
-    val test = dumpBytes(rawHmac.some)
-    test
+    val hmacAsByt = dumpByt(rawHmac.some)
+    Logger.debug(("-%20s  -->[%s] = %s").format("raw hmac", rawHmac, hmacAsByt))
+    hmacAsByt
   }
-}
 
-object OutputA {
-  def dumpBytes(bytesOpt: Option[Array[Byte]]) = {
+  def dumpByt(bytesOpt: Option[Array[Byte]]): String = {
     val b: Array[String] = (bytesOpt match {
       case Some(bytes) => bytes.map(byt => (("00" + (byt &
         0XFF).toHexString)).takeRight(2))
@@ -160,5 +167,5 @@ object OutputA {
     })
     b.mkString("")
   }
-}   
- 
+}
+

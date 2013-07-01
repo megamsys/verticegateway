@@ -42,8 +42,7 @@ object Predefs extends Controller with APIAuthElement {
    * show the message details
    * 
    */
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>    
     val res = models.Predefs.findByKey(id) match {
       case Success(optAcc) => {
         val foundNode = optAcc.get

@@ -1,4 +1,7 @@
 @(message: String, style: String = "Scala", playhome: String ="http://www.playframework.org")
+@()(implicit flash: play.api.mvc.Flash) ... 
+flash.get("success").getOrElse("Welcome!") ...
+
 <div class="api-doc">
 	<div class="mddoc margin-top-large">
 		<h1><a name="rest_docs" href="#a-rest_docs">REST API</a></h1>

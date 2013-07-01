@@ -1,1 +1,2 @@
 9999:scalikejdbc.PlayPlugin
+5000:com.github.mumoshu.play2.memcached.MemcachedPlugin
