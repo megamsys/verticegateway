@@ -90,13 +90,11 @@ trait BaseContext {
   }
 
   protected def sandboxHeaderAndBody(contentToEncodeOpt: Option[String] = none,
-    headerOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
-      X_Megam_DATE -> currentDate, "Accept" -> "application/vnd.megam+json")),
-    path: String): (Headers, RawBody) = {
+    headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {
 
-    val headerMap: Map[String, String] = headerOpt.getOrElse(throw new IllegalArgumentException("""Header map is needed to run the testcase\n  
-    		 eg: Map(%-15s -> "email", "%-15s -> "apikey","%-15s -> "date")""".format(X_Megam_EMAIL, X_Megam_APIKEY, X_Megam_DATE)))
+    val headerMap: Map[String, String] = headerOpt.getOrElse(throw new IllegalArgumentException(
+        """Header map is needed to run the testcase\n  
+    	eg: Map(%-15s -> "email", "%-15s -> "apikey","%-15s -> "date")""".format(X_Megam_EMAIL, X_Megam_APIKEY, X_Megam_DATE)))
 
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt)
     val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
