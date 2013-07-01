@@ -120,7 +120,6 @@ trait Context extends BaseContext {
 
   val headerAndBody = sandboxHeaderAndBody(this.bodyToStick, headersOpt, url.getPath)
 
-
   protected val headers = headerAndBody._1
   protected val body = headerAndBody._2
 

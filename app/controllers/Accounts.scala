@@ -44,13 +44,15 @@ object Accounts extends Controller with APIAuthElement {
    */
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    Logger.debug("Accounts.post  : entry\n"+ input)
-    models.Accounts.create(input)
-    Logger.debug("Accounts.post  : created\n"+ input)
-    Ok("""Account creation successfully completed.
+    Logger.debug("Accounts.post  : entry\n" + input)
+    models.Accounts.create(input) match {
+      case Success(succ) => Ok("""Account creation successfully completed.
             |
-            |Your email and api_key  registered successully.  Hurray ! Run the other API calls now. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
+            |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now. 
+            |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
+        format(succ.get.email, succ.get.api_key))
+      case Failure(err) => InternalServerError(err.map(l => l.getMessage).list.mkString("\n"))
+    }
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
