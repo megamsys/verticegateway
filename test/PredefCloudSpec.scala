@@ -34,10 +34,8 @@ import org.apache.commons.codec.binary.Base64
 import java.util.Calendar
 import java.text.SimpleDateFormat
 
-
-
 class PredefCloudSpec extends Specification {
-   def is =
+  def is =
     "PredefCloudSpec".title ^ end ^
       """
 PredefCloudSpec is the implementation that calls the megam_play API server with the /predefcloud url to create predefclouds
@@ -46,12 +44,11 @@ PredefCloudSpec is the implementation that calls the megam_play API server with 
       "Correctly do POST requests" ! Post.succeeds ^
       end
 
-
   //post the headers and their body for specifing url
   case object Post extends Context {
-    
+
     protected override def urlSuffix: String = "predefclouds/<put_the_email_here>"
-    
+
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
@@ -60,6 +57,6 @@ PredefCloudSpec is the implementation that calls the megam_play API server with 
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  
+
 }
   

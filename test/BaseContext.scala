@@ -89,11 +89,10 @@ trait BaseContext {
     SpecsFailure("JSON errors occurred: %s".format(totalErrString))
   }
 
-  protected def sandboxHeaderAndBody(contentToEncodeOpt: Option[String] = none,
+  protected def sandboxHeaderAndBody(contentToEncodeOpt: Option[String],
     headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {
-
     val headerMap: Map[String, String] = headerOpt.getOrElse(throw new IllegalArgumentException(
-        """Header map is needed to run the testcase\n  
+      """Header map is needed to run the testcase\n  
     	eg: Map(%-15s -> "email", "%-15s -> "apikey","%-15s -> "date")""".format(X_Megam_EMAIL, X_Megam_APIKEY, X_Megam_DATE)))
 
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt)
@@ -108,15 +107,19 @@ trait BaseContext {
 trait Context extends BaseContext {
 
   val httpClient = new ApacheHttpClient
-  lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
 
   protected def urlSuffix: String
-  protected def bodyToStick: Option[String] = None
+  protected def bodyToStick: Option[String] = Some(new String())
   protected def headersOpt: Option[Map[String, String]] = Some(Map("content-type" -> "application/json",
     "X-Megam-EMAIL" -> "sandy@megamsandbox.com", "X-Megam-APIKEY" -> "IamAtlas{74}NobodyCanSeeME#07",
     "X-Megam-DATE" -> currentDate, "Accept" -> "application/vnd.megam+json"))
 
-  val headerAndBody = sandboxHeaderAndBody(bodyToStick, headersOpt, url.getPath)
+  lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
+  play.api.Logger.debug("url  is"+ url)
+  play.api.Logger.debug("body is"+ bodyToStick)
+
+  val headerAndBody = sandboxHeaderAndBody(this.bodyToStick, headersOpt, url.getPath)
+
 
   protected val headers = headerAndBody._1
   protected val body = headerAndBody._2

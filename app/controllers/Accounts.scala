@@ -44,7 +44,9 @@ object Accounts extends Controller with APIAuthElement {
    */
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
+    Logger.debug("Accounts.post  : entry\n"+ input)
     models.Accounts.create(input)
+    Logger.debug("Accounts.post  : created\n"+ input)
     Ok("""Account creation successfully completed.
             |
             |Your email and api_key  registered successully.  Hurray ! Run the other API calls now. 

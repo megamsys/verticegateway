@@ -49,11 +49,13 @@ class AccountsSpec extends Specification {
    * Change the body content in method bodyToStick
    */
   case object Post extends Context {
-    val contentToEncode = "{\"id\":\"2\", \"email\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
 
     protected override def urlSuffix: String = "accounts/content"
 
-    protected override def bodyToStick: Option[String] = Some(new String(contentToEncode))
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"idlll\":\"2\", \"emaillll\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
+      Some(new String(contentToEncode))
+    }
 
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
@@ -66,7 +68,7 @@ class AccountsSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/<put_the_email_here>"
+    protected override def urlSuffix: String = "accounts/sandy@megamsandbox.com"
 
     private val get = GET(url)(httpClient)
       .addHeaders(headers)

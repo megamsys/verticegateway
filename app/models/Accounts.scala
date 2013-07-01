@@ -47,6 +47,7 @@ object Accounts {
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
 
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
+    Logger.debug("models.Account create: entry\n" + input)
     val id = UID(SFHOST, SFPORT, "act").get
      id match {
       case Success(uid) => {        
@@ -113,5 +114,4 @@ object Accounts {
     }
   }
 
-  //def freq[T](seq: List[T]) = seq.groupBy(x => x).mapValues(_.length)
 }
