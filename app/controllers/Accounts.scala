@@ -46,7 +46,7 @@ object Accounts extends Controller with APIAuthElement {
     val input = (request.body).toString()
     Logger.debug("Accounts.post  : entry\n" + input)
     models.Accounts.create(input) match {
-      case Success(succ) => Ok("""Account creation successfully completed.
+      case Success(succ) => Ok("""Account created successfully.
             |
             |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now. 
             |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
@@ -56,19 +56,24 @@ object Accounts extends Controller with APIAuthElement {
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    val res = models.Accounts.findByEmail(id) match {
-      case Success(optAcc) => {
-        val foundAccount = optAcc.get
-        foundAccount
+    models.Accounts.findByEmail(id) match {
+      case Success(succ) => {
+        Ok((succ.map(s => s.toString)).getOrElse(
+          """No Account exists for email '%s'. Locate returned null.
+            |
+            |Please check if email '%s' with an api_key isn't registered to consume api.megam.co.    
+            |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
+            format(id)))
       }
       case Failure(err) => {
-        Logger.info("""Your email doesn't exists from megam.co.
+        InternalServerError("""Account for email '%s' doesn't exists at api.megam.co.
             |
-            |Please register your account in megam.co.'%s' 
-            |""".format(err).stripMargin + "\n ")
+            |Your email '%s' with an api_key isn't registered to consume api.megam.co. Please register your account in www.megam.co.   
+            |Read https://api.megam.co, http://docs.megam.co to know about our API.
+            Ask for help on the forums.\n===>\n%s""".format(id, err.map(l => l.getMessage).list.mkString("\n")))
       }
-    }
-    Ok("" + res)
-  }
 
+    }
+
+  }
 }

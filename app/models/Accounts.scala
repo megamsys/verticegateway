@@ -30,12 +30,16 @@ import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import org.megam.common.uid._
 import net.liftweb.json.scalaz.JsonScalaz.field
+import play.api.Logger
 /**
  * @author rajthilak
  * authority
  */
 
-case class AccountResult(id: String, email: String, api_key: String, authority: String)
+case class AccountResult(id: String, email: String, api_key: String, authority: String) {
+  override def toString = "\"id\":\"" + id + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\""
+
+}
 case class AccountInput(email: String, api_key: String, authority: String) {
   val getAccountJson = "\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\""
 }
@@ -49,8 +53,8 @@ object Accounts {
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
     Logger.debug("models.Account create: entry\n" + input)
     val id = UID(SFHOST, SFPORT, "act").get
-     id match {
-      case Success(uid) => {        
+    id match {
+      case Success(uid) => {
         val metadataKey = "Field"
         val metadataVal = "1002"
         val inputJson = parse(input)
@@ -71,7 +75,7 @@ object Accounts {
             |
             |The id creation was failed from snowflake server 
             |If this error persits, ask for help on the forums.""")).toValidationNel
-     }   
+    }
   }
 
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
@@ -81,9 +85,8 @@ object Accounts {
         val caseValue = msg.get
         val json = parse(caseValue.value)
         val m = json.extract[AccountResult]
-        println("some value ---------" + m)
+        Logger.debug("Account: findByEmail: Found ---->" + m)
         Validation.success[Error, Option[AccountResult]](Some(m)).toValidationNel
-        // parse(msg.value).extract[AccountResult]  
       }
       case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
             | Your account is doesn't exists in megam.co.
