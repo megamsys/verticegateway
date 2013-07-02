@@ -103,15 +103,37 @@ object Accounts {
   }
 
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
-    //extract the json into ValidationNel
+    Logger.debug("models.Account findByEmail: entry:" + email)
     riak.fetch(email) match {
       case Success(succ) => {
-        Logger.debug("Account: findByEmail: Found ---->\n" + succ)
-        Validation.success[Error, Option[AccountResult]]((parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult].some)).toValidationNel
+        Logger.debug("models.Account findByEmail: Found:" + succ)
+        (Validation.fromTryCatch {
+          parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult]
+        } leftMap { t: Throwable =>
+          new Error(
+            """Stored Account contains invalid json 'json:'  '%s' 
+            |
+            |The error received when parsing the JSON is 
+            |=====>\n
+            |%s
+            |=====<
+            |Verify the content as required for this resource. 
+            |Have you registered for an api_key with us ? We humbly request you to  
+            |try the same request again.  If it still persists after reading our doc, retrying, please contact our support.
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".
+              format(succ.getOrElse(new GunnySack()).value, t.getMessage).stripMargin)
+        }).toValidationNel.flatMap { j: String =>
+          Validation.success[Error, Option[AccountResult]](j.some).toValidationNel
+        }
       }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Your account doesn't exists in megam.co.
-            | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+        new Error(
+          """Account doesn't exist for 'email:' '%s'
+            |
+            |Have you registered for an api_key with us ? We humbly request you to  
+            |try the same request again.  If it still persists after reading our doc, retrying, please contact our support.
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(email).stripMargin)).toValidationNel
+
     }
   }
 
@@ -119,11 +141,14 @@ object Accounts {
    * Index on email
    */
   def findById(id: String): ValidationNel[Error, Option[AccountResult]] = {
+    Logger.debug("models.Account findById: entry:" + id)
+
     val metadataKey = "Field"
     val metadataVal = "1002"
     val bindex = BinIndex.named("")
     val bvalue = Set("")
-    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountId", id, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountId", id,
+      RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
 
     fetchValue match {
       case Success(msg) => {
@@ -133,7 +158,7 @@ object Accounts {
         findByEmail(key)
       }
       case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Your account is doesn't exists in megam.co.
+            | Your account doesn't exists in megam.co.
             | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
     }
   }
