@@ -96,14 +96,16 @@ trait BaseContext {
     headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {
     val headerMap: Map[String, String] = headerOpt.getOrElse(defaultHeaderOpt)
     play.api.Logger.debug("--------hmap  ======>\n" + headerMap)
-    play.api.Logger.debug("--------" + X_Megam_APIKEY + "  ======>\n" + headerMap.getOrElse(X_Megam_APIKEY, "blank_key"))
-    play.api.Logger.debug("--------" + X_Megam_DATE + "  ======>\n" + headerMap.getOrElse(X_Megam_DATE, currentDate))
+    play.api.Logger.debug("--------" + X_Megam_APIKEY + "  ======>" + headerMap.getOrElse(X_Megam_APIKEY, "blank_key"))
+    play.api.Logger.debug("--------" + X_Megam_DATE + "  ======>" + headerMap.getOrElse(X_Megam_DATE, currentDate))
+    play.api.Logger.debug("--------" + X_Megam_EMAIL + "  ======>" + headerMap.getOrElse(X_Megam_EMAIL, "blank_email"))
+    play.api.Logger.debug("--------PATH        ======>" + path)
 
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt)
     val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
     val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
 
-    (Headers((headerOpt.getOrElse(Map()) + (X_Megam_HMAC -> finalHMAC)).toList),
+    (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
       RawBody(contentToEncodeOpt.getOrElse(new String())))
   }
 }
@@ -128,6 +130,7 @@ trait Context extends BaseContext {
 
   protected val body = headerAndBody._2
   play.api.Logger.debug("--------body for HTTP REQ =>\n" + body)
+  implicit private val encoding = Constants.UTF8Charset
 
   protected def execute[T](t: Builder) = {
     t.executeUnsafe

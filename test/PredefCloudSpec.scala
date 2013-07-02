@@ -48,6 +48,7 @@ PredefCloudSpec is the implementation that calls the megam_play API server with 
   case object Post extends Context {
 
     protected override def urlSuffix: String = "predefclouds/<put_the_email_here>"
+    protected def headersOpt: Option[Map[String, String]] = None
 
     private val post = POST(url)(httpClient)
       .addHeaders(headers)

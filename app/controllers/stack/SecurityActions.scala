@@ -64,8 +64,9 @@ object SecurityActions {
    */
   def Authenticated[A](req: RequestWithAttributes[A]): ValidationNel[ResultInError, RawResult] = {
     Logger.debug(("-%20s  -->[%s]").format("Authenticated", "Entry"))
+    Logger.debug(("-%20s  -->[%s]").format("Authenticated REQ Body", req.body.toString))
 
-    val sentHmacHeader = req.headers.get(X_Megam_HMAC);
+    val sentHmacHeader = req.headers.get(X_Megam_HMAC)
     sentHmacHeader match {
 
       case Some(x) if x.contains(":") && x.split(":").length == 2 => {
@@ -75,7 +76,7 @@ object SecurityActions {
         val input = List(
           req.headers.get(X_Megam_DATE),
           req.path,
-          calculateMD5(req.body.toString().some))
+          calculateMD5(((req.body).toString()).some))
         // create the string that we'll have to sign       
         val toSign = input.map(
           a => {
@@ -141,7 +142,6 @@ object SecurityActions {
             |Please verify your information that is sent in the body. This  needs to  appear  as-is  during onboarding
             |from the megam.co webiste. This is a bug in the API client. If you have accessed   this   using our
             |api code (megam_api for ruby, scala, java etc..) then PLEASE LOG A JIRA ISSUE.""".stripMargin + "\n ")).getBytes())
-    Logger.debug(("-%20s  -->[%s]").format("body digest md5", digest))
     new String(Base64.encodeBase64(digest.digest()))
   }
 
