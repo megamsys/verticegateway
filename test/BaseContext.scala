@@ -98,8 +98,8 @@ trait BaseContext {
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt)
     val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
     val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
-
-    (Headers((headerOpt.getOrElse(Map()).toList)),
+    
+    (Headers((headerOpt.getOrElse(Map()) + (X_Megam_HMAC -> finalHMAC)).toList),
       RawBody(contentToEncodeOpt.getOrElse(new String())))
   }
 }
@@ -115,13 +115,17 @@ trait Context extends BaseContext {
     "X-Megam-DATE" -> currentDate, "Accept" -> "application/vnd.megam+json"))
 
   lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
-  play.api.Logger.debug("url  is"+ url)
-  play.api.Logger.debug("body is"+ bodyToStick)
+  play.api.Logger.debug("--------url  ======>\n"+ url)
+  play.api.Logger.debug("--------body ======>\n"+ bodyToStick)
 
   val headerAndBody = sandboxHeaderAndBody(this.bodyToStick, headersOpt, url.getPath)
+  play.api.Logger.debug("body post =>"+ headerAndBody)
 
   protected val headers = headerAndBody._1
+  play.api.Logger.debug("--------head for HTTP REQ =>\n"+ header)
+
   protected val body = headerAndBody._2
+  play.api.Logger.debug("--------body for HTTP REQ =>\n"+ body)
 
   protected def execute[T](t: Builder) = {
     t.executeUnsafe

@@ -34,7 +34,7 @@ import org.apache.commons.codec.binary.Base64
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
 import com.github.nscala_time.time.Imports._
-
+import controllers.stack.stack._
 import models.{ Accounts }
 
 /**

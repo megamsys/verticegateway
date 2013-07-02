@@ -26,7 +26,7 @@ import play.api.libs.iteratee.Enumerator
 
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
-import controllers.stack._
+import controllers.stack.stack._
 import models._
 
 /**
