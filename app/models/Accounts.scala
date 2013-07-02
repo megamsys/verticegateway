@@ -17,7 +17,6 @@ package models
 
 import scalaz._
 import Scalaz._
-import scalaz.NonEmptyList._
 import play.api._
 import play.api.mvc._
 import net.liftweb.json._
@@ -37,59 +36,81 @@ import play.api.Logger
  */
 
 case class AccountResult(id: String, email: String, api_key: String, authority: String) {
+  val empty: AccountResult = this
+  def this() = this(new String(), new String(), new String(), new String())
   override def toString = "\"id\":\"" + id + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\""
-
 }
 case class AccountInput(email: String, api_key: String, authority: String) {
-  val getAccountJson = "\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\""
+  val json = "\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\""
 }
 object Accounts {
 
   implicit val formats = DefaultFormats
-  private val SFHOST = MConfig.snowflakeHost
-  private val SFPORT: Int = MConfig.snowflakePort
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
 
+  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
+  /**
+   * Parse the input body when you start, if its ok, then we process it.
+   * Or else send back a bad return code saying "the body contains invalid character, with the message received.
+   * If there is an error in the snowflake connection, we need to send one.
+   */
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
     Logger.debug("models.Account create: entry\n" + input)
-    val id = UID(SFHOST, SFPORT, "act").get
-    id match {
-      case Success(uid) => {
-        val metadataKey = "Field"
-        val metadataVal = "1002"
-        val inputJson = parse(input)
-        val m = inputJson.extract[AccountInput]
-        val bindex = BinIndex.named("accountId")
-        val res: UniqueID = uid
-        val bvalue = Set(res.get._1 + res.get._2)
-        val json = "{\"id\": \"" + (res.get._1 + res.get._2) + "\"," + m.getAccountJson + "}"
-        val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-        storeValue match {
-          case Success(msg) => Validation.success[Error, Option[AccountResult]](None).toValidationNel
-          case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Account creation failed. This  needs to  appear  as-is  during onboarding
-            |from the megam.co website. If this error persits, ask for help on the forums.""")).toValidationNel
-        }
-      }
-      case Failure(error) => Validation.failure[Error, Option[AccountResult]](new Error("""      
+    (Validation.fromTryCatch {
+      parse(input).extract[AccountInput]
+    } leftMap { t: Throwable =>
+      new Error(
+        """Body sent contains invalid input. 'body:'  '%s' 
             |
-            |The id creation was failed from snowflake server 
-            |If this error persits, ask for help on the forums.""")).toValidationNel
+            |The error received when parsing the JSON is 
+            |=====>\n
+            |%s
+            |=====<
+            |Verify the body content as required for this resource. 
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".
+          format(input, t.getMessage).stripMargin)
+    }).toValidationNel.flatMap { m: AccountInput =>
+      UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get match {
+        case Success(uid) => {
+          val metadataKey = "Field"
+          val metadataVal = "1002"
+          val bindex = BinIndex.named("accountId")
+          val bvalue = Set(uid.get._1 + uid.get._2)
+          val json = "{\"id\": \"" + (uid.get._1 + uid.get._2) + "\"," + m.json + "}"
+          val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+          storeValue match {
+            case Success(succ) => Validation.success[Error, Option[AccountResult]] {
+              (parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult].some)
+            }.toValidationNel
+            case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+              new Error(
+                """Account creation failed for 'email:' with api_key : '%s'
+            |
+            |This appears to be a problem that occurred while connecting to our datasource. We humbly request you to 
+            |try the same again. If it still persists after reading our doc, retrying, please contact our support.
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin)).toValidationNel
+          }
+        }
+        case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+          new Error(
+            """Account creation failed for 'email:' with api_key : '%s'
+            |
+            |This appears to be a problem with the unique id creation. We humbly request you to 
+            |try the same again.  If it still persists after reading our doc, retrying, please contact our support.
+            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin)).toValidationNel
+      }
     }
+
   }
 
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
     //extract the json into ValidationNel
     riak.fetch(email) match {
-      case Success(msg) => {
-        val caseValue = msg.get
-        val json = parse(caseValue.value)
-        val m = json.extract[AccountResult]
-        Logger.debug("Account: findByEmail: Found ---->" + m)
-        Validation.success[Error, Option[AccountResult]](Some(m)).toValidationNel
+      case Success(succ) => {
+        Logger.debug("Account: findByEmail: Found ---->\n" + succ)
+        Validation.success[Error, Option[AccountResult]]((parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult].some)).toValidationNel
       }
       case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Your account is doesn't exists in megam.co.
+            | Your account doesn't exists in megam.co.
             | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
     }
   }
