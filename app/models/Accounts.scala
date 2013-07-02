@@ -122,7 +122,7 @@ object Accounts {
             |try the same request again.  If it still persists after reading our doc, retrying, please contact our support.
             |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".
               format(succ.getOrElse(new GunnySack()).value, t.getMessage).stripMargin)
-        }).toValidationNel.flatMap { j: String =>
+        }).toValidationNel.flatMap { j: AccountResult =>
           Validation.success[Error, Option[AccountResult]](j.some).toValidationNel
         }
       }
