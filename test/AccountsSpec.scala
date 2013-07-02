@@ -42,7 +42,7 @@ class AccountsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       end
 
   /**
@@ -53,9 +53,10 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"idlll\":\"2\", \"emaillll\":\"chris@example.com\", \"sharedprivatekey\":\"secret\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"email\":\"chris@example.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
+    protected override def headersOpt: Option[Map[String, String]] = None
 
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
@@ -69,7 +70,7 @@ class AccountsSpec extends Specification {
 
   case object Get extends Context {
     protected override def urlSuffix: String = "accounts/sandy@megamsandbox.com"
-
+    protected override def headersOpt: Option[Map[String, String]] = None
     private val get = GET(url)(httpClient)
       .addHeaders(headers)
     def succeeds = {

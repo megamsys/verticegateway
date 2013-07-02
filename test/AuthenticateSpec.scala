@@ -43,16 +43,17 @@ class AuthenticateSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with a invalid userid and api key" ! PostWithInvalidUserIDEmail.succeeds ^
-      "Correctly do POST requests with an malformed header" ! PostMalformedHeader.succeeds ^
+      // "Correctly do POST requests with a invalid userid and api key" ! PostWithInvalidUserIDEmail.succeeds ^
+      // "Correctly do POST requests with an malformed header" ! PostMalformedHeader.succeeds ^
       end
   /**
    * Change the body content in method bodyToStick
    */
   case object Post extends Context {
-    protected override def urlSuffix: String = "auth/content"
-    protected override def bodyToStick: Option[String] = Some(new String("Put the JSON as needed for auth"))
-
+    protected override def urlSuffix: String = "auth"
+    protected override def bodyToStick: Option[String] = Some(new String("\"email\":\"chris@example.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
+    protected override def headersOpt: Option[Map[String, String]]= None
+    
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
@@ -66,6 +67,7 @@ class AuthenticateSpec extends Specification {
   case object PostWithInvalidUserIDEmail extends Context {
     protected override def urlSuffix: String = "auth"
     protected override def bodyToStick: Option[String] = Some(new String("Put the Invalid JSON as needed for auth"))
+    protected override def headersOpt: Option[Map[String, String]]= None
 
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
@@ -80,7 +82,7 @@ class AuthenticateSpec extends Specification {
   case object PostMalformedHeader extends Context {
     protected override def urlSuffix: String = "auth"
     protected override def bodyToStick: Option[String] = Some(new String("Put the Invalid JSON with malformed header as needed for auth"))
-
+    protected override def headersOpt: Option[Map[String, String]]= None
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
