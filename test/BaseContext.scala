@@ -43,7 +43,10 @@ import controllers.stack.SecurityActions._
 trait BaseContext {
 
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
-
+  val defaultHeaderOpt = Map("content-type" -> "application/json",
+    "X-Megam-EMAIL" -> "sandy@megamsandbox.com", "X-Megam-APIKEY" -> "IamAtlas{74}NobodyCanSeeME#07",
+    "X-Megam-DATE" -> currentDate, "Accept" -> "application/vnd.megam+json")
+    
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
     override def apply[S <: Headers](r: Expectable[S]): MatchResult[S] = {
       val other: Headers = r.value
@@ -90,11 +93,8 @@ trait BaseContext {
   }
 
   protected def sandboxHeaderAndBody(contentToEncodeOpt: Option[String],
-    headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {
-    val headerMap: Map[String, String] = headerOpt.getOrElse(throw new IllegalArgumentException(
-      """Header map is needed to run the testcase\n  
-    	eg: Map(%-15s -> "email", "%-15s -> "apikey","%-15s -> "date")""".format(X_Megam_EMAIL, X_Megam_APIKEY, X_Megam_DATE)))
-
+    headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {    
+    val headerMap: Map[String, String] = headerOpt.getOrElse(defaultHeaderOpt)
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt)
     val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
     val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
@@ -110,9 +110,7 @@ trait Context extends BaseContext {
 
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())
-  protected def headersOpt: Option[Map[String, String]] = Some(Map("content-type" -> "application/json",
-    "X-Megam-EMAIL" -> "sandy@megamsandbox.com", "X-Megam-APIKEY" -> "IamAtlas{74}NobodyCanSeeME#07",
-    "X-Megam-DATE" -> currentDate, "Accept" -> "application/vnd.megam+json"))
+  protected def headersOpt: Option[Map[String, String]]
 
   lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
   play.api.Logger.debug("--------url  ======>\n"+ url)
@@ -122,7 +120,7 @@ trait Context extends BaseContext {
   play.api.Logger.debug("body post =>"+ headerAndBody)
 
   protected val headers = headerAndBody._1
-  play.api.Logger.debug("--------head for HTTP REQ =>\n"+ header)
+  play.api.Logger.debug("--------head for HTTP REQ =>\n"+ headers)
 
   protected val body = headerAndBody._2
   play.api.Logger.debug("--------body for HTTP REQ =>\n"+ body)

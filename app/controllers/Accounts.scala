@@ -15,14 +15,12 @@
 */
 package controllers
 
-import scalaz._
-import Scalaz._
 import play.api._
 import play.api.mvc._
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
-import java.util.concurrent.atomic.AtomicInteger
+import scalaz._
 import scalaz.Validation._
 import play.api.mvc.Result
 
