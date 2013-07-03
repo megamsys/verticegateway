@@ -90,8 +90,9 @@ object Accounts {
     riak.fetch(email) match {
       case Success(succ) => {
         Logger.debug("models.Account findByEmail: Found:" + succ)
+        succ.getOrElse(new ResourceItemNotFound(email, ""))
         (Validation.fromTryCatch {
-          parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult]
+          parse(succ.get.value).extract[AccountResult]
         } leftMap { t: Throwable =>
           new ResourceItemNotFound(email, t.getMessage)
         }).toValidationNel.flatMap { j: AccountResult =>
