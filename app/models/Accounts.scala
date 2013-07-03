@@ -87,23 +87,25 @@ object Accounts {
 
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
     Logger.debug("models.Account findByEmail: entry:" + email)
-    riak.fetch(email) match {
-      case Success(succ) => {
-        Logger.debug("models.Account findByEmail: Found:" + succ)
-        succ.getOrElse(new ResourceItemNotFound(email, ""))
-        (Validation.fromTryCatch {
-          parse(succ.get.value).extract[AccountResult]
-        } leftMap { t: Throwable =>
-          new ResourceItemNotFound(email, t.getMessage)
-        }).toValidationNel.flatMap { j: AccountResult =>
-          Validation.success[Error, Option[AccountResult]](j.some).toValidationNel
+    (riak.fetch(email) leftMap { t: NonEmptyList[Throwable] =>
+      new ServiceUnavailableError(email, (t.list.map(m => m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+      xso match {
+        case Some(xs) => {
+          (Validation.fromTryCatch {
+            parse(xs.value).extract[AccountResult]
+          } leftMap { t: Throwable =>
+            new ResourceItemNotFound(email, t.getMessage)
+          }).toValidationNel.flatMap { j: AccountResult =>
+            Validation.success[Error, Option[AccountResult]](j.some).toValidationNel
+          }
         }
+        case None => Validation.failure[Error, Option[AccountResult]](new ResourceItemNotFound(email, "")).toValidationNel
       }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](
-        new ServiceUnavailableError(email, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
     }
   }
 
+  // 
   /**
    * Index on email
    */
