@@ -17,13 +17,15 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.mvc.Result
+
+import scalaz._
+import scalaz.Validation._
+
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
-import scalaz._
-import scalaz.Validation._
-import play.api.mvc.Result
-
+import controllers.stack.stack._
 /**
  * @author rajthilak
  *
@@ -44,12 +46,15 @@ object Accounts extends Controller with APIAuthElement {
     val input = (request.body).toString()
     Logger.debug("Accounts.post  : entry\n" + input)
     models.Accounts.create(input) match {
-      case Success(succ) => Ok("""Account created successfully.
+      case Success(succ) => Ok("""%d: Account created successfully.
             |
             |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now. 
             |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
-        format(succ.get.email, succ.get.api_key))
-      case Failure(err) => InternalServerError(err.map(l => l.getMessage).list.mkString("\n"))
+        format(OK, succ.get.email, succ.get.api_key))
+      case Failure(err) => {
+        val rn = new HttpReturningError(err)
+        Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+      }
     }
   }
 
@@ -59,18 +64,13 @@ object Accounts extends Controller with APIAuthElement {
         Ok((succ.map(s => s.toString)).getOrElse(
           """No Account exists for email '%s'. Locate returned null.
             |
-            |Please check if email '%s' with an api_key isn't registered to consume api.megam.co.    
             |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
-            format(id)))
+            format(id, tailMsg)))
       }
       case Failure(err) => {
-        InternalServerError("""Account for email '%s' doesn't exists at api.megam.co.
-            |
-            |Your email '%s' with an api_key isn't registered to consume api.megam.co. Please register your account in www.megam.co.   
-            |Read https://api.megam.co, http://docs.megam.co to know about our API.
-            Ask for help on the forums.\n===>\n%s""".format(id, err.map(l => l.getMessage).list.mkString("\n")))
+        val rn = new HttpReturningError(err)
+        Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
       }
-
     }
 
   }
