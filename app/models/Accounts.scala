@@ -19,24 +19,27 @@ import scalaz._
 import Scalaz._
 import play.api._
 import play.api.mvc._
+import play.api.Logger
+
 import net.liftweb.json._
-import controllers.stack.MConfig
+import net.liftweb.json.scalaz.JsonScalaz.field
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
-import models._
+
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import org.megam.common.uid._
-import net.liftweb.json.scalaz.JsonScalaz.field
-import play.api.Logger
+import controllers.stack.stack._
+import controllers.stack.MConfig
+import models._
 /**
  * @author rajthilak
  * authority
  */
 
 case class AccountResult(id: String, email: String, api_key: String, authority: String) {
-  val empty: AccountResult = this
   def this() = this(new String(), new String(), new String(), new String())
   override def toString = "\"id\":\"" + id + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\""
 }
@@ -57,17 +60,7 @@ object Accounts {
     Logger.debug("models.Account create: entry\n" + input)
     (Validation.fromTryCatch {
       parse(input).extract[AccountInput]
-    } leftMap { t: Throwable =>
-      new Error(
-        """Body sent contains invalid input. 'body:'  '%s' 
-            |
-            |The error received when parsing the JSON is 
-            |=====>\n
-            |%s
-            |=====<
-            |Verify the body content as required for this resource. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".
-          format(input, t.getMessage).stripMargin)
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage)
     }).toValidationNel.flatMap { m: AccountInput =>
       UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get match {
         case Success(uid) => {
@@ -82,21 +75,11 @@ object Accounts {
               (parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult].some)
             }.toValidationNel
             case Failure(err) => Validation.failure[Error, Option[AccountResult]](
-              new Error(
-                """Account creation failed for 'email:' with api_key : '%s'
-            |
-            |This appears to be a problem that occurred while connecting to our datasource. We humbly request you to 
-            |try the same again. If it still persists after reading our doc, retrying, please contact our support.
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin)).toValidationNel
+              new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
           }
         }
         case Failure(err) => Validation.failure[Error, Option[AccountResult]](
-          new Error(
-            """Account creation failed for 'email:' with api_key : '%s'
-            |
-            |This appears to be a problem with the unique id creation. We humbly request you to 
-            |try the same again.  If it still persists after reading our doc, retrying, please contact our support.
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin)).toValidationNel
+          new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
       }
     }
 
@@ -110,30 +93,13 @@ object Accounts {
         (Validation.fromTryCatch {
           parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult]
         } leftMap { t: Throwable =>
-          new Error(
-            """Stored Account contains invalid json 'json:'  '%s' 
-            |
-            |The error received when parsing the JSON is 
-            |=====>\n
-            |%s
-            |=====<
-            |Verify the content as required for this resource. 
-            |Have you registered for an api_key with us ? We humbly request you to  
-            |try the same request again.  If it still persists after reading our doc, retrying, please contact our support.
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".
-              format(succ.getOrElse(new GunnySack()).value, t.getMessage).stripMargin)
+          new ResourceItemNotFound(email, t.getMessage)
         }).toValidationNel.flatMap { j: AccountResult =>
           Validation.success[Error, Option[AccountResult]](j.some).toValidationNel
         }
       }
       case Failure(err) => Validation.failure[Error, Option[AccountResult]](
-        new Error(
-          """Account doesn't exist for 'email:' '%s'
-            |
-            |Have you registered for an api_key with us ? We humbly request you to  
-            |try the same request again.  If it still persists after reading our doc, retrying, please contact our support.
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(email).stripMargin)).toValidationNel
-
+        new ServiceUnavailableError(email, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
     }
   }
 
@@ -142,7 +108,6 @@ object Accounts {
    */
   def findById(id: String): ValidationNel[Error, Option[AccountResult]] = {
     Logger.debug("models.Account findById: entry:" + id)
-
     val metadataKey = "Field"
     val metadataVal = "1002"
     val bindex = BinIndex.named("")
@@ -157,9 +122,8 @@ object Accounts {
         }
         findByEmail(key)
       }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Your account doesn't exists in megam.co.
-            | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+        new ServiceUnavailableError(id, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
     }
   }
 
