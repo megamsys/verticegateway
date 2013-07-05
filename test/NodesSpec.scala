@@ -34,8 +34,9 @@ class NodesSpec extends Specification {
   NodesSpec is the implementation that calls the megam_play API server with the /nodes url
   """ ^ end ^
       "The Client Should" ^
-     // "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-     "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+    //  "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+     "Correctly do GET requests with a valid userid and api key" ! GetList.succeeds ^
+     // "Correctly do GET requests with a valid userid and api key" ! GetById.succeeds ^
       end
 
   /**
@@ -47,8 +48,8 @@ class NodesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
            
-       //val contentToEncode = "{\"nod_name\":\"test\",\"command\":\"knife\",\"predefs\":{\"rails\":\"rails\",\"scm\":\"scm\",\"db\":\"db\",\"queue\":\"queue\"}}"
-         val contentToEncode = "{\"nod_name\":\"MyNode\",\"command\":\"commands\",\"predefs\":{\"rails\":\"rails3\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+       val contentToEncode = "{\"nod_name\":\"test\",\"command\":\"knife\",\"predefs\":{\"rails\":\"rails\",\"scm\":\"scm\",\"db\":\"db\",\"queue\":\"queue\"}}"
+        // val contentToEncode = "{\"nod_name\":\"MyNode\",\"command\":\"commands\",\"predefs\":{\"rails\":\"rails3\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
          Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -63,7 +64,19 @@ class NodesSpec extends Specification {
     }
   }
 
-  case object Get extends Context {
+  case object GetList extends Context {
+    protected override def urlSuffix: String = "nodes"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+  case object GetById extends Context {
     protected override def urlSuffix: String = "nodes/MyNode"
 
     protected def headersOpt: Option[Map[String, String]] = None

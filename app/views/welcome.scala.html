@@ -108,9 +108,10 @@
 
 					{
 					X-Megam-DATE: 2013-07-01 17:17
-					X-Megam-EMAIL: ......
+					X-Megam-EMAIL: your email
 					X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
-					Content-Type:appilication/Json
+					X-Megam-HMAC: current-email:9c37b8f3e3790d285ab34554ef8d94bec0f0c761
+					Content-Type: appilication/Json
 					Accept: application/vnd.megam+json
 					}
                     </code> </pre>
@@ -230,6 +231,7 @@
 						X-Megam-DATE: 2013-07-01 17:17
 					    X-Megam-EMAIL: ......
 					  	X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
+					  	X-Megam-HMAC: current-email:9c37b8f3e3790d285ab34554ef8d94bec0f0c761
 						Content-Type:appilication/Json
 						Accept: application/vnd.megam+json
 						</code> </pre>
@@ -268,7 +270,7 @@
 				</p>
 				<p>
 					<pre><code class="brush: bash; toolbar: false; ">
-						http: /v1/nodes/id   #id is key
+						http://api.megam.co/v1/nodes/id   #id is key
 				</code> </pre>
 				</p>
 			</div>
@@ -278,8 +280,9 @@
 			<p>
 				<pre><code class="brush: bash; toolbar: false; ">
 						X-Megam-DATE: 2013-07-01 17:17
-					    X-Megam-EMAIL: ......
+					    X-Megam-EMAIL: current-email
 					  	X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
+					  	X-Megam-HMAC: current-email:9c37b8f3e3790d285ab34554ef8d94bec0f0c761
 						Content-Type:appilication/Json
 						Accept: application/vnd.megam+json
 		</code> </pre>
@@ -302,14 +305,14 @@
 					 "id": "NOD352786051623813120",
 					 "accounts_ID":"ACT352741431581868032",
 					 "request":{"req_id":"NOD352786051628007424",
-					 "command":"commands","status":"submitted"} ,
+					            "command":"commands","status":"submitted"} ,
 					 "predefs":{"rails":"rails3","scm":"scm","db":"dbname","queue":"queue"}
 					}
 </code> </pre>
 			</p>
 			<h4 id="nodes_post">POST</h4>
 			<p>
-				This part contains about nodes
+				post request for Nodes
 			<p>
 				Request URL:
 			</p>

@@ -52,7 +52,7 @@ class AuthenticateSpec extends Specification {
   case object Post extends Context {
 
     protected override def urlSuffix: String = "auth"
-    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"chris54587@example.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"))
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"))
     protected def headersOpt: Option[Map[String, String]] = None
 
     private val post = POST(url)(httpClient)
