@@ -67,7 +67,7 @@ class AuthenticateSpec extends Specification {
 
   case object PostWithInvalidUserIDEmail extends Context {
     protected override def urlSuffix: String = "auth"
-    protected override def bodyToStick: Option[String] = Some(new String("Put the Invalid JSON as needed for auth"))
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy123@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"))
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -83,9 +83,11 @@ class AuthenticateSpec extends Specification {
 
   case object PostMalformedHeader extends Context {
     protected override def urlSuffix: String = "auth"
-    protected override def bodyToStick: Option[String] = Some(new String("Put the Invalid JSON with malformed header as needed for auth"))
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"))
 
-    protected def headersOpt: Option[Map[String, String]] = None
+    protected override def headersOpt: Option[Map[String, String]] = some(Map(Content_Type -> application_json,
+    X_Megam_EMAIL123 -> "sandy@megamsandbox.com", X_Megam_APIKEY_458-> "IamAtlas{74}NobodyCanSeeME#07",
+    X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
