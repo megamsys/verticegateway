@@ -16,8 +16,7 @@
 package models
 
 import scalaz.State
-import play.api.cache.CacheAPI
-
+import models.cache.InMemoryCache._
 /**
  * @author ram
  *
@@ -26,18 +25,7 @@ package object cache {
 
   type StateCache[+A] = State[InMemory[SinglePredef], A]
 
-  case class SinglePredef(value: String)
-
-  case class GroupedPredefs(stream: Stream[String])
   
-  trait InMemory[A] extends Cache {
-    def mem(u: String): StateCache[A]
-  }
-
-  trait Cache {
-    def getAs[T](c: String): Option[Timestamped[T]]
-    def update[T](u: String, s: Timestamped[T]): InMemory[T]
-  }
 
   
 }

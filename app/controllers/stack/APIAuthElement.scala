@@ -49,8 +49,9 @@ trait APIAuthElement extends StackableController {
    * otherwise badrequest return
    */
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
+    play.api.Logger.debug("<---------------------------------------->")
+    play.api.Logger.debug("%-20s -->[%s]".format("APIAuthElement:", "Entry"))
 
-    Logger.debug("APIAuthElement :" + req)
     SecurityActions.Authenticated(req) match {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {
@@ -59,6 +60,7 @@ trait APIAuthElement extends StackableController {
             body = Enumerator(err.head.get._2))
         }
         val origReq = req.asInstanceOf[Request[AnyContent]]
+        play.api.Logger.debug("<---------------------------------------->")
         g(origReq)
       }
 

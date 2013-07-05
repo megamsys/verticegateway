@@ -23,6 +23,19 @@ import models.cache._
  *
  */
 
+case class SinglePredef(value: String)
+
+case class GroupedPredefs(stream: Stream[String])
+
+trait InMemory[A] extends Cache {
+  def mem(u: String): StateCache[A]
+}
+
+trait Cache {
+  def getAs[T](c: String): Option[Timestamped[T]]
+  def update[T](u: String, s: Timestamped[T]): InMemory[T]
+}
+
 case class Timestamped[A](value: A, timestamp: Long)
 
 object InMemoryCache {
@@ -30,7 +43,7 @@ object InMemoryCache {
   def get(u: String): StateCache[SinglePredef] = for {
     ofs <- checkMem(u)
     fs <- ofs.map(State.state[InMemory[SinglePredef], SinglePredef]).getOrElse(retrieve(u))
-  } yield fs  
+  } yield fs
 
   private def checkMem(u: String): StateCache[Option[SinglePredef]] = for {
     ofs <- State.gets { c: InMemory[SinglePredef] =>

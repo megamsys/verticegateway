@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
    *   to the artifact name.
    */
 
-  val scalazVersion = "7.0.0"
+  val scalazVersion = "7.0.1"
   val scalaCheckVersion = "1.10.1"
   val play2AuthVersion = "0.9"
   val specs2Version = "1.14"
@@ -36,26 +36,28 @@ object ApplicationBuild extends Build {
     "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-iterv" % scalazVersion,
-    "com.stackmob" %% "newman" % "0.16.0",
+    "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
+    "com.github.indykish" % "megam_common_2.10" % megamVersion,
+    "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
     "com.github.seratch" %% "scalikejdbc-play-plugin" % "1.5.2",
     "jp.t2v" %% "play2.auth" % play2AuthVersion,
     "jp.t2v" %% "play2.auth.test" % play2AuthVersion % "test",
-    "com.rabbitmq" % "amqp-client" % "3.0.4",
+    "com.rabbitmq" % "amqp-client" % "3.1.1",
     "com.github.nscala-time" %% "nscala-time" % jodaTimeVersion,
     "postgresql" % "postgresql" % postgreSQLVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",
-    "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
-    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar",
-     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
-    "com.github.indykish" % "megam_common_2.10" % megamVersion)
+    "com.stackmob" %% "newman" % "0.22.0" % "test",
+    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar"
+    )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     sbt.Keys.resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
     sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots",
-    sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com", // Add your own project settings here      
+    sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com", // finagle 
+    sbt.Keys.resolvers += "spray repo" at "http://repo.spray.io", //spray client used in newman
     sbt.Keys.resolvers += "Spy Repository" at "http://files.couchbase.com/maven2" // required to resolve `spymemcached`, the plugin's dependency.
-  )
+    )
 
 }

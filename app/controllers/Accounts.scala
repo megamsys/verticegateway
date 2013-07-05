@@ -25,7 +25,7 @@ import scalaz.Validation._
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
-import controllers.stack.stack._
+import controllers.funnel.FunnelErrors._
 /**
  * @author rajthilak
  *
@@ -44,7 +44,7 @@ object Accounts extends Controller with APIAuthElement {
    */
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    Logger.debug("Accounts.post  : entry\n" + input)
+    play.api.Logger.debug("Accounts.post  : entry\n" + input)
     models.Accounts.create(input) match {
       case Success(succ) => Ok("""%d: Account created successfully.
             |

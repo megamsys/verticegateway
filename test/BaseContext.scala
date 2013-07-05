@@ -25,6 +25,7 @@ import com.stackmob.newman.response._
 import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
 import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
 import scalaz._
+import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.security.MessageDigest
@@ -39,6 +40,7 @@ import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import controllers.stack.SecurityActions._
+import controllers.stack.GoofyCrypto._
 
 trait BaseContext {
 
@@ -95,15 +97,18 @@ trait BaseContext {
   protected def sandboxHeaderAndBody(contentToEncodeOpt: Option[String],
     headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {
     val headerMap: Map[String, String] = headerOpt.getOrElse(defaultHeaderOpt)
-    play.api.Logger.debug("--------hmap  ======>\n" + headerMap)
-    play.api.Logger.debug("--------" + X_Megam_APIKEY + "  ======>" + headerMap.getOrElse(X_Megam_APIKEY, "blank_key"))
-    play.api.Logger.debug("--------" + X_Megam_DATE + "  ======>" + headerMap.getOrElse(X_Megam_DATE, currentDate))
-    play.api.Logger.debug("--------" + X_Megam_EMAIL + "  ======>" + headerMap.getOrElse(X_Megam_EMAIL, "blank_email"))
-    play.api.Logger.debug("--------PATH        ======>" + path)
+    play.api.Logger.debug("%-20s -->[%s]".format("HEADER MAP", ((for (x <- headerMap) yield (x)).mkString("\n", "\n", ""))))
+    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_APIKEY, headerMap.getOrElse(X_Megam_APIKEY, "blank_key")))
+    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_DATE, headerMap.getOrElse(X_Megam_DATE, currentDate)))
+    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_EMAIL, headerMap.getOrElse(X_Megam_EMAIL, "blank_email")))
+    play.api.Logger.debug("%-20s -->[%s]".format("PATH", path))
 
-    val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt)
+    val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt).get
+    play.api.Logger.debug("%-20s -->[%s]".format("SIGN", signWithHMAC))
+
     val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
     val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
+    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
 
     (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
       RawBody(contentToEncodeOpt.getOrElse(new String())))
@@ -117,22 +122,29 @@ trait Context extends BaseContext {
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())
   protected def headersOpt: Option[Map[String, String]]
+  play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("%-20s -->[%s]".format("RESP SEND", urlSuffix))
 
   lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
-  play.api.Logger.debug("--------url  ======>\n" + url)
-  play.api.Logger.debug("--------body ======>\n" + bodyToStick)
+  play.api.Logger.debug("%-20s -->[%s]".format("MYURL", url))
+  play.api.Logger.debug("%-20s -->[%s]".format("MYBODY", bodyToStick))
 
   val headerAndBody = sandboxHeaderAndBody(this.bodyToStick, headersOpt, url.getPath)
-  play.api.Logger.debug("body post =>" + headerAndBody)
 
-  protected val headers = headerAndBody._1
-  play.api.Logger.debug("--------head for HTTP REQ =>\n" + headers)
-
+  protected val headers: Headers = headerAndBody._1
   protected val body = headerAndBody._2
-  play.api.Logger.debug("--------body for HTTP REQ =>\n" + body)
+
+  val h1 = headers.map { x => (for (j <- x.list) yield (j._1 + "=" + j._2)).mkString("\n", "\n", "") }
+
+  play.api.Logger.debug("%-20s -->[%s]".format("*** FINHEAD", h1))
+  play.api.Logger.debug("%-20s -->[%s]".format("*** FINBODY", new String(body)))
+
   implicit private val encoding = Constants.UTF8Charset
 
   protected def execute[T](t: Builder) = {
-    t.executeUnsafe
+    val res = t.executeUnsafe
+    play.api.Logger.debug("%-20s%n%d:%s".format("*** RESP RECVD", res.code.code, new String(res.bodyString)))
+    play.api.Logger.debug("<---------------------------------------->")
+    res
   }
 }

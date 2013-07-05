@@ -50,25 +50,6 @@ trait Helper {
     (res.get._1 + res.get._2)
   }
 
-  def getAccountID(sentHmacHeader: Option[String]): String = {
-    val email: String = sentHmacHeader match {
-      case Some(x) if x.contains(":") && x.split(":").length == 2 => {
-        val headerParts = x.split(":")
-        headerParts(0)
-      }
-      case _ => ""
-    }
-    val id = models.Accounts.findByEmail(email) match {
-      case Success(optAcc) => {
-        val foundAccount = optAcc.get
-        foundAccount.id
-      }
-      case Failure(err) =>
-        err.toString
-    }
-    id
-  }
-
   def getPredefJSON(id: String, name: String, provider: String, role: String, packaging: String): String = {
     val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"role\":\"" + role + "\",\"packaging\":\"" + packaging + "\"}"
     json

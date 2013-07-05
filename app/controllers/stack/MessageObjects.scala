@@ -56,6 +56,6 @@ object MessageObjects {
   case class Publish(messages: String) extends MessageContext {
     val pubMsg = Messages("id" -> messages)
     Logger.debug("Publishing message " + pubMsg)
-    def succeeds = execute(client.publish(pubMsg, MConfig.routing_key))
+    def succeeds() = execute(client.publish(pubMsg, MConfig.routing_key))
   }
 }

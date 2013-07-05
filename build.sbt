@@ -8,6 +8,21 @@ import ReleasePlugin._
 import ReleaseKeys._
 import S3._
 
+scalaVersion := "2.10.2"
+
+scalacOptions := Seq(
+	"-unchecked", 
+	"-deprecation",
+	"-feature",
+ 	"-optimise",
+  	"-Xcheckinit",
+  	"-Xlint",
+  	"-Xverify",
+  	"-Yclosure-elim",
+  	"-language:postfixOps",
+  	"-language:implicitConversions",
+  	"-Ydead-code")
+
 seq(packagerSettings:_*)
 
 maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
@@ -17,6 +32,7 @@ packageSummary := "API server (REST based) for the megam platform."
 packageDescription in Debian:= "API server (REST based) for the megam platform.The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
 
 com.typesafe.sbt.packager.debian.Keys.name in Debian := "megam_play"
+
 
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>

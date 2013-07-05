@@ -31,7 +31,7 @@ import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import org.megam.common.uid._
-import controllers.stack.stack._
+import controllers.funnel.FunnelErrors._
 import controllers.stack.MConfig
 import models._
 /**
@@ -84,7 +84,11 @@ object Accounts {
     }
 
   }
-
+  /**
+   * Performs a fetch from Riak bucket. If there is an error then ServiceUnavailable is sent back.
+   * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
+   * When there is no gunnysack value (None), then return back a failure - ResourceItemNotFound
+   */ 
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
     Logger.debug("models.Account findByEmail: entry:" + email)
     (riak.fetch(email) leftMap { t: NonEmptyList[Throwable] =>
