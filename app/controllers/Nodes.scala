@@ -42,7 +42,7 @@ object Nodes extends Controller with APIAuthElement with Helper {
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
-  def post = Action(parse.tolerantText) { implicit request =>
+  def post = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
     val id = getAccountID(sentHmacHeader)
