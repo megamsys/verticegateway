@@ -47,7 +47,7 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "chris@example.com", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
+    X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
@@ -144,7 +144,7 @@ trait Context extends BaseContext {
 
   protected def execute[T](t: Builder) = {
     val res = t.executeUnsafe
-    play.api.Logger.debug("%-20s%n%d:%s".format("*** RESP RECVD", res.code.code, new String(res.bodyString)))
+    play.api.Logger.debug("%-20s%n:%s".format("*** RESP RECVD", new String(res.bodyString)))
     play.api.Logger.debug("<---------------------------------------->")
     res
   }

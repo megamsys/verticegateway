@@ -36,6 +36,9 @@ trait Helper {
   private val SFPORT: Int = MConfig.snowflakePort
   val HMAC_HEADER = "X-Megam-HMAC"
 
+  def getAccountID(sentHmacHeader: Option[String]): String = {
+    ""  }
+
   def getUID(agent: String): String = {
     val uid = UID(SFHOST, SFPORT, agent)
     val id = uid.get

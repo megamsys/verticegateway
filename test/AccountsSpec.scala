@@ -46,8 +46,8 @@ class AccountsSpec extends Specification {
       //"Correctly do POST requests with a valid userid and api key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with a valid userid and api key" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-     //"Correctly do GET requests with a valid userid and api key" ! GetInvalidApi.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! GetInvalidEmail.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! GetInvalidApi.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! GetInvalidEmail.succeeds ^
       end
 
   /**
@@ -58,7 +58,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"chris@example.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -121,7 +121,7 @@ class AccountsSpec extends Specification {
     }
   }
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/chris@example.com"
+    protected override def urlSuffix: String = "accounts/sandy@megamsandbox.com"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -133,12 +133,10 @@ class AccountsSpec extends Specification {
     }
   }
   case object GetInvalidApi extends Context {
-    protected override def urlSuffix: String = "accounts/chris@example.com"
-
-   // protected def headersOpt: Option[Map[String, String]] = None
-    
+    protected override def urlSuffix: String = "accounts/sandy@megamsandbox.com"
+   
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "chris@example.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
+    X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)

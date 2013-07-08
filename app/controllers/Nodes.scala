@@ -17,9 +17,12 @@ package controllers
 
 import scalaz._
 import Scalaz._
+import scalaz.Validation._
+
 import play.api._
 import play.api.mvc._
 import models._
+import controllers.funnel.FunnelErrors._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
@@ -36,67 +39,92 @@ import play.api.mvc.Result
  * If HMAC authentication is true then post or list the nodes are executed
  *  
  */
-object Nodes extends Controller with APIAuthElement with Helper {
+object Nodes extends Controller with APIAuthElement {
 
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val id = getAccountID(sentHmacHeader)
-    models.Nodes.create(input, id)
-    Ok("""Node creation successfully completed.
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          models.Nodes.create(email, clientAPIBody) match {
+            case Success(succ) =>
+              Ok("""Node initiation instruction submitted successfully.
             |
-            |Your node created successully.  Try other node's for your account. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
+            |Check back on the 'node name':{%s}
+            |The cloud is working for you. It will be ready shortly.""".format(succ.getOrElse("none")))
+            case Failure(err) =>
+              val rn = new HttpReturningError(err)
+              Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+          }
+        }
+        case Failure(err) => {
+          val rn = new HttpReturningError(err)
+          Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
   /*
-   * show the message details
+   * List the nodes for a particular email. The email is parsed from the header using
+   * funneling (implicit). 
+   * A model riak call findByNodeName, return the node details of that node.
    * 
    */
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    val res = models.Nodes.findByKey(id) match {
-      case Success(optAcc) => {
-        val foundNode = optAcc.get
-        foundNode
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.Nodes.findByNodeName(email) match {
+            case Success(succ) =>
+              Ok("""%s""".format(succ.getOrElse("none")))
+            case Failure(err) =>
+              val rn = new HttpReturningError(err)
+              Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+          }
+        }
+        case Failure(err) => {
+          val rn = new HttpReturningError(err)
+          Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+        }
       }
-      case Failure(err) => {
-        Logger.info("""In this account doesn't create in this '%s' nodes 
-            |
-            |Please create new Node for your Account 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(id).stripMargin
-          + "\n" + apiAccessed)
-      }
-    }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
-    Ok("" + res)
   }
 
   /*
-   * list the particular Id values
+   * List the nodes for a particular email. The email is parsed from the header using
+   * funneling (implicit). 
+   * A model riak call findByEmail, return the node details of that node.
    * 
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val id = getAccountID(sentHmacHeader)
-    val valueJson = models.Nodes.findById(id) match {
-      case Success(v) => {
-        //val m = v.get
-        //m.predefs
-        v
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.Nodes.findByEmail(email) match {
+            case Success(succ) =>
+              Ok("""%s""".format(succ.getOrElse("none")))
+            case Failure(err) =>
+              val rn = new HttpReturningError(err)
+              Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+          }
+        }
+        case Failure(err) => {
+          val rn = new HttpReturningError(err)
+          Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+        }
       }
-      case Failure(err) => {
-        Logger.info("""In this account doesn't create any nodes --> '%s'
-            |
-            |Please create new Nodes in your Account 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(err).stripMargin
-          + "\n" + apiAccessed)
-      }
-    }    
-    Ok("" + valueJson)
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 }

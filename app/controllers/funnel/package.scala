@@ -29,16 +29,17 @@ package object funnel {
   type FunneledHeader = Option[String]
   type FunneledBody = Option[String]
 
+  implicit def req2FunnelBuilder[A](req: RequestWithAttributes[A]): FunnelRequestBuilder[A] = new FunnelRequestBuilder[A](req)
 
-  implicit def req2Funnel[A](req: RequestWithAttributes[A]): FunnelRequestBuilder[A]= new FunnelRequestBuilder[A](req)
-
-  
   implicit class RichThrowable(thrownExp: Throwable) {
-    def fold[T](malformedBodyError: MalformedBodyError => T,
+    def fold[T](
+      cannotAuthError: CannotAuthenticateError => T,
+      malformedBodyError: MalformedBodyError => T,
       malformedHeaderError: MalformedHeaderError => T,
       serviceUnavailableError: ServiceUnavailableError => T,
       resourceNotFound: ResourceItemNotFound => T,
       anyError: Throwable => T): T = thrownExp match {
+      case a @ CannotAuthenticateError(_, _, _) => cannotAuthError(a)
       case m @ MalformedBodyError(_, _, _)      => malformedBodyError(m)
       case h @ MalformedHeaderError(_, _, _)    => malformedHeaderError(h)
       case c @ ServiceUnavailableError(_, _, _) => serviceUnavailableError(c)

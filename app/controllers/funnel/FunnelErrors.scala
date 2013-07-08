@@ -26,8 +26,8 @@ import java.io.{ StringWriter, PrintWriter }
  *
  */
 object FunnelErrors {
-  
-   val tailMsg =
+
+  val tailMsg =
     """
         |********************************************************************************* 
         |** You can search/ask for help in our forums.
@@ -47,8 +47,9 @@ object FunnelErrors {
         |** (https://api.megam.co, http://docs.megam.co for more help.)
         |********************************************************************************* """.stripMargin
 
+  case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
+    extends Error
 
-  
   case class MalformedBodyError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
     extends Error
 
@@ -64,36 +65,35 @@ object FunnelErrors {
   case class HttpReturningError(errNel: NonEmptyList[Throwable]) extends Exception({
     errNel.map { err: Throwable =>
       err.fold(
+        a => """%d: Authentication failure using the email/apikey combination. %n'%s' 
+            |
+            |Additional info: 
+            |%s
+            |Verify the email and api key combination. 
+            |%s""".format(a.httpCode, a.input, a.msg, tailWithStacktrace).stripMargin,
         m => """%d: Body received from the API call contains invalid input. 'body:' %n'%s' 
             |
             |The error received when parsing the JSON is 
-            |<=====>\n
             |%s
-            |<=====>
             |Verify the body content as required for this resource. 
             |%s""".format(m.httpCode, m.input, m.msg, tailWithStacktrace).stripMargin,
         h => """%d: Header received from the API call contains invalid input. 'header:' %n'%s' 
             |
-            |The error received is 
-            |<=====>\n
+            |Additional info: 
             |%s
-            |<=====>
             |Verify the header content as required for this resource. 
             |%s""".format(h.httpCode, h.input, h.msg, tailWithStacktrace).stripMargin,
 
         c => """%d: Service seems to be unavailable. The layer responsible for fullfilling the request Body received from the API call contains invalid input. 'body:'  '%s' 
             |came back with errors. 
-            |The error received is 
-            |<=====>\n
+            |
+            |Additional info: 
             |%s
-            |<=====>
             |%s""".format(c.httpCode, c.input, c.msg, tailWithStacktrace).stripMargin,
         r => """%d: The resource requested wasn't found '?:'  '%s' 
             |
-            |The error received is 
-            |<=====>\n
+            |Additional info: 
             |%s
-            |<=====>
             |%s""".format(r.httpCode, r.input, r.msg, tailWithStacktrace).stripMargin,
 
         t => """%d: Ooops ! I know its crazy. We flunked. 
@@ -115,10 +115,10 @@ object FunnelErrors {
 
     def code: Option[Int] = {
       (errNel.map { err: Throwable =>
-        err.fold(m => m.httpCode.some, h => h.httpCode.some, c => c.httpCode.some, r => r.httpCode.some, t => INTERNAL_SERVER_ERROR.some)
+        err.fold(a => a.httpCode.some, m => m.httpCode.some, h => h.httpCode.some, c => c.httpCode.some, 
+            r => r.httpCode.some,t => INTERNAL_SERVER_ERROR.some)
       }.list.head)
     }
   }
-
 
 }

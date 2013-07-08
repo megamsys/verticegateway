@@ -47,8 +47,8 @@ class NodesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
            
-       //val contentToEncode = "{\"nod_name\":\"test\",\"command\":\"knife\",\"predefs\":{\"rails\":\"rails\",\"scm\":\"scm\",\"db\":\"db\",\"queue\":\"queue\"}}"
-         val contentToEncode = "{\"nod_name\":\"MyNode\",\"command\":\"commands\",\"predefs\":{\"rails\":\"rails3\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+       //val contentToEncode = "{\"node_name\":\"test\",\"command\":\"knife\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\",\"db\":\"db\",\"queue\":\"queue\"}}"
+         val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
          Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

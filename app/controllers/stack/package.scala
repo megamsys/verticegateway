@@ -24,12 +24,7 @@ import Scalaz._
  */
 package object stack {
 
-  type RawResult = (Int, Option[Map[String, String]])
-
-  object RawResult {
-    def apply(Id: Int, results: Map[String, String]) = (Id, results.some)
-  }
-
+  
   type ResultInError = Option[Tuple2[Int,String]]
 
   object ResultInError {

@@ -16,17 +16,16 @@
 package controllers.stack
 
 import scalaz._
-import scalaz.Validation._
 import Scalaz._
-import play.api.mvc.Action
-import play.api.Logger
-import play.api.mvc.RequestHeader
-import play.api.mvc.Request
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import play.api.mvc.RawBuffer
-import play.api.mvc.Codec
+import scalaz.Validation._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.NonEmptyList._
+
+import play.api.mvc._
 import play.api.http.Status._
+import play.api.Logger
+
 import java.security.MessageDigest
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
@@ -34,9 +33,12 @@ import org.apache.commons.codec.binary.Base64
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
 import com.github.nscala_time.time.Imports._
+
 import controllers.stack.stack._
 import controllers.funnel._
-import models.{ Accounts }
+import controllers.funnel.FunnelErrors._
+import models.Accounts
+import models.AccountResult
 
 /**
  * @author rajthilak
@@ -55,27 +57,20 @@ object SecurityActions {
   val Accept = "Accept"
   val application_vnd_megam_json = "application/vnd.megam+json"
 
-  def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[ResultInError, RawResult] = {
+  def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[Error, Option[String]] = {
     Logger.debug(("%-20s -->[%s]").format("SecurityActions", "Authenticated:Entry"))
     req.funneled match {
       case Success(succ) => {
         Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-S", succ.toString))
         (succ map (x => bazookaAtDataSource(x))).getOrElse(
-          Validation.failure[ResultInError, RawResult](ResultInError(Tuple2(BAD_REQUEST,
-            """Autorization failure for 'email:' Invalid content in header. API server couldn't parse it.:'
-            |
-            |Please verify your email and api_key  combination. This  needs to  appear  as-is  during onboarding
-            |from the megam.co webiste. This is a bug in the API client. If you have accessed   this   using our
-            |api code (megam_api for ruby, scala, java etc..) then PLEASE LOG A JIRA ISSUE.""".stripMargin + "\n "))).toValidationNel)
+          Validation.failure[Error, Option[String]](CannotAuthenticateError("""Invalid content in header. API server couldn't parse it""",
+            "Request can't be funneled.")).toValidationNel)
       }
       case Failure(err) =>
-        Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-F", err.getMessage))
-        Validation.failure[ResultInError, RawResult](ResultInError(Tuple2(BAD_REQUEST,
-          """Autorization failure for 'email:' Invalid content in header. API server couldn't parse it.:'
-            |
-            |Please verify your email and api_key  combination. This  needs to  appear  as-is  during onboarding
-            |from the megam.co webiste. This is a bug in the API client. If you have accessed   this   using our
-            |api code (megam_api for ruby, scala, java etc..) then PLEASE LOG A JIRA ISSUE.""".stripMargin + "\n "))).toValidationNel
+        val errm = (err.list.map(m => m.getMessage)).mkString("\n")
+        Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-F", errm))
+        Validation.failure[Error, Option[String]](CannotAuthenticateError(
+          """Invalid content in header. API server couldn't parse it.""", errm)).toValidationNel
 
     }
   }
@@ -88,55 +83,47 @@ object SecurityActions {
    * the string is split on : and the header is parsed
    * else
    */
-  def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[ResultInError, RawResult] = {
+  def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Error, Option[String]] = {
     play.api.Logger.debug("<---------------------------------------->")
-    Accounts.findByEmail(freq.maybeEmail.get) match {
-      case Success(optAcc) => {
-        Logger.debug(("%-20s -->[%s]").format("Option Account", optAcc))
-        val foundAccount = optAcc.get
-        val calculatedHMAC = GoofyCrypto.calculateHMAC(foundAccount.api_key, freq.mkSign)
-
-        Logger.debug("A :%-20s B :%-20s C :%-20s".format(calculatedHMAC, foundAccount.api_key, freq.clientAPIHmac.get))
-
+    (for {
+      resp <- eitherT[IO, NonEmptyList[Error], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
+        (Accounts.findByEmail(freq.maybeEmail.get).disjunction).pure[IO]
+      }
+      found <- eitherT[IO, NonEmptyList[Error], Option[String]] {
+        val fres = resp.get
+        val calculatedHMAC = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
         if (calculatedHMAC === freq.clientAPIHmac.get) {
-          Validation.success[ResultInError, RawResult](RawResult(1, Map[String, String](
-            "id" -> foundAccount.id,
-            "api_key" -> foundAccount.email,
-            "created_at" -> DateTime.now.toString))).toValidationNel
+          (("""Authorization successful for 'email:' HMAC matches:
+            |%-10s -> %s
+            |%-10s -> %s
+            |%-10s -> %s""".format("email", fres.email,"api_key", fres.api_key, "authority", fres.authority).stripMargin)
+            .some).right[NonEmptyList[Error]].pure[IO]
         } else {
-          Validation.failure[ResultInError, RawResult](ResultInError(Tuple2(UNAUTHORIZED,
-            """Authorization failure for 'email:' HMAC doesn't match: '%s'
-            |
-            |Please verify your email and api_key  combination. This  needs to  appear  as-is  during onboarding
-            |from the megam.co webiste. If this error persits, ask for help on the forums.""".format(foundAccount.email).stripMargin + "\n "))).toValidationNel
+          (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
+            .format(fres.email).stripMargin,"",UNAUTHORIZED))): NonEmptyList[Error]).left[Option[String]].pure[IO]
         }
       }
-      case Failure(err) => {
-        Validation.failure[ResultInError, RawResult](ResultInError(Tuple2(FORBIDDEN,
-          """Autorization failure for 'email:' Couldn't locate the 'email':'
-            |
-            |Please verify your email and api_key  combination. This  needs to  appear  as-is  during onboarding
-            |from the megam.co webiste. If this error persits, ask for help on the forums.""".stripMargin + "\n "))).toValidationNel
-      }
-    }
+    } yield found).run.map(_.validation).unsafePerformIO()
+    
   }
 }
 
+/**
+ * GoofyCrypto just provides methods to make a content into MD5, 
+ * calculate a HMACSHA1, using a RAW secret (api_key). -- TO-DO change the api_key as SHA1.
+ */ 
 object GoofyCrypto {
   /**
    * Calculate the MD5 hash for the specified content (UTF-16 encoded)
    */
   def calculateMD5(content: Option[String]): Option[String] = {
     val MD5 = "MD5"
-    Logger.debug(("%-20s -->[%s]").format("body content", content))
+    Logger.debug(("%-20s -->[%s]").format("MD5 CONTENT", content.get))
     val digest = MessageDigest.getInstance(MD5)
-    digest.update(content.getOrElse(throw new IllegalArgumentException(
-      """Body wasn't found for this API call.  No content in body. API server couldn't parse it.'
-            |
-            |Please verify your information that is sent in the body. This  needs to  appear  as-is  during onboarding
-            |from the megam.co webiste. This is a bug in the API client. If you have accessed   this   using our
-            |api code (megam_api for ruby, scala, java etc..) then PLEASE LOG A JIRA ISSUE.""".stripMargin + "\n ")).getBytes())
-    new String(Base64.encodeBase64(digest.digest())).some
+    digest.update(content.getOrElse(new String()).getBytes)
+    val md5b = new String(Base64.encodeBase64(digest.digest()))
+    Logger.debug(("%-20s -->[%s]").format("MD5 OUTPUT", md5b))
+    md5b.some
   }
 
   /**
@@ -144,14 +131,14 @@ object GoofyCrypto {
    */
   def calculateHMAC(secret: String, toEncode: String): String = {
     val HMACSHA1 = "HmacSHA1"
-    Logger.debug(("%-20s -->[%s]").format("raw hmac entry", toEncode))
+    Logger.debug(("%-20s -->[%-20s,%s]").format("HMAC: ENTRY", secret, toEncode))
 
     val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
     val hmacAsByt = dumpByt(rawHmac.some)
-    Logger.debug(("%-20s -->[%s] = %s").format("raw hmac", rawHmac, hmacAsByt))
+    Logger.debug(("%-20s -->[%-20s=%s]").format("HMAC: FINAL", rawHmac, hmacAsByt))
     hmacAsByt
   }
 

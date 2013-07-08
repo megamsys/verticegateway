@@ -33,7 +33,7 @@ object Logs extends Controller with APIAuthElement with Helper {
     val input = (request.body).toString()
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
     val id = getAccountID(sentHmacHeader)
-    val nodesJson = models.Nodes.getNodes(id) match {
+    val nodesJson = models.Nodes.listNodesByEmail(id) match {
       case Success(v) => {
         v
       }
