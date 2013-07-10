@@ -120,5 +120,8 @@ object FunnelErrors {
       }.list.head)
     }
   }
+  
+  case class FunnelResponse(code: Int, message: String)
+  
 
 }

@@ -26,7 +26,6 @@ import controllers.funnel.FunnelErrors._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
-import scalaz.Validation._
 import play.api.mvc.Result
 
 /**
@@ -83,9 +82,9 @@ object Nodes extends Controller with APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.Nodes.findByNodeName(email) match {
+          models.Nodes.findByNodeName(List(email).some) match {
             case Success(succ) =>
-              Ok("""%s""".format(succ.getOrElse("none")))
+              Ok("""%s""".format(succ.map { _.getOrElse("none") }))
             case Failure(err) =>
               val rn = new HttpReturningError(err)
               Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
@@ -114,7 +113,7 @@ object Nodes extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.Nodes.findByEmail(email) match {
             case Success(succ) =>
-              Ok("""%s""".format(succ.getOrElse("none")))
+              Ok("""%s""".format(succ.map { _.getOrElse("none") }))
             case Failure(err) =>
               val rn = new HttpReturningError(err)
               Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)

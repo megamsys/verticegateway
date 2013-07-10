@@ -13,21 +13,15 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-import scalaz._
-import Scalaz._
-import scalaz.NonEmptyList
-import scalaz.NonEmptyList._
+package controllers.funnel
 
+import net.liftweb.json.scalaz.JsonScalaz._
 
 /**
- * @author rajthilak
+ * @author ram
  *
  */
-package object models {
-  type NodeResults = NonEmptyList[Option[NodeResult]]
-
-  object NodeResults {
-    def apply(m: NodeResult): NodeResults = nels(m.some)    
-    def empty: NodeResults = nels(none)
-  }
+trait SerializationBase[T] {
+  def writer: JSONW[T]
+  def reader: JSONR[T]
 }

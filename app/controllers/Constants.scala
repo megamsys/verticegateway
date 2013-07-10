@@ -13,21 +13,16 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-import scalaz._
-import Scalaz._
-import scalaz.NonEmptyList
-import scalaz.NonEmptyList._
+package controllers
+
+import java.nio.charset.Charset
 
 
 /**
- * @author rajthilak
+ * @author ram
  *
  */
-package object models {
-  type NodeResults = NonEmptyList[Option[NodeResult]]
+object Constants {
+  val UTF8Charset = Charset.forName("UTF-8")
 
-  object NodeResults {
-    def apply(m: NodeResult): NodeResults = nels(m.some)    
-    def empty: NodeResults = nels(none)
-  }
 }

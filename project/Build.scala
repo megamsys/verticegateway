@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
    *   to the artifact name.
    */
 
-  val scalazVersion = "7.0.1"
+  val scalazVersion = "7.0.2"
   val scalaCheckVersion = "1.10.1"
   val play2AuthVersion = "0.9"
   val specs2Version = "1.14"
@@ -36,6 +36,7 @@ object ApplicationBuild extends Build {
     "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
     "org.scalaz" %% "scalaz-iterv" % scalazVersion,
+    "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "com.github.indykish" % "megam_common_2.10" % megamVersion,
     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",

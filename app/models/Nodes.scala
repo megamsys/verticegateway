@@ -18,8 +18,13 @@ package models
 import play.api._
 import play.api.mvc._
 import scalaz._
+import scalaz.Semigroup
+import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
+import scalaz.Validation
 import scalaz.Validation._
+import scalaz.effect.IO
+import scalaz.EitherT._
 import Scalaz._
 import net.liftweb.json._
 import controllers.stack._
@@ -41,17 +46,20 @@ import net.liftweb.json.scalaz.JsonScalaz.field
 case class NodeInput(node_name: String, command: String, predefs: NodePredefs)
 
 case class NodeResult(id: String, accounts_ID: String, request: NodeRequest, predefs: NodePredefs) {
+  def this() = this(new String(), new String(), new NodeRequest(), new NodePredefs())
   override def toString = {
-    "\"id:" + id + "\"account:" + accounts_ID + "\"request:" + request.getRequestJson
+    "\"id:" + id + "\"account:" + accounts_ID + "\"request:" + request.toString
   }
 }
 
 case class NodeRequest(req_id: String, command: String) {
-  val rstatus = "submitted"
-  val getRequestJson = "\"req_id\":\"" + req_id + "\",\"command\":\"" + command + "\",\"status\":\"" + rstatus + "\""
+  def this() = this(new String(), new String())
+  val status = "none"
+  override def toString = "\"req_id\":\"" + req_id + "\",\"command\":\"" + command + "\",\"status\":\"" + status + "\""
 }
 case class NodePredefs(name: String, scm: String, db: String, queue: String) {
-  val getPredefsJson = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
+  def this() = this(new String(), new String(), new String, new String())
+  override def toString = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
 }
 
 case class NodeMachines(name: String, public: String, cpuMetrics: String)
@@ -59,6 +67,9 @@ case class NodeMachines(name: String, public: String, cpuMetrics: String)
 object Nodes {
 
   implicit val formats = DefaultFormats
+
+  implicit def NodeResultsSemigroup: Semigroup[NodeResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
 
   val metadataKey = "Node"
@@ -86,9 +97,9 @@ object Nodes {
     } yield {
       //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
       val bvalue = Set(aor.get.id)
-      val predefsJson = (nir.predefs).getPredefsJson
+      val predefsJson = (nir.predefs).toString
       //TO-DO: make the json using json-scalaz (reader/writers). Review of json libs shows json-scalaz as the winner (simple to use)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_ID\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).getRequestJson + "} ,\"predefs\":{" + predefsJson + "}}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_ID\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + predefsJson + "}}"
       new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
     }
@@ -134,61 +145,66 @@ object Nodes {
     }
   }
   /**
-   * Measure the duration to accomplish a usecase by listing an user who has 10 nodes using single threaded(current behaviour)
+   * Measure the duration to accomplish a usecase by listing an user who has 10 nodes using single threaded
+   * (current behaviour)
    * https://github.com/twitter/util (Copy the Duration code into a new perf pkg in megam_common.)
    * val elapsed: () => Duration = Stopwatch.start()
    * val duration: Duration = elapsed()
    *
    * TODO: Converting to Async Futures.
    * ----------------------------------
-   * takes an input list of nodenames which will return a Future[ValidationNel[Error, Option[NodeResult]]]
-   * The intensive computation is the riak fetch call.
-   * make as many future as the nodeName.
-   *                   val futureInt = scala.concurrent.Future { intensiveComputation() }
-   *                    This code should be in your controller
-   *                     Async {
-   *                          futureInt.map(i => Ok("Got result: " + i))
-   *                      }
+   * takes an input list of nodenames which will return a Future[ValidationNel[Error, NodeResults]]  
    */
-  def findByNodeName(nodeName: String): ValidationNel[Error, Option[NodeResult]] = {
-    Logger.debug("models.Nodes findByNodeName: entry:" + nodeName)
-    (riak.fetch(nodeName) leftMap { t: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(nodeName, (t.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-      xso match {
-        case Some(xs) => {
-          (Validation.fromTryCatch {
-            parse(xs.value).extract[NodeResult]
-          } leftMap { t: Throwable =>
-            new ResourceItemNotFound(nodeName, t.getMessage)
-          }).toValidationNel.flatMap { j: NodeResult =>
-            Validation.success[Error, Option[NodeResult]](j.some).toValidationNel
+  def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Error, NodeResults] = {
+    play.api.Logger.debug("models.Nodes findByNodeName: entry:" + nodeNameList)
+    (nodeNameList map {
+      _.map { nodeName =>
+        play.api.Logger.debug("models.Nodes findByNodeName: node:" + nodeName)
+        (riak.fetch(nodeName) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(nodeName, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              (Validation.fromTryCatch {
+                parse(xs.value).extract[NodeResult]
+              } leftMap { t: Throwable =>
+                new ResourceItemNotFound(nodeName, t.getMessage)
+              }).toValidationNel.flatMap { j: NodeResult =>
+                Validation.success[Error, NodeResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+              }
+            }
+            case None => Validation.failure[Error, NodeResults](new ResourceItemNotFound(nodeName, "")).toValidationNel
           }
         }
-        case None => Validation.failure[Error, Option[NodeResult]](new ResourceItemNotFound(nodeName, "")).toValidationNel
-      }
-    }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((NodeResults.empty).successNel[Error])(_ +++ _)
+    }).head //return the folded element in the head. 
+
   }
 
   /*
-   * Upon fetching account_id for an email, the nodenames is listed on the index (account.id)
-   * in bucket Nodes.
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * the nodenames are listed on the index (account.id) in bucket `Nodes`.
    * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]] 
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
-  def findByEmail(email: String): List[ValidationNel[Throwable, Option[NodeResult]]] = {
+  def findByEmail(email: String): ValidationNel[Throwable, NodeResults] = {
     Logger.debug("models.Nodes findByEmail: entry:" + email)
-    (for {
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-    } yield {
-      val bindex = BinIndex.named("")
-      val bvalue = Set("")
-      val metadataVal = "Nodes-name"
-      new GunnySack("accountID", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-        None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
-    }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
-      gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
-    } flatMap { nm => (nm.foreach (nmx => findByNodeName(nmx))) } 
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Error, NodeResults]] {
+      (((for {
+        aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        val bindex = BinIndex.named("")
+        val bvalue = Set("")
+        val metadataVal = "Nodes-name"
+        new GunnySack("accountID", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
+      } map { nm: List[String] => findByNodeName(nm.some) }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new ResourceItemNotFound(email, "nodes = nothing found.").failureNel[NodeResults])
   }
 
   /*
