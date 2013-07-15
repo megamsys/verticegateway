@@ -26,6 +26,7 @@ import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import controllers.funnel.FunnelErrors._
+import controllers.funnel.FunnelResponse
 /**
  * @author rajthilak
  *
@@ -52,8 +53,8 @@ object Accounts extends Controller with APIAuthElement {
             |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
         format(OK, succ.get.email, succ.get.api_key))
       case Failure(err) => {
-        val rn = new HttpReturningError(err)
-        Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
       }
     }
   }
@@ -68,8 +69,8 @@ object Accounts extends Controller with APIAuthElement {
             format(id, tailMsg)))
       }
       case Failure(err) => {
-        val rn = new HttpReturningError(err)
-        Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
       }
     }
 

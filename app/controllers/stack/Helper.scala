@@ -58,10 +58,10 @@ trait Helper {
     json
   }
 
-  val riakJSON = getPredefJSON(getUID("pre"), "riak", "chef", "riak", "")
-  val nodejsJSON = getPredefJSON(getUID("pre"), "nodejs", "chef", "nodejs", "")
+  val riakJSON = getPredefJSON(getUID("pre"), "riak", "chef", "riak", "none")
+  val nodejsJSON = getPredefJSON(getUID("pre"), "nodejs", "chef", "nodejs", "npm")
   val playJSON = getPredefJSON(getUID("pre"), "play", "chef", "play", "sbt")
   val akkaJSON = getPredefJSON(getUID("pre"), "akka", "chef", "akka", "sbt")
-  val redisJSON = getPredefJSON(getUID("pre"), "redis", "chef", "redis", "")
+  val redisJSON = getPredefJSON(getUID("pre"), "redis", "chef", "redis", "none")
 
 }

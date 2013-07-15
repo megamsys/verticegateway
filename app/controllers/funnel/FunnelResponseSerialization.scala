@@ -31,30 +31,34 @@ import controllers.Constants._
  * @author ram
  *
  */
-class FunnelErrorsSerialization(charset: Charset = UTF8Charset) extends SerializationBase[HttpReturningError] {
+class FunnelResponseSerialization(charset: Charset = UTF8Charset) extends SerializationBase[FunnelResponse] {
   protected val CodeKey = "code"
-  protected val ErrorKey = "error"
+  protected val SeverityKey = "error"
+  protected val MessageKey = "message"
+  protected val MoreKey = "more"
 
-  override implicit val writer = new JSONW[HttpReturningError] {
+  override implicit val writer = new JSONW[FunnelResponse] {
 
-    override def write(h: HttpReturningError): JValue = {
+    override def write(h: FunnelResponse): JValue = {
       JObject(
         JField(CodeKey, toJSON(h.code)) ::
-        JField(ErrorKey, toJSON(h.getMessage)) ::  Nil
-      )
+          JField(SeverityKey, toJSON(h.severity)) ::
+          JField (MessageKey, toJSON(h.message)) ::
+          JField(MoreKey, toJSON(h.more)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[HttpReturningError] {
+  override implicit val reader = new JSONR[FunnelResponse] {
 
-    override def read(json: JValue): Result[HttpReturningError] = {
-      val codeField = field[Option[Int]](CodeKey)(json)
-      val errorField = field[String](ErrorKey)(json)     
+    override def read(json: JValue): Result[FunnelResponse] = {
+      val codeField = field[Int](CodeKey)(json)
+      val severityField = field[String](SeverityKey)(json)
+      val messageField = field[String](MessageKey)(json)
+      val moreField = field[String](MoreKey)(json)
 
-      (codeField |@| errorField) {
-        (code: Option[Int], error: String) =>
-         /** HttpReturningError(code, errorField) */
-          new HttpReturningError(nels(new java.lang.Error("")))
+      (codeField |@| severityField |@| messageField |@| moreField) {
+        (code: Int, message: String, more: String,severity: String) =>
+          new FunnelResponse(code, message, more,severity)
       }
     }
   }

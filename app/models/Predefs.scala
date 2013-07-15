@@ -15,16 +15,16 @@
 */
 package models
 
-import play.api._
-import play.api.mvc._
 import scalaz._
 import Scalaz._
+import play.api._
+import play.api.mvc._
 import net.liftweb.json._
+import models._
 import controllers.stack._
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
-import models._
 import org.megam.common.riak.{ GSRiak, GunnySack }
 
 /**

@@ -49,7 +49,7 @@ trait APIAuthElement extends StackableController {
 
   /**
    * If HMAC authentication is true, the req send in super class
-   * otherwise badrequest return
+   * otherwise send out a json formatted error
    */
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
     play.api.Logger.debug("<---------------------------------------->")
@@ -59,9 +59,9 @@ trait APIAuthElement extends StackableController {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {
         val g = Action { implicit request =>
-          val rn = new HttpReturningError(err)
-          SimpleResult(header = ResponseHeader(rn.code.getOrElse(NOT_IMPLEMENTED), Map(CONTENT_TYPE -> "text/plain")),
-            body = Enumerator(rn.getMessage))
+          val rn: FunnelResponse = new HttpReturningError(err) //implicitly loaded.
+          SimpleResult(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
+            body = Enumerator(rn.toJson(true)))
         }
         val origReq = req.asInstanceOf[Request[AnyContent]]
         play.api.Logger.debug("<---------------------------------------->")
@@ -71,7 +71,7 @@ trait APIAuthElement extends StackableController {
     }
   }
 
-  implicit def reqFunneled[A](implicit req: RequestWithAttributes[A]): ValidationNel[Throwable,Option[FunneledRequest]] = req2FunnelBuilder(req).funneled
+  implicit def reqFunneled[A](implicit req: RequestWithAttributes[A]): ValidationNel[Throwable, Option[FunneledRequest]] = req2FunnelBuilder(req).funneled
 
   implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): Option[String] = req.get(APIAccessedKey).get
 

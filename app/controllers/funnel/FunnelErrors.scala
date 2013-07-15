@@ -29,23 +29,9 @@ object FunnelErrors {
 
   val tailMsg =
     """
-        |********************************************************************************* 
-        |** You can search/ask for help in our forums.
-  		|** https://groups.google.com/forum/?fromgroups=#!forum/megamlive. 
-  		|** If it still persists => Please create a ticket at our support link (http://www.megam.co/support).
-  		|** Take a quick peek at our docs to see if you missed something.  
-        |** (https://api.megam.co, http://docs.megam.co for more help.)
-        |********************************************************************************* """.stripMargin
-
-  val tailWithStacktrace =
-    """
-        |********************************************************************************* 
-        |** Refer the stacktrace for more information. You can search/ask for help in our forums.
-  		|** https://groups.google.com/forum/?fromgroups=#!forum/megamlive. 
-  		|** If it still persists => Please create a ticket at our support link (http://www.megam.co/support).
-  		|** Take a quick peek at our docs to see if you missed something.  
-        |** (https://api.megam.co, http://docs.megam.co for more help.)
-        |********************************************************************************* """.stripMargin
+        |Ask for help  : https://groups.google.com/forum/?fromgroups=#!forum/megamlive. 
+  		|Read our Docs : https://api.megam.co, http://docs.megam.co
+        |Log a ticket  : http://support.megam.co""".stripMargin
 
   case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
     extends Error
@@ -66,62 +52,55 @@ object FunnelErrors {
     errNel.map { err: Throwable =>
       err.fold(
         a => """%d: Authentication failure using the email/apikey combination. %n'%s' 
-            |
-            |Additional info: 
-            |%s
             |Verify the email and api key combination. 
-            |%s""".format(a.httpCode, a.input, a.msg, tailWithStacktrace).stripMargin,
+            """.format(a.httpCode, a.input).stripMargin,
         m => """%d: Body received from the API call contains invalid input. 'body:' %n'%s' 
-            |
-            |The error received when parsing the JSON is 
-            |%s
-            |Verify the body content as required for this resource. 
-            |%s""".format(m.httpCode, m.input, m.msg, tailWithStacktrace).stripMargin,
+            |Verify the body content as needed for this resource. 
+            |%s""".format(m.httpCode, m.input).stripMargin,
         h => """%d: Header received from the API call contains invalid input. 'header:' %n'%s' 
-            |
-            |Additional info: 
-            |%s
             |Verify the header content as required for this resource. 
-            |%s""".format(h.httpCode, h.input, h.msg, tailWithStacktrace).stripMargin,
+            |%s""".format(h.httpCode, h.input).stripMargin,
 
         c => """%d: Service seems to be unavailable. The layer responsible for fullfilling the request Body received from the API call contains invalid input. 'body:'  '%s' 
-            |came back with errors. 
-            |
-            |Additional info: 
-            |%s
-            |%s""".format(c.httpCode, c.input, c.msg, tailWithStacktrace).stripMargin,
-        r => """%d: The resource requested wasn't found '?:'  '%s' 
-            |
-            |Additional info: 
-            |%s
-            |%s""".format(r.httpCode, r.input, r.msg, tailWithStacktrace).stripMargin,
+            |came back with errors.             
+            """.format(c.httpCode, c.input).stripMargin,
+        r => """%d: The resource requested wasn't found  <.!.>  '%s' 
+            |											 ( ^ )
+            |                                 		      ~~~   
+            |""".format(r.httpCode, r.input).stripMargin,
 
         t => """%d: Ooops ! I know its crazy. We flunked. 
-            |                   
-            |To help you debug, please read the message and the stacktrace below. 
-            |=======================> Message <.!.> <=============================
-            |                                 ( ^ )
-            |                                 ~~~~
-            %s
-            |
-            |=======================> Stack trace <===============================
-            |%s
-            |=======================> Stack trace <===============================
-   |%s.""".format(INTERNAL_SERVER_ERROR, t.getLocalizedMessage,
-          { val u = new StringWriter; t.printStackTrace(new PrintWriter(u)); u.toString },
-          tailWithStacktrace).stripMargin)
+            |Contact support with this text.                   
+            """.format(INTERNAL_SERVER_ERROR, t.getLocalizedMessage).stripMargin)
     }.list.mkString("\n")
   }) {
 
     def code: Option[Int] = {
       (errNel.map { err: Throwable =>
-        err.fold(a => a.httpCode.some, m => m.httpCode.some, h => h.httpCode.some, c => c.httpCode.some, 
-            r => r.httpCode.some,t => INTERNAL_SERVER_ERROR.some)
+        err.fold(a => a.httpCode.some, m => m.httpCode.some, h => h.httpCode.some, c => c.httpCode.some,
+          r => r.httpCode.some, t => INTERNAL_SERVER_ERROR.some)
       }.list.head)
     }
+
+    def more: Option[String] = {
+      errNel.map { err: Throwable =>
+        err.fold(a => tailMsg,
+          m => """ |---> The error received when parsing the JSON is :
+    		  	|%s%n%s""".format(m.msg, tailMsg).stripMargin,
+          h => tailMsg,
+          c => """ |---> The error received from the service :
+    		  	|%s%n%s""".format(c.msg, tailMsg).stripMargin,
+          r => """ |---> The error received from the datasource :
+    		  	|%s%n%s""".format(r.msg, tailMsg).stripMargin,
+          t => """ |---> Pardon us. This is how it happened.             
+            |---> Stack trace 
+            |%s
+    		|%s
+            """.format({ val u = new StringWriter; t.printStackTrace(new PrintWriter(u)); u.toString }, tailMsg).stripMargin)
+      }
+    }.list.mkString("\n").some
+
+    def severity = { "error" }
   }
-  
-  case class FunnelResponse(code: Int, message: String)
-  
 
 }

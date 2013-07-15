@@ -19,6 +19,8 @@ import scalaz._
 import scalaz.Validation
 import controllers.funnel.FunnelErrors._
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
+import play.api.http.Status._
+import java.io.{ StringWriter, PrintWriter }
 
 /**
  * @author ram
@@ -30,7 +32,11 @@ package object funnel {
   type FunneledBody = Option[String]
 
   implicit def req2FunnelBuilder[A](req: RequestWithAttributes[A]): FunnelRequestBuilder[A] = new FunnelRequestBuilder[A](req)
-
+  /**
+   * Broadly erros are categorized into 
+   * 1. Authentication errors 2. Malformed Inputs 3. Service Errors 4. Resource Errors 5. JSON errors
+   * JSON erros aren't traked yet
+   */ 
   implicit class RichThrowable(thrownExp: Throwable) {
     def fold[T](
       cannotAuthError: CannotAuthenticateError => T,
@@ -47,5 +53,7 @@ package object funnel {
       case t @ _                                => anyError(t)
     }
   }
+
+  implicit def httpError2FunnelResponse(hpret: HttpReturningError) = new FunnelResponse(hpret.code.getOrElse(BAD_REQUEST), hpret.getMessage, hpret.more.getOrElse(new String()), hpret.severity)
 
 }

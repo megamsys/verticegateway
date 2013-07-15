@@ -96,15 +96,7 @@ object PredefClouds extends Helper {
       case Success(msg) => {
         val result = msg.map(a => {
           PredefClouds.findByKey(a)
-        })
-        /*Nodes.findByKey(a) match {
-            case Success(msg) => {
-              val m = msg.get
-              m
-            }
-            case Failure(_) => ""
-          }
-        })*/
+        })        
         Validation.success[Error, List[ValidationNel[Error, Option[PredefCloudResult]]]](result).toValidationNel
       }
       case Failure(err) => Validation.failure[Error, List[ValidationNel[Error, Option[PredefCloudResult]]]](new Error("""

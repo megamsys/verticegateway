@@ -17,16 +17,18 @@ package controllers
 
 import scalaz._
 import Scalaz._
-import scalaz.Validation._
+import scalaz.NonEmptyList._
 
+import scalaz.Validation._
 import play.api._
 import play.api.mvc._
-import models._
-import controllers.funnel.FunnelErrors._
-import controllers.stack.APIAuthElement
-import controllers.stack._
-import org.megam.common.amqp._
 import play.api.mvc.Result
+import models._
+import controllers.stack._
+import controllers.stack.APIAuthElement
+import controllers.funnel.FunnelResponse
+import controllers.funnel.FunnelErrors._
+import org.megam.common.amqp._
 
 /**
  * @author ram
@@ -58,13 +60,13 @@ object Nodes extends Controller with APIAuthElement {
             |Check back on the 'node name':{%s}
             |The cloud is working for you. It will be ready shortly.""".format(succ.getOrElse("none")))
             case Failure(err) =>
-              val rn = new HttpReturningError(err)
-              Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
           }
         }
         case Failure(err) => {
-          val rn = new HttpReturningError(err)
-          Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
@@ -86,13 +88,13 @@ object Nodes extends Controller with APIAuthElement {
             case Success(succ) =>
               Ok("""%s""".format(succ.map { _.getOrElse("none") }))
             case Failure(err) =>
-              val rn = new HttpReturningError(err)
-              Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
           }
         }
         case Failure(err) => {
-          val rn = new HttpReturningError(err)
-          Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
@@ -115,13 +117,13 @@ object Nodes extends Controller with APIAuthElement {
             case Success(succ) =>
               Ok("""%s""".format(succ.map { _.getOrElse("none") }))
             case Failure(err) =>
-              val rn = new HttpReturningError(err)
-              Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
           }
         }
         case Failure(err) => {
-          val rn = new HttpReturningError(err)
-          Status(rn.code.getOrElse(NOT_IMPLEMENTED))(rn.getMessage)
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
