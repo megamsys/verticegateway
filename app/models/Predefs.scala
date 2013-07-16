@@ -16,83 +16,144 @@
 package models
 
 import scalaz._
+import scalaz.Semigroup
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation
+import scalaz.Validation._
 import Scalaz._
 import play.api._
 import play.api.mvc._
 import net.liftweb.json._
 import models._
+import models.cache.{ InMemory, InMemoryCache }
+import controllers.funnel.FunnelErrors._
 import controllers.stack._
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.uid.UID
 
 /**
  * @author rajthilak
  *
  */
-case class PredefsJSON(id: String, name: String, provider: String, role: String, packaging: String)
+case class PredefsInput(name: String, provider: String, provider_role: String, id: String = new String(), build_monkey: String = "none") {
+  val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\"}"
+}
 
-object Predefs extends Helper {
+object PredefsInput {
+
+  val toMap = Map[String, PredefsInput](
+    "akka" -> PredefsInput("akka", "chef", "akka", "sbt"),
+    "java" -> PredefsInput("java", "chef", "java", "mvn"),
+    "nodejs" -> PredefsInput("nodejs", "chef", "nodejs", "npm"),
+    "play" -> PredefsInput("play", "chef", "play", "sbt"),
+    "postgresql" -> PredefsInput("postgresql", "chef", "postgresql"),
+    "rails" -> PredefsInput("rails", "chef", "riak", "bundle"),
+    "rabbitmq" -> PredefsInput("rabbitmq", "chef", "riak"),
+    "redis" -> PredefsInput("redis", "chef", "riak"),
+    "riak" -> PredefsInput("riak", "chef", "riak"))
+
+}
+
+case class PredefsResult(id: String, name: String, provider: String, provider_role: String, build_monkey: String)
+
+object Predefs {
 
   implicit val formats = DefaultFormats
+  implicit def PredefsResultsSemigroup: Semigroup[PredefsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predefs")
+
+  val metadataKey = "Predef"
+  val metadataVal = "Predefs Creation"
+  val bindex = BinIndex.named("predefName")
+  /**
+   * A private method which chains computation to make GunnySack when provided with an input json, email.
+   * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
+   * If the unique id is got successfully, then yield the GunnySack object.
+   */
+  private def mkGunnySack(input: PredefsInput): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug("models.Predefs mkGunnySack: entry:" + input)
+    val predefInput: ValidationNel[Throwable, PredefsInput] = (Validation.fromTryCatch {
+      parse(input.json).extract[PredefsInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      pip <- predefInput
+      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "pre").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+      //TO-DO: do we need a match for uir to filter the None case. confirm it during function testing.
+      val bvalue = Set(pip.name)
+      val pipJson = new PredefsInput((uir.get._1 + uir.get._2), pip.name, pip.provider, pip.provider_role, pip.build_monkey).json
+      new GunnySack(pip.name, pipJson, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+    }
+  }
 
   /**
    * The create calls and puts stuff in Riak if the predefs don't exists for the following
-   * rails
-   * riak
-   * play
-   * akka
-   * redis
-   * postgresql
-   * java
-   * nodejs
-   * rabbitmq
+   * akka, java, nodejs, play, postgresql, rails, riak, rabbitmq, redis
    * Every key/value stored in riak has the the name "eg: rails, play" as the key, and an index named
    * predefName = "rails" as well.
-   * TO-DO: We'll use memcache to store it, and retrieve it using StateMonad.
    */
-  def create: List[Option[ValidationNel[Throwable, Option[GunnySack]]]] = {
-    val metadataKey = "predef"
-    val metadataVal = "predefs Creation"
-    val bindex = BinIndex.named("predefName")
-    for {
-      predef_full <- List(riakJSON, nodejsJSON, playJSON, akkaJSON, redisJSON)
-    } yield {
-      val m = parse(predef_full).extract[PredefsJSON]
-      val bvalue = Set(m.name)
-      riak.store(new GunnySack(m.name, predef_full, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-    }.some
+  def create: ValidationNel[Throwable, PredefsResults] = {
+    play.api.Logger.debug("models.Predefs create: entry")
+    (PredefsInput.toMap.some map {
+      _.map { p =>
+        (mkGunnySack(p._2) leftMap { err: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(p._2.json, (err.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { gs: Option[GunnySack] =>
+          (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+            flatMap { maybeGS: Option[GunnySack] =>
+              maybeGS match {
+                case Some(thatGS) => (Validation.success[Throwable, PredefsResults](PredefsResults(parse(thatGS.value).extract[PredefsResult]))).toValidationNel //screwy kishore, every element in a list ? 
+                case None         => (Validation.failure[Throwable, PredefsResults](new ResourceItemNotFound(p._2.json, "The predef wasn't created, store failed:'"))).toValidationNel
+              }
+            }
+        }
+      }
+    } map {
+      _.foldRight((PredefsResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head.  
+
   }
 
   /*
-   * fetch the object using their key from bucket
+   * Uses the StateMonad to store the first time fetch of a predef in a cache where the stale gets invalidated every 5 mins.
+   * The downside of this approach is any new update will have to wait 5 mins
+   * Every time a State is run, a new InMemoryCache is used as the initial state. This is ok, as we use InMemoryCache as a fascade 
+   * to the actualy play.api.cache.Cache object.
    */
-  def findByKey(key: String): ValidationNel[Error, Option[PredefsJSON]] = {
-    riak.fetch(key) match {
-      case Success(msg) => {
-        val caseValue = msg.get
-        val json = parse(caseValue.value)
-        val m = json.extract[PredefsJSON]
-        Validation.success[Error, Option[PredefsJSON]](Some(m)).toValidationNel
-      }
-      case Failure(err) => Validation.failure[Error, Option[PredefsJSON]](new Error("""
-               |In this predef '%s' is doesn't exists in your list 
-               |Please add predef's in your list.""".format(key).stripMargin + "\n ")).toValidationNel
-    }
+  def findByName(name: String): ValidationNel[Error, Option[PredefsResult]] = {
+    Logger.debug("models.Predefs findByName: entry:" + name)
+    InMemory[ValidationNel[Error, Option[PredefsResult]]]({
+      name: String =>
+        {
+          Logger.debug("models.Predefs findByName: InMemory:" + name)
+          (riak.fetch(name) leftMap { t: NonEmptyList[Throwable] =>
+            new ServiceUnavailableError(name, (t.list.map(m => m.getMessage)).mkString("\n"))
+          }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+            xso match {
+              case Some(xs) => {
+                (Validation.fromTryCatch {
+                  parse(xs.value).extract[PredefsResult]
+                } leftMap { t: Throwable =>
+                  new ResourceItemNotFound(name, t.getMessage)
+                }).toValidationNel.flatMap { j: PredefsResult =>
+                  Validation.success[Error, Option[PredefsResult]](j.some).toValidationNel
+                }
+              }
+              case None => Validation.failure[Error, Option[PredefsResult]](new ResourceItemNotFound(name, "Please rerun predef initiation again.")).toValidationNel
+            }
+          }
+        }
+    }).get(name).eval(InMemoryCache[ValidationNel[Error, Option[PredefsResult]]]())
   }
 
-  def listKeys: Validation[Throwable, Stream[String]] = riak.listKeys
-
-  /**
-   * Use this with caution. We don't want to call it always.The predefs will be memcached using a key.
-   * TO-DO: We'll use StateMonad to perform Cache get/set.
-   */
-  def firstTimeLoad: List[Option[ValidationNel[Throwable, Option[GunnySack]]]] = {
-    listKeys match {
-      case xs #:: xs1 => models.Predefs.create
-    }
-  }
+  def listKeys: ValidationNel[Throwable, Stream[String]] = riak.listKeys.toValidationNel
 
 }

@@ -30,4 +30,20 @@ package object models {
     def apply(m: NodeResult): NodeResults = nels(m.some)    
     def empty: NodeResults = nels(none)
   }
+  
+  type PredefsResults = NonEmptyList[Option[PredefsResult]]
+  
+  object PredefsResults {
+    def apply(m: PredefsResult): PredefsResults = nels(m.some)
+    def empty: PredefsResults = nels(none)
+    
+  }
+  
+  type PredefCloudResults = NonEmptyList[Option[PredefCloudResult]]
+  
+  object PredefCloudResults {
+    def apply(m: PredefCloudResult): PredefCloudResults = nels(m.some)
+    def empty: PredefCloudResults = nels(none)
+    
+  }
 }

@@ -16,16 +16,14 @@
 package models
 
 import scalaz.State
-import models.cache.InMemoryCache._
+import models.cache.InMemory._
 /**
  * @author ram
  *
  */
 package object cache {
-
-  type StateCache[+A] = State[InMemory[SinglePredef], A]
-
-  
-
+  type S[A] = InMemoryCache[A]
+  type StateCache[A] = State[S[A], A]
+  type StateCacheO[A] = State[S[A], Option[A]]
   
 }

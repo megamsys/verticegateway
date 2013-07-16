@@ -97,9 +97,9 @@ object Nodes {
     } yield {
       //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
       val bvalue = Set(aor.get.id)
-      val predefsJson = (nir.predefs).toString
+      val PredefsResult = (nir.predefs).toString
       //TO-DO: make the json using json-scalaz (reader/writers). Review of json libs shows json-scalaz as the winner (simple to use)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_ID\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + predefsJson + "}}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_ID\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + PredefsResult + "}}"
       new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
     }
@@ -153,7 +153,7 @@ object Nodes {
    *
    * TODO: Converting to Async Futures.
    * ----------------------------------
-   * takes an input list of nodenames which will return a Future[ValidationNel[Error, NodeResults]]  
+   * takes an input list of nodenames which will return a Future[ValidationNel[Error, NodeResults]]
    */
   def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Error, NodeResults] = {
     play.api.Logger.debug("models.Nodes findByNodeName: entry:" + nodeNameList)
@@ -205,25 +205,6 @@ object Nodes {
       } map { nm: List[String] => findByNodeName(nm.some) }).disjunction).pure[IO]
     }.run.map(_.validation).unsafePerformIO
     res.getOrElse(new ResourceItemNotFound(email, "nodes = nothing found.").failureNel[NodeResults])
-  }
-
-  /*
-   * get all nodes for single user
-   * this was only return the nodes name
-   */
-  def listNodesByEmail(email: String): ValidationNel[Throwable, List[String]] = {
-    Logger.debug("models.Nodes listNodesByEmail: entry:" + email)
-    (for {
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-    } yield {
-      val bindex = BinIndex.named("")
-      val bvalue = Set("")
-      val metadataVal = "Nodes-name"
-      new GunnySack("accountID", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-        None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
-    }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
-      gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
-    }
   }
 
 }

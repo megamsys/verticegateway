@@ -28,20 +28,30 @@ import play.api.mvc.Results._
 import org.megam.common.riak.GunnySack
 
 import models._
+import scalaz._
+import scalaz.Validation._
+
+import models._
+import controllers.stack.APIAuthElement
+import controllers.stack._
+import controllers.funnel.FunnelErrors._
+import controllers.funnel.FunnelResponse
 
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     play.api.Logger.info("Megam Play %s App - started".format("0.1"))
-   /* val res_predef= for {
-      opt <- models.Predefs.firstTimeLoad
-      res <- opt
-    } yield res match {
-      case Success(succ: Option[GunnySack]) => ("Loaded => %s%n".format(succ.get.key))
-      case Failure(err)                     => ("Failed => %s%n".format((err.map(x => x.getMessage + "\n")).head.toString))
-    }
-    Logger.debug("---> Predefs load results:\n%s".format(res_predef))
-    */
+    (Validation.fromTryCatch[Unit] {
+      models.Predefs.create match {
+        case Success(succ) =>
+          play.api.Logger.info("""Predefs created successfully.
+            |
+            |Cache gets loaded upon first fetch. %nLoaded values are ----->%n{%s}""".format(succ.toString))
+        case Failure(err) =>
+          val rn: FunnelResponse = new HttpReturningError(err)
+          play.api.Logger.error(rn.toJson(true))
+      }
+    })
   }
 
   override def onStop(app: Application) {

@@ -18,6 +18,7 @@ scalacOptions := Seq(
   	"-Xcheckinit",
   	"-Xlint",
   	"-Xverify",
+  	"-Yinline-warnings",
   	"-Yclosure-elim",
   	"-language:postfixOps",
   	"-language:implicitConversions",

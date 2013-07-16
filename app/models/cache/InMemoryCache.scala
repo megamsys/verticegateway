@@ -17,52 +17,91 @@ package models.cache
 
 import scalaz.State
 import models.cache._
+import play.api.Play.current
 
 /**
  * @author ram
  *
  */
 
-case class SinglePredef(value: String)
-
-case class GroupedPredefs(stream: Stream[String])
-
-trait InMemory[A] extends Cache {
-  def mem(u: String): StateCache[A]
-}
-
-trait Cache {
-  def getAs[T](c: String): Option[Timestamped[T]]
-  def update[T](u: String, s: Timestamped[T]): InMemory[T]
-}
-
+/**
+ * A timestamped value in the Cache. eg: ValidationNel[Throwable, PredefsResult]
+ */
 case class Timestamped[A](value: A, timestamp: Long)
 
-object InMemoryCache {
+/**
+ * A play.api.cache.Cache wrapper. Has two methods to
+ * - update play.api.cache.Cache, (and)
+ * - getAs a type from play.api.cache.Cache
+ */
+case class InMemoryCache[A]() {
+  def update[A](u: String, s: Timestamped[A]): InMemoryCache[A] = {
+    play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "update"))
+    play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", u + "=" + s))
+    play.api.cache.Cache.set(u, s)
+    new InMemoryCache[A]
+  }
+  def getAs[A](c: String): Option[Timestamped[A]] = {
+    play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs"))
+    play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs ?"+c))
+    play.api.cache.Cache.getAs[Timestamped[A]](c)
+  }
+}
 
-  def get(u: String): StateCache[SinglePredef] = for {
+/**
+ * An InMemory trait, which returns a StateCache
+ */
+trait InMemory[A] {
+  def get(u: String): StateCache[A]
+}
+
+object InMemory {
+  def apply[A](f: String => A) = new InMemoryImpl[A](f)
+}
+
+/**
+ * An InMemory impl, which take the value type A, 
+ * and a function (f: String => A) which produces A.
+ * The function f will be called when the value in the cache is stale or doesn't exists.
+ */
+class InMemoryImpl[A](f: String => A) extends InMemory[A] {
+ 
+  /**
+   *Implement by doing a check if it exists in the InMemoryCache (which just a fascade to play.api.cache.Cache)
+   *If it doesn't then do a retrieve using the string key, but calling retrieve
+   */  
+  def get(u: String): StateCache[A] = for {
     ofs <- checkMem(u)
-    fs <- ofs.map(State.state[InMemory[SinglePredef], SinglePredef]).getOrElse(retrieve(u))
+    fs <- ofs.map(State.state[InMemoryCache[A], A]).getOrElse(retrieve(u))
   } yield fs
-
-  private def checkMem(u: String): StateCache[Option[SinglePredef]] = for {
-    ofs <- State.gets { c: InMemory[SinglePredef] =>
-      c.getAs[SinglePredef](u).collect {
+  
+  /**
+   * Verify if the string exists in the InMemoryCache
+   */ 
+  private def checkMem(u: String): StateCacheO[A] = for {
+    ofs <- State.gets { c: InMemoryCache[A] =>
+      c.getAs[A](u).collect {
         case Timestamped(fs, ts) if !stale(ts) => fs
       }
     }
   } yield ofs
-
+  
+  /**
+   * Produce a stale timer
+   */ 
   private def stale(ts: Long): Boolean = {
     System.currentTimeMillis - ts > (5 * 60 * 1000L)
   }
 
-  private def retrieve(u: String): StateCache[SinglePredef] = for {
-    fs <- State.state(callRiak(u))
+  /**
+   * Call the function, and produce a value A, and modify the state. Upon modification, 
+   * return back a new InMemoryCache. In this case we return a new InMemorycache, as this just a fascade 
+   * to play.api.cache.Cache.
+   */ 
+  private def retrieve(u: String): StateCache[A] = for {
+    fs <- State.state(f(u))
     tfs = Timestamped(fs, System.currentTimeMillis)
-    _ <- State.modify[InMemory[SinglePredef]] { _.update(u, tfs) }
+    _ <- State.modify[S[A]] { _.update(u, tfs) }
   } yield fs
 
-  private def callRiak(u: String): SinglePredef = SinglePredef(u)
 }
-

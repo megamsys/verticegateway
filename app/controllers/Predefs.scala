@@ -20,6 +20,9 @@ import Scalaz._
 import play.api._
 import play.api.mvc._
 import models._
+import controllers.funnel.FunnelErrors._
+import controllers.funnel.FunnelResponse
+
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
@@ -42,43 +45,37 @@ object Predefs extends Controller with APIAuthElement {
    * show the message details
    * 
    */
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>    
-    val res = models.Predefs.findByKey(id) match {
-      case Success(optAcc) => {
-        val foundNode = optAcc.get
-        foundNode
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    models.Predefs.findByName(id) match {
+      case Success(succ) => {
+        Ok((succ.map(s => s.toString)).getOrElse(
+          """No Predef exists in your predef's list '%s'. Locate returned null.
+            |
+            |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
+            format(id, tailMsg)))
       }
       case Failure(err) => {
-        Logger.info(""" '%s' doesn't exists in your predef's list 
-            |
-            |Please store this Predef's list. Because use this predef is used for your instance's.
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
-            + "\n" + apiAccessed)
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
       }
-    }   
-    println("" + res)
-    Ok("" + res)
+    }
+
   }
 
   /*
-   * list the particular Id values
+   * list all the predef names in the bucket
    * 
    */
-  def list = StackAction(parse.tolerantText) { implicit request =>       
-    val valueJson = models.Predefs.listKeys match {
-      case Success(t) =>  { 
-           t
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    models.Predefs.listKeys match {
+      case Success(succ) => {
+        Ok(succ.mkString("\n"))
       }
-      case Failure(err) =>{
-        Logger.info(""" Default predef's doesn't exists in your predef's list 
-            |
-            |Please store default predef's cloud details in your Predef's list. '%s'  
-           |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(err).stripMargin
-          + "\n" + apiAccessed)
-      }      
+      case Failure(err) => {
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+      }
     }
-    println(valueJson)
-    Ok("" + valueJson)
-  } 
- 
+  }
+
 }
