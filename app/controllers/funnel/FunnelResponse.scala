@@ -44,7 +44,7 @@ case class FunnelResponse(code: Int, message: String, more: String, severity: St
 object FunnelResponse {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[FunnelResponse] = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import controllers.funnel.FunnelResponseSerialization
     val funser = new FunnelResponseSerialization()
     fromJSON(jValue)(funser.reader)

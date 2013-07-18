@@ -39,22 +39,22 @@ import org.megam.common.uid.UID
  * @author rajthilak
  *
  */
-case class PredefsInput(name: String, provider: String, provider_role: String, id: String = new String(), build_monkey: String = "none") {
-  val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\"}"
+case class PredefsInput(id: String = new String(), name: String, provider: String, provider_role: String, build_monkey: String = "none") {
+  val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"prov\":\"" + provider + "\",\"provider_role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\"}"
 }
 
 object PredefsInput {
 
   val toMap = Map[String, PredefsInput](
-    "akka" -> PredefsInput("akka", "chef", "akka", "sbt"),
-    "java" -> PredefsInput("java", "chef", "java", "mvn"),
-    "nodejs" -> PredefsInput("nodejs", "chef", "nodejs", "npm"),
+    "akka" -> PredefsInput("", "akka", "chef", "akka", "sbt"),
+    "java" -> PredefsInput("", "java", "chef", "java", "mvn"),
+    "nodejs" -> PredefsInput("", "nodejs", "chef", "nodejs", "npm"),
     "play" -> PredefsInput("play", "chef", "play", "sbt"),
-    "postgresql" -> PredefsInput("postgresql", "chef", "postgresql"),
-    "rails" -> PredefsInput("rails", "chef", "riak", "bundle"),
-    "rabbitmq" -> PredefsInput("rabbitmq", "chef", "riak"),
-    "redis" -> PredefsInput("redis", "chef", "riak"),
-    "riak" -> PredefsInput("riak", "chef", "riak"))
+    "postgresql" -> PredefsInput("postgresql", "postgresql", "chef", "postgresql"),
+    "rails" -> PredefsInput("rails", "chef", "rails", "bundle"),
+    "rabbitmq" -> PredefsInput("rabbitmq", "rabbitmq", "chef", "riak"),
+    "redis" -> PredefsInput("", "redis", "chef", "riak"),
+    "riak" -> PredefsInput("", "riak", "chef", "riak"))
 
 }
 
@@ -76,17 +76,18 @@ object Predefs {
    * If the unique id is got successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(input: PredefsInput): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug("models.Predefs mkGunnySack: entry:" + input)
+    play.api.Logger.debug("models.Predefs mkGunnySack: entry:\n" + input.json)
     val predefInput: ValidationNel[Throwable, PredefsInput] = (Validation.fromTryCatch {
       parse(input.json).extract[PredefsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
-
+    
     for {
       pip <- predefInput
       //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "pre").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //TO-DO: do we need a match for uir to filter the None case. confirm it during function testing.
+      play.api.Logger.debug("models.Predefs mkGunnySack: yield:\n" + (uir.get._1 + uir.get._2))
       val bvalue = Set(pip.name)
       val pipJson = new PredefsInput((uir.get._1 + uir.get._2), pip.name, pip.provider, pip.provider_role, pip.build_monkey).json
       new GunnySack(pip.name, pipJson, RiakConstants.CTYPE_TEXT_UTF8, None,
@@ -104,7 +105,7 @@ object Predefs {
     play.api.Logger.debug("models.Predefs create: entry")
     (PredefsInput.toMap.some map {
       _.map { p =>
-        (mkGunnySack(p._2) leftMap { err: NonEmptyList[Throwable] =>
+        (mkGunnySack(p._2) leftMap { err: NonEmptyList[Throwable] =>          
           new ServiceUnavailableError(p._2.json, (err.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { gs: Option[GunnySack] =>
           (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).

@@ -30,12 +30,15 @@ import org.megam.common.riak.GunnySack
 import models._
 import scalaz._
 import scalaz.Validation._
+import net.liftweb.json.scalaz.JsonScalaz._
+import net.liftweb.json._
+import net.liftweb.json.scalaz._
 
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import controllers.funnel.FunnelErrors._
-import controllers.funnel.FunnelResponse
+import controllers.funnel.{ FunnelResponse, FunnelResponses }
 
 object Global extends GlobalSettings {
 
@@ -48,8 +51,8 @@ object Global extends GlobalSettings {
             |
             |Cache gets loaded upon first fetch. %nLoaded values are ----->%n{%s}""".format(succ.toString))
         case Failure(err) =>
-          val rn: FunnelResponse = new HttpReturningError(err)
-          play.api.Logger.error(rn.toJson(true))
+         val rn: FunnelResponses = new HttpReturningError(err)
+          play.api.Logger.error(rn)
       }
     })
   }
@@ -63,7 +66,7 @@ object Global extends GlobalSettings {
       views.html.errorPage(ex))
   }
 
-  override def onHandlerNotFound(request: RequestHeader): Result = {
+  override def onHandlerNotFound(request: RequestHeader): play.api.mvc.Result = {
     NotFound(
       views.html.errorPage(new Throwable(request.path)))
   }

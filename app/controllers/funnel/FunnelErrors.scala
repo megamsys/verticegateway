@@ -34,73 +34,80 @@ object FunnelErrors {
         |Log a ticket  : http://support.megam.co""".stripMargin
 
   case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
-    extends Error
+    extends Error(msg)
 
   case class MalformedBodyError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
-    extends Error
+    extends Error(msg)
 
   case class MalformedHeaderError(input: String, msg: String, httpCode: Int = NOT_ACCEPTABLE)
-    extends Error
+    extends Error(msg)
 
   case class ServiceUnavailableError(input: String, msg: String, httpCode: Int = SERVICE_UNAVAILABLE)
-    extends Error
+    extends Error(msg)
 
   case class ResourceItemNotFound(input: String, msg: String, httpCode: Int = NOT_FOUND)
-    extends Error
+    extends Error(msg)
 
-  case class HttpReturningError(errNel: NonEmptyList[Throwable]) extends Exception({
-    errNel.map { err: Throwable =>
+  case class HttpReturningError(errNel: NonEmptyList[Throwable]) extends Exception {
+
+     def mkMsg(err: Throwable): String = {
       err.fold(
-        a => """%d: Authentication failure using the email/apikey combination. %n'%s' 
+        a => """Authentication failure using the email/apikey combination. %n'%s' 
             |Verify the email and api key combination. 
-            """.format(a.httpCode, a.input).stripMargin,
-        m => """%d: Body received from the API call contains invalid input. 'body:' %n'%s' 
+            """.format(a.input).stripMargin,
+        m => """Body received from the API call contains invalid input. 'body:' %n'%s' 
             |Verify the body content as needed for this resource. 
-            |%s""".format(m.httpCode, m.input).stripMargin,
-        h => """%d: Header received from the API call contains invalid input. 'header:' %n'%s' 
+            |%s""".format(m.input).stripMargin,
+        h => """Header received from the API call contains invalid input. 'header:' %n'%s' 
             |Verify the header content as required for this resource. 
-            |%s""".format(h.httpCode, h.input).stripMargin,
+            |%s""".format(h.input).stripMargin,
 
-        c => """%d: Service seems to be unavailable. The layer responsible for fullfilling the request Body received from the API call contains invalid input. 'body:'  '%s' 
-            |came back with errors.             
-            """.format(c.httpCode, c.input).stripMargin,
-        r => """%d: The resource requested wasn't found  <.!.>  '%s' 
+        c => """Service unavailable. The layer responsible for fullfilling the request
+            |came back with errors %n'%s'""".format(c.input).stripMargin,
+        r => """The resource requested wasn't found  <.!.>  '%s' 
             |											 ( ^ )
             |                                 		      ~~~   
-            |""".format(r.httpCode, r.input).stripMargin,
+            |""".format(r.input).stripMargin,
 
-        t => """%d: Ooops ! I know its crazy. We flunked. 
+        t => """Ooops ! I know its crazy. We flunked. 
             |Contact support with this text.                   
-            """.format(INTERNAL_SERVER_ERROR, t.getLocalizedMessage).stripMargin)
-    }.list.mkString("\n")
-  }) {
-
-    def code: Option[Int] = {
-      (errNel.map { err: Throwable =>
-        err.fold(a => a.httpCode.some, m => m.httpCode.some, h => h.httpCode.some, c => c.httpCode.some,
-          r => r.httpCode.some, t => INTERNAL_SERVER_ERROR.some)
-      }.list.head)
+            """.format(t.getLocalizedMessage).stripMargin)
     }
 
-    def more: Option[String] = {
-      errNel.map { err: Throwable =>
-        err.fold(a => tailMsg,
-          m => """ |---> The error received when parsing the JSON is :
+    def msg: String = {
+      errNel.map { err: Throwable => mkMsg(err) }.list.mkString("\n")
+    }
+
+   def mkCode(err: Throwable): Option[Int] = {
+      err.fold(a => a.httpCode.some, m => m.httpCode.some, h => h.httpCode.some, c => c.httpCode.some,
+        r => r.httpCode.some, t => INTERNAL_SERVER_ERROR.some)
+
+    }
+
+    def code: Option[Int] = { (errNel.map { err: Throwable => mkCode(err) }.list.head) }
+
+    def mkMore(err: Throwable) = {
+      err.fold(a => tailMsg,
+        m => """|The error received when parsing the JSON is :
     		  	|%s%n%s""".format(m.msg, tailMsg).stripMargin,
-          h => tailMsg,
-          c => """ |---> The error received from the service :
+        h => tailMsg,
+        c => """|The error received from the service :
     		  	|%s%n%s""".format(c.msg, tailMsg).stripMargin,
-          r => """ |---> The error received from the datasource :
+        r => """|The error received from the datasource :
     		  	|%s%n%s""".format(r.msg, tailMsg).stripMargin,
-          t => """ |---> Pardon us. This is how it happened.             
-            |---> Stack trace 
+        t => """|Pardon us. This is how it happened.             
+            |Stack trace 
             |%s
     		|%s
             """.format({ val u = new StringWriter; t.printStackTrace(new PrintWriter(u)); u.toString }, tailMsg).stripMargin)
-      }
-    }.list.mkString("\n").some
+    }
 
-    def severity = { "error" }
+    def more: Option[String] = { errNel.map { err: Throwable => mkMore(err) }.list.mkString("\n").some }
+
+    def severity = { "error" }    
+    
   }
+
+  
 
 }
