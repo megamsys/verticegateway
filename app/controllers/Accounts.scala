@@ -47,11 +47,11 @@ object Accounts extends Controller with APIAuthElement {
     val input = (request.body).toString()
     play.api.Logger.debug("Accounts.post  : entry\n" + input)
     models.Accounts.create(input) match {
-      case Success(succ) => Ok("""%d: Account created successfully.
+      case Success(succ) => Ok(
+        FunnelResponse("""Account created successfully.
             |
-            |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now. 
-            |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
-        format(OK, succ.get.email, succ.get.api_key))
+            |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now.""".
+          format(succ.get.email, succ.get.api_key).stripMargin).toJson(true))
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
@@ -60,6 +60,7 @@ object Accounts extends Controller with APIAuthElement {
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug("Accounts.show  : entry\n" + id)
     models.Accounts.findByEmail(id) match {
       case Success(succ) => {
         Ok((succ.map(s => s.toString)).getOrElse(

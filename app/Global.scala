@@ -47,11 +47,11 @@ object Global extends GlobalSettings {
     (Validation.fromTryCatch[Unit] {
       models.Predefs.create match {
         case Success(succ) =>
-          play.api.Logger.info("""Predefs created successfully.
+          play.api.Logger.debug("""Predefs created successfully.
             |
             |Cache gets loaded upon first fetch. %nLoaded values are ----->%n{%s}""".format(succ.toString))
         case Failure(err) =>
-         val rn: FunnelResponses = new HttpReturningError(err)
+          val rn: FunnelResponses = new HttpReturningError(err)
           play.api.Logger.error(rn)
       }
     })

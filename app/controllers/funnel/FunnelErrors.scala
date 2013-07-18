@@ -57,7 +57,7 @@ object FunnelErrors {
             """.format(a.input).stripMargin,
         m => """Body received from the API call contains invalid input. 'body:' %n'%s' 
             |Verify the body content as needed for this resource. 
-            |%s""".format(m.input).stripMargin,
+            |""".format(m.input).stripMargin,
         h => """Header received from the API call contains invalid input. 'header:' %n'%s' 
             |Verify the header content as required for this resource. 
             |%s""".format(h.input).stripMargin,

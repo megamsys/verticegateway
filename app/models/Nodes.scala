@@ -133,8 +133,8 @@ object Nodes {
   def create(input: String, email: String): ValidationNel[Throwable, Option[NodeResult]] = {
     play.api.Logger.debug("models.Account create: entry\n" + input)
     (mkGunnySack(input, email) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
+      err
+    }).flatMap { gs: Option[GunnySack] =>
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {

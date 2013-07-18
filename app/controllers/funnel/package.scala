@@ -50,7 +50,7 @@ package object funnel {
       import controllers.funnel.FunnelResponsesSerialization.{ writer => FunResponsesWriter }
       toJSON(fres)(FunResponsesWriter)
     }
-    
+
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(fres: FunnelResponses, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(fres)))
@@ -97,7 +97,7 @@ package object funnel {
       r => new FunnelResponse(hpret.mkCode(r).getOrElse(BAD_REQUEST), hpret.mkMsg(r), hpret.mkMore(r), hpret.severity),
       t => new FunnelResponse(hpret.mkCode(t).getOrElse(BAD_REQUEST), hpret.mkMsg(t), hpret.mkMore(t), hpret.severity))
   }.some
-
+  
   implicit def funnelResponses2Json(fres: FunnelResponses): String = FunnelResponses.toJson(fres, true)
 
 }

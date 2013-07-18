@@ -20,6 +20,8 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import controllers.Constants._
+import play.api.http.Status._
+import controllers.funnel.FunnelErrors._
 /**
  * @author ram
  *
@@ -42,6 +44,8 @@ case class FunnelResponse(code: Int, message: String, more: String, severity: St
 }
 
 object FunnelResponse {
+  
+  def apply(message: String): FunnelResponse = new FunnelResponse(OK, message, tailMsg, "info")
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[FunnelResponse] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON

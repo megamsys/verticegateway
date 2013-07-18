@@ -80,7 +80,7 @@ object Predefs {
     val predefInput: ValidationNel[Throwable, PredefsInput] = (Validation.fromTryCatch {
       parse(input.json).extract[PredefsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
-    
+
     for {
       pip <- predefInput
       //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
@@ -105,9 +105,8 @@ object Predefs {
     play.api.Logger.debug("models.Predefs create: entry")
     (PredefsInput.toMap.some map {
       _.map { p =>
-        (mkGunnySack(p._2) leftMap { err: NonEmptyList[Throwable] =>          
-          new ServiceUnavailableError(p._2.json, (err.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { gs: Option[GunnySack] =>
+        (mkGunnySack(p._2) leftMap { t: NonEmptyList[Throwable] => t
+        }).flatMap { gs: Option[GunnySack] =>
           (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
             flatMap { maybeGS: Option[GunnySack] =>
               maybeGS match {
@@ -118,7 +117,7 @@ object Predefs {
         }
       }
     } map {
-      _.foldRight((PredefsResults.empty).successNel[Throwable])(_ +++ _)
+      _.fold((PredefsResults.empty).successNel[Throwable])(_ +++ _) //fold or foldRight ? 
     }).head //return the folded element in the head.  
 
   }
