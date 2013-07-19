@@ -61,18 +61,14 @@ case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[Str
   val mkSign = {
     val ab = ((clientAPIDate ++ clientAPIPath ++ calculateMD5(clientAPIBody)) map { a: String => a
     }).mkString("\n")
-    play.api.Logger.debug("mkSign:" + ab)
+    play.api.Logger.debug(("%-20s -->[%s]").format("FunnelRequest:mkSign", ab))
     ab
   }
 
   override def toString = {
-    "FunneledRequest:\n" +
-      "----------------\n" +
-      "email  =" + maybeEmail + "\n" +
-      "apihmac=" + clientAPIHmac + "\n" +
-      "apidate=" + clientAPIDate + "\n" +
-      "apipath=" + clientAPIPath + "\n" +
-      "apibody=" + clientAPIBody + ")\n"
+    "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
+      "email", maybeEmail, "apiHMAC", clientAPIHmac, "apiDATE", clientAPIDate,
+      "apiPATH", clientAPIPath, "apiBody", clientAPIBody)
   }
 }
 case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
@@ -82,7 +78,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
   private val clientAPIReqBody = ((req.body).toString()).some
   private val clientAPIReqDate: Option[String] = rawheader.get(X_Megam_DATE)
   private val clientAPIReqPath: Option[String] = req.path.some
-  
+
   //Look for the X_Megam_HMAC field. If not the FunneledRequest will be None.
   private lazy val frOpt: Option[FunneledRequest] = (for {
     hmac <- rawheader.get(X_Megam_HMAC)
@@ -101,7 +97,8 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
    * A valid email exists, then send back a ValidationNel.success with FunneledRequest wrapped in Option.
    */
   def funneled: ValidationNel[Throwable, Option[FunneledRequest]] = {
-    play.api.Logger.debug("FunnelRequestBuildler:\n%s".format(frOpt.getOrElse("Funneled Request is NONE! Bummer dude.").toString))
+    play.api.Logger.debug(("%-20s -->[%s]").format("FunnelRB:funneled", frOpt.getOrElse("Funneled Request is NONE! Bummer dude.").toString))
+
     frOpt match {
       case Some(fr) => fr.wowEmail.leftMap { t: Throwable => t }.toValidationNel.flatMap {
         _: Option[String] => Validation.success[Error, Option[FunneledRequest]](fr.some).toValidationNel

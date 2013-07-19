@@ -71,7 +71,6 @@ object SecurityActions {
         Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-F", errm))
         Validation.failure[Error, Option[String]](CannotAuthenticateError(
           """Invalid content in header. API server couldn't parse it.""", errm)).toValidationNel
-
     }
   }
 
@@ -84,7 +83,7 @@ object SecurityActions {
    * else
    */
   def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Error, Option[String]] = {
-    play.api.Logger.debug("<---------------------------------------->")
+    play.api.Logger.debug("<O==>------------------------------------->")
     (for {
       resp <- eitherT[IO, NonEmptyList[Error], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
         (Accounts.findByEmail(freq.maybeEmail.get).disjunction).pure[IO]

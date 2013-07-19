@@ -22,6 +22,7 @@ import scalaz._
 import Scalaz._
 import scalaz.Validation._
 import play.api._
+import play.api.http.Status._
 import play.api.mvc._
 import play.api.mvc.Results._
 
@@ -47,9 +48,9 @@ object Global extends GlobalSettings {
     (Validation.fromTryCatch[Unit] {
       models.Predefs.create match {
         case Success(succ) =>
-          play.api.Logger.debug("""Predefs created successfully.
+          play.api.Logger.debug(FunnelResponse("""Predefs created successfully. Cache gets loaded upon first fetch. 
             |
-            |Cache gets loaded upon first fetch. %nLoaded values are ----->%n{%s}""".format(succ.toString))
+            |%nLoaded values are ----->%n[%s]""".format(succ.toString).stripMargin).toJson(true))
         case Failure(err) =>
           val rn: FunnelResponses = new HttpReturningError(err)
           play.api.Logger.error(rn)
@@ -58,7 +59,7 @@ object Global extends GlobalSettings {
   }
 
   override def onStop(app: Application) {
-    play.api.Logger.info("Application shutdown...")
+    play.api.Logger.info("Megam Play %s App - going down. Stateless folks - you don't care.".format("0.1"))
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
@@ -68,6 +69,6 @@ object Global extends GlobalSettings {
 
   override def onHandlerNotFound(request: RequestHeader): play.api.mvc.Result = {
     NotFound(
-      views.html.errorPage(new Throwable(request.path)))
+      views.html.errorPage(new Throwable(NOT_FOUND + ":" + request.path + " NOT_FOUND")))
   }
 }

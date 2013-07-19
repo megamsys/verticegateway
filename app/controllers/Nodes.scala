@@ -34,12 +34,6 @@ import org.megam.common.amqp._
  * @author ram
  *
  */
-
-/*
- * this controller for HMAC authentication and access riak
- * If HMAC authentication is true then post or list the nodes are executed
- *  
- */
 object Nodes extends Controller with APIAuthElement {
 
   /*
@@ -47,12 +41,15 @@ object Nodes extends Controller with APIAuthElement {
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "post:Entry"))
+
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
           models.Nodes.create(email, clientAPIBody) match {
             case Success(succ) =>
               Ok("""Node initiation instruction submitted successfully.
@@ -73,17 +70,21 @@ object Nodes extends Controller with APIAuthElement {
   }
 
   /*
-   * List the nodes for a particular email. The email is parsed from the header using
-   * funneling (implicit). 
-   * A model riak call findByNodeName, return the node details of that node.
-   * 
-   */
+   * GET: findByNodeName: Show a particular node name for an email
+   * Email grabbed from header
+   * Output: JSON (NodeResult)  
+   **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
+
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
+
           models.Nodes.findByNodeName(List(email).some) match {
             case Success(succ) =>
               Ok("""%s""".format(succ.map { _.getOrElse("none") }))
@@ -102,10 +103,9 @@ object Nodes extends Controller with APIAuthElement {
   }
 
   /*
-   * List the nodes for a particular email. The email is parsed from the header using
-   * funneling (implicit). 
-   * A model riak call findByEmail, return the node details of that node.
-   * 
+   * GET: findbyEmail: List all the nodes names per email
+   * Email grabbed from header.
+   * Output: JSON (NodeResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatch[Result] {

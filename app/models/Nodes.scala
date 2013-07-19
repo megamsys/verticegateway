@@ -82,8 +82,10 @@ object Nodes {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(input: String, email: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug("models.Node mkGunnySack: entry:" + email + "\n" + input)
+  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
     val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
       parse(input).extract[NodeInput]
@@ -112,7 +114,9 @@ object Nodes {
    * If the account id is looked up successfully, the yield results in making the GunnySack object.
    */
   private def mkGunnySackF(email: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug("models.Node mkGunnySackF: entry\n" + email)
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "mkGunnySackF:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Error] => t }) //captures failure on the left side, success on right ie the component before the (<-)
     } yield {
@@ -130,8 +134,11 @@ object Nodes {
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket
    */
-  def create(input: String, email: String): ValidationNel[Throwable, Option[NodeResult]] = {
-    play.api.Logger.debug("models.Account create: entry\n" + input)
+  def create(email: String, input: String): ValidationNel[Throwable, Option[NodeResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
     (mkGunnySack(input, email) leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { gs: Option[GunnySack] =>
@@ -156,10 +163,11 @@ object Nodes {
    * takes an input list of nodenames which will return a Future[ValidationNel[Error, NodeResults]]
    */
   def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Error, NodeResults] = {
-    play.api.Logger.debug("models.Nodes findByNodeName: entry:" + nodeNameList)
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", nodeNameList))
     (nodeNameList map {
       _.map { nodeName =>
-        play.api.Logger.debug("models.Nodes findByNodeName: node:" + nodeName)
+        play.api.Logger.debug(("%-20s -->[%s]").format("nodeName", nodeName))
         (riak.fetch(nodeName) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(nodeName, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
@@ -190,7 +198,8 @@ object Nodes {
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, NodeResults] = {
-    Logger.debug("models.Nodes findByEmail: entry:" + email)
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Error, NodeResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
@@ -208,4 +217,3 @@ object Nodes {
   }
 
 }
-

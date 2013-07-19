@@ -42,9 +42,9 @@ class AccountsSpec extends Specification {
   AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
   """ ^ end ^
       "The Client Should" ^
-      //  "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      //"Correctly do POST requests with a valid userid and api key" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with a valid userid and api key" ! PostInvalidBody.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! GetInvalidApi.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! GetInvalidEmail.succeeds ^
@@ -134,7 +134,7 @@ class AccountsSpec extends Specification {
   }
   case object GetInvalidApi extends Context {
     protected override def urlSuffix: String = "accounts/sandy@megamsandbox.com"
-    
+
     // protected def headersOpt: Option[Map[String, String]] = None
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,

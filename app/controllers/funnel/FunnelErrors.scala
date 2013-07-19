@@ -28,10 +28,10 @@ import java.io.{ StringWriter, PrintWriter }
 object FunnelErrors {
 
   val tailMsg =
-    """
-        |Ask for help  : https://groups.google.com/forum/?fromgroups=#!forum/megamlive. 
-  		|Read our Docs : https://api.megam.co, http://docs.megam.co
-        |Log a ticket  : http://support.megam.co""".stripMargin
+    """Forum   :https://groups.google.com/forum/?fromgroups=#!forum/megamlive. 
+      |API     :https://api.megam.co
+  	  |Docs    :http://docs.megam.co
+      |Support :http://support.megam.co""".stripMargin
 
   case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
     extends Error(msg)
@@ -62,7 +62,7 @@ object FunnelErrors {
             |Verify the header content as required for this resource. 
             |%s""".format(h.input).stripMargin,
 
-        c => """Service unavailable. The layer responsible for fullfilling the request
+        c => """Service error. The layer responsible for fullfilling the request
             |came back with errors %n'%s'""".format(c.input).stripMargin,
         r => """The resource requested wasn't found  <.!.>  '%s' 
             |											 ( ^ )
@@ -89,17 +89,16 @@ object FunnelErrors {
     def mkMore(err: Throwable) = {
       err.fold(a => tailMsg,
         m => """|The error received when parsing the JSON is :
-    		  	|%s%n%s""".format(m.msg, tailMsg).stripMargin,
+    		  	|%s""".format(m.msg).stripMargin,
         h => tailMsg,
         c => """|The error received from the service :
-    		  	|%s%n%s""".format(c.msg, tailMsg).stripMargin,
+    		  	|%s""".format(c.msg).stripMargin,
         r => """|The error received from the datasource :
-    		  	|%s%n%s""".format(r.msg, tailMsg).stripMargin,
+    		  	|%s""".format(r.msg).stripMargin,
         t => """|Pardon us. This is how it happened.             
             |Stack trace 
             |%s
-    		|%s
-            """.format({ val u = new StringWriter; t.printStackTrace(new PrintWriter(u)); u.toString }, tailMsg).stripMargin)
+            """.format({ val u = new StringWriter; t.printStackTrace(new PrintWriter(u)); u.toString }).stripMargin)
     }
 
     def more: Option[String] = { errNel.map { err: Throwable => mkMore(err) }.list.mkString("\n").some }

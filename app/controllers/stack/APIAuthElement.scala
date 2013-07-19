@@ -52,7 +52,7 @@ trait APIAuthElement extends StackableController {
    * otherwise send out a json formatted error
    */
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-    play.api.Logger.debug("<---------------------------------------->")
+    play.api.Logger.debug("<M>>>------------------------------------->")
     play.api.Logger.debug("%-20s -->[%s]".format("APIAuthElement:", "Entry"))
 
     SecurityActions.Authenticated(req) match {
@@ -64,7 +64,7 @@ trait APIAuthElement extends StackableController {
             body = Enumerator(rn.toJson(true)))
         }
         val origReq = req.asInstanceOf[Request[AnyContent]]
-        play.api.Logger.debug("<---------------------------------------->")
+        play.api.Logger.debug("<M>>>------------------------------------->")
         g(origReq)
       }
 

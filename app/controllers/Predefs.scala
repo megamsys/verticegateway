@@ -41,11 +41,15 @@ import play.api.mvc.Result
  */
 object Predefs extends Controller with APIAuthElement {
 
-  /*
-   * show the message details
-   * 
+  /**
+   * GET: findbyName: List a predef name by name
+   * Output: JSON (PredefsResult)
+   * This is global and has no tie to email or node.
    */
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
+
     models.Predefs.findByName(id) match {
       case Success(succ) => {
         Ok((succ.map(s => s.toString)).getOrElse(
@@ -62,11 +66,13 @@ object Predefs extends Controller with APIAuthElement {
 
   }
 
-  /*
-   * list all the predef names in the bucket
-   * 
+  /**
+   * GET: listKeys: List all the predefs as available now in the predefs bucket.
+   * Output: JSON (List[PredefsResult])
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "list:Entry"))
+
     models.Predefs.listKeys match {
       case Success(succ) => {
         Ok(succ.mkString("\n"))

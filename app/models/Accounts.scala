@@ -57,11 +57,13 @@ object Accounts {
    * If there is an error in the snowflake connection, we need to send one.
    */
   def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
-    Logger.debug("models.Account create: entry\n" + input)
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
     (Validation.fromTryCatch {
       parse(input).extract[AccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage)
     }).toValidationNel.flatMap { m: AccountInput =>
+      play.api.Logger.debug(("%-20s -->[%s]").format("AccountInput", m))
       UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get match {
         case Success(uid) => {
           val metadataKey = "Field"
@@ -69,6 +71,8 @@ object Accounts {
           val bindex = BinIndex.named("accountId")
           val bvalue = Set(uid.get._1 + uid.get._2)
           val json = "{\"id\": \"" + (uid.get._1 + uid.get._2) + "\"," + m.json + "}"
+          play.api.Logger.debug(("%-20s -->[%s]").format("json+uid", json))
+
           val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
           storeValue match {
             case Success(succ) => Validation.success[Error, Option[AccountResult]] {
@@ -88,7 +92,7 @@ object Accounts {
    * Performs a fetch from Riak bucket. If there is an error then ServiceUnavailable is sent back.
    * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
    * When there is no gunnysack value (None), then return back a failure - ResourceItemNotFound
-   */ 
+   */
   def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
     Logger.debug("models.Account findByEmail: entry:" + email)
     (riak.fetch(email) leftMap { t: NonEmptyList[Throwable] =>
@@ -111,10 +115,11 @@ object Accounts {
 
   // 
   /**
-   * Index on email
+   * Find by the accounts id.
    */
-  def findById(id: String): ValidationNel[Error, Option[AccountResult]] = {
-    Logger.debug("models.Account findById: entry:" + id)
+  def findByAccountsId(id: String): ValidationNel[Error, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "findByAccountsId:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("accounts id", id))
     val metadataKey = "Field"
     val metadataVal = "1002"
     val bindex = BinIndex.named("")

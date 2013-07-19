@@ -31,7 +31,10 @@ object Application extends Controller with APIAuthElement {
   def index = Action { implicit request =>
     Ok(views.html.index("Megam play at your service. Lets kick the tyres."))
   }
-
+  /**
+   * POST : Authenticate, verifies if the auth setup is OK.
+   * Output: FunnelResponse as JSON with the msg.  
+   **/  
   def authenticate = StackAction(parse.tolerantText) { implicit request =>
     val resp =  FunnelResponse(apiAccessed.getOrElse("Something strange. Authentication successful, but sans success message. Contact support")).toJson(true)
     Logger.debug(resp)

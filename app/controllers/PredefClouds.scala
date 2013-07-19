@@ -40,19 +40,22 @@ import org.megam.common.amqp._
  * If HMAC authentication is true then post or list the predefs clouds are executed
  *  
  */
-object PredefClouds extends Controller with APIAuthElement  {
+object PredefClouds extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
-   * get requested body and put into the riak bucket
+   * Create or update a new Predefcloud by email/json input. 
+   * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "post:Entry"))
+
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
           models.PredefClouds.create(email, clientAPIBody) match {
             case Success(succ) =>
               Ok("""Predefs cloud created successfully.
@@ -73,15 +76,21 @@ object PredefClouds extends Controller with APIAuthElement  {
   }
 
   /*
-   * show the message details
-   * 
-   */
+   * GET: findByName: Show a particular predef cloud by name 
+   * Email provided in the URI.
+   * Output: JSON (PredefCloudsResult)
+   **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-     (Validation.fromTryCatch[Result] {
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
+
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
+
           models.PredefClouds.findByName(List(email).some) match {
             case Success(succ) =>
               Ok("""%s""".format(succ.map { _.getOrElse("none") }))
@@ -98,16 +107,20 @@ object PredefClouds extends Controller with APIAuthElement  {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  /*
-   * list the particular Id values
-   * 
+  /**
+   * GET: findbyEmail: List all the predef cloud names per email
+   * Email grabbed from header.
+   * Output: JSON (PredefCloudsResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "list:Entry"))
+
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
           models.PredefClouds.findByEmail(email) match {
             case Success(succ) =>
               Ok("""%s""".format(succ.map { _.getOrElse("none") }))

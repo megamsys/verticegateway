@@ -27,31 +27,27 @@ import play.api.mvc.{ Result, Controller }
  */
 
 /*
- * sub trait for stackable controller,
- * proceed method was override here for our request changes, 
- * And result return in super trait proceed method,
- * when stack action is called then this stackable controller is executed 
+ * Used it to perform rate limiting
+ * TO-DO: Yet to me implemented. 
  * 
  */
-trait SourceElement extends StackableController {
+trait RateLimitElement extends StackableController {
 
   self: Controller =>
 
-  case object DomainObjectKey extends RequestAttributeKey[String]
+  case object RateLimitKey extends RequestAttributeKey[String]
 
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
-
     /*
-    * Domain Objects client creation, 
-    * db was connected and req return in super class with domainobjectkey and db 
-    * otherwise bad request return
+    * How do we do that ? If the api_cursor_bucket for an user is < X calls then proceed, or dump out 
+    * a result as we did in APIAuthElement 
     
-    DomainObjects.clientCreate() match {
-      case db => super.proceed(req.set(DomainObjectKey, ""))(f)
+    RateLimitCursor.clientCreate() match {
+      case db => super.proceed(req.set(RateLimitKey, ""))(f)
       case _  => BadRequest
     }*/
     BadRequest
   }
 
-  implicit def domainImplicit[A](implicit req: RequestWithAttributes[A]): String = req.get(DomainObjectKey).get
+  implicit def rateLimitImplicit[A](implicit req: RequestWithAttributes[A]): String = req.get(RateLimitKey).get
 }

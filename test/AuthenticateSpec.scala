@@ -43,9 +43,9 @@ class AuthenticateSpec extends Specification {
   AuthenticateSpec is the implementation that calls the megam_play API server with the /auth url
   """ ^ end ^
       "The Client Should" ^
-     // "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
       "Correctly do POST requests with a invalid userid and api key" ! PostWithInvalidUserIDEmail.succeeds ^
-      //   "Correctly do POST requests with an malformed header" ! PostMalformedHeader.succeeds ^
+      "Correctly do POST requests with an malformed header" ! PostMalformedHeader.succeeds ^
       end
   /**
    * Change the body content in method bodyToStick
@@ -69,10 +69,9 @@ class AuthenticateSpec extends Specification {
   case object PostWithInvalidUserIDEmail extends Context {
     protected override def urlSuffix: String = "auth"
     protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sand2y123@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
-     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-     X_Megam_EMAIL -> "sand2y123@megamsandbox.com", X_Megam_APIKEY-> "IamAtlas{74}NobodyCanSeeME#07",
-     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
- 
+    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
+      X_Megam_EMAIL -> "sand2y123@megamsandbox.com", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
+      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
@@ -89,8 +88,8 @@ class AuthenticateSpec extends Specification {
     protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "sandy555@megaamsandbox.com", X_Megam_APIKEY-> "IamAtllidkfas{74}NobodyCanSeeME#07",
-    X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
+      X_Megam_EMAIL -> "sandy555@megaamsandbox.com", X_Megam_APIKEY -> "IamAtllidkfas{74}NobodyCanSeeME#07",
+      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val post = POST(url)(httpClient)
       .addHeaders(headers)

@@ -34,8 +34,8 @@ class NodesSpec extends Specification {
   NodesSpec is the implementation that calls the megam_play API server with the /nodes url
   """ ^ end ^
       "The Client Should" ^
-    //  "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-     "Correctly do GET requests with a valid userid and api key" ! GetList.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+    // "Correctly do GET requests with a valid userid and api key" ! GetList.succeeds ^
      // "Correctly do GET requests with a valid userid and api key" ! GetById.succeeds ^
       end
 

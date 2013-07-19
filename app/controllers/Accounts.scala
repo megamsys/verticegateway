@@ -35,7 +35,7 @@ import controllers.funnel.FunnelResponse
 /*
  * This controller performs onboarding a customer and registers an email/api_key 
  * into riak.
- *   
+ * Output: FunnelResponse as JSON with the msg.  
  */
 object Accounts extends Controller with APIAuthElement {
 
@@ -44,8 +44,9 @@ object Accounts extends Controller with APIAuthElement {
    * get requested body and put into the riak bucket
    */
   def post = Action(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Accounts", "post:Entry"))
     val input = (request.body).toString()
-    play.api.Logger.debug("Accounts.post  : entry\n" + input)
+    play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
     models.Accounts.create(input) match {
       case Success(succ) => Ok(
         FunnelResponse("""Account created successfully.
@@ -58,9 +59,14 @@ object Accounts extends Controller with APIAuthElement {
       }
     }
   }
-
+  /*
+   * GET: findByEmail: Show a particular account by email 
+   * Email provided in the URI.
+   * Output: JSON (AccountsResult)
+   **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug("Accounts.show  : entry\n" + id)
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Accounts", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", id))
     models.Accounts.findByEmail(id) match {
       case Success(succ) => {
         Ok((succ.map(s => s.toString)).getOrElse(

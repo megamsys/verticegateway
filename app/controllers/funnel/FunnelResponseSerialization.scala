@@ -33,18 +33,19 @@ import controllers.Constants._
  */
 class FunnelResponseSerialization(charset: Charset = UTF8Charset) extends SerializationBase[FunnelResponse] {
   protected val CodeKey = "code"
-  protected val SeverityKey = "error"
-  protected val MessageKey = "message"
+  protected val MessageTypeKey = "msg_type"
+  protected val MessageKey = "msg"
   protected val MoreKey = "more"
+  protected val LinksKey ="links"  
 
   override implicit val writer = new JSONW[FunnelResponse] {
 
     override def write(h: FunnelResponse): JValue = {
       JObject(
         JField(CodeKey, toJSON(h.code)) ::
-          JField(SeverityKey, toJSON(h.severity)) ::
-          JField (MessageKey, toJSON(h.message)) ::
-          JField(MoreKey, toJSON(h.more)) :: Nil)
+          JField(MessageTypeKey, toJSON(h.msg_type)) ::
+          JField (MessageKey, toJSON(h.msg)) ::
+          JField(MoreKey, toJSON(h.more)) :: JField(LinksKey, toJSON(h.links)) ::Nil)
     }
   }
 
@@ -52,13 +53,13 @@ class FunnelResponseSerialization(charset: Charset = UTF8Charset) extends Serial
 
     override def read(json: JValue): Result[FunnelResponse] = {
       val codeField = field[Int](CodeKey)(json)
-      val severityField = field[String](SeverityKey)(json)
-      val messageField = field[String](MessageKey)(json)
+      val msgTypeField = field[String](MessageTypeKey)(json)
+      val msgField = field[String](MessageKey)(json)
       val moreField = field[String](MoreKey)(json)
 
-      (codeField |@| severityField |@| messageField |@| moreField) {
-        (code: Int, message: String, more: String,severity: String) =>
-          new FunnelResponse(code, message, more,severity)
+      (codeField |@| msgTypeField |@| msgField |@| moreField) {
+        (code: Int, msg: String, more: String, msgType: String) =>
+          new FunnelResponse(code, msg, more,msgType)
       }
     }
   }
