@@ -31,11 +31,11 @@ package object models {
     def empty: NodeResults = nels(none)
   }
   
-  type PredefsResults = NonEmptyList[Option[PredefsResult]]
+  type PredefResults = NonEmptyList[Option[PredefResult]]
   
-  object PredefsResults {
-    def apply(m: PredefsResult): PredefsResults = nels(m.some)
-    def empty: PredefsResults = nels(none)
+  object PredefResults {
+    def apply(m: PredefResult): PredefResults = nels(m.some)
+    def empty: PredefResults = nels(none)
     
   }
   

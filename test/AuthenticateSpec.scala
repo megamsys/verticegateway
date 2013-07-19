@@ -43,8 +43,8 @@ class AuthenticateSpec extends Specification {
   AuthenticateSpec is the implementation that calls the megam_play API server with the /auth url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with a invalid userid and api key" ! PostWithInvalidUserIDEmail.succeeds ^
+   //   "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+   //   "Correctly do POST requests with a invalid userid and api key" ! PostWithInvalidUserIDEmail.succeeds ^
       "Correctly do POST requests with an malformed header" ! PostMalformedHeader.succeeds ^
       end
   /**

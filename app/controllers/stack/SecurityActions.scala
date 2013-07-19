@@ -62,9 +62,14 @@ object SecurityActions {
     req.funneled match {
       case Success(succ) => {
         Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-S", succ.toString))
-        (succ map (x => bazookaAtDataSource(x))).getOrElse(
+        val ac = (succ map (x => bazookaAtDataSource(x)))
+        Logger.debug("----"+ac)
+        val oo= ac.getOrElse(
           Validation.failure[Error, Option[String]](CannotAuthenticateError("""Invalid content in header. API server couldn't parse it""",
             "Request can't be funneled.")).toValidationNel)
+                    Logger.debug("---pp-"+oo)
+                    oo
+
       }
       case Failure(err) =>
         val errm = (err.list.map(m => m.getMessage)).mkString("\n")
@@ -84,7 +89,7 @@ object SecurityActions {
    */
   def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Error, Option[String]] = {
     play.api.Logger.debug("<O==>------------------------------------->")
-    (for {
+   val ab =  (for {
       resp <- eitherT[IO, NonEmptyList[Error], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
         (Accounts.findByEmail(freq.maybeEmail.get).disjunction).pure[IO]
       }
@@ -103,7 +108,8 @@ object SecurityActions {
         }
       }
     } yield found).run.map(_.validation).unsafePerformIO()
-    
+    play.api.Logger.debug("------xxxxx------>"+ ab)
+    ab
   }
 }
 

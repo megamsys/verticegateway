@@ -59,12 +59,16 @@ trait APIAuthElement extends StackableController {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {
         val g = Action { implicit request =>
+          play.api.Logger.debug("<M>>>---------\n" + err + "---------------------------->")
+
           val rn: FunnelResponse = new HttpReturningError(err) //implicitly loaded.
-          SimpleResult(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
+          val a = SimpleResult(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
             body = Enumerator(rn.toJson(true)))
+          play.api.Logger.debug("<M>>>---------\n" + rn.toJson(true) + "---------------------------->")
+          a
+
         }
         val origReq = req.asInstanceOf[Request[AnyContent]]
-        play.api.Logger.debug("<M>>>------------------------------------->")
         g(origReq)
       }
 

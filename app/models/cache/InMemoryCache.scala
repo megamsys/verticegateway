@@ -25,7 +25,7 @@ import play.api.Play.current
  */
 
 /**
- * A timestamped value in the Cache. eg: ValidationNel[Throwable, PredefsResult]
+ * A timestamped value in the Cache. eg: ValidationNel[Throwable, PredefResult]
  */
 case class Timestamped[A](value: A, timestamp: Long)
 

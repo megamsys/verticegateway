@@ -99,9 +99,9 @@ object Nodes {
     } yield {
       //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
       val bvalue = Set(aor.get.id)
-      val PredefsResult = (nir.predefs).toString
+      val PredefResult = (nir.predefs).toString
       //TO-DO: make the json using json-scalaz (reader/writers). Review of json libs shows json-scalaz as the winner (simple to use)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_ID\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + PredefsResult + "}}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_ID\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + PredefResult + "}}"
       new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
     }
@@ -139,7 +139,7 @@ object Nodes {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    (mkGunnySack(input, email) leftMap { err: NonEmptyList[Throwable] =>
+    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { gs: Option[GunnySack] =>
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).

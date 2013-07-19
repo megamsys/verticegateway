@@ -43,7 +43,7 @@ object Predefs extends Controller with APIAuthElement {
 
   /**
    * GET: findbyName: List a predef name by name
-   * Output: JSON (PredefsResult)
+   * Output: JSON (PredefResult)
    * This is global and has no tie to email or node.
    */
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
@@ -68,7 +68,7 @@ object Predefs extends Controller with APIAuthElement {
 
   /**
    * GET: listKeys: List all the predefs as available now in the predefs bucket.
-   * Output: JSON (List[PredefsResult])
+   * Output: JSON (List[PredefResult])
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "list:Entry"))
