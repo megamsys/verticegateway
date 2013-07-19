@@ -85,7 +85,7 @@ object Nodes extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
 
-          models.Nodes.findByNodeName(List(email).some) match {
+          models.Nodes.findByNodeName(List(id).some) match {
             case Success(succ) =>
               Ok("""%s""".format(succ.map { _.getOrElse("none") }))
             case Failure(err) =>

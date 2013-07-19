@@ -1,0 +1,23 @@
+@(ex: Throwable)
+
+@main("An error occurred while trying to run megam_play. contact support.") {
+<div class="api-doc">
+	<div class="mddoc margin-top-large">
+		<image src="@routes.Assets.at("images/nirvana.png")"/>
+		<h1><a name="rest_docs" href="#a-rest_docs">Sucked into Nirvana</a></h1>
+		<p class="lead">
+			<code>
+				@(ex getMessage)
+			</code>
+		</p>
+		<div class="page-header">
+			<h2>Stacktrace</h2>
+		</div>
+		<div class="">
+			<pre><code class="brush: bash; toolbar: false; ">@({val u = new java.io.StringWriter; ex.printStackTrace(new java.io.PrintWriter(u)); u.toString})</code></pre>
+		</div>
+
+	</div>
+</div>
+}
+

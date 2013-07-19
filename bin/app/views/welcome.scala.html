@@ -1,0 +1,554 @@
+@(message: String, style: String = "Scala", playhome: String ="http://www.playframework.org")
+
+<div class="api-doc">
+	<div class="mddoc margin-top-large">
+		<h1><a name="rest_docs" href="#a-rest_docs">REST API</a></h1>
+		<p>
+			Megam's API is REST based.
+			Our SDKs abstract away the REST interface and provide a set of handy methods you can interact with
+			when deleting, creating, updating and deleting objects.
+
+			We've also provided information on how we use HMAC to create authorization headers for use when accessing Megam.
+		</p>
+		<section id="auth">
+			<div class="page-header">
+				<h1>Get API Key</h1>
+			</div>
+			<p class="lead">
+				Before you start using the Megam API, be sure to have an
+				<code>
+					API Key
+				</code>
+				and
+				<code>
+					Email
+				</code>
+				registered with us. Register with our Hosted Megam Platform <a href="http://www.megam.co">www.megam.co</a>
+			</p>
+			<h2>Auth</h2>
+			<h4 id="auth_post">POST</h4>
+			<p>
+				Authentication checks user email and api_key.
+			<p>
+				Request URL:
+			</p>
+			<div class="">
+				<pre><code class="brush: bash; toolbar: false; ">POST http://api.megam.co/v1/auth</code></pre>
+			</div>
+			<p>
+				Request Headers:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+				    
+					"X-Megam-DATE: 2013-07-01 17:17"
+					"X-Megam-HMAC:060873b2afce74fd024bba428b0e2e00b661cc2c"
+					"Content-Type:appilication/Json"
+					"Accept: application/vnd.megam+json "
+					</code> </pre>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					 
+					"Nothing"
+					</code> </pre>
+			</p>
+			<p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					{
+					"id": "ACT346963130863058944",
+					"email":"........",
+					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
+					"authority":"user"
+					}
+				</code> </pre>
+			</p>
+			<div class="btn-group">
+				<button class="btn" href="#authruby">
+					Ruby
+				</button>
+			</div>
+			<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+		</section>
+
+		<!-- auth end -->
+
+		<!-- accounts start -->
+		<section id="accounts">
+			<div class="tab-content">
+				<h2>Accounts</h2>
+				<p>
+					<h4 id="accounts_get">GET</h4>
+				<p>
+					Request URL:
+				</p>
+				<p>
+					<pre> <code class="brush: ruby; toolbar: false; ">
+						"http://api.megam.co/accounts/chrisexample.com"
+						</code> </pre>
+				</p>
+			</div>
+			<p>
+				Request Headers:
+			</p>
+			<p>
+				<pre> <code class="brush: ruby; toolbar: false; ">
+
+					{
+					X-Megam-DATE: 2013-07-01 17:17
+					X-Megam-EMAIL: your email
+					X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
+					X-Megam-HMAC: current-email:9c37b8f3e3790d285ab34554ef8d94bec0f0c761
+					Content-Type: appilication/Json
+					Accept: application/vnd.megam+json
+					}
+                    </code> </pre>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<pre> <code class="brush: ruby; toolbar: false; ">
+					
+					"nothing in body"
+					</code> </pre>
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p>
+				<pre> <code class="brush: ruby; toolbar: false; ">
+				
+					{
+					"id": "ACT351668441440059392",
+					"email":".......",
+					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
+					"authority":"user"
+					}
+
+				</code> </pre>																																												
+			
+
+
+
+			</p>
+			<h4 id="accounts_post">POST</h4>
+			<p>
+				Request URL:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					
+					http://api.megam.co/accounts/content
+					
+				</code> </pre>
+			</p>
+			<p>
+				Request Headers:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					{
+					X-Megam-DATE: 2013-07-01 17:17
+					X-Megam-EMAIL: ......
+					X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
+					Content-Type:appilication/Json
+					Accept: application/vnd.megam+json
+                    }
+					</code> </pre>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+				   {
+					"email":".......",
+				    "api_key":"IamAtlas{74}NobodyCanSeeME#07",
+				    "authority":"user"
+				    }
+				</code> </pre>
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					{
+					"id": "ACT351668441440059392",
+					"email":".......",
+					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
+					"authority":"user"
+					}
+
+				</code> </pre>
+			</p>
+			<div class="btn-group">
+				<button class="btn" href="#accountsruby">
+					Ruby
+				</button>
+			</div>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
+                </code> </pre>
+			</p>
+		</section>
+
+		<section id="nodes">
+			<div class="tab-content">
+				<h2>Nodes</h2>
+				<h4 id="nodes_get">GET -v1/nodes</h4>
+				<p>
+					list the available nodes.
+				<p>
+					Request URL:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						http://api.megam.co/v1/nodes
+						
+					</code> </pre>
+				</p>
+				<p>
+					Request Headers:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						X-Megam-DATE: 2013-07-01 17:17
+					    X-Megam-EMAIL: ......
+					  	X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
+					  	X-Megam-HMAC: current-email:9c37b8f3e3790d285ab34554ef8d94bec0f0c761
+						Content-Type:appilication/Json
+						Accept: application/vnd.megam+json
+						</code> </pre>
+				</p>
+				<p>
+					Request Body:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						"nothing"
+					</code> </pre>
+				</p>
+				<p>
+				<p>
+					Response shown in Json:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+
+						{
+						"id": "NOD352786051623813120",
+						 "accounts_ID":"ACT352741431581868032",
+						 "request":{"req_id":"NOD352786051628007424",
+						 "command":"commands","status":"submitted"} ,
+						 "predefs":{"rails":"rails3","scm":"scm","db":"dbname","queue":"queue"}
+						}
+
+		</code> </pre>
+				</p>
+
+				<h4 id="nodes_get_byname">GET- v1/nodes/id</h4>
+				<p>
+					This part contains about nodes
+				<p>
+					Request URL:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						http://api.megam.co/v1/nodes/id   #id is key
+				</code> </pre>
+				</p>
+			</div>
+			<p>
+				Request Headers:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+						X-Megam-DATE: 2013-07-01 17:17
+					    X-Megam-EMAIL: current-email
+					  	X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
+					  	X-Megam-HMAC: current-email:9c37b8f3e3790d285ab34554ef8d94bec0f0c761
+						Content-Type:appilication/Json
+						Accept: application/vnd.megam+json
+		</code> </pre>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					"nothing"
+				</code> </pre>
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					{
+					 "id": "NOD352786051623813120",
+					 "accounts_ID":"ACT352741431581868032",
+					 "request":{"req_id":"NOD352786051628007424",
+					            "command":"commands","status":"submitted"} ,
+					 "predefs":{"rails":"rails3","scm":"scm","db":"dbname","queue":"queue"}
+					}
+</code> </pre>
+			</p>
+			<h4 id="nodes_post">POST</h4>
+			<p>
+				post request for Nodes
+			<p>
+				Request URL:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					http://api.megam.co/v1/nodes/content
+				</code> </pre>
+			</p>
+			<p>
+				Request Headers:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					X-Megam-DATE: 2013-07-01 17:17
+					X-Megam-EMAIL: ......
+					X-Megam-APIKEY: IamAtlas{74}NobodyCanSeeME#07
+					Content-Type:appilication/Json
+					Accept: application/vnd.megam+json
+					</code> </pre>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					{
+					"nod_name":"Node3",
+					"command":"commands",
+					"predefs":{"rails":"rails3","scm":"scm", "db":"db2", "queue":"queue"
+					           }
+					}
+				</code> </pre>
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					{
+					"id": "NOD352382590482644992",
+					"accounts_ID":"ACT352327725421166592",
+					"request":{"req_id":"NOD352382590537170944","command":"commands","status":"submitted"} ,
+					"predefs":{"rails":"rails3","scm":"scm","db":"db","queue":"queue"}
+					}
+       </code> </pre>
+			</p>
+
+			<div class="btn-group">
+				<button class="btn" href="#nodesruby">
+					Ruby
+				</button>
+			</div>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+				megam.create_node('name' => POGO,'type' => 'rails')        
+                   # create an nodep with a generated name and the default type   
+				</code> </pre>
+			</p>
+		</section>
+
+		<section id="logs">
+			<div class="tab-content">
+				<h2>Logs</h2>
+				<h4 id="logs_get">GET - v1/logs</h4>
+				<p>
+					This part contains about Logs
+				<p>
+					Request URL:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						http://api.megam.co/logs
+						</code> </pre>
+				</p>
+				<p>
+					Request Headers:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						x-megam-Hmac:....//Hmac value
+						x-megam-date:....//date
+						"Content-Type:appilication/Json"
+						"Accept: application/vnd.megam+json "
+					</code> </pre>
+				</p>
+				<p>
+					Request Body:
+
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						"nothing in logs"
+						</code> </pre>
+				</p>
+				<p>
+				<p>
+					Response shown in Json:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+
+						{
+						id: ACT346963130863058944,
+						email:.....,
+						api_key: IamAtlas{74}NobodyCanSeeME#07,
+						authority:user
+						}
+</code> </pre>
+				</p>
+				<h4 id="logs_get_byname">GET - v1/logs</h4>
+				<p>
+					This part contains about nodes
+				<p>
+					Request URL:
+				</p>
+				<p>
+					<pre><code class="brush: bash; toolbar: false; ">
+						http://api.megam.co/logs/:nodeid
+					</code> </pre>
+				</p>
+			</div>
+			<p>
+				Request Headers:
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					x-megam-Hmac:....//Hmac value
+					x-megam-date:....//date
+					"Content-Type:appilication/Json"
+					"Accept: application/vnd.megam+json "
+					</code> </pre>
+			</p>
+			<p>
+				Request Body:
+
+			</p>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+					""
+					</code> </pre>
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					{
+					id: ACT346963130863058944,
+					email:.....,
+					api_key: IamAtlas{74}NobodyCanSeeME#07,
+					authority:user
+					}
+
+					</code> </pre>
+			</p>
+
+			<div class="btn-group">
+				<button class="btn" href="#logsruby">
+					Ruby
+				</button>
+
+			</div>
+
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
+
+					</code> </pre>
+			</p>
+		</section>
+
+		<section id="predefs">
+			<div class="page-header">
+				<h2>1. Predefs</h2>
+			</div>
+			<p class="lead">
+				Before you start using the Megam API, be sure to have an API KEY and Email
+				and registered. Register with our Hosted Megam Platform<a href="http://www.megam.co">www.megam.co</a>
+			</p>
+			<h4 id ="predefs_get">GET - v1/predefs</h4>
+
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
+            </code> </pre>
+			</p>
+
+			<h4 id ="predefs_get_byname">GET - v1/predefs/:node_name</h4>
+
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
+            </code> </pre>
+			</p>
+
+		</section>
+		<section id="predefclouds">
+			<div class="page-header">
+				<h2>1. PredefClouds</h2>
+			</div>
+			<p class="lead">
+				Before you start using the Megam API, be sure to have an API KEY and Email
+				and registered. Register with our Hosted Megam Platform<a href="http://www.megam.co">www.megam.co</a>
+			</p>
+			<h4 id="predefclouds_get">GET</h4>
+
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
+</code> </pre>
+			</p>
+		</section>
+		<section id="uids">
+			<div class="page-header">
+				<h2>1. UIDS</h2>
+			</div>
+			<p class="lead">
+				Before you start using the Megam API, be sure to have an API KEY and Email
+				and registered. Register with our Hosted Megam Platform<a href="http://www.megam.co">www.megam.co</a>
+			</p>
+			<h4>GET</h4>
+			<p>
+				<pre><code class="brush: bash; toolbar: false; ">
+
+					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
+
+					</code> </pre>
+			</p>
+		</section>
+	</div>
+</div>
