@@ -52,10 +52,10 @@ object Nodes extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
           models.Nodes.create(email, clientAPIBody) match {
             case Success(succ) =>
-              Ok("""Node initiation instruction submitted successfully.
+              Ok(FunnelResponse("""Node initiation instruction submitted successfully.
             |
             |Check back on the 'node name':{%s}
-            |The cloud is working for you. It will be ready shortly.""".format(succ.getOrElse("none")))
+            |The cloud is working for you. It will be ready shortly.""".format(succ.getOrElse("none")).stripMargin).toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

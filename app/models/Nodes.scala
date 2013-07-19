@@ -134,7 +134,7 @@ object Nodes {
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket
    */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[NodeResult]] = {
+  def create(email: String, input: String): ValidationNel[Throwable, Option[String]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
@@ -144,12 +144,12 @@ object Nodes {
     }).flatMap { gs: Option[GunnySack] =>
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
-          play.api.Logger.debug(("%-20s -->[%s]").format("Node.create:success", maybeGS))
+          play.api.Logger.debug(("%-20s -->[%s]").format("Node.created success", email))
           maybeGS match {
-            case Some(thatGS) => (Validation.success[Throwable, Option[NodeResult]](parse(thatGS.value).extract[NodeResult].some)).toValidationNel
+            case Some(thatGS) => thatGS.key.some.successNel[Throwable]
             case None => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("Node.create:None", input))
-              (Validation.failure[Throwable, Option[NodeResult]](new ResourceItemNotFound(input, "The node wasn't created, store failed using 'email:'".format(email)))).toValidationNel
+              play.api.Logger.warn(("%-20s -->[%s]").format("Node.created success","Scalika returned => None. Thats OK."))
+              gs.get.key.some.successNel[Throwable]
             }
           }
         }
