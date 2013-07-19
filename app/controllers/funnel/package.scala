@@ -87,7 +87,7 @@ package object funnel {
     }
   }
 
-  implicit def err2FunnelResponse(hpret: HttpReturningError) = new FunnelResponse(hpret.code.getOrElse(BAD_REQUEST), hpret.getMessage, hpret.more.getOrElse(new String()), hpret.severity)
+  implicit def err2FunnelResponse(hpret: HttpReturningError) = new FunnelResponse(hpret.code.getOrElse(BAD_REQUEST), hpret.msg, hpret.more.getOrElse(new String("none")), hpret.severity)
 
   implicit def err2FunnelResponses(hpret: HttpReturningError) = hpret.errNel.map { err: Throwable =>
     err.fold(a => new FunnelResponse(hpret.mkCode(a).getOrElse(BAD_REQUEST), hpret.mkMsg(a), hpret.mkMore(a), hpret.severity),

@@ -47,7 +47,7 @@ class NodesSpec extends Specification {
     protected override def urlSuffix: String = "nodes/content"
 
     protected override def bodyToStick: Option[String] = {           
-         val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+         val contentToEncode = "{\"nodeo_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
         Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

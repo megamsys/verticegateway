@@ -144,9 +144,13 @@ object Nodes {
     }).flatMap { gs: Option[GunnySack] =>
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
+          play.api.Logger.debug(("%-20s -->[%s]").format("Node.create:success", maybeGS))
           maybeGS match {
             case Some(thatGS) => (Validation.success[Throwable, Option[NodeResult]](parse(thatGS.value).extract[NodeResult].some)).toValidationNel
-            case None         => (Validation.failure[Throwable, Option[NodeResult]](new ResourceItemNotFound(input, "The node wasn't created, store failed using 'email:'".format(email)))).toValidationNel
+            case None => {
+              play.api.Logger.debug(("%-20s -->[%s]").format("Node.create:None", input))
+              (Validation.failure[Throwable, Option[NodeResult]](new ResourceItemNotFound(input, "The node wasn't created, store failed using 'email:'".format(email)))).toValidationNel
+            }
           }
         }
     }
