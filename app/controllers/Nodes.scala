@@ -52,7 +52,7 @@ object Nodes extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
           models.Nodes.create(email, clientAPIBody) match {
             case Success(succ) =>
-              Ok(FunnelResponse("""Node initiation instruction submitted successfully.
+              Status(CREATED)(FunnelResponse(CREATED,"""Node initiation instruction submitted successfully.
             |
             |Check back on the 'node name':{%s}
             |The cloud is working for you. It will be ready shortly.""".format(succ.getOrElse("none")).stripMargin).toJson(true))
@@ -85,9 +85,9 @@ object Nodes extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
 
-          models.Nodes.findByNodeName(List(email).some) match {
+          models.Nodes.findByNodeName(List(id).some) match {
             case Success(succ) =>
-              Ok("""%s""".format(succ.map { _.getOrElse("none") }))
+              Ok(succ.toString)
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -114,8 +114,7 @@ object Nodes extends Controller with APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.Nodes.findByEmail(email) match {
-            case Success(succ) =>
-              Ok("""%s""".format(succ.map { _.getOrElse("none") }))
+            case Success(succ) => Ok(succ.toString)
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

@@ -16,24 +16,25 @@
 package models
 
 import scalaz._
-import scalaz.Semigroup
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
-import scalaz.Validation
 import scalaz.Validation._
+import scalaz.effect.IO
+import scalaz.EitherT._
 import Scalaz._
-import play.api._
-import play.api.mvc._
-import net.liftweb.json._
 import models._
 import models.cache.{ InMemory, InMemoryCache }
 import controllers.funnel.FunnelErrors._
 import controllers.stack._
+import controllers.Constants._
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
+import java.nio.charset.Charset
 
 /**
  * @author rajthilak
@@ -56,9 +57,55 @@ object PredefInput {
     "redis" -> PredefInput("", "redis", "chef", "riak"),
     "riak" -> PredefInput("", "riak", "chef", "riak"))
 
+  val toStream = toMap.keySet.toStream
+
 }
 
-case class PredefResult(id: String, name: String, provider: String, provider_role: String, build_monkey: String)
+case class PredefResult(id: String, name: String, provider: String, provider_role: String,
+  build_monkey: String) {
+  def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.PredefResultSerialization
+    val preser = new PredefResultSerialization()
+    toJSON(this)(preser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+}
+
+object PredefResult {
+
+  def apply(name: String): PredefResult = new PredefResult("not found", name, new String(), new String(), new String())
+
+  def apply = new PredefResult(new String(), new String(), new String(), new String(),
+    new String())
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PredefResult] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    import models.json.PredefResultSerialization
+    val preser = new PredefResultSerialization()
+    fromJSON(jValue)(preser.reader)
+  }
+
+  def fromJson(json: String): Result[PredefResult] = (Validation.fromTryCatch {
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+
+  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
+    errNel.map { err: Error =>
+      err.fold(
+        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
+        n => "no such field %s in json %s".format(n.name, n.json.toString),
+        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
+    }.list.mkString("\n")
+  })*/
+}
 
 object Predefs {
 
@@ -128,32 +175,41 @@ object Predefs {
    * Every time a State is run, a new InMemoryCache is used as the initial state. This is ok, as we use InMemoryCache as a fascade 
    * to the actualy play.api.cache.Cache object.
    */
-  def findByName(name: String): ValidationNel[Error, Option[PredefResult]] = {
-    Logger.debug("models.Predefs findByName: entry:" + name)
-    InMemory[ValidationNel[Error, Option[PredefResult]]]({
-      name: String =>
-        {
-          Logger.debug("models.Predefs findByName: InMemory:" + name)
-          (riak.fetch(name) leftMap { t: NonEmptyList[Throwable] =>
-            new ServiceUnavailableError(name, (t.list.map(m => m.getMessage)).mkString("\n"))
-          }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-            xso match {
-              case Some(xs) => {
-                (Validation.fromTryCatch {
-                  parse(xs.value).extract[PredefResult]
-                } leftMap { t: Throwable =>
-                  new ResourceItemNotFound(name, t.getMessage)
-                }).toValidationNel.flatMap { j: PredefResult =>
-                  Validation.success[Error, Option[PredefResult]](j.some).toValidationNel
+  def findByName(predefsList: Option[Stream[String]]): ValidationNel[Throwable, PredefResults] = {
+    play.api.Logger.debug("models.Predefs findByName: entry:")
+    play.api.Logger.debug(("%-20s -->[%s]").format("predefsList", predefsList))
+    (predefsList map {
+      _.map { name =>
+        InMemory[ValidationNel[Error, PredefResults]]({
+          cname: String =>
+            {
+              play.api.Logger.debug("models.Predefs findByName: InMemory:" + cname)
+              (riak.fetch(name) leftMap { t: NonEmptyList[Throwable] =>
+                new ServiceUnavailableError(cname, (t.list.map(m => m.getMessage)).mkString("\n"))
+              }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+                xso match {
+                  case Some(xs) => {
+                    (Validation.fromTryCatch {
+                      parse(xs.value).extract[PredefResult]
+                    } leftMap { t: Throwable =>
+                      new ResourceItemNotFound(cname, t.getMessage)
+                    }).toValidationNel.flatMap { j: PredefResult =>
+                      Validation.success[Error, PredefResults](nels(j.some)).toValidationNel
+                    }
+                  }
+                  case None => Validation.failure[Error, PredefResults](new ResourceItemNotFound(cname, "Please rerun predef initiation again.")).toValidationNel
                 }
               }
-              case None => Validation.failure[Error, Option[PredefResult]](new ResourceItemNotFound(name, "Please rerun predef initiation again.")).toValidationNel
             }
-          }
-        }
-    }).get(name).eval(InMemoryCache[ValidationNel[Error, Option[PredefResult]]]())
+        }).get(name).eval(InMemoryCache[ValidationNel[Error, PredefResults]]())
+      }
+    } map {
+      _.fold((PredefResults.empty).successNel[Error])(_ +++ _)
+    }).head //return the folded element in the head
   }
 
-  def listKeys: ValidationNel[Throwable, Stream[String]] = riak.listKeys.toValidationNel
-
+  def listAll: ValidationNel[Throwable, PredefResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "listAll:Entry"))
+    findByName(PredefInput.toStream.some) //return the folded element in the head.  
+  }
 }

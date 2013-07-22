@@ -15,51 +15,87 @@
 */
 package models
 
-import play.api._
-import play.api.mvc._
 import scalaz._
-import scalaz.Semigroup
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
-import scalaz.Validation
 import scalaz.Validation._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import Scalaz._
-import net.liftweb.json._
 import controllers.stack._
+import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
-
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
-import org.megam.common.uid._
-import net.liftweb.json.scalaz.JsonScalaz.field
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz.{ field, Result, UncategorizedError }
+import java.nio.charset.Charset
 
 /**
  * @author rajthilak
  *
  */
 
-case class PredefCloudInput(name: String, predefType: TypeCloud, access: AccessCloud)
+case class PredefCloudInput(name: String, spec: PredefCloudSpec, access: PredefCloudAccess)
 
-case class AccessCloud(ssh_key: String, identity_file: String, ssh_user: String) {
-  val json = "\"ssh_key\":\"" + ssh_key + "\",\"identity_file\":\"" + identity_file + "\",\"ssh_user\":\"" + ssh_user + "\""
-}
-
-case class TypeCloud(typeName: String, groups: String, image: String, flavor: String) {
+case class PredefCloudSpec(typeName: String, groups: String, image: String, flavor: String) {
   val json = "\"typeName\":\"" + typeName + "\",\"groups\":\"" + groups + "\",\"image\":\"" + image + "\",\"flavor\":\"" + flavor + "\""
 }
 
-case class PredefCloudResult(id: String, name: String, account_id: String, predefType: TypeCloud, access: AccessCloud,
+case class PredefCloudAccess(ssh_key: String, identity_file: String, ssh_user: String) {
+  val json = "\"ssh_key\":\"" + ssh_key + "\",\"identity_file\":\"" + identity_file + "\",\"ssh_user\":\"" + ssh_user + "\""
+}
+
+case class PredefCloudResult(id: String, name: String, account_id: String, spec: PredefCloudSpec, access: PredefCloudAccess,
   ideal: String = new String(), performance: String = new String()) {
   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"account_id\":\"" + account_id +
-    "\",\"predefType\":{" + predefType.json + "},\"access\":{" + access.json + "},\"ideal\":\"" +
+    "\",\"spec\":{" + spec.json + "},\"access\":{" + access.json + "},\"ideal\":\"" +
     ideal + "\",\"performance\":\"" + performance + "\"}"
+
+    def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.PredefCloudResultSerialization
+    val preser = new PredefCloudResultSerialization()
+    toJSON(this)(preser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
 }
+
+object PredefCloudResult {
+
+   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PredefCloudResult] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    import models.json.PredefCloudResultSerialization
+    val preser = new PredefCloudResultSerialization()
+    fromJSON(jValue)(preser.reader)
+  }
+
+  def fromJson(json: String): Result[PredefCloudResult] = (Validation.fromTryCatch {
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+
+  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
+    errNel.map { err: Error =>
+      err.fold(
+        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
+        n => "no such field %s in json %s".format(n.name, n.json.toString),
+        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
+    }.list.mkString("\n")
+  })*/
+}
+    
+    
 
 object PredefClouds  {
 
@@ -92,7 +128,7 @@ object PredefClouds  {
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
-      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.predefType, pdc.access).json
+      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.spec, pdc.access).json
       new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -152,7 +188,7 @@ object PredefClouds  {
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, PredefCloudResults] = {
-    Logger.debug("models.PredefClouds findByEmail: entry:" + email)
+    play.api.Logger.debug("models.PredefClouds findByEmail: entry:" + email)
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Error, PredefCloudResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)

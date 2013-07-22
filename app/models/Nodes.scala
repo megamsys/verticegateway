@@ -15,19 +15,15 @@
 */
 package models
 
-import play.api._
-import play.api.mvc._
 import scalaz._
-import scalaz.Semigroup
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
-import scalaz.Validation
 import scalaz.Validation._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import Scalaz._
-import net.liftweb.json._
 import controllers.stack._
+import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 
@@ -35,9 +31,11 @@ import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
-import org.megam.common.uid.UID
 import org.megam.common.uid._
-import net.liftweb.json.scalaz.JsonScalaz.field
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
+import java.nio.charset.Charset
+
 /**
  * @author ram
  *
@@ -45,11 +43,48 @@ import net.liftweb.json.scalaz.JsonScalaz.field
 
 case class NodeInput(node_name: String, command: String, predefs: NodePredefs)
 
-case class NodeResult(id: String, accounts_ID: String, request: NodeRequest, predefs: NodePredefs) {
-  def this() = this(new String(), new String(), new NodeRequest(), new NodePredefs())
-  override def toString = {
-    "\"id:" + id + "\"account:" + accounts_ID + "\"request:" + request.toString
+case class NodeResult(id: String, accounts_id: String, request: NodeRequest, predefs: NodePredefs) {
+  def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.NodeResultSerialization
+    val nrsser = new NodeResultSerialization()
+    toJSON(this)(nrsser.writer)
   }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+}
+
+object NodeResult {
+
+  def apply = new NodeResult(new String(), new String(), new NodeRequest(), new NodePredefs())
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeResult] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    import models.json.NodeResultSerialization
+    val nrsser = new NodeResultSerialization()
+    fromJSON(jValue)(nrsser.reader)
+  }
+
+  def fromJson(json: String): Result[NodeResult] = (Validation.fromTryCatch {
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+  
+  
+
+  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
+    errNel.map { err: Error =>
+      err.fold(
+        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
+        n => "no such field %s in json %s".format(n.name, n.json.toString),
+        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
+    }.list.mkString("\n")
+  })*/
 }
 
 case class NodeRequest(req_id: String, command: String) {
@@ -57,8 +92,9 @@ case class NodeRequest(req_id: String, command: String) {
   val status = "none"
   override def toString = "\"req_id\":\"" + req_id + "\",\"command\":\"" + command + "\",\"status\":\"" + status + "\""
 }
-case class NodePredefs(name: String, scm: String, db: String, queue: String) {
-  def this() = this(new String(), new String(), new String, new String())
+
+case class NodePredefs(name: String, scm: String, war: String, db: String, queue: String) {
+  def this() = this(new String(), new String(), new String, new String(), new String())
   override def toString = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
 }
 
@@ -101,7 +137,7 @@ object Nodes {
       val bvalue = Set(aor.get.id)
       val PredefResult = (nir.predefs).toString
       //TO-DO: make the json using json-scalaz (reader/writers). Review of json libs shows json-scalaz as the winner (simple to use)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_ID\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + PredefResult + "}}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_id\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + PredefResult + "}}"
       new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
     }
@@ -148,7 +184,7 @@ object Nodes {
           maybeGS match {
             case Some(thatGS) => thatGS.key.some.successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Node.created success","Scalika returned => None. Thats OK."))
+              play.api.Logger.warn(("%-20s -->[%s]").format("Node.created success", "Scaliak returned => None. Thats OK."))
               gs.get.key.some.successNel[Throwable]
             }
           }
