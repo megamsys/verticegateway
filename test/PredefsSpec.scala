@@ -18,15 +18,16 @@
  *
  */
 package test
+
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
+
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import org.specs2.execute.{ Result => SpecsResult }
-
 import java.security.MessageDigest
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
@@ -34,30 +35,54 @@ import org.apache.commons.codec.binary.Base64
 import java.util.Calendar
 import java.text.SimpleDateFormat
 
-class PredefCloudSpec extends Specification {
+class PredefsSpec extends Specification {
   def is =
-    "PredefCloudSpec".title ^ end ^
+    "PredefsSpec".title ^ end ^
       """
-PredefCloudSpec is the implementation that calls the megam_play API server with the /predefcloud url to create predefclouds
+    PredefsSpec is the implementation that calls the megam_play API server with the /predefs
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post.succeeds ^
+      "Correctly do GET requests" ! FindByName.succeeds ^
+      "Correctly do GET requests" ! FindByInvalidName.succeeds ^
+      "Correctly do GET requests" ! List.succeeds ^
       end
 
-  //post the headers and their body for specifing url
-  case object Post extends Context {
+  case object FindByName extends Context {
+    protected override def urlSuffix: String = "predefs/rails"
 
-    protected override def urlSuffix: String = "predefclouds/<put_the_email_here>"
     protected def headersOpt: Option[Map[String, String]] = None
 
-    private val post = POST(url)(httpClient)
+    private val get = GET(url)(httpClient)
       .addHeaders(headers)
-      .addBody(body)
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
+    def succeeds = {
+      val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
 
+  case object FindByInvalidName extends Context {
+    protected override def urlSuffix: String = "predefs/rails0"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
+  }
+
+  case object List extends Context {
+    protected override def urlSuffix: String = "predefs"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
 }
-  

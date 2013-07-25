@@ -44,6 +44,8 @@ case class FunnelResponse(code: Int, msg: String, more: String, msg_type: String
 }
 
 object FunnelResponse {
+
+  def apply(code: Int, message: String): FunnelResponse = new FunnelResponse(code, message, new String(), "info")
   
   def apply(message: String): FunnelResponse = new FunnelResponse(OK, message, new String(), "info")
 

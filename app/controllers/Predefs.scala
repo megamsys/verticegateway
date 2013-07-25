@@ -21,13 +21,12 @@ import play.api._
 import play.api.mvc._
 import models._
 import controllers.funnel.FunnelErrors._
-import controllers.funnel.FunnelResponse
-
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
 import scalaz.Validation._
 import play.api.mvc.Result
+import controllers.funnel.FunnelResponse
 
 /**
  * @author rajthilak
@@ -50,13 +49,9 @@ object Predefs extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    models.Predefs.findByName(id) match {
+    models.Predefs.findByName(Stream(id).some) match {
       case Success(succ) => {
-        Ok((succ.map(s => s.toString)).getOrElse(
-          """No Predef exists in your predef's list '%s'. Locate returned null.
-            |
-            |Read https://api.megam.co, http://docs.megam.co to know about our API.Ask for help on the forums.""".
-            format(id, tailMsg)))
+        Ok(PredefResults.toJson(succ, true)) //implicit transformer doesn't work.
       }
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
@@ -73,15 +68,27 @@ object Predefs extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "list:Entry"))
 
-    models.Predefs.listKeys match {
-      case Success(succ) => {
-        Ok(succ.mkString("\n"))
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.Predefs.listAll match {
+            case Success(succ) => {
+              Ok(PredefResults.toJson(succ, true))
+            }
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
       }
-      case Failure(err) => {
-        val rn: FunnelResponse = new HttpReturningError(err)
-        Status(rn.code)(rn.toJson(true))
-      }
-    }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+
   }
 
 }

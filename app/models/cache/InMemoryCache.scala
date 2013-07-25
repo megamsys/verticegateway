@@ -43,7 +43,7 @@ case class InMemoryCache[A]() {
   }
   def getAs[A](c: String): Option[Timestamped[A]] = {
     play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs"))
-    play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs ?"+c))
+    play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs ?" + c))
     play.api.cache.Cache.getAs[Timestamped[A]](c)
   }
 }
@@ -60,48 +60,52 @@ object InMemory {
 }
 
 /**
- * An InMemory impl, which take the value type A, 
+ * An InMemory impl, which take the value type A,
  * and a function (f: String => A) which produces A.
  * The function f will be called when the value in the cache is stale or doesn't exists.
  */
 class InMemoryImpl[A](f: String => A) extends InMemory[A] {
- 
+
   /**
-   *Implement by doing a check if it exists in the InMemoryCache (which just a fascade to play.api.cache.Cache)
-   *If it doesn't then do a retrieve using the string key, but calling retrieve
-   */  
+   * Implement by doing a check if it exists in the InMemoryCache (which just a fascade to play.api.cache.Cache)
+   * If it doesn't then do a retrieve using the string key, but calling retrieve
+   */
   def get(u: String): StateCache[A] = for {
     ofs <- checkMem(u)
     fs <- ofs.map(State.state[InMemoryCache[A], A]).getOrElse(retrieve(u))
   } yield fs
-  
+
   /**
    * Verify if the string exists in the InMemoryCache
-   */ 
+   */
   private def checkMem(u: String): StateCacheO[A] = for {
     ofs <- State.gets { c: InMemoryCache[A] =>
+      play.api.Logger.debug("%-20s -->[%s]".format("|^^|-->checkMem:", u))
       c.getAs[A](u).collect {
         case Timestamped(fs, ts) if !stale(ts) => fs
       }
     }
   } yield ofs
-  
+
   /**
    * Produce a stale timer
-   */ 
+   */
   private def stale(ts: Long): Boolean = {
     System.currentTimeMillis - ts > (5 * 60 * 1000L)
   }
 
   /**
-   * Call the function, and produce a value A, and modify the state. Upon modification, 
-   * return back a new InMemoryCache. In this case we return a new InMemorycache, as this just a fascade 
+   * Call the function, and produce a value A, and modify the state. Upon modification,
+   * return back a new InMemoryCache. In this case we return a new InMemorycache, as this just a fascade
    * to play.api.cache.Cache.
-   */ 
+   */
   private def retrieve(u: String): StateCache[A] = for {
-    fs <- State.state(f(u))
+    fs <- State.state(f(u));
     tfs = Timestamped(fs, System.currentTimeMillis)
     _ <- State.modify[S[A]] { _.update(u, tfs) }
-  } yield fs
+  } yield {
+    play.api.Logger.debug("%-20s -->[%s]".format("\\_/-->retrieve:", u));
+    fs
+  }
 
 }

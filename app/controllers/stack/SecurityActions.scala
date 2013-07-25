@@ -62,13 +62,9 @@ object SecurityActions {
     req.funneled match {
       case Success(succ) => {
         Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-S", succ.toString))
-        val ac = (succ map (x => bazookaAtDataSource(x)))
-        Logger.debug("----"+ac)
-        val oo= ac.getOrElse(
+        (succ map (x => bazookaAtDataSource(x))).getOrElse(
           Validation.failure[Error, Option[String]](CannotAuthenticateError("""Invalid content in header. API server couldn't parse it""",
             "Request can't be funneled.")).toValidationNel)
-                    Logger.debug("---pp-"+oo)
-                    oo
 
       }
       case Failure(err) =>
@@ -89,7 +85,7 @@ object SecurityActions {
    */
   def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Error, Option[String]] = {
     play.api.Logger.debug("<O==>------------------------------------->")
-   val ab =  (for {
+    (for {
       resp <- eitherT[IO, NonEmptyList[Error], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
         (Accounts.findByEmail(freq.maybeEmail.get).disjunction).pure[IO]
       }
@@ -100,23 +96,21 @@ object SecurityActions {
           (("""Authorization successful for 'email:' HMAC matches:
             |%-10s -> %s
             |%-10s -> %s
-            |%-10s -> %s""".format("email", fres.email,"api_key", fres.api_key, "authority", fres.authority).stripMargin)
+            |%-10s -> %s""".format("email", fres.email, "api_key", fres.api_key, "authority", fres.authority).stripMargin)
             .some).right[NonEmptyList[Error]].pure[IO]
         } else {
           (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
-            .format(fres.email).stripMargin,"",UNAUTHORIZED))): NonEmptyList[Error]).left[Option[String]].pure[IO]
+            .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Error]).left[Option[String]].pure[IO]
         }
       }
-    } yield found).run.map(_.validation).unsafePerformIO()
-    play.api.Logger.debug("------xxxxx------>"+ ab)
-    ab
+    } yield found).run.map(_.validation).unsafePerformIO()    
   }
 }
 
 /**
- * GoofyCrypto just provides methods to make a content into MD5, 
+ * GoofyCrypto just provides methods to make a content into MD5,
  * calculate a HMACSHA1, using a RAW secret (api_key). -- TO-DO change the api_key as SHA1.
- */ 
+ */
 object GoofyCrypto {
   /**
    * Calculate the MD5 hash for the specified content (UTF-16 encoded)

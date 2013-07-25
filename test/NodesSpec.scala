@@ -35,8 +35,9 @@ class NodesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-    // "Correctly do GET requests with a valid userid and api key" ! GetList.succeeds ^
-     // "Correctly do GET requests with a valid userid and api key" ! GetById.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! findByEmail.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! findByName.succeeds ^
       end
 
   /**
@@ -46,9 +47,9 @@ class NodesSpec extends Specification {
 
     protected override def urlSuffix: String = "nodes/content"
 
-    protected override def bodyToStick: Option[String] = {           
-         val contentToEncode = "{\"nodeo_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
-        Some(new String(contentToEncode))
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+      Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
 
@@ -58,11 +59,31 @@ class NodesSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
 
-  case object GetList extends Context {
+  case object PostInvalidBody extends Context {
+
+    protected override def urlSuffix: String = "nodes/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"nodeo_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
+    }
+  }
+
+  case object findByEmail extends Context {
     protected override def urlSuffix: String = "nodes"
 
     protected def headersOpt: Option[Map[String, String]] = None
@@ -74,8 +95,8 @@ class NodesSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  case object GetById extends Context {
-    protected override def urlSuffix: String = "nodes/MyNode"
+  case object findByName extends Context {
+    protected override def urlSuffix: String = "nodes/atlas.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
