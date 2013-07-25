@@ -41,20 +41,22 @@ import java.nio.charset.Charset
  *
  */
 case class PredefInput(id: String = new String(), name: String, provider: String, provider_role: String, build_monkey: String = "none") {
-  val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"prov\":\"" + provider + "\",\"provider_role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\"}"
+  val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"provider_role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\"}"
 }
 
 object PredefInput {
 
   val toMap = Map[String, PredefInput](
-    "akka" -> PredefInput("", "akka", "chef", "akka", "sbt"),
+    "rails" -> PredefInput("", "rails", "chef", "rails", "bundle"),
     "java" -> PredefInput("", "java", "chef", "java", "mvn"),
+    "scala" -> PredefInput("", "scala", "chef", "scala", "sbt"),
+    "play" -> PredefInput("", "play", "chef", "play", "sbt"),
+    "akka" -> PredefInput("", "akka", "chef", "scala", "sbt"),
     "nodejs" -> PredefInput("", "nodejs", "chef", "nodejs", "npm"),
-    "play" -> PredefInput("play", "chef", "play", "sbt"),
-    "postgresql" -> PredefInput("postgresql", "postgresql", "chef", "postgresql"),
-    "rails" -> PredefInput("rails", "chef", "rails", "bundle"),
-    "rabbitmq" -> PredefInput("rabbitmq", "rabbitmq", "chef", "riak"),
-    "redis" -> PredefInput("", "redis", "chef", "riak"),
+    "mobhtml5" -> PredefInput("", "mobhtml5", "chef", "sencha"),
+    "postgresql" -> PredefInput("", "postgresql", "chef", "postgresql"),
+    "rabbitmq" -> PredefInput("", "rabbitmq", "chef", "rabbitmq"),
+    "redis" -> PredefInput("", "redis", "chef", "redis"),
     "riak" -> PredefInput("", "riak", "chef", "riak"))
 
   val toStream = toMap.keySet.toStream
@@ -157,8 +159,12 @@ object Predefs {
           (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
             flatMap { maybeGS: Option[GunnySack] =>
               maybeGS match {
-                case Some(thatGS) => (Validation.success[Throwable, PredefResults](PredefResults(parse(thatGS.value).extract[PredefResult]))).toValidationNel //screwy kishore, every element in a list ? 
-                case None         => (Validation.failure[Throwable, PredefResults](new ResourceItemNotFound(p._2.json, "The predef wasn't created, store failed:'"))).toValidationNel
+                case Some(thatGS) => PredefResults(parse(thatGS.value).extract[PredefResult]).successNel[Throwable]
+                case None => {
+                  play.api.Logger.warn(("%-20s -->[%s]").format("Predefs.created success", "Scaliak returned => None. Thats OK."))
+                  PredefResults(PredefResult(new String(), p._2.name, p._2.provider,
+                    p._2.provider_role, p._2.build_monkey)).successNel[Throwable]
+                }
               }
             }
         }

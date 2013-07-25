@@ -40,23 +40,22 @@ import java.nio.charset.Charset
  *
  */
 
-case class PredefCloudInput(name: String, spec: PredefCloudSpec, access: PredefCloudAccess)
-
-case class PredefCloudSpec(typeName: String, groups: String, image: String, flavor: String) {
-  val json = "\"typeName\":\"" + typeName + "\",\"groups\":\"" + groups + "\",\"image\":\"" + image + "\",\"flavor\":\"" + flavor + "\""
+case class PredefCloudSpec(type_name: String, groups: String, image: String, flavor: String) {
+  val json = "\"type_name\":\"" + type_name + "\",\"groups\":\"" + groups + "\",\"image\":\"" + image + "\",\"flavor\":\"" + flavor + "\""
 }
 
 case class PredefCloudAccess(ssh_key: String, identity_file: String, ssh_user: String) {
   val json = "\"ssh_key\":\"" + ssh_key + "\",\"identity_file\":\"" + identity_file + "\",\"ssh_user\":\"" + ssh_user + "\""
 }
 
+case class PredefCloudInput(name: String, spec: PredefCloudSpec, access: PredefCloudAccess) {
+  val json = "{\"name\":\"" + name + "\",\"spec\":{" + spec.json + "},\"access\":{" + access.json + "}" + "}"
+}
+
 case class PredefCloudResult(id: String, name: String, account_id: String, spec: PredefCloudSpec, access: PredefCloudAccess,
   ideal: String = new String(), performance: String = new String()) {
-  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"account_id\":\"" + account_id +
-    "\",\"spec\":{" + spec.json + "},\"access\":{" + access.json + "},\"ideal\":\"" +
-    ideal + "\",\"performance\":\"" + performance + "\"}"
 
-    def toJValue: JValue = {
+  def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.PredefCloudResultSerialization
     val preser = new PredefCloudResultSerialization()
@@ -72,7 +71,7 @@ case class PredefCloudResult(id: String, name: String, account_id: String, spec:
 
 object PredefCloudResult {
 
-   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PredefCloudResult] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PredefCloudResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.PredefCloudResultSerialization
     val preser = new PredefCloudResultSerialization()
@@ -94,10 +93,8 @@ object PredefCloudResult {
     }.list.mkString("\n")
   })*/
 }
-    
-    
 
-object PredefClouds  {
+object PredefClouds {
 
   implicit val formats = DefaultFormats
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predefclouds")
@@ -113,8 +110,10 @@ object PredefClouds  {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(input: String, email: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug("models.PredefsClouds mkGunnySack: entry:" + email + "\n" + input)
+  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
     val predefCloudInput: ValidationNel[Throwable, PredefCloudInput] = (Validation.fromTryCatch {
       parse(input).extract[PredefCloudInput]
@@ -128,7 +127,7 @@ object PredefClouds  {
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
-      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.spec, pdc.access).json
+      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.spec, pdc.access).toJson(false)
       new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -138,23 +137,31 @@ object PredefClouds  {
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket
    */
-  def create(input: String, email: String): ValidationNel[Throwable, Option[PredefCloudResult]] = {
-    play.api.Logger.debug("models.PredefClouds create: entry\n" + email + ":" + input)
-    (mkGunnySack(input, email) leftMap { err: NonEmptyList[Throwable] =>
+  def create(email: String, input: String): ValidationNel[Throwable, Option[PredefCloudResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
-            case Some(thatGS) => (Validation.success[Throwable, Option[PredefCloudResult]](parse(thatGS.value).extract[PredefCloudResult].some)).toValidationNel
-            case None         => (Validation.failure[Throwable, Option[PredefCloudResult]](new ResourceItemNotFound(input, "The predefcloud wasn't created, store failed using 'email:'".format(email)))).toValidationNel
+            case Some(thatGS) => (parse(thatGS.value).extract[PredefCloudResult].some).successNel[Throwable]
+            case None => {
+              play.api.Logger.warn(("%-20s -->[%s]").format("PredefsCloud.created success", "Scaliak returned => None. Thats OK."))
+              (parse(gs.get.value).extract[PredefCloudResult].some).successNel[Throwable];
+            }
           }
+
         }
     }
   }
 
   def findByName(predefCloudsNameList: Option[List[String]]): ValidationNel[Error, PredefCloudResults] = {
-    play.api.Logger.debug("models.PredefCloudsName findByName: entry:" + predefCloudsNameList)
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("predefCloudsList", predefCloudsNameList))
     (predefCloudsNameList map {
       _.map { predefcloudsName =>
         play.api.Logger.debug("models.PredefCloudsName findByName: predefclouds:" + predefcloudsName)
@@ -188,7 +195,8 @@ object PredefClouds  {
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, PredefCloudResults] = {
-    play.api.Logger.debug("models.PredefClouds findByEmail: entry:" + email)
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Error, PredefCloudResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)

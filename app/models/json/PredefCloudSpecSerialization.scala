@@ -44,7 +44,7 @@ object PredefCloudSpecSerialization extends SerializationBase[PredefCloudSpec] {
 
     override def write(h: PredefCloudSpec): JValue = {
       JObject(
-        JField(NameKey, toJSON(h.typeName)) ::
+        JField(NameKey, toJSON(h.type_name)) ::
           JField(GroupsKey, toJSON(h.groups)) ::
           JField(ImageKey, toJSON(h.image)) ::
           JField(FlavorKey, toJSON(h.flavor)) :: Nil)

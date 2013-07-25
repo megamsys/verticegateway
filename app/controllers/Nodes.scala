@@ -87,7 +87,7 @@ object Nodes extends Controller with APIAuthElement {
 
           models.Nodes.findByNodeName(List(id).some) match {
             case Success(succ) =>
-              Ok(succ.toString)
+              Ok(NodeResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -114,7 +114,7 @@ object Nodes extends Controller with APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.Nodes.findByEmail(email) match {
-            case Success(succ) => Ok(succ.toString)
+            case Success(succ) => Ok(NodeResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

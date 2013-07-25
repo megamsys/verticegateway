@@ -54,7 +54,7 @@ case class AccountResult(id: String, email: String, api_key: String, authority: 
 
 object AccountResult {
 
-  def apply(email: String): AccountResult = new AccountResult("not found",email, new String(), new String())
+  def apply(email: String): AccountResult = new AccountResult("not found", email, new String(), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -91,9 +91,9 @@ object Accounts {
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.
    * If there is an error in the snowflake connection, we need to send one.
    */
-  def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
+  def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+    play.api.Logger.debug(("%-20s -->[%s]").format("input json", input))
     (Validation.fromTryCatch {
       parse(input).extract[AccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage)
@@ -105,14 +105,12 @@ object Accounts {
           val metadataVal = "1002"
           val bindex = BinIndex.named("accountId")
           val bvalue = Set(uid.get._1 + uid.get._2)
-          val json = "{\"id\": \"" + (uid.get._1 + uid.get._2) + "\"," + m.json + "}"
-          play.api.Logger.debug(("%-20s -->[%s]").format("json+uid", json))
+          val acctRes = new AccountResult(uid.get._1 + uid.get._2, m.email, m.api_key, m.authority)
+          play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))
 
-          val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+          val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
           storeValue match {
-            case Success(succ) => Validation.success[Error, Option[AccountResult]] {
-              (parse(succ.getOrElse(new GunnySack()).value).extract[AccountResult].some)
-            }.toValidationNel
+            case Success(succ) =>  acctRes.some.successNel[Error]
             case Failure(err) => Validation.failure[Error, Option[AccountResult]](
               new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
           }

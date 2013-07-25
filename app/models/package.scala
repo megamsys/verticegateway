@@ -17,6 +17,8 @@ import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
+import models.json.{NodeResultsSerialization, PredefResultsSerialization, PredefCloudResultsSerialization}
+
 
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -30,7 +32,7 @@ package object models {
   type NodeResults = NonEmptyList[Option[NodeResult]]
 
   object NodeResults {
-     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: NodeResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
       import models.json.NodeResultsSerialization.{ writer => NodeResultsWriter }
@@ -44,7 +46,6 @@ package object models {
       compactRender(toJValue(nres))
     }
 
-    
     def apply(m: Option[NodeResult]) = nels(m)
     def apply(m: NodeResult): NodeResults = NodeResults(m.some)
     def empty: NodeResults = nels(none)
@@ -53,8 +54,8 @@ package object models {
   type PredefResults = NonEmptyList[Option[PredefResult]]
 
   object PredefResults {
-    
-     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(pres: PredefResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
       import models.json.PredefResultsSerialization.{ writer => PredefResultsWriter }
@@ -67,7 +68,7 @@ package object models {
     } else {
       compactRender(toJValue(pres))
     }
-    
+
     def apply(m: PredefResult): PredefResults = nels(m.some)
     def empty: PredefResults = nels(none)
 
@@ -76,8 +77,8 @@ package object models {
   type PredefCloudResults = NonEmptyList[Option[PredefCloudResult]]
 
   object PredefCloudResults {
-    
-     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(prres: PredefCloudResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
       import models.json.PredefCloudResultsSerialization.{ writer => PredefCloudResultsWriter }
@@ -90,14 +91,14 @@ package object models {
     } else {
       compactRender(toJValue(nres))
     }
-    
+
     def apply(m: PredefCloudResult): PredefCloudResults = nels(m.some)
     def empty: PredefCloudResults = nels(none)
 
   }
-  
-    implicit def transformNodeResults2Json(nres: NodeResults): String = NodeResults.toJson(nres, true)
-  implicit def transformPredefResults2Json(pres: PredefResults): String = PredefResults.toJson(pres, true)
-    implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): String = PredefCloudResults.toJson(prres, true)
+
+  implicit def transformNodeResults2Json(nres: NodeResults): Option[String] = NodeResults.toJson(nres, true).some
+  implicit def transformPredefResults2Json(pres: PredefResults): Option[String] = PredefResults.toJson(pres, true).some
+  implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): Option[String] = PredefCloudResults.toJson(prres, true).some
 
 }

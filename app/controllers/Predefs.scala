@@ -28,7 +28,6 @@ import scalaz.Validation._
 import play.api.mvc.Result
 import controllers.funnel.FunnelResponse
 
-
 /**
  * @author rajthilak
  *
@@ -52,7 +51,7 @@ object Predefs extends Controller with APIAuthElement {
 
     models.Predefs.findByName(Stream(id).some) match {
       case Success(succ) => {
-        Ok(succ.toString)
+        Ok(PredefResults.toJson(succ, true)) //implicit transformer doesn't work.
       }
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
@@ -69,14 +68,15 @@ object Predefs extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "list:Entry"))
 
-    
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.Predefs.listAll match {
-            case Success(succ) => Ok(succ.toString)
+            case Success(succ) => {
+              Ok(PredefResults.toJson(succ, true))
+            }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
