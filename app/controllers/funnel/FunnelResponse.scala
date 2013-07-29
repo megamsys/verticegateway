@@ -26,7 +26,8 @@ import controllers.funnel.FunnelErrors._
  * @author ram
  *
  */
-case class FunnelResponse(code: Int, msg: String, more: String, msg_type: String = "error", links: String = tailMsg) {
+case class FunnelResponse(code: Int, msg: String, more: String, json_claz: String, 
+    msg_type: String = "error", links: String = tailMsg) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -45,9 +46,9 @@ case class FunnelResponse(code: Int, msg: String, more: String, msg_type: String
 
 object FunnelResponse {
 
-  def apply(code: Int, message: String): FunnelResponse = new FunnelResponse(code, message, new String(), "info")
+  def apply(code: Int, message: String, json_claz: String): FunnelResponse = new FunnelResponse(code, message, new String(), json_claz, "info")
   
-  def apply(message: String): FunnelResponse = new FunnelResponse(OK, message, new String(), "info")
+  def apply(message: String, json_claz: String): FunnelResponse = FunnelResponse(OK, message, json_claz)
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[FunnelResponse] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON

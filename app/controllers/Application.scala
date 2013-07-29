@@ -33,10 +33,10 @@ object Application extends Controller with APIAuthElement {
   }
   /**
    * POST : Authenticate, verifies if the auth setup is OK.
-   * Output: FunnelResponse as JSON with the msg.  
-   **/  
+   * Output: FunnelResponse as JSON with the msg.
+   */
   def authenticate = StackAction(parse.tolerantText) { implicit request =>
-    val resp =  FunnelResponse(apiAccessed.getOrElse("Something strange. Authentication successful, but sans success message. Contact support")).toJson(true)
+    val resp = FunnelResponse(apiAccessed.getOrElse("Something strange. Authentication successful, but sans success message. Contact support"), "Megam::Auth").toJson(true)
     Logger.debug(resp)
     Ok(resp)
   }

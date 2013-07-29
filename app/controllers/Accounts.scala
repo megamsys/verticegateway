@@ -52,7 +52,7 @@ object Accounts extends Controller with APIAuthElement {
         FunnelResponse(CREATED,"""Account created successfully.
             |
             |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now.""".
-          format(succ.get.email, succ.get.api_key).stripMargin).toJson(true))
+          format(succ.get.email, succ.get.api_key).stripMargin,"Megam::Account").toJson(true))
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
