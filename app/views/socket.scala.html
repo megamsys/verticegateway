@@ -1,0 +1,15 @@
+@(message: String)(implicit request: RequestHeader)
+
+@main(message) {
+
+<script>
+    var output;
+    function init() {
+        output = document.getElementById("output");
+        testWebSocket();
+    }
+    function testWebSocket() {
+        websocket = new WebSocket("@routes.Logs.socketindex.webSocketURL()");
+       }
+</script>
+}

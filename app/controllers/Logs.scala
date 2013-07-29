@@ -27,9 +27,9 @@ import controllers.stack._
  * @author ram
  *
  */
-object Logs extends Controller with APIAuthElement with Helper {
+object Logs extends Controller  with Helper {
 
-  def list = StackAction(parse.tolerantText) { implicit request =>
+ /* def list = StackAction(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
     val sentHmacHeader = request.headers.get(HMAC_HEADER);
     val id = getAccountID(sentHmacHeader)
@@ -51,6 +51,20 @@ object Logs extends Controller with APIAuthElement with Helper {
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     Redirect("http://localhost:7000/streams/" + id)
+  }*/
+  
+  def socketindex = WebSocket.using[String] { implicit request => 
+  import play.api.libs.iteratee._
+ // Log events to the console
+  val in = Iteratee.foreach[String](println).mapDone { _ =>
+    println("Disconnected")
   }
+  
+  // Send a single 'Hello!' message
+  val out = Enumerator("Hello!")
+  
+  (in, out)
+//Ok(views.html.socket("Websocket Test"))
 
+}
 }

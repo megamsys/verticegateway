@@ -17,9 +17,9 @@ POST   /v1/nodes/content		controllers.Nodes.post
 
 # Logs for Nodes 
 #just declare POST for testing
-GET   /v1/logs	   		    controllers.Logs.list()                          
-GET   /v1/logs/:nodeid		controllers.Logs.show(nodeid: String)
-
+#GET   /v1/logs	   		    controllers.Logs.list()                          
+#GET   /v1/logs/:nodeid		controllers.Logs.show(nodeid: String)
+GET   /v1/logs/index        controllers.Logs.socketindex
 #Predefs
 GET   /v1/predefs                controllers.Predefs.list()
 GET   /v1/predefs/:predefid      controllers.Predefs.show(predefid: String)

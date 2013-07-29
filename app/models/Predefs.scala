@@ -68,7 +68,7 @@ object Predefs extends Helper {
   }
 
   def listKeys: ValidationNel[Error, List[String]] = {
-    riak.keysList match {
+    riak.listKeys match {
       case Success(key) => {
         Validation.success[Error, List[String]](key.toList).toValidationNel
       }

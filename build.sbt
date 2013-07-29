@@ -10,17 +10,18 @@ import S3._
 
 seq(packagerSettings:_*)
 
-maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
+maintainer in Debian:= "Rajthilak <rajthilak@rajthilak>"
 
 packageSummary := "API server (REST based) for the megam platform." 
 
 packageDescription in Debian:= "API server (REST based) for the megam platform.The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
 
-com.typesafe.sbt.packager.debian.Keys.name in Debian := "megam_play"
+com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 
+s3Settings
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
-  (packageMapping((bd / "bin/mp") -> "/usr/local/share/megamplay/bin/mp")
+  (packageMapping((bd / "target/start") -> "/usr/local/share/megamplay/target/start")
    withUser "root" withGroup "root" withPerms "0755")
 }
 
@@ -57,12 +58,21 @@ linuxPackageMappings <+= (baseDirectory) map { bd =>
 
 linuxPackageMappings in Debian <+= (com.typesafe.sbt.packager.debian.Keys.sourceDirectory) map { bd =>
   (packageMapping(
-    (bd / "CHANGELOG") -> "/usr/share/doc/megam_play/changelog.gz"
+    (bd / "debian/changelog") -> "/usr/share/doc/megam_play/changelog.gz"
   ) withUser "root" withGroup "root" withPerms "0644" gzipped) asDocs()
 }
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megam_play", "0.12.3-build-0100")),"debs/megam_play0.1.0.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"debs/megam_play0.1.0.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 
+mappings in download := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"debs/megam_play0.1.0.deb"))
+
+host in download := "megampub.s3.amazonaws.com"
+
+mappings in delete := Seq("debs/megam_play0.1.0.deb")
+
+host in delete := "megampub.s3.amazonaws.com"
+
 credentials += Credentials(Path.userHome / "software" / "aws" / "keys" / "sbt_s3_keys")
+
