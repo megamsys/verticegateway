@@ -24,4 +24,5 @@ import java.nio.charset.Charset
  */
 object Constants {
   val UTF8Charset = Charset.forName("UTF-8")
+  val JSON_CLAZ = "json_claz"
 }

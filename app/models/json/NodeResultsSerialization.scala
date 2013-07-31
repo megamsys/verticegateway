@@ -32,6 +32,7 @@ import models._
  *
  */
 object NodeResultsSerialization extends SerializationBase[NodeResults] {
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   implicit override val writer = new JSONW[NodeResults] {
     override def write(h: NodeResults): JValue = {
@@ -39,8 +40,8 @@ object NodeResultsSerialization extends SerializationBase[NodeResults] {
         nrOpt: Option[NodeResult] =>
           (nrOpt.map { nr: NodeResult => nr.toJValue }).getOrElse(JNothing)
       }
-
-      JArray(nrsList.list)
+     
+      JArray((JField(JSONClazKey, toJSON("Megam::NodeCollection")) +: nrsList.list))
     }
   }
 

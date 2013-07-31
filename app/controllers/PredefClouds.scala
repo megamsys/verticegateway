@@ -59,9 +59,9 @@ object PredefClouds extends Controller with APIAuthElement {
           models.PredefClouds.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-        FunnelResponse(CREATED,"""Predefs cloud created successfully.
+                FunnelResponse(CREATED, """Predefs cloud created successfully.
             |
-            |You can use the the 'predefs cloud name':{%s}.""".format(succ.getOrElse("none"))).toJson(true))
+            |You can use the the 'predefs cloud name':{%s}.""".format(succ.getOrElse("none")), "Megam::PredefCloud").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

@@ -34,7 +34,7 @@ import models.PredefResult
  *
  */
 class PredefResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[PredefResult] {
-
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NameKey = "name"
   protected val ProviderKey = "provider"
@@ -48,8 +48,9 @@ class PredefResultSerialization(charset: Charset = UTF8Charset) extends Serializ
         JField(IdKey, toJSON(h.id)) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(ProviderKey, toJSON(h.provider)) ::
-          JField(ProviderRoleKey, toJSON(h.provider_role)) :: 
-          JField(BuildMonkeyKey, toJSON(h.build_monkey)) :: Nil)
+          JField(ProviderRoleKey, toJSON(h.provider_role)) ::
+          JField(BuildMonkeyKey, toJSON(h.build_monkey)) :: 
+          JField(JSONClazKey, toJSON("Megam::Predef")) :: Nil)
     }
   }
 

@@ -50,7 +50,7 @@ object Global extends GlobalSettings {
         case Success(succ) =>
           play.api.Logger.debug(FunnelResponse("""Predefs created successfully. Cache gets loaded upon first fetch. 
             |
-            |%nLoaded values are ----->%n[%s]""".format(succ.toString).stripMargin).toJson(true))
+            |%nLoaded values are ----->%n[%s]""".format(succ.toString).stripMargin,"predefs").toJson(true))
         case Failure(err) =>
           val rn: FunnelResponses = new HttpReturningError(err)
           play.api.Logger.error(rn)

@@ -90,12 +90,12 @@ package object funnel {
   implicit def err2FunnelResponse(hpret: HttpReturningError) = new FunnelResponse(hpret.code.getOrElse(BAD_REQUEST), hpret.msg, hpret.more.getOrElse(new String("none")), hpret.severity)
 
   implicit def err2FunnelResponses(hpret: HttpReturningError) = hpret.errNel.map { err: Throwable =>
-    err.fold(a => new FunnelResponse(hpret.mkCode(a).getOrElse(BAD_REQUEST), hpret.mkMsg(a), hpret.mkMore(a), hpret.severity),
-      m => new FunnelResponse(hpret.mkCode(m).getOrElse(BAD_REQUEST), hpret.mkMsg(m), hpret.mkMore(m), hpret.severity),
-      h => new FunnelResponse(hpret.mkCode(h).getOrElse(BAD_REQUEST), hpret.mkMsg(h), hpret.mkMore(h), hpret.severity),
-      c => new FunnelResponse(hpret.mkCode(c).getOrElse(BAD_REQUEST), hpret.mkMsg(c), hpret.mkMore(c), hpret.severity),
-      r => new FunnelResponse(hpret.mkCode(r).getOrElse(BAD_REQUEST), hpret.mkMsg(r), hpret.mkMore(r), hpret.severity),
-      t => new FunnelResponse(hpret.mkCode(t).getOrElse(BAD_REQUEST), hpret.mkMsg(t), hpret.mkMore(t), hpret.severity))
+    err.fold(a => new FunnelResponse(hpret.mkCode(a).getOrElse(BAD_REQUEST), hpret.mkMsg(a), hpret.mkMore(a), hpret.severity,"error"),
+      m => new FunnelResponse(hpret.mkCode(m).getOrElse(BAD_REQUEST), hpret.mkMsg(m), hpret.mkMore(m), hpret.severity,"error"),
+      h => new FunnelResponse(hpret.mkCode(h).getOrElse(BAD_REQUEST), hpret.mkMsg(h), hpret.mkMore(h), hpret.severity,"error"),
+      c => new FunnelResponse(hpret.mkCode(c).getOrElse(BAD_REQUEST), hpret.mkMsg(c), hpret.mkMore(c), hpret.severity,"error"),
+      r => new FunnelResponse(hpret.mkCode(r).getOrElse(BAD_REQUEST), hpret.mkMsg(r), hpret.mkMore(r), hpret.severity,"error"),
+      t => new FunnelResponse(hpret.mkCode(t).getOrElse(BAD_REQUEST), hpret.mkMsg(t), hpret.mkMore(t), hpret.severity, "error"))
   }.some
   
   implicit def funnelResponses2Json(fres: FunnelResponses): String = FunnelResponses.toJson(fres, true)

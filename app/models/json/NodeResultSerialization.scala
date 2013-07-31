@@ -27,21 +27,21 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest}
-
+import models.{ NodeResult, NodePredefs, NodeRequest }
 
 /**
  * @author ram
  *
  */
 class NodeResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[NodeResult] {
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val AccountsIDKey = "accounts_id"
   protected val RequestKey = "request"
   protected val PredefsKey = "predefs"
 
   override implicit val writer = new JSONW[NodeResult] {
-    
+
     import NodeRequestSerialization.{ writer => NodeRequestWriter }
     import NodePredefsSerialization.{ writer => NodePredefsWriter }
 
@@ -49,13 +49,14 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(AccountsIDKey, toJSON(h.accounts_id)) ::
-          JField (RequestKey, toJSON(h.request)(NodeRequestWriter)) ::
-          JField(PredefsKey, toJSON(h.predefs)(NodePredefsWriter)) ::Nil)
+          JField(JSONClazKey, toJSON("Megam::Node")) ::
+          JField(RequestKey, toJSON(h.request)(NodeRequestWriter)) ::
+          JField(PredefsKey, toJSON(h.predefs)(NodePredefsWriter)) :: Nil)
     }
   }
 
   override implicit val reader = new JSONR[NodeResult] {
-    
+
     import NodeRequestSerialization.{ reader => NodeRequestReader }
     import NodePredefsSerialization.{ reader => NodePredefsReader }
 

@@ -28,6 +28,7 @@ import models._
  *
  */
 object PredefCloudResultsSerialization extends SerializationBase[PredefCloudResults] {
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   implicit override val writer = new JSONW[PredefCloudResults] {
     override def write(h: PredefCloudResults): JValue = {
@@ -36,7 +37,7 @@ object PredefCloudResultsSerialization extends SerializationBase[PredefCloudResu
           (nrOpt.map { nr: PredefCloudResult => nr.toJValue }).getOrElse(JNothing)
       }
 
-      JArray(nrsList.list)
+      JArray((JField(JSONClazKey, toJSON("Megam::PredefCloudCollection")) +: nrsList.list))
     }
   }
 

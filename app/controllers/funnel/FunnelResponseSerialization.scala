@@ -32,6 +32,7 @@ import controllers.Constants._
  *
  */
 class FunnelResponseSerialization(charset: Charset = UTF8Charset) extends SerializationBase[FunnelResponse] {
+  protected val JSONClazKey = JSON_CLAZ
   protected val CodeKey = "code"
   protected val MessageTypeKey = "msg_type"
   protected val MessageKey = "msg"
@@ -45,7 +46,7 @@ class FunnelResponseSerialization(charset: Charset = UTF8Charset) extends Serial
         JField(CodeKey, toJSON(h.code)) ::
           JField(MessageTypeKey, toJSON(h.msg_type)) ::
           JField (MessageKey, toJSON(h.msg)) ::
-          JField(MoreKey, toJSON(h.more)) :: JField(LinksKey, toJSON(h.links)) ::Nil)
+          JField(MoreKey, toJSON(h.more)) ::  JField(JSONClazKey, toJSON(h.json_claz)) :: JField(LinksKey, toJSON(h.links)) ::Nil)
     }
   }
 
@@ -56,10 +57,11 @@ class FunnelResponseSerialization(charset: Charset = UTF8Charset) extends Serial
       val msgTypeField = field[String](MessageTypeKey)(json)
       val msgField = field[String](MessageKey)(json)
       val moreField = field[String](MoreKey)(json)
+      val jsonClazField = field[String](JSONClazKey)(json)
 
-      (codeField |@| msgTypeField |@| msgField |@| moreField) {
-        (code: Int, msg: String, more: String, msgType: String) =>
-          new FunnelResponse(code, msg, more,msgType)
+      (codeField |@| msgTypeField |@| msgField |@| moreField |@| jsonClazField) {
+        (code: Int, msg: String, more: String, msgType: String,jsonClazField: String) =>
+          new FunnelResponse(code, msg, more,msgType,jsonClazField)
       }
     }
   }
