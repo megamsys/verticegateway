@@ -48,8 +48,8 @@ object ApplicationBuild extends Build {
     "postgresql" % "postgresql" % postgreSQLVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",
-    "com.stackmob" %% "newman" % "0.22.0" % "test",
-    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/jars/snowflake.jar"
+    "com.stackmob" %% "newman" % "0.22.0" % "test",    
+    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar" //don't move this below.
     )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
