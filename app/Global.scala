@@ -54,6 +54,7 @@ object Global extends GlobalSettings {
         case Failure(err) =>
           val rn: FunnelResponses = new HttpReturningError(err)
           play.api.Logger.error(rn)
+
       }
     })
   }

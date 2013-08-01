@@ -39,13 +39,13 @@
 				Request Headers:
 			</p>
 			<p>
-				<pre><code class="brush: bash; toolbar: false; ">
-				    
+				<pre><code class="brush: bash; toolbar: false; ">				    
 					"X-Megam-DATE: 2013-07-01 17:17"
 					"X-Megam-HMAC:060873b2afce74fd024bba428b0e2e00b661cc2c"
 					"Content-Type:appilication/Json"
 					"Accept: application/vnd.megam+json "
-					</code> </pre>
+					</code>
+				</pre>
 			</p>
 			<p>
 				Request Body:
@@ -67,19 +67,86 @@
 					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
 					"authority":"user"
 					}
-				</code> </pre>
+				</code> </pre>								
+			
+				
+
+
 			</p>
-			<div class="btn-group">
-				<button class="btn" href="#authruby">
-					Ruby
-				</button>
-			</div>
-			<pre>
+			<p>
+
+				<div class="panel panel-danger">
+					<!-- Default panel contents -->
+					<div class="panel-heading">
+						Response (Errors):
+					</div>
+					<p>
+						<a href="#">Inbox <span class="badge">401</span></a>
+						<pre><code class="brush: js; toolbar: false; ">
+					{
+					"id": "ACT346963130863058944",
+					"email":"........",
+					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
+					"authority":"user"
+					}
+				</code> </pre>
+
+					</p>
+
+					<!-- List group -->
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">
+							Cras justo odio
+						</li>
+						<li class="list-group-item">
+							Dapibus ac facilisis in
+						</li>
+						<li class="list-group-item">
+							Morbi leo risus
+						</li>
+						<li class="list-group-item">
+							Porta ac consectetur ac
+						</li>
+						<li class="list-group-item">
+							Vestibulum at eros
+						</li>
+					</ul>
+				</div>
+
+			</p>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
 		<code class="brush: ruby; toolbar: false; ">
 		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
 		:email => "........"})
 		</code>
 		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>																				
+					
+
+
+
+
+				</div>
+			</div>
+
 		</section>
 
 		<!-- auth end -->
@@ -198,7 +265,13 @@
 			</div>
 			<pre><code class="brush: bash; toolbar: false; ">
 					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-                </code> </pre>
+                </code> </pre>																		
+
+
+
+
+
+
 
 		</section>
 

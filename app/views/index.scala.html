@@ -1,7 +1,11 @@
-@(message: String)
+@(message: String)(implicit flash: Flash)
 
 @main("Megam v1") {
-    
-    @welcome(message)
-    
+@if(flash.data.contains("message")){
+<div class="alert alert-success">
+	@flash.get("message")
+</div>
+}
+@welcome(message)
+
 }
