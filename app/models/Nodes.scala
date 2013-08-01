@@ -60,7 +60,8 @@ case class NodeResult(id: String, accounts_id: String, request: NodeRequest, pre
 
 object NodeResult {
 
-  def apply = new NodeResult(new String(), new String(), new NodeRequest(), new NodePredefs())
+  def apply = new NodeResult(new String(), new String(), new NodeRequest(), new NodePredefs(
+    new String(), new String(), new String, new String(), new String()))
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -74,8 +75,6 @@ object NodeResult {
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-  
-  
 
   /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
     errNel.map { err: Error =>
@@ -94,8 +93,7 @@ case class NodeRequest(req_id: String, command: String) {
 }
 
 case class NodePredefs(name: String, scm: String, war: String, db: String, queue: String) {
-  def this() = this(new String(), new String(), new String, new String(), new String())
-  override def toString = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
+  override def toString = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"war\":\"" + war + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
 }
 
 case class NodeMachines(name: String, public: String, cpuMetrics: String)
@@ -123,9 +121,13 @@ object Nodes {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
+    //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
+    //This is a potential bug.
     val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
       parse(input).extract[NodeInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeinp", nodeInput))
 
     for {
       nir <- nodeInput
@@ -135,9 +137,10 @@ object Nodes {
     } yield {
       //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
       val bvalue = Set(aor.get.id)
-      val PredefResult = (nir.predefs).toString
+      val predef_res = (nir.predefs).toString
       //TO-DO: make the json using json-scalaz (reader/writers). Review of json libs shows json-scalaz as the winner (simple to use)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_id\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + PredefResult + "}}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_id\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + predef_res + "}}"
+
       new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
     }
