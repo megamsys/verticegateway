@@ -37,7 +37,8 @@ class PredefCloudsSpec extends Specification {
       PredefCloudsSpec is the implementation that calls the megam_play API server with the /predefcloud url to create predefclouds
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post.succeeds ^
+      "Correctly do POST requests" ! Post0.succeeds ^
+      "Correctly do POST requests" ! Post1.succeeds ^
       "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
@@ -47,13 +48,37 @@ class PredefCloudsSpec extends Specification {
       end
 
   //post the headers and their body for specifing url
-  case object Post extends Context {
+  case object Post0 extends Context {
 
     protected override def urlSuffix: String = "predefclouds/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new PredefCloudInput("meg-rails", new PredefCloudSpec("sensor-type", "sens-group", "sens-image", "sens-flvr"),
+      val contentToEncode = new PredefCloudInput("ec2_rails", new PredefCloudSpec("sensor-type", "sens-group", "sens-image", "sens-flvr"),
         new PredefCloudAccess("sens-ssh", "sens-identity-file", "sens-sshuser")).json
+      Some(contentToEncode)
+    }
+
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+
+  }
+
+  //post the headers and their body for specifing url (insert one more record)
+  case object Post1 extends Context {
+
+    protected override def urlSuffix: String = "predefclouds/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = new PredefCloudInput("ec2_play", new PredefCloudSpec("fooz-type", "fooz-group", "fooz-image", "fooz-flvr"),
+        new PredefCloudAccess("fooz-ssh", "fooz-identity-file", "fooz-sshuser")).json
       Some(contentToEncode)
     }
 
@@ -84,7 +109,7 @@ class PredefCloudsSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "predefclouds/ec2-rails"
+    protected override def urlSuffix: String = "predefclouds/ec2_rails"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -145,7 +170,7 @@ class PredefCloudsSpec extends Specification {
   }
 
   case object GetInvalidApi extends Context {
-    protected override def urlSuffix: String = "predefclouds/meg-rails"
+    protected override def urlSuffix: String = "predefclouds/ec2_rails"
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
       X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",

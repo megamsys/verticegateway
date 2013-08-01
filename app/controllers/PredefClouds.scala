@@ -92,9 +92,9 @@ object PredefClouds extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
 
-          models.PredefClouds.findByName(List(email).some) match {
+          models.PredefClouds.findByName(List(id).some) match {
             case Success(succ) =>
-              Ok(succ.toString)
+              Ok(PredefCloudResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -124,7 +124,7 @@ object PredefClouds extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
           models.PredefClouds.findByEmail(email) match {
             case Success(succ) =>
-              Ok(succ.toString)
+              Ok(PredefCloudResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
