@@ -1,8 +1,79 @@
-@(message: String, style: String = "Scala", playhome: String ="http://www.playframework.org")
+@(message: String, style: String = "Scala", playhome: String ="http://www.playframework.org")(implicit flash: Flash) <!-- Indicates a dangerous or potentially negative action -->
 
 <div class="api-doc">
 	<div class="mddoc margin-top-large">
+		<div class="row">
+			<div class="col-lg-9">
+				<div class="alert alert-info">
+					<button type="button" class="close" data-dismiss="alert">
+						&times;
+					</button>
+					<strong>Heat It Up!</strong> Click
+					<code>
+						&nbsp;Init&nbsp;
+					</code>
+					to prime the platform. <span class="label label-warning"> Administrators </span>only.
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<a href="@routes.Application.init" class="btn btn-danger btn-lg btn-block">Init </a>
+			</div>
+		</div>
+
+		@flash.get("success0").map { succ_message =>
+		<div class="alert alert-success">
+			<button type="button" class="close" data-dismiss="alert">
+				&times;
+			</button>
+			<strong>Great!</strong> @succ_message.
+		</div>
+
+		}
+		@flash.get("success1").map { succ_detail_msg =>
+		<div class="accordion" id="accordion2">
+			<div class="accordion-group">
+				<div class="accordion-heading">
+					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne"> Detail </a>
+				</div>
+				<div id="collapseOne" class="accordion-body collapse in">
+					<div class="accordion-inner">
+						<div class="alert alert-success">
+							@succ_detail_msg
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+		}
+		@flash.get("error0").map { err_flunked =>
+		<div class="alert alert-block alert-error fade in">
+			<button type="button" class="close" data-dismiss="alert">
+				&times;
+			</button>
+			<h4>Oh snap! You got an error!</h4>
+			@flash.get("error1").map { err_detail_msg =>
+			<div class="accordion" id="accordion2">
+				<div class="accordion-group">
+					<div class="accordion-heading">
+						<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne"> Detail </a>
+					</div>
+					<div id="collapseOne" class="accordion-body collapse in">
+						<div class="accordion-inner">
+							@err_detail_msg
+						</div>
+					</div>
+				</div>
+			</div>
+			}
+			<p>
+				<a class="btn btn-danger" href="http:\\support.megam.co" target="_blank">Contact Support</a>
+			</p>
+		</div>
+		}
+
 		<h1><a name="rest_docs" href="#a-rest_docs">REST API</a></h1>
+
 		<p>
 			Megam's API is REST based.
 			Our SDKs abstract away the REST interface and provide a set of handy methods you can interact with
@@ -67,9 +138,20 @@
 					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
 					"authority":"user"
 					}
-				</code> </pre>								
+				</code> </pre>																																																				
 			
 				
+
+
+
+
+
+
+
+
+
+
+
 
 
 			</p>
@@ -89,7 +171,18 @@
 					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
 					"authority":"user"
 					}
-				</code> </pre>
+				</code> </pre>																																																																		
+
+
+
+
+
+
+
+
+
+
+
 
 					</p>
 
@@ -138,8 +231,19 @@
 		<code class="brush: scala; toolbar: false; ">
 		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
 		</code>
-		</pre>																				
+		</pre>																																																																											
 					
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -265,7 +369,18 @@
 			</div>
 			<pre><code class="brush: bash; toolbar: false; ">
 					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-                </code> </pre>																		
+                </code> </pre>																																																			
+
+
+
+
+
+
+
+
+
+
+
 
 
 
