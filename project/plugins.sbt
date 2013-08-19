@@ -21,9 +21,11 @@ resolvers += "Sonatype Releases"  at "https://oss.sonatype.org/content/repositor
 // Use the Play sbt plugin for Play projects
 addSbtPlugin("play" % "sbt-plugin" % "2.1.3")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.6.0")
+//Packaging currently only works with native-package 0.5.4 and sbt-release 0.6 
+//when we move to sbt 0.13/play 2.2 we need to test it back. 
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.5.4") 
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.7.1")
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.6")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-s3" % "0.5")
 
