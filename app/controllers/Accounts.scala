@@ -15,18 +15,18 @@
 */
 package controllers
 
-import play.api._
-import play.api.mvc._
-import play.api.mvc.Result
-
-import scalaz._
-import scalaz.Validation._
-
-import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import controllers.funnel.FunnelErrors._
 import controllers.funnel.FunnelResponse
+import models._
+import play.api._
+import play.api.mvc._
+import play.api.mvc.Result
+import scalaz._
+import scalaz.Validation._
+import Scalaz._
+
 /**
  * @author rajthilak
  *
@@ -48,11 +48,19 @@ object Accounts extends Controller with APIAuthElement {
     val input = (request.body).toString()
     play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
     models.Accounts.create(input) match {
-      case Success(succ) => Status(CREATED)(
-        FunnelResponse(CREATED,"""Account created successfully.
+      case Success(succ) =>
+        PlatformAppPrimer.clone_predefcloud(succ.get.email).flatMap { x =>
+          Status(CREATED)(
+            FunnelResponse(CREATED, """Onboard successful.
             |
-            |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now.""".
-          format(succ.get.email, succ.get.api_key).stripMargin,"Megam::Account").toJson(true))
+            |email '%s' and api_key '%s' is registered - @megam.""".
+              format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
+        } match {
+          case Success(succ_cpc) => succ_cpc
+          case Failure(errcpc) =>
+            val rncpc: FunnelResponse = new HttpReturningError(errcpc)
+            Status(rncpc.code)(rncpc.toJson(true))
+        }
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))

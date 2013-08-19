@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
    *   to the artifact name.
    */
 
-  val scalazVersion = "7.0.2"
+  val scalazVersion = "7.0.3"
   val scalaCheckVersion = "1.10.1"
   val play2AuthVersion = "0.9"
   val specs2Version = "1.14"
