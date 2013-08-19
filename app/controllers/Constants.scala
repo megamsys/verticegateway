@@ -17,11 +17,12 @@ package controllers
 
 import java.nio.charset.Charset
 
-
 /**
  * @author ram
  *
  */
 object Constants {
   val UTF8Charset = Charset.forName("UTF-8")
+  val JSON_CLAZ = "json_claz"
+  val SANDBOX_EMAIL = "sandy@megamsandbox.com"
 }

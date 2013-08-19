@@ -34,9 +34,10 @@ import models.{ PredefCloudResult, PredefCloudSpec, PredefCloudAccess }
  *
  */
 class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[PredefCloudResult] {
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NameKey = "name"
-  protected val AccountIdKey = "account_id"
+  protected val AccountIdKey = "accounts_id"
   protected val SpecKey = "spec"
   protected val AccessKey = "access"
   protected val IdealKey = "ideal"
@@ -51,7 +52,8 @@ class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends Ser
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(AccountIdKey, toJSON(h.account_id)) ::
+          JField(AccountIdKey, toJSON(h.accounts_id)) ::
+          JField(JSONClazKey, toJSON("Megam::PredefCloud")) ::
           JField(SpecKey, toJSON(h.spec)(PredefCloudSpecWriter)) ::
           JField(AccessKey, toJSON(h.access)(PredefCloudAccessWriter)) ::
           JField(IdealKey, toJSON(h.ideal)) ::

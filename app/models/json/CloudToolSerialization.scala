@@ -27,45 +27,48 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.PredefResult
+import models._
+import models.CloudTool
 
 /**
  * @author ram
  *
  */
-class PredefResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[PredefResult] {
+class CloudToolSerialization(charset: Charset = UTF8Charset) extends SerializationBase[CloudTool] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NameKey = "name"
-  protected val ProviderKey = "provider"
-  protected val ProviderRoleKey = "provider_role"
-  protected val BuildMonkeyKey = "build_monkey"
+  protected val CLIKey = "cli"
+  protected val CloudTemplatesKey = "cloudtemplates"
 
-  override implicit val writer = new JSONW[PredefResult] {
+  override implicit val writer = new JSONW[CloudTool] {
+    
+    import CloudTemplatesSerialization.{ writer => CloudTemplatesWriter }
 
-    override def write(h: PredefResult): JValue = {
+    override def write(h: CloudTool): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(ProviderKey, toJSON(h.provider)) ::
-          JField(ProviderRoleKey, toJSON(h.provider_role)) ::
-          JField(BuildMonkeyKey, toJSON(h.build_monkey)) :: 
-          JField(JSONClazKey, toJSON("Megam::Predef")) :: Nil)
+          JField(CLIKey, toJSON(h.cli)) ::
+          JField(JSONClazKey, toJSON("Megam::CloudTool")) ::
+          JField(CloudTemplatesKey, toJSON(h.cloudtemplates)(CloudTemplatesWriter)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[PredefResult] {
+  override implicit val reader = new JSONR[CloudTool] {
+    
+        import CloudTemplatesSerialization.{ reader => CloudTemplatesReader }
 
-    override def read(json: JValue): Result[PredefResult] = {
+
+    override def read(json: JValue): Result[CloudTool] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
-      val providerField = field[String](ProviderKey)(json)
-      val providerRoleField = field[String](ProviderRoleKey)(json)
-      val buildMonkeyField = field[String](BuildMonkeyKey)(json)
+      val cliField = field[String](CLIKey)(json)
+      val cloudTemplateField = field[CloudTemplates](CloudTemplatesKey)(json)(CloudTemplatesReader)
 
-      (idField |@| nameField |@| providerField |@| providerRoleField |@| buildMonkeyField) {
-        (id: String, name: String, provider: String, provider_role: String, build_monkey: String) =>
-          new PredefResult(id, name, provider, provider_role, build_monkey)
+      (idField |@| nameField |@| cliField |@| cloudTemplateField) {
+        (id: String, name: String, cli: String, cloudtemplates) =>
+          new CloudTool(id, name, cli, cloudtemplates)
       }
     }
   }

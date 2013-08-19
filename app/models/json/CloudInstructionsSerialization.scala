@@ -22,22 +22,23 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import controllers.funnel.SerializationBase
 import models._
+import java.nio.charset.Charset
+import controllers.Constants._
+
 
 /**
  * @author ram
  *
  */
-object PredefResultsSerialization extends SerializationBase[PredefResults] {
+class CloudInstructionsSerialization(charset: Charset = UTF8Charset)  extends SerializationBase[CloudInstructions] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[PredefResults] {
-    override def write(h: PredefResults): JValue = {
-      val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[PredefResult] =>
-          (nrOpt.map { nr: PredefResult => nr.toJValue }).getOrElse(JNothing)
-      }
-      JObject(JField(JSONClazKey, JString("Megam::PredefCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+  implicit override val writer = new JSONW[CloudInstructions] {
+    override def write(h: CloudInstructions): JValue = {
+      val nrsList: List[JValue] = h.map { nr: CloudInstruction => (nr.toJValue.some.getOrElse(JNothing))}
+      JObject(JField(JSONClazKey, JString("Megam::CloudInstructionCollection")) 
+          :: JField(ResultsKey, JArray(nrsList)) :: Nil)
     }
   }
 
@@ -52,23 +53,22 @@ object PredefResultsSerialization extends SerializationBase[PredefResults] {
           )
         )
       )
-      PredefResult already has an implicit reader, hence use it.
+      NodeResult already has an implicit reader, hence use it.
        */
-  implicit override val reader = new JSONR[PredefResults] {
-    override def read(json: JValue): Result[PredefResults] = {
+  implicit override val reader = new JSONR[CloudInstructions] {
+    override def read(json: JValue): Result[CloudInstructions] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            PredefResult.fromJValue(jValue) match {
+            CloudInstruction.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[PredefResult]()
+              case Failure(fail) => List[CloudInstruction]()
             }
-          } map { x: PredefResult => x.some }
-          //this is screwy. Making the PredefResults as Option[NonEmptylist[NodeResult]] will solve it.
-          val nrs: PredefResults = list.toNel.getOrElse(nels(none))
+          } 
+          val nrs: CloudInstructions = list.some.getOrElse(CloudInstructions.empty)
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[PredefResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CloudInstructions]
       }
     }
   }

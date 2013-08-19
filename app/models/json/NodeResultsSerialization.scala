@@ -15,10 +15,7 @@
 */
 package models.json
 
-/**
- * @author ram
- *
- */
+
 import scalaz._
 import scalaz.NonEmptyList._
 import Scalaz._
@@ -32,15 +29,16 @@ import models._
  *
  */
 object NodeResultsSerialization extends SerializationBase[NodeResults] {
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val ResultsKey = "results"
 
   implicit override val writer = new JSONW[NodeResults] {
     override def write(h: NodeResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[NodeResult] =>
-          (nrOpt.map { nr: NodeResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[NodeResult] =>         
+            (nrOpt.map { nr: NodeResult => nr.toJValue }).getOrElse(JNothing)
       }
-
-      JArray(nrsList.list)
+      JObject(JField(JSONClazKey,JString("Megam::NodeCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 

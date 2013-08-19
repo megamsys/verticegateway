@@ -100,7 +100,7 @@ class InMemoryImpl[A](f: String => A) extends InMemory[A] {
    * to play.api.cache.Cache.
    */
   private def retrieve(u: String): StateCache[A] = for {
-    fs <- State.state(f(u));
+    fs <- State.state(f(u))
     tfs = Timestamped(fs, System.currentTimeMillis)
     _ <- State.modify[S[A]] { _.update(u, tfs) }
   } yield {

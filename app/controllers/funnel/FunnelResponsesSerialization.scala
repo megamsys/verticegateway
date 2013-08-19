@@ -34,6 +34,7 @@ object FunnelResponsesSerialization extends SerializationBase[FunnelResponses] {
           (frList.list.map { fr: FunnelResponse => fr.toJValue }).toList
       } | List[JObject]()
 
+
       JArray(frsList)
     }
   }

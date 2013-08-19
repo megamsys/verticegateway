@@ -52,7 +52,7 @@ case class PredefCloudInput(name: String, spec: PredefCloudSpec, access: PredefC
   val json = "{\"name\":\"" + name + "\",\"spec\":{" + spec.json + "},\"access\":{" + access.json + "}" + "}"
 }
 
-case class PredefCloudResult(id: String, name: String, account_id: String, spec: PredefCloudSpec, access: PredefCloudAccess,
+case class PredefCloudResult(id: String, name: String, accounts_id: String, spec: PredefCloudSpec, access: PredefCloudAccess,
   ideal: String = new String(), performance: String = new String()) {
 
   def toJValue: JValue = {

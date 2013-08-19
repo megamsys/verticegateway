@@ -1,7 +1,4 @@
-@(message: String)
-
+@(message: String)(implicit flash: Flash)
 @main("Megam v1") {
-    
-    @welcome(message)
-    
+@welcome(message)
 }

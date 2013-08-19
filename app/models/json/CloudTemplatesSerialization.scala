@@ -27,18 +27,19 @@ import models._
  * @author ram
  *
  */
-object PredefResultsSerialization extends SerializationBase[PredefResults] {
+object CloudTemplatesSerialization extends SerializationBase[CloudTemplates] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[PredefResults] {
-    override def write(h: PredefResults): JValue = {
-      val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[PredefResult] =>
-          (nrOpt.map { nr: PredefResult => nr.toJValue }).getOrElse(JNothing)
-      }
-      JObject(JField(JSONClazKey, JString("Megam::PredefCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+  implicit override val writer = new JSONW[CloudTemplates] {
+    override def write(h: CloudTemplates): JValue = {
+
+      val nrsList: List[JValue] = h.map { nr: CloudTemplate => (nr.toJValue.some.getOrElse(JNothing)) }
+      JObject(JField(JSONClazKey, JString("Megam::CloudTemplateCollection"))
+        :: JField(ResultsKey, JArray(nrsList)) :: Nil)
+
     }
+
   }
 
   /* Read - JArray(List[NodeResult]) which translates to :
@@ -52,23 +53,27 @@ object PredefResultsSerialization extends SerializationBase[PredefResults] {
           )
         )
       )
-      PredefResult already has an implicit reader, hence use it.
+      NodeResult already has an implicit reader, hence use it.
        */
-  implicit override val reader = new JSONR[PredefResults] {
-    override def read(json: JValue): Result[PredefResults] = {
+  implicit override val reader = new JSONR[CloudTemplates] {
+    override def read(json: JValue): Result[CloudTemplates] = {
+      play.api.Logger.debug("CloudTemplatesSerialization: ==> jObjectList" + json)
+
       json match {
         case JArray(jObjectList) => {
+          play.api.Logger.debug("CloudTemplatesSerialization: ==> jObjectList" + jObjectList)
           val list = jObjectList.flatMap { jValue: JValue =>
-            PredefResult.fromJValue(jValue) match {
+            CloudTemplate.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[PredefResult]()
+              case Failure(fail) => List[CloudTemplate]()
             }
-          } map { x: PredefResult => x.some }
-          //this is screwy. Making the PredefResults as Option[NonEmptylist[NodeResult]] will solve it.
-          val nrs: PredefResults = list.toNel.getOrElse(nels(none))
+          }
+          val nrs: CloudTemplates = list.some.getOrElse(CloudTemplates.empty)
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[PredefResults]
+        case j => {
+          UnexpectedJSONError(j, classOf[JArray]).failNel[CloudTemplates]
+        }
       }
     }
   }

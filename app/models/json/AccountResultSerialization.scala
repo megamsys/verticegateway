@@ -29,12 +29,13 @@ import controllers.Constants._
 import controllers.funnel.SerializationBase
 import models.AccountResult
 
-
 /**
  * @author ram
  *
  */
 class AccountResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[AccountResult] {
+
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val EmailKey = "email"
   protected val APIKey = "api_key"
@@ -46,8 +47,8 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(EmailKey, toJSON(h.email)) ::
-          JField (APIKey, toJSON(h.api_key)) ::
-          JField(AuthorityKey, toJSON(h.authority)) ::Nil)
+          JField(APIKey, toJSON(h.api_key)) ::
+          JField(AuthorityKey, toJSON(h.authority)) :: JField(JSONClazKey, toJSON("Megam::Account")) :: Nil)
     }
   }
 
@@ -61,7 +62,7 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
 
       (idField |@| emailField |@| apiKeyField |@| authorityField) {
         (id: String, email: String, apikey: String, authority: String) =>
-          new AccountResult(id, email, apikey,authority)
+          new AccountResult(id, email, apikey, authority)
       }
     }
   }

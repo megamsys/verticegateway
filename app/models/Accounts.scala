@@ -79,7 +79,7 @@ object AccountResult {
   })*/
 }
 case class AccountInput(email: String, api_key: String, authority: String) {
-  val json = "\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\""
+  val json = "{\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\"}"
 }
 object Accounts {
 
