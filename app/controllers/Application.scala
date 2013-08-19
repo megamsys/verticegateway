@@ -20,6 +20,7 @@ import play.api.mvc._
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 import models._
 import controllers.stack._
+import controllers.funnel.FunnelResponse
 
 /**
  * @author rajthilak
@@ -27,21 +28,17 @@ import controllers.stack._
  */
 object Application extends Controller with APIAuthElement {
 
-  def index = Action {
-    Ok(views.html.index("Your new application is Ready."))
+  def index = Action { implicit request =>
+    Ok(views.html.index("Megam play at your service. Lets kick the tyres."))
   }
-
+  /**
+   * POST : Authenticate, verifies if the auth setup is OK.
+   * Output: FunnelResponse as JSON with the msg.  
+   **/  
   def authenticate = StackAction(parse.tolerantText) { implicit request =>
-    Logger.info("""Authorization successful for 'email:' api_key matched: '%s'
-            |
-            |Your email and api_key  combination was verified successully.  Try other API invocation. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
-      + "\n" + apiAccessed)
-    Ok("""Authorization successful for 'email:' api_key matched: '%s'
-            |
-            |Your email and api_key  combination was verified successully.  Try other API invocation. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
-      + "\n" + apiAccessed)
+    val resp =  FunnelResponse(apiAccessed.getOrElse("Something strange. Authentication successful, but sans success message. Contact support")).toJson(true)
+    Logger.debug(resp)
+    Ok(resp)
   }
 
 }

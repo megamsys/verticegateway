@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -17,14 +17,18 @@ package controllers
 
 import scalaz._
 import Scalaz._
+import scalaz.NonEmptyList._
+
+import scalaz.Validation._
 import play.api._
 import play.api.mvc._
-import models._
-import controllers.stack.APIAuthElement
-import controllers.stack._
-import org.megam.common.amqp._
-import scalaz.Validation._
 import play.api.mvc.Result
+import models._
+import controllers.stack._
+import controllers.stack.APIAuthElement
+import controllers.funnel.FunnelResponse
+import controllers.funnel.FunnelErrors._
+import org.megam.common.amqp._
 
 /**
  * @author rajthilak
@@ -36,68 +40,102 @@ import play.api.mvc.Result
  * If HMAC authentication is true then post or list the predefs clouds are executed
  *  
  */
-object PredefClouds extends Controller with APIAuthElement with Helper {
+object PredefClouds extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
-   * get requested body and put into the riak bucket
+   * Create or update a new Predefcloud by email/json input. 
+   * Old value for the same key gets wiped out.
    */
-  def post = Action(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val id = getAccountID(sentHmacHeader)
-    models.PredefClouds.create(input, id)
-    Ok("""Predef creation successfully completed.
+  def post = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "post:Entry"))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
+          models.PredefClouds.create(email, clientAPIBody) match {
+            case Success(succ) =>
+              Status(CREATED)(
+        FunnelResponse(CREATED,"""Predefs cloud created successfully.
             |
-            |your predef registered successully.  
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
-  } 
-  
-  /*
-   * show the message details
-   * 
-   */
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    val res = models.PredefClouds.findByKey(id) match {
-      case Success(optAcc) => {
-        val foundNode = optAcc.get
-        foundNode
+            |You can use the the 'predefs cloud name':{%s}.""".format(succ.getOrElse("none"))).toJson(true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
       }
-      case Failure(err) => {
-        Logger.info(""" '%s' doesn't exists in your predef's list 
-            |
-            |Please store this Predef's list.  
-            """.format(id).stripMargin
-          + "\n" + apiAccessed)
-      }
-    }    
-    Ok("" + res)
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+
   }
 
   /*
-   * list the particular Id values
-   * 
+   * GET: findByName: Show a particular predef cloud by name 
+   * Email provided in the URI.
+   * Output: JSON (PredefCloudsResult)
+   **/
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
+
+          models.PredefClouds.findByName(List(email).some) match {
+            case Success(succ) =>
+              Ok(succ.toString)
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
+
+  /**
+   * GET: findbyEmail: List all the predef cloud names per email
+   * Email grabbed from header.
+   * Output: JSON (PredefCloudsResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val id = getAccountID(sentHmacHeader)
-    val valueJson = models.PredefClouds.findById(id) match {
-      case Success(v) => {
-        //val m = v.get
-        //m.predefs
-        v
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "list:Entry"))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "request funneled."))
+          models.PredefClouds.findByEmail(email) match {
+            case Success(succ) =>
+              Ok(succ.toString)
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
       }
-      case Failure(err) => {
-        Logger.info(""" Default predef's doesn't exists in your predef's list 
-            |
-            |Please store default predef's cloud details in your Predef's list. '%s'  
-            """.format(err).stripMargin
-          + "\n" + apiAccessed)
-      }
-    }
-    println(valueJson)
-    Ok("" + valueJson)
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
+
 }

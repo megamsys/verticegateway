@@ -17,86 +17,114 @@ package controllers
 
 import scalaz._
 import Scalaz._
+import scalaz.NonEmptyList._
+
+import scalaz.Validation._
 import play.api._
 import play.api.mvc._
-import models._
-import controllers.stack.APIAuthElement
-import controllers.stack._
-import org.megam.common.amqp._
-import scalaz.Validation._
 import play.api.mvc.Result
+import models._
+import controllers.stack._
+import controllers.stack.APIAuthElement
+import controllers.funnel.FunnelResponse
+import controllers.funnel.FunnelErrors._
+import org.megam.common.amqp._
 
 /**
  * @author ram
  *
  */
-
-/*
- * this controller for HMAC authentication and access riak
- * If HMAC authentication is true then post or list the nodes are executed
- *  
- */
-object Nodes extends Controller with APIAuthElement with Helper {
+object Nodes extends Controller with APIAuthElement {
 
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
-  def post = Action(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val id = getAccountID(sentHmacHeader)
-    models.Nodes.create(input, id)
-    Ok("""Node creation successfully completed.
+  def post = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "post:Entry"))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
+          models.Nodes.create(email, clientAPIBody) match {
+            case Success(succ) =>
+              Status(CREATED)(FunnelResponse(CREATED,"""Node initiation instruction submitted successfully.
             |
-            |Your node created successully.  Try other node's for your account. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
+            |Check back on the 'node name':{%s}
+            |The cloud is working for you. It will be ready shortly.""".format(succ.getOrElse("none")).stripMargin).toJson(true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
   /*
-   * show the message details
-   * 
-   */
+   * GET: findByNodeName: Show a particular node name for an email
+   * Email grabbed from header
+   * Output: JSON (NodeResult)  
+   **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    val res = models.Nodes.findByKey(id) match {
-      case Success(optAcc) => {
-        val foundNode = optAcc.get
-        foundNode
-      }
-      case Failure(err) => {
-        Logger.info("""In this account doesn't create in this '%s' nodes 
-            |
-            |Please create new Node for your Account 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(id).stripMargin
-          + "\n" + apiAccessed)
-      }
-    }
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    Ok("" + res)
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
+
+          models.Nodes.findByNodeName(List(id).some) match {
+            case Success(succ) =>
+              Ok(NodeResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+
   }
 
   /*
-   * list the particular Id values
-   * 
+   * GET: findbyEmail: List all the nodes names per email
+   * Email grabbed from header.
+   * Output: JSON (NodeResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val id = getAccountID(sentHmacHeader)
-    val valueJson = models.Nodes.findById(id) match {
-      case Success(v) => {
-        //val m = v.get
-        //m.predefs
-        v
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.Nodes.findByEmail(email) match {
+            case Success(succ) => Ok(NodeResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
       }
-      case Failure(err) => {
-        Logger.info("""In this account doesn't create any nodes --> '%s'
-            |
-            |Please create new Nodes in your Account 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(err).stripMargin
-          + "\n" + apiAccessed)
-      }
-    }    
-    Ok("" + valueJson)
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 }

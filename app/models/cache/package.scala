@@ -13,23 +13,17 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package controllers.stack
+package models
 
-import scalaz._
-import Scalaz._
-
-/*
+import scalaz.State
+import models.cache.InMemory._
+/**
  * @author ram
  *
  */
-package object stack {
-
-  
-  type ResultInError = Option[Tuple2[Int,String]]
-
-  object ResultInError {
-    def apply[C](m: Tuple2[Int,String]): ResultInError = m.some
-  }
-  
+package object cache {
+  type S[A] = InMemoryCache[A]
+  type StateCache[A] = State[S[A], A]
+  type StateCacheO[A] = State[S[A], Option[A]]
   
 }

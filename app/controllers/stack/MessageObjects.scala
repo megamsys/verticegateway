@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ object MessageObjects {
 
   trait MessageContext {
 
-
-    Logger.debug("MessageObjects: Setting up RabbitMQClient")
+    play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Entry"))
+    play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ"))
 
     /*
      * create the RabbitMQ Client using url, exchange name and queue name
@@ -45,7 +45,7 @@ object MessageObjects {
       Logger.debug("Executing AMQPRequest")
       val r = t.executeUnsafe
     }
-   
+
   }
 
   /*
@@ -55,7 +55,7 @@ object MessageObjects {
    */
   case class Publish(messages: String) extends MessageContext {
     val pubMsg = Messages("id" -> messages)
-    Logger.debug("Publishing message " + pubMsg)
-    def succeeds = execute(client.publish(pubMsg, MConfig.routing_key))
+    play.api.Logger.debug("%-20s -->[%s]".format("Publish", pubMsg))
+    def succeeds() = execute(client.publish(pubMsg, MConfig.routing_key))
   }
 }

@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -24,9 +24,12 @@ import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
+
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
+import controllers.stack.SecurityActions._
 
 /**
  * @author rajthilak
@@ -36,44 +39,65 @@ import com.stackmob.newman.dsl._
 class AuthenticateSpec extends Specification {
 
   def is =
-    "AuthenticateSpec".title ^ end ^
-      """
+    "AuthenticateSpec".title ^ end ^ """
   AuthenticateSpec is the implementation that calls the megam_play API server with the /auth url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post().succeeds ^
+      "Correctly do POST requests with a valid userid and api key(200)" ! Post.succeeds ^
+      "Correctly do POST requests with a invalid userid and api key(404)" ! PostWithInvalidUserIDEmail.succeeds ^
+      "Correctly do POST requests with an malformed header(404)" ! PostMalformedHeader.succeeds ^
       end
+  /**
+   * Change the body content in method bodyToStick
+   */
+  case object Post extends Context {
 
-  trait Context extends BaseContext {
+    protected override def urlSuffix: String = "auth"
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
+    protected def headersOpt: Option[Map[String, String]] = None
 
-    //create htttp client
-    val httpClient = new ApacheHttpClient
-
-    protected lazy val url = new URL("http://localhost:9000/v1/auth")
-
-    //create the contentToEncode as request Body
-    //val contentToEncode = "{\"comment\" : {\"message\":\"blaat\" , \"from\":\"blaat\" , \"commentFor\":123}}"
-
-    //val headerAndBody = sandboxHeaderAndBody(contentToEncode, url.getPath)
-    val headerAndBody = sandboxHeaderAndBody(url.getPath)
-    protected val headers = headerAndBody._1
-    protected val body = headerAndBody._2
-
-    protected def execute[T](t: Builder, expectedCode: HttpResponseCode = HttpResponseCode.Ok)(fn: HttpResponse => MatchResult[T]) = {
-      val r = t.executeUnsafe
-      r.code must beEqualTo(expectedCode) and fn(r)
-    }
-
-    implicit private val encoding = Constants.UTF8Charset
-
-    protected def ensureHttpOk(h: HttpResponse) = h.code must beEqualTo(HttpResponseCode.Ok)
-  }
-
-  //post the headers and their body for specifing url
-  case class Post() extends Context {
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
-    def succeeds = execute(post)(ensureHttpOk(_))
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+
+  case object PostWithInvalidUserIDEmail extends Context {
+    protected override def urlSuffix: String = "auth"
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sand2y123@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
+    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
+      X_Megam_EMAIL -> "sand2y123@megamsandbox.com", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
+      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
+  }
+
+  case object PostMalformedHeader extends Context {
+    protected override def urlSuffix: String = "auth"
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
+
+    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
+      X_Megam_EMAIL -> "sandy555@megaamsandbox.com", X_Megam_APIKEY -> "IamAtllidkfas{74}NobodyCanSeeME#07",
+      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
   }
 }

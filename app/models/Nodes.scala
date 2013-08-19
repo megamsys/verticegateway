@@ -15,121 +15,245 @@
 */
 package models
 
-import play.api._
-import play.api.mvc._
 import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
+import scalaz.effect.IO
+import scalaz.EitherT._
 import Scalaz._
-import net.liftweb.json._
 import controllers.stack._
+import controllers.Constants._
+import controllers.funnel.FunnelErrors._
+import models._
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
-import models._
 import org.megam.common.riak.{ GSRiak, GunnySack }
-import org.megam.common.uid.UID
 import org.megam.common.uid._
-import net.liftweb.json.scalaz.JsonScalaz.field
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
+import java.nio.charset.Charset
+
 /**
  * @author ram
  *
  */
 
-case class NodeInput(nod_name: String, command: String, predefs: NodePredefs)
+case class NodeInput(node_name: String, command: String, predefs: NodePredefs)
 
-case class NodeFinal(id: String, accounts_ID: String, request: NodeRequest, predefs: NodePredefs)
+case class NodeResult(id: String, accounts_id: String, request: NodeRequest, predefs: NodePredefs) {
+  def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.NodeResultSerialization
+    val nrsser = new NodeResultSerialization()
+    toJSON(this)(nrsser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+}
+
+object NodeResult {
+
+  def apply = new NodeResult(new String(), new String(), new NodeRequest(), new NodePredefs())
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeResult] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    import models.json.NodeResultSerialization
+    val nrsser = new NodeResultSerialization()
+    fromJSON(jValue)(nrsser.reader)
+  }
+
+  def fromJson(json: String): Result[NodeResult] = (Validation.fromTryCatch {
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+  
+  
+
+  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
+    errNel.map { err: Error =>
+      err.fold(
+        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
+        n => "no such field %s in json %s".format(n.name, n.json.toString),
+        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
+    }.list.mkString("\n")
+  })*/
+}
 
 case class NodeRequest(req_id: String, command: String) {
-  val rstatus = "submitted"
-  val getRequestJson = "\"req_id\":\"" + req_id + "\",\"command\":\"" + command + "\",\"status\":\"" + rstatus + "\""
+  def this() = this(new String(), new String())
+  val status = "none"
+  override def toString = "\"req_id\":\"" + req_id + "\",\"command\":\"" + command + "\",\"status\":\"" + status + "\""
 }
-case class NodePredefs(rails: String, scm: String, db: String, queue: String) {
-  val getPredefsJson = "\"rails\":\"" + rails + "\",\"scm\":\"" + scm + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
+
+case class NodePredefs(name: String, scm: String, war: String, db: String, queue: String) {
+  def this() = this(new String(), new String(), new String, new String(), new String())
+  override def toString = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
 }
 
 case class NodeMachines(name: String, public: String, cpuMetrics: String)
 
-object Nodes extends Helper {
+object Nodes {
 
   implicit val formats = DefaultFormats
+
+  implicit def NodeResultsSemigroup: Semigroup[NodeResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
-  /*
-   * 
-   * create new ACCOUNT with secondery index
-   * In this case the secondary index is accountID from "accounts" bucket
-   */
-  def create(input: String, acc_id: String): ValidationNel[Error, Option[NodeFinal]] = {
-    val metadataKey = "Node"
-    val metadataVal = "New Node Creation"
-    val inputJson = parse(input)
-    val m = inputJson.extract[NodeInput]
-    val bindex = BinIndex.named("accountId")
-    val bvalue = Set(acc_id)
 
-    val id = getUID("nod")
-    val req_id = getUID("nod")
-    val predefsJson = (m.predefs).getPredefsJson
-    val json = "{\"id\": \"" + id + "\",\"accounts_ID\":\"" + acc_id + "\",\"request\":{" + NodeRequest(req_id, m.command).getRequestJson + "} ,\"predefs\":{" + predefsJson + "}}"
-    val storeValue = riak.store(new GunnySack(m.nod_name, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-    storeValue match {
-      case Success(msg) => Validation.success[Error, Option[NodeFinal]](None).toValidationNel
-      case Failure(err) => Validation.failure[Error, Option[NodeFinal]](new Error("Node.create: Not Implemented.")).toValidationNel
+  val metadataKey = "Node"
+  val newnode_metadataVal = "New Node Creation"
+  val newnode_bindex = BinIndex.named("accountId")
+
+  /**
+   * A private method which chains computation to make GunnySack when provided with an input json, email.
+   * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
+   * After that flatMap on its success and the account id information is looked up.
+   * If the account id is looked up successfully, then yield the GunnySack object.
+   */
+  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
+      parse(input).extract[NodeInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      nir <- nodeInput
+      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Error] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "nod").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+      //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
+      val bvalue = Set(aor.get.id)
+      val PredefResult = (nir.predefs).toString
+      //TO-DO: make the json using json-scalaz (reader/writers). Review of json libs shows json-scalaz as the winner (simple to use)
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"accounts_id\":\"" + aor.get.id + "\",\"request\":{" + NodeRequest(uir.get._1 + uir.get._2, nir.command).toString + "} ,\"predefs\":{" + PredefResult + "}}"
+      new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
+    }
+  }
+
+  /**
+   * A private method which chains computation to make GunnySack when provided with an input json, email.
+   * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
+   * After that flatMap on its success and the account id information is looked up.
+   * If the account id is looked up successfully, the yield results in making the GunnySack object.
+   */
+  private def mkGunnySackF(email: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "mkGunnySackF:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+
+    for {
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Error] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+    } yield {
+      //TO-DO: Where empty stuff is used, prefer GunnySack with reduced inputs.
+      val bindex = BinIndex.named("")
+      val bvalue = Set("")
+      //TO-DO: What is the significance of the metadataVal ?
+      val metadataVal = "Nodes-name"
+      new GunnySack("accountID", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+        None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
   /*
-   * fetch the object using their key from bucket
+   * create new Node with the 'name' of the node provide as input.
+   * A index name accountID will point to the "accounts" bucket
    */
-  def findByKey(key: String): ValidationNel[Error, Option[NodeFinal]] = {
-    riak.fetch(key) match {
-      case Success(msg) => {
-        val caseValue = msg.get
-        val json = parse(caseValue.value)
-        val m = json.extract[NodeFinal]
-        Validation.success[Error, Option[NodeFinal]](Some(m)).toValidationNel
-      }
-      case Failure(err) => Validation.failure[Error, Option[NodeFinal]](new Error("Node.findById: Not Implemented.")).toValidationNel
+  def create(email: String, input: String): ValidationNel[Throwable, Option[String]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
+      err
+    }).flatMap { gs: Option[GunnySack] =>
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+        flatMap { maybeGS: Option[GunnySack] =>
+          play.api.Logger.debug(("%-20s -->[%s]").format("Node.created success", email))
+          maybeGS match {
+            case Some(thatGS) => thatGS.key.some.successNel[Throwable]
+            case None => {
+              play.api.Logger.warn(("%-20s -->[%s]").format("Node.created success", "Scaliak returned => None. Thats OK."))
+              gs.get.key.some.successNel[Throwable]
+            }
+          }
+        }
     }
+  }
+  /**
+   * Measure the duration to accomplish a usecase by listing an user who has 10 nodes using single threaded
+   * (current behaviour)
+   * https://github.com/twitter/util (Copy the Duration code into a new perf pkg in megam_common.)
+   * val elapsed: () => Duration = Stopwatch.start()
+   * val duration: Duration = elapsed()
+   *
+   * TODO: Converting to Async Futures.
+   * ----------------------------------
+   * takes an input list of nodenames which will return a Future[ValidationNel[Error, NodeResults]]
+   */
+  def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Error, NodeResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", nodeNameList))
+    (nodeNameList map {
+      _.map { nodeName =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("nodeName", nodeName))
+        (riak.fetch(nodeName) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(nodeName, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              (Validation.fromTryCatch {
+                parse(xs.value).extract[NodeResult]
+              } leftMap { t: Throwable =>
+                new ResourceItemNotFound(nodeName, t.getMessage)
+              }).toValidationNel.flatMap { j: NodeResult =>
+                Validation.success[Error, NodeResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+              }
+            }
+            case None => Validation.failure[Error, NodeResults](new ResourceItemNotFound(nodeName, "")).toValidationNel
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((NodeResults.empty).successNel[Error])(_ +++ _)
+    }).head //return the folded element in the head. 
+
   }
 
   /*
-   * Index on ID
-   * fetch the object using index
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * the nodenames are listed on the index (account.id) in bucket `Nodes`.
+   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]] 
+   * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
-  def findById(id: String): ValidationNel[Error, List[ValidationNel[Error, Option[NodeFinal]]]] = {
-    val metadataKey = "Nodes"
-    val metadataVal = "Nodes-name"
-    val bindex = BinIndex.named("")
-    val bvalue = Set("")
-    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountID", id, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-
-    fetchValue match {
-      case Success(msg) => {
-        val result = msg.map(a => {
-          Nodes.findByKey(a)
-        })       
-        Validation.success[Error, List[ValidationNel[Error, Option[NodeFinal]]]](result).toValidationNel
-      }
-      case Failure(err) => Validation.failure[Error, List[ValidationNel[Error, Option[NodeFinal]]]](new Error("Email is not already exists")).toValidationNel
-    }
+  def findByEmail(email: String): ValidationNel[Throwable, NodeResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Error, NodeResults]] {
+      (((for {
+        aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        val bindex = BinIndex.named("")
+        val bvalue = Set("")
+        val metadataVal = "Nodes-name"
+        new GunnySack("accountID", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
+      } map { nm: List[String] => findByNodeName(nm.some) }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new ResourceItemNotFound(email, "nodes = nothing found.").failureNel[NodeResults])
   }
 
-  /*
-   * get all nodes for single user
-   * this was only return the nodes name
-   */
-  def getNodes(id: String): ValidationNel[Error, List[String]] = {
-    val metadataKey = "Nodes"
-    val metadataVal = "Nodes-name"
-    val bindex = BinIndex.named("")
-    val bvalue = Set("")
-    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountID", id, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-
-    fetchValue match {
-      case Success(msg) => {
-        Validation.success[Error, List[String]](msg).toValidationNel
-      }
-      case Failure(err) => Validation.failure[Error, List[String]](new Error("Email is not already exists")).toValidationNel
-    }
-  }
 }
-

@@ -8,6 +8,22 @@ import ReleasePlugin._
 import ReleaseKeys._
 import S3._
 
+scalaVersion := "2.10.2"
+
+scalacOptions := Seq(
+	"-unchecked", 
+	"-deprecation",
+	"-feature",
+ 	"-optimise",
+  	"-Xcheckinit",
+  	"-Xlint",
+  	"-Xverify",
+  	"-Yinline-warnings",
+  	"-Yclosure-elim",
+  	"-language:postfixOps",
+  	"-language:implicitConversions",
+  	"-Ydead-code")
+
 seq(packagerSettings:_*)
 
 maintainer in Debian:= "Rajthilak <rajthilak@rajthilak>"
@@ -19,6 +35,7 @@ packageDescription in Debian:= "API server (REST based) for the megam platform.T
 com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 
 s3Settings
+
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
   (packageMapping((bd / "target/start") -> "/usr/local/share/megamplay/target/start")
@@ -62,17 +79,9 @@ linuxPackageMappings in Debian <+= (com.typesafe.sbt.packager.debian.Keys.source
   ) withUser "root" withGroup "root" withPerms "0644" gzipped) asDocs()
 }
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"debs/megam_play0.1.0.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megam_play", "0.12.4-build-0100")),"debs/megam_play0.1.0.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
-
-mappings in download := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"debs/megam_play0.1.0.deb"))
-
-host in download := "megampub.s3.amazonaws.com"
-
-mappings in delete := Seq("debs/megam_play0.1.0.deb")
-
-host in delete := "megampub.s3.amazonaws.com"
 
 credentials += Credentials(Path.userHome / "software" / "aws" / "keys" / "sbt_s3_keys")
 

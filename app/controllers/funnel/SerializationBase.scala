@@ -13,23 +13,15 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package controllers.stack
+package controllers.funnel
 
-import scalaz._
-import Scalaz._
+import net.liftweb.json.scalaz.JsonScalaz._
 
-/*
+/**
  * @author ram
  *
  */
-package object stack {
-
-  
-  type ResultInError = Option[Tuple2[Int,String]]
-
-  object ResultInError {
-    def apply[C](m: Tuple2[Int,String]): ResultInError = m.some
-  }
-  
-  
+trait SerializationBase[T] {
+  def writer: JSONW[T]
+  def reader: JSONR[T]
 }

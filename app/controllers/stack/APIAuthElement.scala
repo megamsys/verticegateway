@@ -18,6 +18,7 @@ package controllers.stack
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
+
 import play.api._
 import play.api.mvc.Request
 import play.api.Logger
@@ -26,7 +27,9 @@ import play.api.libs.iteratee.Enumerator
 
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
-import controllers.stack._
+import controllers.stack.stack._
+import controllers.funnel._
+import controllers.funnel.FunnelErrors._
 import models._
 
 /**
@@ -42,22 +45,24 @@ trait APIAuthElement extends StackableController {
 
   self: Controller =>
 
-  case object APIAccessedKey extends RequestAttributeKey[RawResult]
+  case object APIAccessedKey extends RequestAttributeKey[Option[String]]
 
   /**
    * If HMAC authentication is true, the req send in super class
-   * otherwise badrequest return
+   * otherwise send out a json formatted error
    */
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
+    play.api.Logger.debug("<M>>>------------------------------------->")
+    play.api.Logger.debug("%-20s -->[%s]".format("APIAuthElement:", "Entry"))
 
-    Logger.debug("APIAuthElement :" + req)
     SecurityActions.Authenticated(req) match {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {
         val g = Action { implicit request =>
-          SimpleResult(header = ResponseHeader(err.head.get._1, Map(CONTENT_TYPE -> "text/plain")),
-            body = Enumerator(err.head.get._2))
-        }
+          val rn: FunnelResponse = new HttpReturningError(err) //implicitly loaded.
+          SimpleResult(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
+            body = Enumerator(rn.toJson(true)))
+         }
         val origReq = req.asInstanceOf[Request[AnyContent]]
         g(origReq)
       }
@@ -65,7 +70,9 @@ trait APIAuthElement extends StackableController {
     }
   }
 
-  implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): RawResult = req.get(APIAccessedKey).get
+  implicit def reqFunneled[A](implicit req: RequestWithAttributes[A]): ValidationNel[Throwable, Option[FunneledRequest]] = req2FunnelBuilder(req).funneled
+
+  implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): Option[String] = req.get(APIAccessedKey).get
 
 }
 

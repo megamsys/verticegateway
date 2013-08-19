@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ import Scalaz._
 import play.api._
 import play.api.mvc._
 import models._
+import controllers.funnel.FunnelErrors._
 import controllers.stack.APIAuthElement
 import controllers.stack._
 import org.megam.common.amqp._
 import scalaz.Validation._
 import play.api.mvc.Result
+import controllers.funnel.FunnelResponse
 
 /**
  * @author rajthilak
@@ -38,48 +40,55 @@ import play.api.mvc.Result
  */
 object Predefs extends Controller with APIAuthElement {
 
-  /*
-   * show the message details
-   * 
+  /**
+   * GET: findbyName: List a predef name by name
+   * Output: JSON (PredefResult)
+   * This is global and has no tie to email or node.
    */
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    
-    val res = models.Predefs.findByKey(id) match {
-      case Success(optAcc) => {
-        val foundNode = optAcc.get
-        foundNode
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
+
+    models.Predefs.findByName(Stream(id).some) match {
+      case Success(succ) => {
+        Ok(PredefResults.toJson(succ, true)) //implicit transformer doesn't work.
       }
       case Failure(err) => {
-        Logger.info(""" '%s' doesn't exists in your predef's list 
-            |
-            |Please store this Predef's list. Because use this predef is used for your instance's.
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
-            + "\n" + apiAccessed)
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
       }
-    }   
-    println("" + res)
-    Ok("" + res)
+    }
+
   }
 
-  /*
-   * list the particular Id values
-   * 
+  /**
+   * GET: listKeys: List all the predefs as available now in the predefs bucket.
+   * Output: JSON (List[PredefResult])
    */
-  def list = StackAction(parse.tolerantText) { implicit request =>       
-    val valueJson = models.Predefs.listKeys match {
-      case Success(t) =>  { 
-           t
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "list:Entry"))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.Predefs.listAll match {
+            case Success(succ) => {
+              Ok(PredefResults.toJson(succ, true))
+            }
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
       }
-      case Failure(err) =>{
-        Logger.info(""" Default predef's doesn't exists in your predef's list 
-            |
-            |Please store default predef's cloud details in your Predef's list. '%s'  
-           |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format(err).stripMargin
-          + "\n" + apiAccessed)
-      }      
-    }
-    println(valueJson)
-    Ok("" + valueJson)
-  } 
- 
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+
+  }
+
 }

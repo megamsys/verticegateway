@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,17 +15,18 @@
 */
 package controllers
 
-import scalaz._
-import Scalaz._
 import play.api._
 import play.api.mvc._
+import play.api.mvc.Result
+
+import scalaz._
+import scalaz.Validation._
+
 import models._
 import controllers.stack.APIAuthElement
 import controllers.stack._
-import java.util.concurrent.atomic.AtomicInteger
-import scalaz.Validation._
-import play.api.mvc.Result
-
+import controllers.funnel.FunnelErrors._
+import controllers.funnel.FunnelResponse
 /**
  * @author rajthilak
  *
@@ -34,7 +35,7 @@ import play.api.mvc.Result
 /*
  * This controller performs onboarding a customer and registers an email/api_key 
  * into riak.
- *   
+ * Output: FunnelResponse as JSON with the msg.  
  */
 object Accounts extends Controller with APIAuthElement {
 
@@ -43,28 +44,39 @@ object Accounts extends Controller with APIAuthElement {
    * get requested body and put into the riak bucket
    */
   def post = Action(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Accounts", "post:Entry"))
     val input = (request.body).toString()
-    models.Accounts.create(input)
-    Ok("""Account creation successfully completed.
+    play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
+    models.Accounts.create(input) match {
+      case Success(succ) => Status(CREATED)(
+        FunnelResponse(CREATED,"""Account created successfully.
             |
-            |Your email and api_key  registered successully.  Try other API invocation. 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""")
+            |Your email '%s' and api_key '%s' registered successully.  Hurray ! Run the other API calls now.""".
+          format(succ.get.email, succ.get.api_key).stripMargin).toJson(true))
+      case Failure(err) => {
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+      }
+    }
   }
-
+  /*
+   * GET: findByEmail: Show a particular account by email 
+   * Email provided in the URI.
+   * Output: JSON (AccountsResult)
+   **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    val res = models.Accounts.findByEmail(id) match {
-      case Success(optAcc) => {
-        val foundAccount = optAcc.get
-        foundAccount
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Accounts", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", id))
+    models.Accounts.findByEmail(id) match {
+      case Success(succ) => {
+        Ok((succ.map(s => s.toJson(true))).getOrElse(
+          AccountResult(id).toJson(true)))
       }
       case Failure(err) => {
-             Logger.info("""Your email doesn't exists from megam.co.
-            |
-            |Please register your account in megam.co.'%s' 
-            |""".format(err).stripMargin + "\n ")
-          }
-    }   
-    Ok("" + res)
-  }
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+      }
+    }
 
+  }
 }

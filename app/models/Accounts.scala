@@ -17,88 +17,156 @@ package models
 
 import scalaz._
 import Scalaz._
-import scalaz.NonEmptyList._
-import play.api._
-import play.api.mvc._
 import net.liftweb.json._
-import controllers.stack.MConfig
+import net.liftweb.json.scalaz.JsonScalaz.{ field, Result, UncategorizedError }
+import java.nio.charset.Charset
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
-import models._
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import org.megam.common.uid._
-import net.liftweb.json.scalaz.JsonScalaz.field
+import models.cache.{ InMemory, InMemoryCache }
+import controllers.funnel.FunnelErrors._
+import controllers.Constants._
+import controllers.stack.MConfig
 /**
  * @author rajthilak
  * authority
  */
 
-case class AccountResult(id: String, email: String, api_key: String, authority: String)
+case class AccountResult(id: String, email: String, api_key: String, authority: String) {
+
+  def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.AccountResultSerialization
+    val acctser = new AccountResultSerialization()
+    toJSON(this)(acctser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+
+}
+
+object AccountResult {
+
+  def apply(email: String): AccountResult = new AccountResult("not found", email, new String(), new String())
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    import models.json.AccountResultSerialization
+    val acctser = new AccountResultSerialization()
+    fromJSON(jValue)(acctser.reader)
+  }
+
+  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatch {
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+
+  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
+    errNel.map { err: Error =>
+      err.fold(
+        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
+        n => "no such field %s in json %s".format(n.name, n.json.toString),
+        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
+    }.list.mkString("\n")
+  })*/
+}
 case class AccountInput(email: String, api_key: String, authority: String) {
-  val getAccountJson = "\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\""
+  val json = "\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\""
 }
 object Accounts {
 
   implicit val formats = DefaultFormats
-  private val SFHOST = MConfig.snowflakeHost
-  private val SFPORT: Int = MConfig.snowflakePort
+
   private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
-
-  def create(input: String): ValidationNel[Error, Option[AccountResult]] = {
-    val id = UID(SFHOST, SFPORT, "act").get
-     id match {
-      case Success(uid) => {        
-        val metadataKey = "Field"
-        val metadataVal = "1002"
-        val inputJson = parse(input)
-        val m = inputJson.extract[AccountInput]
-        val bindex = BinIndex.named("accountId")
-        val res: UniqueID = uid
-        val bvalue = Set(res.get._1 + res.get._2)
-        val json = "{\"id\": \"" + (res.get._1 + res.get._2) + "\"," + m.getAccountJson + "}"
-        val storeValue = riak.store(new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-        storeValue match {
-          case Success(msg) => Validation.success[Error, Option[AccountResult]](None).toValidationNel
-          case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Account creation failed. This  needs to  appear  as-is  during onboarding
-            |from the megam.co website. If this error persits, ask for help on the forums.""")).toValidationNel
-        }
-      }
-      case Failure(error) => Validation.failure[Error, Option[AccountResult]](new Error("""      
-            |
-            |The id creation was failed from snowflake server 
-            |If this error persits, ask for help on the forums.""")).toValidationNel
-     }   
-  }
-
-  def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
-    //extract the json into ValidationNel
-    riak.fetch(email) match {
-      case Success(msg) => {
-        val caseValue = msg.get
-        val json = parse(caseValue.value)
-        val m = json.extract[AccountResult]
-        println("some value ---------" + m)
-        Validation.success[Error, Option[AccountResult]](Some(m)).toValidationNel
-        // parse(msg.value).extract[AccountResult]  
-      }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Your account is doesn't exists in megam.co.
-            | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
-    }
-  }
-
   /**
-   * Index on email
+   * Parse the input body when you start, if its ok, then we process it.
+   * Or else send back a bad return code saying "the body contains invalid character, with the message received.
+   * If there is an error in the snowflake connection, we need to send one.
    */
-  def findById(id: String): ValidationNel[Error, Option[AccountResult]] = {
+  def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("input json", input))
+    (Validation.fromTryCatch {
+      parse(input).extract[AccountInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage)
+    }).toValidationNel.flatMap { m: AccountInput =>
+      play.api.Logger.debug(("%-20s -->[%s]").format("AccountInput", m))
+      UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get match {
+        case Success(uid) => {
+          val metadataKey = "Field"
+          val metadataVal = "1002"
+          val bindex = BinIndex.named("accountId")
+          val bvalue = Set(uid.get._1 + uid.get._2)
+          val acctRes = new AccountResult(uid.get._1 + uid.get._2, m.email, m.api_key, m.authority)
+          play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))
+
+          val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+          storeValue match {
+            case Success(succ) =>  acctRes.some.successNel[Error]
+            case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+              new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
+          }
+        }
+        case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+          new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
+      }
+    }
+
+  }
+  /**
+   * Performs a fetch from Riak bucket. If there is an error then ServiceUnavailable is sent back.
+   * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
+   * When there is no gunnysack value (None), then return back a failure - ResourceItemNotFound
+   */
+  def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("findByEmail", email))
+    InMemory[ValidationNel[Error, Option[AccountResult]]]({
+      name: String =>
+        {
+          play.api.Logger.debug(("%-20s -->[%s]").format("InMemory", email))
+          (riak.fetch(email) leftMap { t: NonEmptyList[Throwable] =>
+            new ServiceUnavailableError(email, (t.list.map(m => m.getMessage)).mkString("\n"))
+          }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+            xso match {
+              case Some(xs) => {
+                (Validation.fromTryCatch {
+                  parse(xs.value).extract[AccountResult]
+                } leftMap { t: Throwable =>
+                  new ResourceItemNotFound(email, t.getMessage)
+                }).toValidationNel.flatMap { j: AccountResult =>
+                  Validation.success[Error, Option[AccountResult]](j.some).toValidationNel
+                }
+              }
+              case None => Validation.failure[Error, Option[AccountResult]](new ResourceItemNotFound(email, "")).toValidationNel
+            }
+          }
+        }
+    }).get(email).eval(InMemoryCache[ValidationNel[Error, Option[AccountResult]]]())
+
+  }
+
+  // 
+  /**
+   * Find by the accounts id.
+   */
+  def findByAccountsId(id: String): ValidationNel[Error, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "findByAccountsId:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("accounts id", id))
     val metadataKey = "Field"
     val metadataVal = "1002"
     val bindex = BinIndex.named("")
     val bvalue = Set("")
-    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountId", id, RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
+    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountId", id,
+      RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
 
     fetchValue match {
       case Success(msg) => {
@@ -107,11 +175,9 @@ object Accounts {
         }
         findByEmail(key)
       }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](new Error("""
-            | Your account is doesn't exists in megam.co.
-            | Please register your account in megam.co. After then you can use megam.co high available facilities""")).toValidationNel
+      case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+        new ServiceUnavailableError(id, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
     }
   }
 
-  //def freq[T](seq: List[T]) = seq.groupBy(x => x).mapValues(_.length)
 }

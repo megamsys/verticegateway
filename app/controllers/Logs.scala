@@ -17,54 +17,53 @@ package controllers
 
 import scalaz._
 import Scalaz._
+import scalaz.NonEmptyList._
+
+import scalaz.Validation._
 import play.api._
 import play.api.mvc._
+import play.api.mvc.Result
 import models._
-import controllers.stack.{ APIAuthElement, SourceElement }
 import controllers.stack._
-
+import controllers.stack.APIAuthElement
+import controllers.funnel.FunnelResponse
+import controllers.funnel.FunnelErrors._
+import org.megam.common.amqp._
 /**
  * @author ram
  *
  */
-object Logs extends Controller  with Helper {
 
- /* def list = StackAction(parse.tolerantText) { implicit request =>
-    val input = (request.body).toString()
-    val sentHmacHeader = request.headers.get(HMAC_HEADER);
-    val id = getAccountID(sentHmacHeader)
-    val nodesJson = models.Nodes.getNodes(id) match {
-      case Success(v) => {
-        v
+object Logs extends Controller with APIAuthElement {
+
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.Nodes.findByEmail(email) match {
+            case Success(succ) =>
+              Ok("""%s""".format(succ.map { _.getOrElse("none") }))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
       }
-      case Failure(_) => {
-        Logger.info("""In this account doesn't create any nodes '%s'
-            |
-            |Please create new Nodes in your Account 
-            |Read https://api.megam.co, http://docs.megam.co for more help. Ask for help on the forums.""".format("none:?").stripMargin
-      + "\n" + apiAccessed)
-    }
-    } 
-    Ok("" + nodesJson)
-    //Redirect("http://localhost:7000/streams/syslog")
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     Redirect("http://localhost:7000/streams/" + id)
-  }*/
-  
-  def socketindex = WebSocket.using[String] { implicit request => 
-  import play.api.libs.iteratee._
- // Log events to the console
-  val in = Iteratee.foreach[String](println).mapDone { _ =>
-    println("Disconnected")
   }
-  
-  // Send a single 'Hello!' message
-  val out = Enumerator("Hello!")
-  
-  (in, out)
-//Ok(views.html.socket("Websocket Test"))
 
 }
-}
+
+
+
+

@@ -13,23 +13,15 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package controllers.stack
+package controllers
 
-import scalaz._
-import Scalaz._
+import java.nio.charset.Charset
 
-/*
+
+/**
  * @author ram
  *
  */
-package object stack {
-
-  
-  type ResultInError = Option[Tuple2[Int,String]]
-
-  object ResultInError {
-    def apply[C](m: Tuple2[Int,String]): ResultInError = m.some
-  }
-  
-  
+object Constants {
+  val UTF8Charset = Charset.forName("UTF-8")
 }
