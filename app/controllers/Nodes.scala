@@ -52,13 +52,28 @@ object Nodes extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
           models.Nodes.create(email, clientAPIBody) match {
             case Success(succ) =>
-              Status(CREATED)(FunnelResponse(CREATED,"""Node initiation instruction submitted successfully.
+              /*This isn't correct. Revisit, as the testing progresses.
+               We need to trap success/fialures.
+               */
+              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Gah"))
+              MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
+                play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
+                Status(CREATED)(FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
             |Check back on the 'node name':{%s}
-            |The cloud is working for you. It will be ready shortly.""".format(succ.getOrElse("none")).stripMargin,"Megam::Node").toJson(true))
-            case Failure(err) =>
+            |The cloud is working for you. It will be ready shortly.""".format(tuple_succ._1).stripMargin, "Megam::Node").toJson(true)).some
+              } match {
+                //this is only a temporary hack.
+                case Some(succ_cpc) => succ_cpc
+                case None =>
+                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
+            |for 'node name':{%s} 'request_id':{%s}
+            |Retry again, our queue servers are crowded""".format(tuple_succ._1, tuple_succ._2).stripMargin, "Megam::Node").toJson(true))
+              }
+            case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
+            }
           }
         }
         case Failure(err) => {

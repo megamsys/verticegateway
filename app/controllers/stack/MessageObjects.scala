@@ -15,6 +15,8 @@
 */
 package controllers.stack
 
+import scalaz._
+import Scalaz._
 import org.megam.common._
 import org.megam.common.amqp._
 import com.typesafe.config._
@@ -42,8 +44,9 @@ object MessageObjects {
      * 
      */
     protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok) = {
-      Logger.debug("Executing AMQPRequest")
+      play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "execute"))
       val r = t.executeUnsafe
+      r
     }
 
   }
@@ -56,6 +59,6 @@ object MessageObjects {
   case class Publish(messages: String) extends MessageContext {
     val pubMsg = Messages("id" -> messages)
     play.api.Logger.debug("%-20s -->[%s]".format("Publish", pubMsg))
-    def succeeds() = execute(client.publish(pubMsg, MConfig.routing_key))
+    def dop() = execute(client.publish(pubMsg, MConfig.routing_key)).some //wrap it in an option for now.
   }
 }
