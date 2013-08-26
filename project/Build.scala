@@ -41,6 +41,8 @@ object ApplicationBuild extends Build {
     "com.github.indykish" % "megam_common_2.10" % megamVersion,
     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
     "com.github.seratch" %% "scalikejdbc-play-plugin" % "1.5.2",
+    "ch.qos.logback" % "logback-classic" % "1.0.13",
+    "ch.qos.logback" % "logback-core" % "1.0.13",
     "jp.t2v" %% "play2.auth" % play2AuthVersion,
     "jp.t2v" %% "play2.auth.test" % play2AuthVersion % "test",
     "com.rabbitmq" % "amqp-client" % "3.1.4",
