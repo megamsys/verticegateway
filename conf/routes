@@ -3,37 +3,41 @@
 # ~~~~
 
 # Home page
-GET     /					controllers.Application.index
-GET     /init 				controllers.Application.init
+GET    /                                controllers.Application.index
+GET    /init                            controllers.Application.init
 
 # Authentication - HMAC
-POST    /v1/auth                       controllers.Application.authenticate
+POST   /v1/auth                         controllers.Application.authenticate
 #POST    /staleauth                 controllers.Application.staleauth
-POST    /v1/accounts/content           controllers.Accounts.post
-GET     /v1/accounts/:id               controllers.Accounts.show(id: String)
+POST   /v1/accounts/content             controllers.Accounts.post
+GET    /v1/accounts/:id                 controllers.Accounts.show(id: String)
 # Nodes
-GET     /v1/nodes	   		    controllers.Nodes.list
-GET    /v1/nodes/:id			controllers.Nodes.show(id: String)
-POST   /v1/nodes/content		controllers.Nodes.post
+GET    /v1/nodes                        controllers.Nodes.list
+GET    /v1/nodes/:id                    controllers.Nodes.show(id: String)
+POST   /v1/nodes/content                controllers.Nodes.post
+
+# Requests for Nodes 
+GET    /v1/requests                     controllers.Requests.list()                          
+GET    /v1/requests/:nodeid             controllers.Requests.show(nodeid: String)
 
 # Logs for Nodes 
 #just declare POST for testing
-GET   /v1/logs	   		    controllers.Logs.list()                          
-GET   /v1/logs/:nodeid		controllers.Logs.show(nodeid: String)
+GET    /v1/logs                         controllers.Logs.list()                          
+GET    /v1/logs/:nodeid                 controllers.Logs.show(nodeid: String)
 
 #Predefs
-GET   /v1/predefs                controllers.Predefs.list()
-GET   /v1/predefs/:predefid      controllers.Predefs.show(predefid: String)
+GET    /v1/predefs                      controllers.Predefs.list()
+GET    /v1/predefs/:predefid            controllers.Predefs.show(predefid: String)
 
 #PredefClouds
-POST   /v1/predefclouds/content     controllers.PredefClouds.post
-GET    /v1/predefclouds             controllers.PredefClouds.list
-GET    /v1/predefclouds/:pre_name   controllers.PredefClouds.show(pre_name: String)
+POST   /v1/predefclouds/content         controllers.PredefClouds.post
+GET    /v1/predefclouds                 controllers.PredefClouds.list
+GET    /v1/predefclouds/:pre_name       controllers.PredefClouds.show(pre_name: String)
 
 #CloudDeployers
-GET   /v1/cloudtools				 controllers.CloudTools.list()
-GET   /v1/cloudtools/:cloud_toolname controllers.CloudTools.show(cloud_toolname: String)
+GET    /v1/cloudtools                   controllers.CloudTools.list()
+GET    /v1/cloudtools/:cloud_toolname   controllers.CloudTools.show(cloud_toolname: String)
 
 
 # Map static resources from the /public folder to the /public path
-GET     /assets/*file		controllers.Assets.at(path="/public", file)
+GET    /assets/*file                    controllers.Assets.at(path="/public", file)

@@ -27,38 +27,25 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest}
 import org.megam.common.enumeration._
-
+import models.NodeStatusType
 
 /**
  * @author ram
  *
  */
-object NodeRequestSerialization extends SerializationBase[NodeRequest] {
-  protected val ReqIdKey = "req_id"
-  protected val CommandKey = "command"
-  
-
-  override implicit val writer = new JSONW[NodeRequest] {
-
-    override def write(h: NodeRequest): JValue = {
-      JObject(
-        JField(ReqIdKey, toJSON(h.req_id)) ::
-          JField(CommandKey, toJSON(h.command))  ::Nil)
+object NodeStatusTypeSerialization extends SerializationBase[NodeStatusType] {
+  implicit override val reader = new JSONR[NodeStatusType] {
+    override def read(jValue: JValue): ValidationNel[Error, NodeStatusType] = jValue match {
+      case JString(s) => s.readEnum[NodeStatusType].map(_.successNel[Error]) | {
+        play.api.Logger.debug(("%-20s -->[%s]").format("status reader", jValue))
+        UncategorizedError("request type", "unknown request type %s".format(s), List()).failNel[NodeStatusType]
+      }
+      case _ => NoSuchFieldError("request type", jValue).failNel[NodeStatusType]
     }
   }
 
-  override implicit val reader = new JSONR[NodeRequest] {
-
-    override def read(json: JValue): Result[NodeRequest] = {
-      val reqidField = field[String](ReqIdKey)(json)
-      val commandField = field[String](CommandKey)(json)
-    
-      (reqidField |@| commandField) {
-        (req_id: String, command: String) =>
-          new NodeRequest(req_id, command)
-      }
-    }
+  implicit override val writer = new JSONW[NodeStatusType] {
+    override def write(t: NodeStatusType): JValue = JString(t.stringVal)
   }
 }

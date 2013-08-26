@@ -89,9 +89,12 @@ class InMemoryImpl[A](f: String => A) extends InMemory[A] {
 
   /**
    * Produce a stale timer
+   * Mask it for development
    */
   private def stale(ts: Long): Boolean = {
-    System.currentTimeMillis - ts > (5 * 60 * 1000L)
+    val sweetPieTime = if (play.api.Play.application(play.api.Play.current).mode == play.api.Mode.Dev) 0L else (5 * 60 * 1000L)
+   play.api.Logger.debug("--------stale >"+ sweetPieTime)
+    System.currentTimeMillis - ts > sweetPieTime 
   }
 
   /**

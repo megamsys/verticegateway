@@ -34,7 +34,8 @@ import scalaz.NonEmptyList._
 import scalaz.Validation._
 import Scalaz._
 import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
+import net.liftweb.json.scalaz.JsonScalaz._
+
 
 /**
  * @author ram
@@ -79,14 +80,7 @@ object CloudTemplate {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
-    errNel.map { err: Error =>
-      err.fold(
-        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
-        n => "no such field %s in json %s".format(n.name, n.json.toString),
-        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
-    }.list.mkString("\n")
-  })*/
+  
 }
 
 case class CloudInstruction(action: String, command: String, name: String) {
@@ -123,14 +117,7 @@ object CloudInstruction {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
-    errNel.map { err: Error =>
-      err.fold(
-        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
-        n => "no such field %s in json %s".format(n.name, n.json.toString),
-        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
-    }.list.mkString("\n")
-  })*/
+   
 }
 
 case class CloudTool(id: String, name: String, cli: String, cloudtemplates: CloudTemplates) {
@@ -171,14 +158,7 @@ object CloudTool {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
-    errNel.map { err: Error =>
-      err.fold(
-        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
-        n => "no such field %s in json %s".format(n.name, n.json.toString),
-        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
-    }.list.mkString("\n")
-  })*/
+   
 
   val ec2 = CloudTemplate("ec2", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create", "-N"),
@@ -275,7 +255,7 @@ object CloudTools {
     play.api.Logger.debug(("%-20s -->[%s]").format("cloudToolsList", cloudToolsList))
     (cloudToolsList map {
       _.map { name =>
-        InMemory[ValidationNel[Error, CloudToolResults]]({
+        InMemory[ValidationNel[Throwable, CloudToolResults]]({
           cname: String =>
             {
               play.api.Logger.debug("models.CloudTools findByName: InMemory:" + cname)
@@ -289,17 +269,17 @@ object CloudTools {
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(cname, t.getMessage)
                     }).toValidationNel.flatMap { j: CloudTool =>
-                      Validation.success[Error, CloudToolResults](nels(j.some)).toValidationNel
+                      Validation.success[Throwable, CloudToolResults](nels(j.some)).toValidationNel
                     }
                   }
-                  case None => Validation.failure[Error, CloudToolResults](new ResourceItemNotFound(cname, "Please rerun cloudDeployer initiation again.")).toValidationNel
+                  case None => Validation.failure[Throwable, CloudToolResults](new ResourceItemNotFound(cname, "Please rerun cloudDeployer initiation again.")).toValidationNel
                 }
               }
             }
-        }).get(name).eval(InMemoryCache[ValidationNel[Error, CloudToolResults]]())
+        }).get(name).eval(InMemoryCache[ValidationNel[Throwable, CloudToolResults]]())
       }
     } map {
-      _.fold((CloudToolResults.empty).successNel[Error])(_ +++ _)
+      _.fold((CloudToolResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head
   }
 

@@ -20,6 +20,9 @@ import scalaz.NonEmptyList
 import Scalaz._
 import play.api.http.Status._
 import java.io.{ StringWriter, PrintWriter }
+import org.megam.common.jsonscalaz._
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
 
 /**
  * @author ram
@@ -34,19 +37,29 @@ object FunnelErrors {
       |Support :http://support.megam.co""".stripMargin
 
   case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
-    extends Error(msg)
+    extends java.lang.Error(msg)
 
   case class MalformedBodyError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
-    extends Error(msg)
+    extends java.lang.Error(msg)
 
   case class MalformedHeaderError(input: String, msg: String, httpCode: Int = NOT_ACCEPTABLE)
-    extends Error(msg)
+    extends java.lang.Error(msg)
 
   case class ServiceUnavailableError(input: String, msg: String, httpCode: Int = SERVICE_UNAVAILABLE)
-    extends Error(msg)
+    extends java.lang.Error(msg)
 
   case class ResourceItemNotFound(input: String, msg: String, httpCode: Int = NOT_FOUND)
-    extends Error(msg)
+    extends java.lang.Error(msg)
+
+  case class JSONParsingError(errNel: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error]) 
+  extends java.lang.Error({
+    errNel.map { err: net.liftweb.json.scalaz.JsonScalaz.Error =>
+      err.fold(
+        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
+        n => "no such field %s in json %s".format(n.name, n.json.toString),
+        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
+    }.list.mkString("\n")
+  })
 
   case class HttpReturningError(errNel: NonEmptyList[Throwable]) extends Exception {
 

@@ -35,22 +35,22 @@ import play.api.Logger;
 object PlatformAppPrimer {
 
   //on board a sandbox account during start of the play server.
-  lazy val sandboxAcct = models.Accounts.create(
+  def sandboxAcct = models.Accounts.create(
     AccountInput("sandy@megamsandbox.com", "IamAtlas{74}NobodyCanSeeME#07", "normal").json)
 
   //populate the predefinitions of the platform supported by megam.
-  lazy val predefs = models.Predefs.create
+  def predefs = models.Predefs.create
 
-  val iaas_default = PredefCloudInput("iaas_default",
+  def iaas_default = PredefCloudInput("iaas_default",
     new PredefCloudSpec("ec2", "megam", "ami-d783cd85", "m1.small"),
     new PredefCloudAccess("megam_ec2", "megam_ec2.pem", "ubuntu")).json
 
-  lazy val clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, iaas_default) }
+  def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, iaas_default) }
 
   //define the cloud tools used to manage the cloud platform. 
-  lazy val cloudtools = models.CloudTools.create
+  def cloudtools = models.CloudTools.create
 
-  val prep: ValidationNel[Throwable, FunnelResponses] = (for {
+  def prep: ValidationNel[Throwable, FunnelResponses] = for {
     sada <- sandboxAcct
     lpd <- predefs
     ccd <- clone_predefcloud(SANDBOX_EMAIL)
@@ -72,6 +72,6 @@ object PlatformAppPrimer {
             |
             |%nLoaded values are ----->%n[%s]""".format(cts.toString).stripMargin, "Megam::CloudTools"))
     FunnelResponses(chainedComps)
-  })
+  }
 
 }

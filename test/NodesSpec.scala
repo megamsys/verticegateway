@@ -12,6 +12,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 package test
 
 import org.specs2.mutable._
@@ -22,7 +23,6 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-
 /**
  * @author subash
  *
@@ -34,11 +34,11 @@ class NodesSpec extends Specification {
   NodesSpec is the implementation that calls the megam_play API server with the /nodes url
   """ ^ end ^
       "The Client Should" ^
-  //    "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-  //    "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-  //    "Correctly do GET  (node name)requests with a valid userid and api key" ! findByName.succeeds ^
- //     "Correctly do GET  (morning.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
+      "Correctly do GET  (node name)requests with a valid userid and api key" ! findByName.succeeds ^
+      "Correctly do GET  (morning.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
       end
 
   /**

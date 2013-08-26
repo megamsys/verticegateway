@@ -32,7 +32,7 @@ import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz.{ field, Result, UncategorizedError }
+import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
 /**
@@ -84,14 +84,7 @@ object PredefCloudResult {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
-    errNel.map { err: Error =>
-      err.fold(
-        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
-        n => "no such field %s in json %s".format(n.name, n.json.toString),
-        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
-    }.list.mkString("\n")
-  })*/
+   
 }
 
 object PredefClouds {
@@ -122,8 +115,8 @@ object PredefClouds {
     for {
       pdc <- predefCloudInput
       //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Error] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "nod").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "pdc").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
@@ -159,7 +152,7 @@ object PredefClouds {
     }
   }
 
-  def findByName(predefCloudsNameList: Option[List[String]]): ValidationNel[Error, PredefCloudResults] = {
+  def findByName(predefCloudsNameList: Option[List[String]]): ValidationNel[Throwable, PredefCloudResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("predefCloudsList", predefCloudsNameList))
     (predefCloudsNameList map {
@@ -175,15 +168,15 @@ object PredefClouds {
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(predefcloudsName, t.getMessage)
               }).toValidationNel.flatMap { j: PredefCloudResult =>
-                Validation.success[Error, PredefCloudResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Throwable, PredefCloudResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
               }
             }
-            case None => Validation.failure[Error, PredefCloudResults](new ResourceItemNotFound(predefcloudsName, "")).toValidationNel
+            case None => Validation.failure[Throwable, PredefCloudResults](new ResourceItemNotFound(predefcloudsName, "")).toValidationNel
           }
         }
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
-      _.foldRight((PredefCloudResults.empty).successNel[Error])(_ +++ _)
+      _.foldRight((PredefCloudResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
 
   }
@@ -197,7 +190,7 @@ object PredefClouds {
   def findByEmail(email: String): ValidationNel[Throwable, PredefCloudResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Error, PredefCloudResults]] {
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, PredefCloudResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
@@ -207,7 +200,10 @@ object PredefClouds {
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
-      } map { nm: List[String] => findByName(nm.some) }).disjunction).pure[IO]
+      } map { nm: List[String] =>
+        (if (!nm.isEmpty) findByName(nm.some) else
+          new ResourceItemNotFound(email, "predefclouds = nothing found.").failureNel[PredefCloudResults])
+      }).disjunction).pure[IO]
     }.run.map(_.validation).unsafePerformIO
     res.getOrElse(new ResourceItemNotFound(email, "predefclouds = nothing found.").failureNel[PredefCloudResults])
   }
