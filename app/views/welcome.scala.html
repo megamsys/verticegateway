@@ -47,25 +47,28 @@
 		</div>
 		}
 		@flash.get("error0").map { err_flunked =>
-		<div class="alert alert-block alert-error fade in">
+		<div class="alert alert-danger fade in">
 			<button type="button" class="close" data-dismiss="alert">
 				&times;
 			</button>
 			<h4>Oh snap! You got an error!</h4>
 			@flash.get("error1").map { err_detail_msg =>
-			<div class="accordion" id="accordion2">
-				<div class="accordion-group">
-					<div class="accordion-heading">
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne"> Detail </a>
+
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Detail Error </a></h4>
 					</div>
-					<div id="collapseOne" class="accordion-body collapse in">
-						<div class="accordion-inner">
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
 							@err_detail_msg
 						</div>
 					</div>
 				</div>
 			</div>
+
 			}
+		</br>
 			<p>
 				<a class="btn btn-danger" href="http:\\support.megam.co" target="_blank">Contact Support</a>
 			</p>
@@ -138,9 +141,10 @@
 					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
 					"authority":"user"
 					}
-				</code> </pre>																																																				
+				</code> </pre>																																																								
 			
 				
+
 
 
 
@@ -171,7 +175,8 @@
 					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
 					"authority":"user"
 					}
-				</code> </pre>																																																																		
+				</code> </pre>																																																																								
+
 
 
 
@@ -231,8 +236,9 @@
 		<code class="brush: scala; toolbar: false; ">
 		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
 		</code>
-		</pre>																																																																											
+		</pre>																																																																																
 					
+
 
 
 
@@ -369,7 +375,8 @@
 			</div>
 			<pre><code class="brush: bash; toolbar: false; ">
 					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-                </code> </pre>																																																			
+                </code> </pre>																																																						
+
 
 
 
