@@ -98,9 +98,10 @@ linuxPackageMappings in Debian <+= (com.typesafe.sbt.packager.debian.Keys.source
   ) withUser "root" withGroup "root" withPerms "0644" gzipped) asDocs()
 }
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megam_play", "0.12.4-build-0100")),"debs/megam_play.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"0.1/debs/megam_play.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 
 credentials += Credentials(Path.userHome / "software" / "aws" / "keys" / "sbt_s3_keys")
 
+S3.progress in S3.upload := true
