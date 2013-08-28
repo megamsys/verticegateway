@@ -23,7 +23,7 @@ import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import java.nio.charset.Charset
 import models._
-import models.cache.{ InMemory, InMemoryCache }
+import models.cache._
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import scalaz._
@@ -286,5 +286,9 @@ object CloudTools {
   def listAll: ValidationNel[Throwable, CloudToolResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.CloudTools", "listAll:Entry"))
     findByName(CloudTool.toStream.some) //return the folded element in the head.  
+  }
+  
+  implicit val sedimentCloudToolResults = new Sedimenter[ValidationNel[Throwable, CloudToolResults]] {
+    override def sediment(maybeASediment: ValidationNel[Throwable, CloudToolResults]): Boolean = maybeASediment.isSuccess
   }
 }

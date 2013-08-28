@@ -3,9 +3,6 @@ import Process._
 import com.typesafe.sbt.SbtNativePackager._
 import com.typesafe.sbt.packager.debian.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPackageMapping
-import sbtrelease._
-import ReleasePlugin._
-import ReleaseKeys._
 import S3._
 
 scalaVersion := "2.10.2"

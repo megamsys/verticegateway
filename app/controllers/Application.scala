@@ -38,7 +38,7 @@ object Application extends Controller with APIAuthElement {
   def init = Action { implicit request =>
     PlatformAppPrimer.prep match {
       case Success(succ) => {
-        val sFlash = ("success" -> "Megam platform is primed. Go!")
+        val sFlash = ("success0" -> "Your Megam Cloud Platform is ready.")
         Redirect("/").flashing(sFlash, ("success1" -> FunnelResponses.toJson(succ,true)))       
       }
       case Failure(err) => {
@@ -46,7 +46,7 @@ object Application extends Controller with APIAuthElement {
         val rnjson = FunnelResponses.toJson(rn, false)
         Logger.debug(rnjson)
         Redirect("/").flashing(
-          "error0" -> "Duh Megam platform isn't primed Yet.. NoGo!",
+          "error0" -> "Duh Megam Cloud Platform isn't primed Yet. - NoGo",
           "error1" -> err.toString)
       }
     }

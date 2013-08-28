@@ -26,7 +26,7 @@ import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
-import models.cache.{ InMemory, InMemoryCache }
+import models.cache._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.stack.MConfig
@@ -69,7 +69,6 @@ object AccountResult {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   
 }
 case class AccountInput(email: String, api_key: String, authority: String) {
   val json = "{\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\"}"
@@ -103,7 +102,7 @@ object Accounts {
 
           val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
           storeValue match {
-            case Success(succ) =>  acctRes.some.successNel[Throwable]
+            case Success(succ) => acctRes.some.successNel[Throwable]
             case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
               new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
           }
@@ -147,7 +146,6 @@ object Accounts {
 
   }
 
-  // 
   /**
    * Find by the accounts id.
    */
@@ -170,6 +168,14 @@ object Accounts {
       }
       case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
         new ServiceUnavailableError(id, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
+    }
+  }
+
+  implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
+    def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
+      val notSed = maybeASediment.isSuccess
+      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->ACT:sediment:", notSed))
+      notSed
     }
   }
 
