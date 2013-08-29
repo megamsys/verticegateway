@@ -32,7 +32,6 @@ import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
-import com.github.nscala_time.time.Imports._
 
 import controllers.stack.stack._
 import controllers.funnel._
@@ -57,13 +56,13 @@ object SecurityActions {
   val Accept = "Accept"
   val application_vnd_megam_json = "application/vnd.megam+json"
 
-  def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[Error, Option[String]] = {
+  def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[Throwable, Option[String]] = {
     Logger.debug(("%-20s -->[%s]").format("SecurityActions", "Authenticated:Entry"))
     req.funneled match {
       case Success(succ) => {
         Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-S", succ.toString))
         (succ map (x => bazookaAtDataSource(x))).getOrElse(
-          Validation.failure[Error, Option[String]](CannotAuthenticateError("""Invalid content in header. API server couldn't parse it""",
+          Validation.failure[Throwable, Option[String]](CannotAuthenticateError("""Invalid content in header. API server couldn't parse it""",
             "Request can't be funneled.")).toValidationNel)
 
       }
@@ -83,13 +82,13 @@ object SecurityActions {
    * the string is split on : and the header is parsed
    * else
    */
-  def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Error, Option[String]] = {
+  def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Throwable, Option[String]] = {
     play.api.Logger.debug("<O==>------------------------------------->")
     (for {
-      resp <- eitherT[IO, NonEmptyList[Error], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
+      resp <- eitherT[IO, NonEmptyList[Throwable], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
         (Accounts.findByEmail(freq.maybeEmail.get).disjunction).pure[IO]
       }
-      found <- eitherT[IO, NonEmptyList[Error], Option[String]] {
+      found <- eitherT[IO, NonEmptyList[Throwable], Option[String]] {
         val fres = resp.get
         val calculatedHMAC = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
         if (calculatedHMAC === freq.clientAPIHmac.get) {

@@ -8,11 +8,12 @@
 					<button type="button" class="close" data-dismiss="alert">
 						&times;
 					</button>
-					<strong>Heat It Up!</strong> Click
+					<strong>If you are an Administrator </strong> Click
+					&nbsp;&nbsp;
 					<code>
 						&nbsp;Init&nbsp;
-					</code>
-					to prime the platform. <span class="label label-warning"> Administrators </span>only.
+					</code>&nbsp;&nbsp;
+					to prime the cloud platform.
 				</div>
 			</div>
 			<div class="col-lg-3">
@@ -25,25 +26,22 @@
 			<button type="button" class="close" data-dismiss="alert">
 				&times;
 			</button>
-			<strong>Great!</strong> @succ_message.
-		</div>
+			<strong>Great!</strong> @succ_message
 
-		}
-		@flash.get("success1").map { succ_detail_msg =>
-		<div class="accordion" id="accordion2">
-			<div class="accordion-group">
-				<div class="accordion-heading">
-					<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne"> Detail </a>
-				</div>
-				<div id="collapseOne" class="accordion-body collapse in">
-					<div class="accordion-inner">
-						<div class="alert alert-success">
+			@flash.get("success1").map { succ_detail_msg =>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Detail</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
 							@succ_detail_msg
 						</div>
-
 					</div>
 				</div>
 			</div>
+			}
 		</div>
 		}
 		@flash.get("error0").map { err_flunked =>
@@ -68,7 +66,7 @@
 			</div>
 
 			}
-		</br>
+			</br>
 			<p>
 				<a class="btn btn-danger" href="http:\\support.megam.co" target="_blank">Contact Support</a>
 			</p>
@@ -76,9 +74,8 @@
 		}
 
 		<h1><a name="rest_docs" href="#a-rest_docs">REST API</a></h1>
-
 		<p>
-			Megam's API is REST based.
+			Megam's Cloud API is a stateless REST based cloud server.
 			Our SDKs abstract away the REST interface and provide a set of handy methods you can interact with
 			when deleting, creating, updating and deleting objects.
 
@@ -97,121 +94,98 @@
 				<code>
 					Email
 				</code>
-				registered with us. Register with our Hosted Megam Platform <a href="http://www.megam.co">www.megam.co</a>
+				registered with us.
+				<div class="bs-callout bs-callout-info">
+					<h4>Register &amp; www.megam.co</h4>
+					<p>
+						Click <a href="http://www.megam.co">www.megam.co</a> to get access to our
+						<code>
+							free sandbox
+						</code>
+						</code>
+					</p>
+				</div>
 			</p>
 			<h2>Auth</h2>
 			<h4 id="auth_post">POST</h4>
 			<p>
 				Authentication checks user email and api_key.
+			</p>
 			<p>
 				Request URL:
 			</p>
-			<div class="">
-				<pre><code class="brush: bash; toolbar: false; ">POST http://api.megam.co/v1/auth</code></pre>
-			</div>
+				<pre><code class="html">POST http://api.megam.co/v1/auth</code></pre>
 			<p>
 				Request Headers:
 			</p>
 			<p>
-				<pre><code class="brush: bash; toolbar: false; ">				    
-					"X-Megam-DATE: 2013-07-01 17:17"
-					"X-Megam-HMAC:060873b2afce74fd024bba428b0e2e00b661cc2c"
-					"Content-Type:appilication/Json"
-					"Accept: application/vnd.megam+json "
-					</code>
-				</pre>
+				<code>
+					"X-Megam-DATE:"
+				</code>
+				2013-07-01 17:17" <br></br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				060873b2afce74fd024bba428b0e2e00b661cc2c" <br></br>
+				<code>
+					"Content-Type:"
+				</code>
+				appilication/Json"<br></br>
+				<code>
+					"Accept:"
+				</code>
+				"application/vnd.megam+json "<br></br>
 			</p>
 			<p>
 				Request Body:
 			</p>
 			<p>
-				<pre><code class="brush: bash; toolbar: false; ">					 
-					"Nothing"
-					</code> </pre>
+				<code>
+					-
+				</code>
+				(Nothing in body)
 			</p>
-			<p>
 			<p>
 				Response shown in Json:
 			</p>
-			<p>
-				<pre><code class="brush: js; toolbar: false; ">
-					{
-					"id": "ACT346963130863058944",
-					"email":"........",
-					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
-					"authority":"user"
-					}
-				</code> </pre>																																																								
-			
-				
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			</p>
-			<p>
-
-				<div class="panel panel-danger">
-					<!-- Default panel contents -->
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
 					<div class="panel-heading">
-						Response (Errors):
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
 					</div>
-					<p>
-						<a href="#">Inbox <span class="badge">401</span></a>
-						<pre><code class="brush: js; toolbar: false; ">
-					{
-					"id": "ACT346963130863058944",
-					"email":"........",
-					"api_key":"IamAtlas{74}NobodyCanSeeME#07",
-					"authority":"user"
-					}
-				</code> </pre>																																																																								
-
-
-
-
-
-
-
-
-
-
-
-
-
-					</p>
-
-					<!-- List group -->
-					<ul class="list-group list-group-flush">
-						<li class="list-group-item">
-							Cras justo odio
-						</li>
-						<li class="list-group-item">
-							Dapibus ac facilisis in
-						</li>
-						<li class="list-group-item">
-							Morbi leo risus
-						</li>
-						<li class="list-group-item">
-							Porta ac consectetur ac
-						</li>
-						<li class="list-group-item">
-							Vestibulum at eros
-						</li>
-					</ul>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
-
-			</p>
+			</div>
 			<!-- TO-DO -->
 			<div class="tab-content">
 				<ul class="nav nav-tabs" id="#get">
@@ -236,24 +210,7 @@
 		<code class="brush: scala; toolbar: false; ">
 		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
 		</code>
-		</pre>																																																																																
-					
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		</pre>																																																																																																																																																																	
 				</div>
 			</div>
 
@@ -375,7 +332,23 @@
 			</div>
 			<pre><code class="brush: bash; toolbar: false; ">
 					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-                </code> </pre>																																																						
+                </code> </pre>																																																																																																							
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

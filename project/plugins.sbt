@@ -25,7 +25,5 @@ addSbtPlugin("play" % "sbt-plugin" % "2.1.3")
 //when we move to sbt 0.13/play 2.2 we need to test it back. 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.5.4") 
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.6")
-
 addSbtPlugin("com.typesafe.sbt" % "sbt-s3" % "0.5")
 

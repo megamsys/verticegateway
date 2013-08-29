@@ -3,9 +3,6 @@ import Process._
 import com.typesafe.sbt.SbtNativePackager._
 import com.typesafe.sbt.packager.debian.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPackageMapping
-import sbtrelease._
-import ReleasePlugin._
-import ReleaseKeys._
 import S3._
 
 scalaVersion := "2.10.2"
@@ -26,7 +23,7 @@ scalacOptions := Seq(
 
 seq(packagerSettings:_*)
 
-maintainer in Debian:= "Rajthilak <rajthilak@rajthilak>"
+maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
 
 packageSummary := "API server (REST based) for the megam platform." 
 
@@ -59,7 +56,7 @@ linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
 }
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
-  (packageMapping((bd / "conf/logback.xml") -> "/usr/local/share/megamplay/conf/logback.xml")
+  (packageMapping((bd / "conf/application-logger.xml") -> "/usr/local/share/megamplay/conf/application-logger.xml")
    withConfig())
 }
 
@@ -98,9 +95,10 @@ linuxPackageMappings in Debian <+= (com.typesafe.sbt.packager.debian.Keys.source
   ) withUser "root" withGroup "root" withPerms "0644" gzipped) asDocs()
 }
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megam_play", "0.12.4-build-0100")),"debs/megam_play.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"0.1/debs/megam_play.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 
 credentials += Credentials(Path.userHome / "software" / "aws" / "keys" / "sbt_s3_keys")
 
+S3.progress in S3.upload := true

@@ -15,6 +15,8 @@
 */
 package controllers.funnel
 
+import scalaz._
+import Scalaz._
 import scalaz.Validation
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -22,6 +24,8 @@ import java.nio.charset.Charset
 import controllers.Constants._
 import play.api.http.Status._
 import controllers.funnel.FunnelErrors._
+import org.megam.common.jsonscalaz._
+
 /**
  * @author ram
  *
@@ -63,12 +67,5 @@ object FunnelResponse {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
-    errNel.map { err: Error =>
-      err.fold(
-        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
-        n => "no such field %s in json %s".format(n.name, n.json.toString),
-        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
-    }.list.mkString("\n")
-  })*/
+   
 }

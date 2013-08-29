@@ -28,6 +28,8 @@ import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
 import models.{ NodeResult, NodePredefs, NodeRequest}
+import org.megam.common.enumeration._
+
 
 /**
  * @author ram

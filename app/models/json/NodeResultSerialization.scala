@@ -27,7 +27,9 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest }
+import models.{ NodeResult, NodePredefs, NodeRequest, NodeStatusType }
+import models.NodeStatusType._
+import org.megam.common.enumeration._
 
 /**
  * @author ram
@@ -37,6 +39,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val AccountsIDKey = "accounts_id"
+  protected val StatusKey = "status"
   protected val RequestKey = "request"
   protected val PredefsKey = "predefs"
 
@@ -44,12 +47,14 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
 
     import NodeRequestSerialization.{ writer => NodeRequestWriter }
     import NodePredefsSerialization.{ writer => NodePredefsWriter }
+    import NodeStatusTypeSerialization.{ writer => NodeStatusTypeWriter }
 
     override def write(h: NodeResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(AccountsIDKey, toJSON(h.accounts_id)) ::
           JField(JSONClazKey, toJSON("Megam::Node")) ::
+          JField(StatusKey, toJSON(h.status)(NodeStatusTypeWriter)) ::
           JField(RequestKey, toJSON(h.request)(NodeRequestWriter)) ::
           JField(PredefsKey, toJSON(h.predefs)(NodePredefsWriter)) :: Nil)
     }
@@ -59,16 +64,33 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
 
     import NodeRequestSerialization.{ reader => NodeRequestReader }
     import NodePredefsSerialization.{ reader => NodePredefsReader }
+    import NodeStatusTypeSerialization.{ reader => NodeStatusTypeReader }
 
     override def read(json: JValue): Result[NodeResult] = {
-      val idField = field[String](IdKey)(json)
-      val accountField = field[String](AccountsIDKey)(json)
-      val requestField = field[NodeRequest](RequestKey)(json)(NodeRequestReader)
-      val predefsField = field[NodePredefs](PredefsKey)(json)(NodePredefsReader)
+      val statusField = field[NodeStatusType](StatusKey)(json)(NodeStatusTypeReader)
 
-      (idField |@| accountField |@| requestField |@| predefsField) {
-        (id: String, account_id: String, request: NodeRequest, predefs: NodePredefs) =>
-          new NodeResult(id, account_id, request, predefs)
+      statusField.flatMap { statusType: NodeStatusType =>
+        val idField = field[String](IdKey)(json)
+        val accountField = field[String](AccountsIDKey)(json)
+        val requestField = field[NodeRequest](RequestKey)(json)(NodeRequestReader)
+        val predefsField = field[NodePredefs](PredefsKey)(json)(NodePredefsReader)
+
+        val noderes_fn = idField |@| accountField |@| requestField |@| predefsField
+
+        val res: ValidationNel[Error, NodeResult] = statusType match {
+          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _))
+          case NodeStatusType.REQ_CREATED_AT_SOURCE  => noderes_fn(NodeResult(_, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _))
+          case NodeStatusType.NODE_CREATED_AT_SOURCE => noderes_fn(NodeResult(_, _, NodeStatusType.NODE_CREATED_AT_SOURCE, _, _))
+          case NodeStatusType.PUBLISHED              => noderes_fn(NodeResult(_, _, NodeStatusType.PUBLISHED, _, _))
+          case NodeStatusType.STARTED                => noderes_fn(NodeResult(_, _, NodeStatusType.STARTED, _, _))
+          case NodeStatusType.LAUNCH_SUCCESSFUL      => noderes_fn(NodeResult(_, _, NodeStatusType.LAUNCH_SUCCESSFUL, _, _))
+          case NodeStatusType.LAUNCH_FAILED          => noderes_fn(NodeResult(_, _, NodeStatusType.LAUNCH_FAILED, _, _))
+          case _ => UncategorizedError("request type",
+            "unsupported request type %s".format(statusType.stringVal),
+            List()).failNel
+        }
+        res
+
       }
     }
   }

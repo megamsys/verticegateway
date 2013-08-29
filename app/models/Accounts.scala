@@ -17,16 +17,16 @@ package models
 
 import scalaz._
 import Scalaz._
+import scalaz.Validation
 import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz.{ field, Result, UncategorizedError }
+import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
-import org.megam.common.uid._
-import models.cache.{ InMemory, InMemoryCache }
+import models.cache._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.stack.MConfig
@@ -69,14 +69,6 @@ object AccountResult {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  /* case class JSONParsingError(errNel: NonEmptyList[Error]) extends Exception({
-    errNel.map { err: Error =>
-      err.fold(
-        u => "unexpected JSON %s. expected %s".format(u.was.toString, u.expected.getCanonicalName),
-        n => "no such field %s in json %s".format(n.name, n.json.toString),
-        u => "uncategorized error %s while trying to decode JSON: %s".format(u.key, u.desc))
-    }.list.mkString("\n")
-  })*/
 }
 case class AccountInput(email: String, api_key: String, authority: String) {
   val json = "{\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\"}"
@@ -110,12 +102,12 @@ object Accounts {
 
           val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
           storeValue match {
-            case Success(succ) =>  acctRes.some.successNel[Error]
-            case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+            case Success(succ) => acctRes.some.successNel[Throwable]
+            case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
               new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
           }
         }
-        case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+        case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
           new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
       }
     }
@@ -126,10 +118,10 @@ object Accounts {
    * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
    * When there is no gunnysack value (None), then return back a failure - ResourceItemNotFound
    */
-  def findByEmail(email: String): ValidationNel[Error, Option[AccountResult]] = {
+  def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("findByEmail", email))
-    InMemory[ValidationNel[Error, Option[AccountResult]]]({
+    InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
       name: String =>
         {
           play.api.Logger.debug(("%-20s -->[%s]").format("InMemory", email))
@@ -143,22 +135,21 @@ object Accounts {
                 } leftMap { t: Throwable =>
                   new ResourceItemNotFound(email, t.getMessage)
                 }).toValidationNel.flatMap { j: AccountResult =>
-                  Validation.success[Error, Option[AccountResult]](j.some).toValidationNel
+                  Validation.success[Throwable, Option[AccountResult]](j.some).toValidationNel
                 }
               }
-              case None => Validation.failure[Error, Option[AccountResult]](new ResourceItemNotFound(email, "")).toValidationNel
+              case None => Validation.failure[Throwable, Option[AccountResult]](new ResourceItemNotFound(email, "")).toValidationNel
             }
           }
         }
-    }).get(email).eval(InMemoryCache[ValidationNel[Error, Option[AccountResult]]]())
+    }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
 
   }
 
-  // 
   /**
    * Find by the accounts id.
    */
-  def findByAccountsId(id: String): ValidationNel[Error, Option[AccountResult]] = {
+  def findByAccountsId(id: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "findByAccountsId:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("accounts id", id))
     val metadataKey = "Field"
@@ -175,8 +166,16 @@ object Accounts {
         }
         findByEmail(key)
       }
-      case Failure(err) => Validation.failure[Error, Option[AccountResult]](
+      case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
         new ServiceUnavailableError(id, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
+    }
+  }
+
+  implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
+    def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
+      val notSed = maybeASediment.isSuccess
+      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->ACT:sediment:", notSed))
+      notSed
     }
   }
 

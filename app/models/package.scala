@@ -33,6 +33,7 @@ package object models {
   type NodeResults = NonEmptyList[Option[NodeResult]]
 
   object NodeResults {
+    val emptyNR = List(Option.empty[NodeResult])
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: NodeResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -49,12 +50,13 @@ package object models {
 
     def apply(m: Option[NodeResult]) = nels(m)
     def apply(m: NodeResult): NodeResults = NodeResults(m.some)
-    def empty: NodeResults = nels(none)
+    def empty: NodeResults = nel(emptyNR.head, emptyNR.tail)
   }
 
   type PredefResults = NonEmptyList[Option[PredefResult]]
 
   object PredefResults {
+    val emptyPR = List(Option.empty[PredefResult])
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(pres: PredefResults): JValue = {
@@ -71,13 +73,14 @@ package object models {
     }
 
     def apply(m: PredefResult): PredefResults = nels(m.some)
-    def empty: PredefResults = nels(none)
+    def empty: PredefResults = nel(emptyPR.head, emptyPR.tail)
 
   }
 
   type PredefCloudResults = NonEmptyList[Option[PredefCloudResult]]
 
   object PredefCloudResults {
+    val emptyPC = List(Option.empty[PredefCloudResult])
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(prres: PredefCloudResults): JValue = {
@@ -94,13 +97,38 @@ package object models {
     }
 
     def apply(m: PredefCloudResult): PredefCloudResults = nels(m.some)
-    def empty: PredefCloudResults = nels(none)
+    def empty: PredefCloudResults = nel(emptyPC.head, emptyPC.tail)
+  }
+
+  type RequestResults = NonEmptyList[Option[RequestResult]]
+
+  object RequestResults {
+    val emptyRR = List(Option.empty[RequestResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: RequestResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.RequestResultsSerialization.{ writer => RequestResultsWriter }
+      toJSON(nres)(RequestResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: RequestResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[RequestResult]) = nels(m)
+    def apply(m: RequestResult): RequestResults = RequestResults(m.some)
+    def empty: RequestResults = nel(emptyRR.head, emptyRR.tail)
   }
 
   type CloudToolResults = NonEmptyList[Option[CloudTool]]
 
   object CloudToolResults {
-
+    val emptyCT = List(Option.empty[CloudTool])
+	  
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(cdres: CloudToolResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -116,7 +144,7 @@ package object models {
     }
 
     def apply(m: CloudTool): CloudToolResults = nels(m.some)
-    def empty: CloudToolResults = nels(none)
+    def empty: CloudToolResults = nel(emptyCT.head, emptyCT.tail)
 
   }
 
@@ -146,7 +174,7 @@ package object models {
   type CloudInstructions = List[CloudInstruction]
 
   object CloudInstructions {
-    
+
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CloudInstructions] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
       import models.json.CloudInstructionsSerialization
