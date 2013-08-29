@@ -26,12 +26,11 @@ object ApplicationBuild extends Build {
   val play2AuthVersion = "0.10.1"
   val specs2Version = "2.1.1"
   val jodaTimeVersion = "0.4.2"
-  val postgreSQLVersion = "9.1-901.jdbc4"
   val liftJsonVersion = "2.5.1"
   val megamVersion = "0.1.0-SNAPSHOT"
 
   val appDependencies = Seq(
-    javaCore, javaEbean, jdbc, javaJdbc,
+    javaCore, javaEbean, 
     "org.scalaz" %% "scalaz-core" % scalazVersion,
     "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
     "org.scalaz" %% "scalaz-effect" % scalazVersion,
@@ -40,12 +39,10 @@ object ApplicationBuild extends Build {
     "net.liftweb" %% "lift-json-scalaz7" % liftJsonVersion,
     "com.github.indykish" % "megam_common_2.10" % megamVersion,
     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
-    "com.github.seratch" %% "scalikejdbc-play-plugin" % "1.5.2",
     "jp.t2v" %% "play2.auth" % play2AuthVersion,
     "jp.t2v" %% "play2.auth.test" % play2AuthVersion % "test",
     "com.rabbitmq" % "amqp-client" % "3.1.4",
     "com.github.nscala-time" %% "nscala-time" % jodaTimeVersion,
-    "postgresql" % "postgresql" % postgreSQLVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test",
     "org.specs2" %% "specs2" % specs2Version % "test",
     "com.stackmob" %% "newman" % "0.23.0" % "test",    

@@ -3,9 +3,6 @@ import Process._
 import com.typesafe.sbt.SbtNativePackager._
 import com.typesafe.sbt.packager.debian.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPackageMapping
-import sbtrelease._
-import ReleasePlugin._
-import ReleaseKeys._
 import S3._
 
 scalaVersion := "2.10.2"
@@ -32,8 +29,9 @@ packageSummary := "API server (REST based) for the megam platform."
 
 packageDescription in Debian:= "API server (REST based) for the megam platform.The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
 
-com.typesafe.sbt.packager.debian.Keys.name in Debian := "megam_play"
+com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 
+s3Settings
 
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
@@ -57,6 +55,25 @@ linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
    withConfig())
 }
 
+linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
+  (packageMapping((bd / "conf/application-logger.xml") -> "/usr/local/share/megamplay/conf/application-logger.xml")
+   withConfig())
+}
+
+linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
+  (packageMapping((bd / "conf/routes") -> "/usr/local/share/megamplay/conf/routes")
+   withConfig())
+}
+
+linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
+  (packageMapping((bd / "conf/messages") -> "/usr/local/share/megamplay/conf/messages")
+   withConfig())
+}
+
+linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
+  (packageMapping((bd / "conf/play.plugins") -> "/usr/local/share/megamplay/conf/play.plugins")
+   withConfig())
+}
  
 com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbtVersion) apply { (v, sv) =>
   sv + "-build-" + (v split "\\." map (_.toInt) dropWhile (_ == 0) map ("%02d" format _) mkString "")
@@ -74,12 +91,14 @@ linuxPackageMappings <+= (baseDirectory) map { bd =>
 
 linuxPackageMappings in Debian <+= (com.typesafe.sbt.packager.debian.Keys.sourceDirectory) map { bd =>
   (packageMapping(
-    (bd / "CHANGELOG") -> "/usr/share/doc/megam_play/changelog.gz"
+    (bd / "debian/changelog") -> "/usr/share/doc/megam_play/changelog.gz"
   ) withUser "root" withGroup "root" withPerms "0644" gzipped) asDocs()
 }
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megam_play", "0.12.4-build-0100")),"debs/megam_play0.1.0.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"0.1/debs/megam_play.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 
 credentials += Credentials(Path.userHome / "software" / "aws" / "keys" / "sbt_s3_keys")
+
+S3.progress in S3.upload := true

@@ -33,7 +33,8 @@ import org.megam.common.amqp._
  * @author ram
  *
  */
-object Logs extends Controller with APIAuthElement  {
+
+object Logs extends Controller with APIAuthElement {
 
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatch[Result] {
@@ -62,3 +63,7 @@ object Logs extends Controller with APIAuthElement  {
   }
 
 }
+
+
+
+

@@ -101,7 +101,7 @@ object Requests {
    */
   private def mkGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests:json", input))
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
@@ -109,7 +109,7 @@ object Requests {
       parse(input).extract[RequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
-    play.api.Logger.debug(("%-20s -->[%s]").format("ripNel", ripNel))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests:rip", ripNel))
 
     for {
       rip <- ripNel

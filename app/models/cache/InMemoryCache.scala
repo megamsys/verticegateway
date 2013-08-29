@@ -18,6 +18,7 @@ package models.cache
 import scalaz.State
 import models.cache._
 import play.api.Play.current
+import models.Accounts._
 
 /**
  * @author ram
@@ -56,7 +57,7 @@ trait InMemory[A] {
 }
 
 object InMemory {
-  def apply[A](f: String => A) = new InMemoryImpl[A](f)
+  def apply[A](f: String => A)(implicit sedv: Sedimenter[A]) = new InMemoryImpl[A](f)(sedv)
 }
 
 /**
@@ -64,7 +65,7 @@ object InMemory {
  * and a function (f: String => A) which produces A.
  * The function f will be called when the value in the cache is stale or doesn't exists.
  */
-class InMemoryImpl[A](f: String => A) extends InMemory[A] {
+class InMemoryImpl[A](f: String => A)(implicit sedv: Sedimenter[A]) extends InMemory[A] {
 
   /**
    * Implement by doing a check if it exists in the InMemoryCache (which just a fascade to play.api.cache.Cache)
@@ -77,24 +78,27 @@ class InMemoryImpl[A](f: String => A) extends InMemory[A] {
 
   /**
    * Verify if the string exists in the InMemoryCache
+   * A prestore check is done to see if the result fetched by the model
+   * was successful. This helps to keep the Cache with good objects.
    */
-  private def checkMem(u: String): StateCacheO[A] = for {
+  private def checkMem(u: String)(implicit sed: Sedimenter[A]): StateCacheO[A] = for {
     ofs <- State.gets { c: InMemoryCache[A] =>
-      play.api.Logger.debug("%-20s -->[%s]".format("|^^|-->checkMem:", u))
+      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->checkMem:", u))
       c.getAs[A](u).collect {
-        case Timestamped(fs, ts) if !stale(ts) => fs
+        case Timestamped(fs, ts) if (sed.sediment(fs) && !stale(ts)) => fs
       }
     }
   } yield ofs
 
   /**
    * Produce a stale timer
-   * Mask it for development
+   * Mask it for development (2s), which means invalidate it every 2s.
+   * probably control it using  a key
    */
   private def stale(ts: Long): Boolean = {
-    val sweetPieTime = if (play.api.Play.application(play.api.Play.current).mode == play.api.Mode.Dev) 0L else (5 * 60 * 1000L)
-   play.api.Logger.debug("--------stale >"+ sweetPieTime)
-    System.currentTimeMillis - ts > sweetPieTime 
+    val sweetPieTime = if (play.api.Play.application(play.api.Play.current).mode == play.api.Mode.Dev) (5 * 60 * 10000L) else (5 * 60 * 1000L)
+    play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->stale:", !(System.currentTimeMillis - ts > sweetPieTime)))
+    System.currentTimeMillis - ts > sweetPieTime
   }
 
   /**

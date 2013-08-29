@@ -23,7 +23,7 @@ import scalaz.effect.IO
 import scalaz.EitherT._
 import Scalaz._
 import models._
-import models.cache.{ InMemory, InMemoryCache }
+import models.cache._
 import controllers.funnel.FunnelErrors._
 import controllers.stack._
 import controllers.Constants._
@@ -99,7 +99,6 @@ object PredefResult {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  
 }
 
 object Predefs {
@@ -210,5 +209,13 @@ object Predefs {
   def listAll: ValidationNel[Throwable, PredefResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "listAll:Entry"))
     findByName(PredefInput.toStream.some) //return the folded element in the head.  
+  }
+
+  implicit val sedimentPredefResults = new Sedimenter[ValidationNel[Error, PredefResults]] {
+    def sediment(maybeASediment: ValidationNel[Error, PredefResults]): Boolean = {
+      val notSed = maybeASediment.isSuccess
+      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->PRC:sediment:", notSed))
+      notSed
+    }
   }
 }
