@@ -35,6 +35,7 @@ import models.{ NodeComputeDetail }
  */
 object NodeComputeDetailSerialization extends SerializationBase[NodeComputeDetail] {
 
+  protected val GroupsKey = "groups"
   protected val ImageKey = "image"
   protected val FlavorKey = "flavor"
 
@@ -42,6 +43,7 @@ object NodeComputeDetailSerialization extends SerializationBase[NodeComputeDetai
 
     override def write(h: NodeComputeDetail): JValue = {
       JObject(
+          JField(GroupsKey, toJSON(h.groups)) ::
           JField(ImageKey, toJSON(h.image)) ::
           JField(FlavorKey, toJSON(h.flavor)) :: Nil)
     }
@@ -50,13 +52,14 @@ object NodeComputeDetailSerialization extends SerializationBase[NodeComputeDetai
   override implicit val reader = new JSONR[NodeComputeDetail] {
 
     override def read(json: JValue): Result[NodeComputeDetail] = {
+      val groupsField = field[String](GroupsKey)(json)
       val imageField = field[String](ImageKey)(json)
       val flavorField = field[String](FlavorKey)(json)
       
 
-      (imageField |@| flavorField) {
-        (image: String, flavor: String) =>
-          new NodeComputeDetail(image, flavor)
+      (groupsField |@| imageField |@| flavorField) {
+        (groups: String, image: String, flavor: String) =>
+          new NodeComputeDetail(groups, image, flavor)
       }
     }
   }

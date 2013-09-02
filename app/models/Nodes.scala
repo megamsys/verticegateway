@@ -114,7 +114,7 @@ case class NodeCommand(systemprovider: NodeSystemProvider, compute: NodeCompute,
 object NodeCommand {
   //this is a very ugly hack. I am tad lazy to write individual objects.
   def empty: NodeCommand = new NodeCommand(NodeSystemProvider.empty,
-    new NodeCompute(new String(), new NodeComputeDetail(new String(), new String()),
+    new NodeCompute(new String(), new NodeComputeDetail(new String(), new String(), new String()),
       new NodeComputeAccess(new String(), new String(), new String())),
     NodeCloudToolService.empty)
 }
@@ -139,8 +139,8 @@ case class NodeCompute(cctype: String, cc: NodeComputeDetail, access: NodeComput
   val json = "{\"cctype\": \"" + cctype + "\", " + "\"cc\": " + "{" + cc.json + "}, \"access\" : " + access.json
 }
 
-case class NodeComputeDetail(image: String, flavor: String) {
-  val json = "\"image\": \"" + image + "\", " + "\"flavor\": \"" + flavor + "\""
+case class NodeComputeDetail(groups: String, image: String, flavor: String) {
+  val json = "\"groups\": \"" + groups + "\", " + "\"image\": \"" + image + "\", " + "\"flavor\": \"" + flavor + "\""
 }
 
 case class NodeComputeAccess(ssh_key: String, identity_file: String, ssh_user: String) {
