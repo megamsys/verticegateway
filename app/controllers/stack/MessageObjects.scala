@@ -17,8 +17,13 @@ package controllers.stack
 
 import scalaz._
 import Scalaz._
+import scala.concurrent._
+import scala.concurrent.duration.Duration
 import org.megam.common._
 import org.megam.common.amqp._
+import org.megam.common.amqp.request._
+import org.megam.common.amqp.response._
+import org.megam.common.concurrent._
 import com.typesafe.config._
 import play.api.Logger
 import play.api.Play._
@@ -34,31 +39,20 @@ object MessageObjects {
     play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Entry"))
     play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ"))
 
-    /*
-     * create the RabbitMQ Client using url, exchange name and queue name
-     */
+    //create the RabbitMQ Client using url, exchange name and queue name
     val client = new RabbitMQClient(MConfig.amqpuri, MConfig.exchange_name, MConfig.queue_name)
 
-    /*
-     * these was execute Publish or subscribe the messages 
-     * 
-     */
-    protected def execute[T](t: AMQPRequest, expectedCode: AMQPResponseCode = AMQPResponseCode.Ok) = {
-      play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "execute"))
-      val r = t.executeUnsafe
-      r
+    protected def execute(ampq_request: AMQPRequest, duration: Duration = org.megam.common.concurrent.duration) = {
+      import org.megam.common.concurrent.SequentialExecutionContext
+      val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] = ampq_request.apply
+      responseFuture.block(duration)
     }
-
   }
 
-  /*
-   * these case class extends TestContext trait 
-   * and then to publish the messages
-   *  
-   */
+  
   case class Publish(messages: String) extends MessageContext {
     val pubMsg = Messages("id" -> messages)
     play.api.Logger.debug("%-20s -->[%s]".format("Publish", pubMsg))
-    def dop() = execute(client.publish(pubMsg, MConfig.routing_key)).some //wrap it in an option for now.
+    def dop(): ValidationNel[Throwable, AMQPResponse] = execute(client.publish(pubMsg, MConfig.routing_key))
   }
 }

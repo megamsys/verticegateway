@@ -61,11 +61,11 @@ object Nodes extends Controller with APIAuthElement {
                 Status(CREATED)(FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
             |Check back on the 'node name':{%s}
-            |The cloud is working for you. It will be ready shortly.""".format(tuple_succ._1).stripMargin, "Megam::Node").toJson(true)).some
+            |The cloud is working for you. It will be ready shortly.""".format(tuple_succ._1).stripMargin, "Megam::Node").toJson(true)).successNel[Throwable]
               } match {
                 //this is only a temporary hack.
-                case Some(succ_cpc) => succ_cpc
-                case None =>
+                case Success(succ_cpc) => succ_cpc
+                case Failure(err) =>
                   Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
             |for 'node name':{%s} 'request_id':{%s}
             |Retry again, our queue servers are crowded""".format(tuple_succ._1, tuple_succ._2).stripMargin, "Megam::Node").toJson(true))
