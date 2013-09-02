@@ -27,41 +27,32 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest, NodeCommand}
-import org.megam.common.enumeration._
-
+import models.{ NodeSystemProvider, NodeProvider }
 
 /**
  * @author ram
  *
  */
-object NodeRequestSerialization extends SerializationBase[NodeRequest] {
-  protected val ReqIdKey = "req_id"
-  protected val CommandKey = "command"
-  
+object NodeSystemProviderSerialization extends SerializationBase[NodeSystemProvider] {
+  protected val ProviderKey = "provider"
 
-  override implicit val writer = new JSONW[NodeRequest] {
+  override implicit val writer = new JSONW[NodeSystemProvider] {
 
-    import NodeCommandSerialization.{ writer => NodeCommandWriter }
+    import NodeProviderSerialization.{ writer => NodeProviderWriter }
 
-    override def write(h: NodeRequest): JValue = {
+    override def write(h: NodeSystemProvider): JValue = {
       JObject(
-        JField(ReqIdKey, toJSON(h.req_id)) ::
-          JField(CommandKey, toJSON(h.command)(NodeCommandWriter))  ::Nil)
+        JField(ProviderKey, toJSON(h.provider)(NodeProviderWriter)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeRequest] {
-    import NodeCommandSerialization.{ reader => NodeCommandReader }
+  override implicit val reader = new JSONR[NodeSystemProvider] {
 
-    override def read(json: JValue): Result[NodeRequest] = {
-      val reqidField = field[String](ReqIdKey)(json)
-      val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
-    
-      (reqidField |@| commandField) {
-        (req_id: String, command: NodeCommand) =>
-          new NodeRequest(req_id, command)
-      }
+    import NodeProviderSerialization.{ reader => NodeProviderReader }
+
+    override def read(json: JValue): Result[NodeSystemProvider] = {
+      val sys_provValSF = field[NodeProvider](ProviderKey)(json)(NodeProviderReader)
+      sys_provValSF map {provVal => new NodeSystemProvider(provVal) }      
     }
   }
 }

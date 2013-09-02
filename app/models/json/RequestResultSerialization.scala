@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.RequestResult
+import models.{RequestResult, NodeCommand}
 
 /**
  * @author ram
@@ -41,6 +41,7 @@ class RequestResultSerialization(charset: Charset = UTF8Charset) extends Seriali
   protected val CommandKey = "command"
 
   override implicit val writer = new JSONW[RequestResult] {
+    import NodeCommandSerialization.{ writer => NodeCommandWriter }
 
     override def write(h: RequestResult): JValue = {
       JObject(
@@ -48,20 +49,21 @@ class RequestResultSerialization(charset: Charset = UTF8Charset) extends Seriali
           JField(NodeIDKey, toJSON(h.node_id)) ::
           JField(JSONClazKey, toJSON("Megam::Request")) ::
           JField(NodeNameKey, toJSON(h.node_name)) ::
-          JField(CommandKey, toJSON(h.command)) :: Nil)
+          JField(CommandKey, toJSON(h.command)(NodeCommandWriter)) :: Nil)
     }
   }
 
   override implicit val reader = new JSONR[RequestResult] {
+    import NodeCommandSerialization.{ reader => NodeCommandReader }
 
     override def read(json: JValue): Result[RequestResult] = {
       val idField = field[String](IdKey)(json)
       val nodeIdField = field[String](NodeIDKey)(json)
       val nodeNameField = field[String](NodeNameKey)(json)
-      val commandField = field[String](CommandKey)(json)
+      val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
 
       (idField |@| nodeIdField |@| nodeNameField |@| commandField) {
-        (id: String, node_id: String, node_name: String, command: String) =>
+        (id: String, node_id: String, node_name: String, command: NodeCommand) =>
           new RequestResult(id, node_id, node_name, command)
       }
     }
