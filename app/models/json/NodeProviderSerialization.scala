@@ -27,41 +27,29 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest, NodeCommand}
-import org.megam.common.enumeration._
-
+import models.{ NodeProvider }
 
 /**
  * @author ram
  *
  */
-object NodeRequestSerialization extends SerializationBase[NodeRequest] {
-  protected val ReqIdKey = "req_id"
-  protected val CommandKey = "command"
-  
+object NodeProviderSerialization extends SerializationBase[NodeProvider] {
 
-  override implicit val writer = new JSONW[NodeRequest] {
+  protected val ProvKey = "prov"
 
-    import NodeCommandSerialization.{ writer => NodeCommandWriter }
+  override implicit val writer = new JSONW[NodeProvider] {
 
-    override def write(h: NodeRequest): JValue = {
+    override def write(h: NodeProvider): JValue = {
       JObject(
-        JField(ReqIdKey, toJSON(h.req_id)) ::
-          JField(CommandKey, toJSON(h.command)(NodeCommandWriter))  ::Nil)
+        JField(ProvKey, toJSON(h.prov)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeRequest] {
-    import NodeCommandSerialization.{ reader => NodeCommandReader }
+  override implicit val reader = new JSONR[NodeProvider] {
 
-    override def read(json: JValue): Result[NodeRequest] = {
-      val reqidField = field[String](ReqIdKey)(json)
-      val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
-    
-      (reqidField |@| commandField) {
-        (req_id: String, command: NodeCommand) =>
-          new NodeRequest(req_id, command)
-      }
+    override def read(json: JValue): Result[NodeProvider] = {
+      val provValSF = field[String](ProvKey)(json)
+      provValSF map { provVal => new NodeProvider(provVal) }
     }
   }
 }

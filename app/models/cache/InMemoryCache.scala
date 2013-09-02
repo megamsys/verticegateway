@@ -96,7 +96,7 @@ class InMemoryImpl[A](f: String => A)(implicit sedv: Sedimenter[A]) extends InMe
    * probably control it using  a key
    */
   private def stale(ts: Long): Boolean = {
-    val sweetPieTime = if (play.api.Play.application(play.api.Play.current).mode == play.api.Mode.Dev) (5 * 60 * 10000L) else (5 * 60 * 1000L)
+    val sweetPieTime = if (play.api.Play.application(play.api.Play.current).mode == play.api.Mode.Dev) (5 * 60 * 10L) else (5 * 60 * 1000L)
     play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->stale:", !(System.currentTimeMillis - ts > sweetPieTime)))
     System.currentTimeMillis - ts > sweetPieTime
   }
