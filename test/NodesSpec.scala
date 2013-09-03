@@ -51,7 +51,7 @@ class NodesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
-        new NodeCompute("ec2", new NodeComputeDetail("img1", "t1-micro"),
+        new NodeCompute("ec2", new NodeComputeDetail("megam_ec2","img1", "t1-micro"),
           new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
       val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":" +
