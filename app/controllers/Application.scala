@@ -17,12 +17,13 @@ package controllers
 
 import controllers.stack._
 import controllers.funnel.FunnelErrors._
-import controllers.funnel.{ FunnelResponse, FunnelResponses }
+import controllers.funnel._
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 import models._
 import play.api._
 import play.api.mvc._
 import scalaz._
+import Scalaz._
 import scalaz.Validation._
 
 /**
@@ -38,16 +39,15 @@ object Application extends Controller with APIAuthElement {
   def init = Action { implicit request =>
     PlatformAppPrimer.prep match {
       case Success(succ) => {
-        val sFlash = ("success0" -> "Your Megam Cloud Platform is ready.")
-        Redirect("/").flashing(sFlash, ("success1" -> FunnelResponses.toJson(succ,true)))       
+        val fu = List(("success" -> "Megam Cloud Platform is ready.")) ++ FunnelResponses.toTuple2(succ) 
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
       }
       case Failure(err) => {
         val rn: FunnelResponses = new HttpReturningError(err)
         val rnjson = FunnelResponses.toJson(rn, false)
+        val fu = List(("error" -> "Duh Megam Cloud Platform couldn't be primed.")) ++ FunnelResponses.toTuple2(rn)
         Logger.debug(rnjson)
-        Redirect("/").flashing(
-          "error0" -> "Duh Megam Cloud Platform isn't primed Yet. - NoGo",
-          "error1" -> err.toString)
+        Redirect("/").flashing(fu: _*)
       }
     }
 
