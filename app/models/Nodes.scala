@@ -166,7 +166,7 @@ object Nodes {
 
   implicit def NodeResultsSemigroup: Semigroup[NodeResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
 
   val metadataKey = "Node"
   val newnode_metadataVal = "New Node Creation"

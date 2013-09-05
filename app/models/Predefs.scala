@@ -106,7 +106,7 @@ object Predefs {
   implicit val formats = DefaultFormats
   implicit def PredefResultsSemigroup: Semigroup[PredefResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predefs")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "predefs")
 
   val metadataKey = "Predef"
   val metadataVal = "Predefs Creation"

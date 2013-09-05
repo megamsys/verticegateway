@@ -183,7 +183,7 @@ object CloudTools {
   implicit val formats = DefaultFormats
   implicit def CloudToolResultsSemigroup: Semigroup[CloudToolResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "cloudtools")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "cloudtools")
 
   val metadataKey = "CloudTool"
   val metadataVal = "CloudTools Creation"
