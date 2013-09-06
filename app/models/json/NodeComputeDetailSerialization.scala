@@ -27,40 +27,39 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest, NodeCommand}
-import org.megam.common.enumeration._
-
+import models.{ NodeComputeDetail }
 
 /**
  * @author ram
  *
  */
-object NodeRequestSerialization extends SerializationBase[NodeRequest] {
-  protected val ReqIdKey = "req_id"
-  protected val CommandKey = "command"
-  
+object NodeComputeDetailSerialization extends SerializationBase[NodeComputeDetail] {
 
-  override implicit val writer = new JSONW[NodeRequest] {
+  protected val GroupsKey = "groups"
+  protected val ImageKey = "image"
+  protected val FlavorKey = "flavor"
 
-    import NodeCommandSerialization.{ writer => NodeCommandWriter }
+  override implicit val writer = new JSONW[NodeComputeDetail] {
 
-    override def write(h: NodeRequest): JValue = {
+    override def write(h: NodeComputeDetail): JValue = {
       JObject(
-        JField(ReqIdKey, toJSON(h.req_id)) ::
-          JField(CommandKey, toJSON(h.command)(NodeCommandWriter))  ::Nil)
+          JField(GroupsKey, toJSON(h.groups)) ::
+          JField(ImageKey, toJSON(h.image)) ::
+          JField(FlavorKey, toJSON(h.flavor)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeRequest] {
-    import NodeCommandSerialization.{ reader => NodeCommandReader }
+  override implicit val reader = new JSONR[NodeComputeDetail] {
 
-    override def read(json: JValue): Result[NodeRequest] = {
-      val reqidField = field[String](ReqIdKey)(json)
-      val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
-    
-      (reqidField |@| commandField) {
-        (req_id: String, command: NodeCommand) =>
-          new NodeRequest(req_id, command)
+    override def read(json: JValue): Result[NodeComputeDetail] = {
+      val groupsField = field[String](GroupsKey)(json)
+      val imageField = field[String](ImageKey)(json)
+      val flavorField = field[String](FlavorKey)(json)
+      
+
+      (groupsField |@| imageField |@| flavorField) {
+        (groups: String, image: String, flavor: String) =>
+          new NodeComputeDetail(groups, image, flavor)
       }
     }
   }

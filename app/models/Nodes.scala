@@ -40,8 +40,8 @@ import java.nio.charset.Charset
  * @author ram
  *
  */
-case class NodeInput(node_name: String, command: String, predefs: NodePredefs) {
-  val formatReqsJson = "\"node_name\":\"" + node_name + "\",\"command\":\"" + command + "\""
+case class NodeInput(node_name: String, command: NodeCommand, predefs: NodePredefs) {
+  val formatReqsJson = "\"node_name\":\"" + node_name + "\",\"command\": " + command.json
 }
 
 case class NodeResult(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs) {
@@ -82,9 +82,9 @@ object NodeResult {
 
 }
 
-case class NodeRequest(req_id: String, command: String) {
-  def this() = this(new String(), new String())
-  override def toString = "\"req_id\":\"" + req_id + "\",\"command\":\"" + command + "\""
+case class NodeRequest(req_id: String, command: NodeCommand) {
+  def this() = this(new String(), NodeCommand.empty)
+  override def toString = "\"req_id\":\"" + req_id + "\",\"command\": " + command.json
 }
 
 case class NodePredefs(name: String, scm: String, war: String, db: String, queue: String) {
@@ -106,7 +106,59 @@ object NodeStatusType {
     PUBLISHED, STARTED, LAUNCH_SUCCESSFUL, LAUNCH_FAILED)
 }
 
-case class NodeMachines(name: String, public: String, cpuMetrics: String)
+case class NodeCommand(systemprovider: NodeSystemProvider, compute: NodeCompute, cloudtool: NodeCloudToolService) {
+  val json = "{\"systemprovider\": " + systemprovider.json + "}, \"compute\": " + compute.json + "\"}}, \"cloudtool\": {" +
+    cloudtool.json + "\"}}}"
+}
+
+object NodeCommand {
+  //this is a very ugly hack. I am tad lazy to write individual objects.
+  def empty: NodeCommand = new NodeCommand(NodeSystemProvider.empty,
+    new NodeCompute(new String(), new NodeComputeDetail(new String(), new String(), new String()),
+      new NodeComputeAccess(new String(), new String(), new String())),
+    NodeCloudToolService.empty)
+}
+
+case class NodeSystemProvider(provider: NodeProvider) {
+  val json = "{\"provider\" : {" + provider.json + "}"
+}
+
+object NodeSystemProvider {
+  def empty: NodeSystemProvider = new NodeSystemProvider(new NodeProvider())
+}
+
+case class NodeProvider(prov: String = "chef") {
+  val json = "\"prov\": \"" + prov + "\""
+}
+
+object NodeProvider {
+  def empty: NodeProvider = new NodeProvider()
+}
+
+case class NodeCompute(cctype: String, cc: NodeComputeDetail, access: NodeComputeAccess) {
+  val json = "{\"cctype\": \"" + cctype + "\", " + "\"cc\": " + "{" + cc.json + "}, \"access\" : " + access.json
+}
+
+case class NodeComputeDetail(groups: String, image: String, flavor: String) {
+  val json = "\"groups\": \"" + groups + "\", " + "\"image\": \"" + image + "\", " + "\"flavor\": \"" + flavor + "\""
+}
+
+case class NodeComputeAccess(ssh_key: String, identity_file: String, ssh_user: String) {
+  val json = "{\"ssh_key\": \"" + ssh_key + "\", " + "\"identity_file\": \"" + identity_file + "\", " + "\"ssh_user\": \"" + ssh_user
+}
+
+case class NodeCloudToolService(chef: NodeCloudToolChef) {
+  val json = "\"chef\": {" + chef.json
+}
+
+object NodeCloudToolService {
+  def empty: NodeCloudToolService = new NodeCloudToolService(new NodeCloudToolChef(new String(), new String(), new String(), new String()))
+}
+
+case class NodeCloudToolChef(command: String, plugin: String, run_list: String, name: String) {
+  val json = "\"command\": \"" + command + "\", " + "\"plugin\": \"" + plugin + "\"," +
+    "\"run_list\": \"" + run_list + "\", " + "\"name\": \"" + name
+}
 
 object Nodes {
 
@@ -114,7 +166,7 @@ object Nodes {
 
   implicit def NodeResultsSemigroup: Semigroup[NodeResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
 
   val metadataKey = "Node"
   val newnode_metadataVal = "New Node Creation"
@@ -169,14 +221,14 @@ object Nodes {
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket
    */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[Tuple3[String, String, String]]] = {
+  def create(email: String, input: String): ValidationNel[Throwable, Option[Tuple3[String, String, NodeCommand]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
     for {
       ogsi <- mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err }
-      nrip <- NodeResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => nels(JSONParsingError(t)) }
+      nrip <- NodeResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => println("osgi\n" + ogsi.get.value); play.api.Logger.debug(JSONParsingError(t).toString); nels(JSONParsingError(t)) }
       ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => play.api.Logger.debug("--------> ooo"); t }
     } yield {
       play.api.Logger.debug(("%-20s -->[%s],riak returned: %s").format("Node.created successfully", email, ogsr))
@@ -239,7 +291,7 @@ object Nodes {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((NodeResults.empty).successNel[Throwable])(_ +++ _)
-    }).head  //return the folded element in the head. 
+    }).head //return the folded element in the head. 
   }
 
   /*
@@ -268,7 +320,7 @@ object Nodes {
       }).disjunction).pure[IO]
     }.run.map(_.validation).unsafePerformIO
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", res))
-    res.getOrElse(new ResourceItemNotFound(email, "nodes = nothing found.").failureNel[NodeResults])
+    res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[NodeResults])
   }
 
 }

@@ -40,13 +40,13 @@ import java.nio.charset.Charset
  * @author ram
  * This would actually be a link to the Nodes bucket. which would allow us to use link-walking
  */
-case class RequestInput(node_id: String, node_name: String, command: String) {
-  val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"command\":\"" + command + "\""
+case class RequestInput(node_id: String, node_name: String, command: NodeCommand) {
+  val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"command\": " + command.json 
 }
 
-case class RequestResult(id: String, node_id: String, node_name: String, command: String) {
+case class RequestResult(id: String, node_id: String, node_name: String, command: NodeCommand) {
   val json = "{\"id\": \"" + id + "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name +
-    "\",\"command\":\"" + command + "\"}"
+    "\",\"command\": " + command.json + "}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -64,7 +64,7 @@ case class RequestResult(id: String, node_id: String, node_name: String, command
 
 object RequestResult {
 
-  def apply = new RequestResult(new String(), new String(), new String(), new String())
+  def apply = new RequestResult(new String(), new String(), new String(), NodeCommand.empty)
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[RequestResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -87,7 +87,7 @@ object Requests {
 
   implicit def RequestResultsSemigroup: Semigroup[RequestResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "requests")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "requests")
 
   val metadataKey = "Request"
   val newnode_metadataVal = "New Request Creation"
@@ -128,7 +128,7 @@ object Requests {
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket
    */
-  def create(input: String): ValidationNel[Throwable, Option[Tuple2[String, String]]] = {
+  def create(input: String): ValidationNel[Throwable, Option[Tuple2[String, NodeCommand]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 

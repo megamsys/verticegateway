@@ -90,7 +90,7 @@ object PredefCloudResult {
 object PredefClouds {
 
   implicit val formats = DefaultFormats
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "predefclouds")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "predefclouds")
   implicit def PredefCloudResultsSemigroup: Semigroup[PredefCloudResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "Predefcloud"

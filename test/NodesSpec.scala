@@ -23,6 +23,7 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
+import models._
 /**
  * @author subash
  *
@@ -35,10 +36,10 @@ class NodesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-      "Correctly do GET  (node name)requests with a valid userid and api key" ! findByName.succeeds ^
-      "Correctly do GET  (morning.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
+     //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      //"Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
+      //"Correctly do GET  (node name)requests with a valid userid and api key" ! findByName.succeeds ^
+      //"Correctly do GET  (morning.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
       end
 
   /**
@@ -49,7 +50,12 @@ class NodesSpec extends Specification {
     protected override def urlSuffix: String = "nodes/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}}"
+      val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
+        new NodeCompute("ec2", new NodeComputeDetail("megam_ec2","img1", "t1-micro"),
+          new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
+        new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
+      val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":" +
+        command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

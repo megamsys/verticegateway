@@ -3,74 +3,113 @@
 <div class="api-doc">
 	<div class="mddoc margin-top-large">
 		<div class="row">
-			<div class="col-lg-9">
-				<div class="alert alert-info">
+			<div class="col-lg-1">
+				<span class="glyphicon glyphicon-hand-right"> </span>
+			</div>
+			<div class="col-lg-8">
+				<div class="alert alert-warning">
 					<button type="button" class="close" data-dismiss="alert">
 						&times;
 					</button>
-					<strong>If you are an Administrator </strong> Click
-					&nbsp;&nbsp;
+					<strong>Administrators :</strong>
+					&nbsp;
 					<code>
-						&nbsp;Init&nbsp;
-					</code>&nbsp;&nbsp;
-					to prime the cloud platform.
+						&nbsp;<b>Quick Init</b>
+					</code>&nbsp;
+					to prime your Cloud App Platform.
 				</div>
 			</div>
 			<div class="col-lg-3">
-				<a href="@routes.Application.init" class="btn btn-danger btn-lg btn-block">Init </a>
+				<a href="@routes.Application.init" class="btn btn-red btn-lg btn-block"> <span class="glyphicon glyphicon-flash">Quick Init </span></a>
+			
 			</div>
 		</div>
 
-		@flash.get("success0").map { succ_message =>
+		@flash.get("success").map { suc=>
 		<div class="alert alert-success">
 			<button type="button" class="close" data-dismiss="alert">
 				&times;
 			</button>
-			<strong>Great!</strong> @succ_message
-
-			@flash.get("success1").map { succ_detail_msg =>
+			<h1 align="center"><span class="glyphicon glyphicon-ok"></span></h1>
+			<div class="progress">
+				<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+					<span class="sr-only">100% Complete</span>
+				</div>
+			</div>
 			<div class="panel-group" id="accordion">
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Detail</a></h4>
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> <span class="glyphicon glyphicon-cloud"></span> Detail</a></h4>
 					</div>
 					<div id="collapseOne" class="panel-collapse collapse in">
-						<div class="panel-body">
-							@succ_detail_msg
+						<div class="panel-body pre-scrollable">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Http Code</th>
+										<th>Msg</th>
+									</tr>
+								</thead>
+								<tbody>
+									@for(sm <- flash.data) {
+									<tr>
+										<td>@if(sm._1 == "success") { <span class="label label-success">@sm._1</span> } else { <span class="badge badge-success">@sm._1</span> } </td>
+										<td>@sm._2</td>
+									</tr>
+									}
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>
 			</div>
-			}
 		</div>
 		}
-		@flash.get("error0").map { err_flunked =>
-		<div class="alert alert-danger fade in">
+
+		@flash.get("error").map { err =>
+		<div class="alert alert-warning">
 			<button type="button" class="close" data-dismiss="alert">
 				&times;
 			</button>
-			<h4>Oh snap! You got an error!</h4>
-			@flash.get("error1").map { err_detail_msg =>
-
+			<h1 align="center"><span class="glyphicon glyphicon-remove"></span></h1>
+			<div class="progress">
+				<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%;">
+					<span class="sr-only">50% Complete</span>
+				</div>
+			</div>
 			<div class="panel-group" id="accordion">
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Detail Error </a></h4>
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> <span class="glyphicon glyphicon-cloud"></span> Detail</a></h4>
 					</div>
 					<div id="collapseOne" class="panel-collapse collapse in">
-						<div class="panel-body">
-							@err_detail_msg
+						<div class="panel-body pre-scrollable">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Http Code</th>
+										<th>Msg</th>
+									</tr>
+								</thead>
+								<tbody>
+									@for(em <- flash.data) {
+									<tr>
+										<td>@if(em._1 == "error") { <span class="label label-error">@em._1</span> } else { <span class="badge bade-error">@em._1</span> } </td>
+										<td>@em._2</td>
+									</tr>
+									}
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>
 			</div>
-
-			}
 			</br>
 			<p>
 				<a class="btn btn-danger" href="http:\\support.megam.co" target="_blank">Contact Support</a>
 			</p>
 		</div>
+
 		}
 
 		<h1><a name="rest_docs" href="#a-rest_docs">REST API</a></h1>
@@ -114,7 +153,7 @@
 			<p>
 				Request URL:
 			</p>
-				<pre><code class="html">POST http://api.megam.co/v1/auth</code></pre>
+			<pre><code class="html">POST http://api.megam.co/v1/auth</code></pre>
 			<p>
 				Request Headers:
 			</p>
@@ -122,19 +161,27 @@
 				<code>
 					"X-Megam-DATE:"
 				</code>
-				2013-07-01 17:17" <br></br>
+				2013-07-01 17:17"
+				<br>
+				</br>
 				<code>
 					"X-Megam-HMAC:"
 				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c" <br></br>
+				060873b2afce74fd024bba428b0e2e00b661cc2c"
+				<br>
+				</br>
 				<code>
 					"Content-Type:"
 				</code>
-				appilication/Json"<br></br>
+				appilication/Json"
+				<br>
+				</br>
 				<code>
 					"Accept:"
 				</code>
-				"application/vnd.megam+json "<br></br>
+				"application/vnd.megam+json "
+				<br>
+				</br>
 			</p>
 			<p>
 				Request Body:
@@ -158,7 +205,7 @@
   }
 ]</code>
 </pre>
-</p>
+			</p>
 			<div class="panel-group" id="accordion">
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -210,7 +257,7 @@
 		<code class="brush: scala; toolbar: false; ">
 		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
 		</code>
-		</pre>																																																																																																																																																																	
+		</pre>
 				</div>
 			</div>
 
@@ -332,7 +379,22 @@
 			</div>
 			<pre><code class="brush: bash; toolbar: false; ">
 					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-                </code> </pre>																																																																																																							
+                </code> </pre>																																																																																																																																																				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

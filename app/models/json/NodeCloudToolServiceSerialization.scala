@@ -27,41 +27,32 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest, NodeCommand}
-import org.megam.common.enumeration._
-
+import models.{ NodeCloudToolService, NodeCloudToolChef }
 
 /**
  * @author ram
  *
  */
-object NodeRequestSerialization extends SerializationBase[NodeRequest] {
-  protected val ReqIdKey = "req_id"
-  protected val CommandKey = "command"
-  
+object NodeCloudToolServiceSerialization extends SerializationBase[NodeCloudToolService] {
+  protected val ChefKey = "chef"
 
-  override implicit val writer = new JSONW[NodeRequest] {
+  override implicit val writer = new JSONW[NodeCloudToolService] {
 
-    import NodeCommandSerialization.{ writer => NodeCommandWriter }
+    import NodeCloudToolChefSerialization.{ writer => NodeCloudToolChefWriter }
 
-    override def write(h: NodeRequest): JValue = {
+    override def write(h: NodeCloudToolService): JValue = {
       JObject(
-        JField(ReqIdKey, toJSON(h.req_id)) ::
-          JField(CommandKey, toJSON(h.command)(NodeCommandWriter))  ::Nil)
+        JField(ChefKey, toJSON(h.chef)(NodeCloudToolChefWriter)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeRequest] {
-    import NodeCommandSerialization.{ reader => NodeCommandReader }
+  override implicit val reader = new JSONR[NodeCloudToolService] {
 
-    override def read(json: JValue): Result[NodeRequest] = {
-      val reqidField = field[String](ReqIdKey)(json)
-      val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
-    
-      (reqidField |@| commandField) {
-        (req_id: String, command: NodeCommand) =>
-          new NodeRequest(req_id, command)
-      }
+    import NodeCloudToolChefSerialization.{ reader => NodeCloudToolChefReader }
+
+    override def read(json: JValue): Result[NodeCloudToolService] = {
+      val chefValSF = field[NodeCloudToolChef](ChefKey)(json)(NodeCloudToolChefReader)
+      chefValSF map {chefVal => new NodeCloudToolService(chefVal) }
     }
   }
 }

@@ -27,40 +27,37 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest, NodeCommand}
-import org.megam.common.enumeration._
-
-
+import models.{ NodeComputeAccess}
 /**
  * @author ram
  *
  */
-object NodeRequestSerialization extends SerializationBase[NodeRequest] {
-  protected val ReqIdKey = "req_id"
-  protected val CommandKey = "command"
-  
+object NodeComputeAccessSerialization  extends SerializationBase[NodeComputeAccess] {
+  protected val SSHKey = "ssh_key"
+  protected val IdentityFileKey = "identity_file"
+  protected val SSHUserKey = "ssh_user"
 
-  override implicit val writer = new JSONW[NodeRequest] {
+  override implicit val writer = new JSONW[NodeComputeAccess] {
 
-    import NodeCommandSerialization.{ writer => NodeCommandWriter }
-
-    override def write(h: NodeRequest): JValue = {
+    override def write(h: NodeComputeAccess): JValue = {
       JObject(
-        JField(ReqIdKey, toJSON(h.req_id)) ::
-          JField(CommandKey, toJSON(h.command)(NodeCommandWriter))  ::Nil)
+        JField(SSHKey, toJSON(h.ssh_user)) ::
+          JField(IdentityFileKey, toJSON(h.identity_file)) ::
+          JField(SSHUserKey, toJSON(h.ssh_user))  ::
+          Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeRequest] {
-    import NodeCommandSerialization.{ reader => NodeCommandReader }
+  override implicit val reader = new JSONR[NodeComputeAccess] {
 
-    override def read(json: JValue): Result[NodeRequest] = {
-      val reqidField = field[String](ReqIdKey)(json)
-      val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
-    
-      (reqidField |@| commandField) {
-        (req_id: String, command: NodeCommand) =>
-          new NodeRequest(req_id, command)
+    override def read(json: JValue): Result[NodeComputeAccess] = {
+      val sshkeyField = field[String](SSHKey)(json)
+      val identity_Field = field[String](IdentityFileKey)(json)
+      val sshuserField = field[String](SSHUserKey)(json)
+
+      (sshkeyField |@| identity_Field |@| sshuserField) {
+        (sshkey: String, identity_f: String, sshuser: String) =>
+          new NodeComputeAccess(sshkey,identity_f,sshuser)
       }
     }
   }

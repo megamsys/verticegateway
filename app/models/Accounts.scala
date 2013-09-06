@@ -77,7 +77,7 @@ object Accounts {
 
   implicit val formats = DefaultFormats
 
-  private lazy val riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
   /**
    * Parse the input body when you start, if its ok, then we process it.
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.

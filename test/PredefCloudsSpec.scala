@@ -53,8 +53,8 @@ class PredefCloudsSpec extends Specification {
     protected override def urlSuffix: String = "predefclouds/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new PredefCloudInput("ec2_rails", new PredefCloudSpec("sensor-type", "sens-group", "sens-image", "sens-flvr"),
-        new PredefCloudAccess("sens-ssh", "sens-identity-file", "sens-sshuser")).json
+      val contentToEncode = new PredefCloudInput("ec2_rails", new PredefCloudSpec("ec2", "megam", "ami-d783cd85", "m1.small"),
+        new PredefCloudAccess("megam_ec2", "~/.ssh/megam_ec2.pem", "ubuntu")).json
       Some(contentToEncode)
     }
 
