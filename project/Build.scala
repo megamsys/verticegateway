@@ -21,11 +21,7 @@ object ApplicationBuild extends Build {
    *   to the artifact name.
    */
 
-  val scalazVersion = "7.0.3"
-  val scalaCheckVersion = "1.10.1"
   val play2AuthVersion = "0.10.1"
-  val specs2Version = "2.1.1"
-  val liftJsonVersion = "2.5.1"
   val megamVersion = "0.1.0-SNAPSHOT"
 
   val appDependencies = Seq(
