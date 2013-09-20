@@ -23,6 +23,7 @@ import play.api._
 import play.api.http.Status._
 import play.api.mvc._
 import play.api.mvc.Results._
+import scala.concurrent.Future
 
 
 object Global extends GlobalSettings {
@@ -35,13 +36,13 @@ object Global extends GlobalSettings {
     play.api.Logger.info("Megam Play %s App - going down. Stateless folks - you don't care.".format("0.1"))
   }
 
-  override def onError(request: RequestHeader, ex: Throwable) = {
-    InternalServerError(
-      views.html.errorPage(ex))
+  override def onError(request: RequestHeader, ex: Throwable) : Future[play.api.mvc.SimpleResult] = {
+    Future.successful(InternalServerError(
+      views.html.errorPage(ex)))
   }
 
-  override def onHandlerNotFound(request: RequestHeader): play.api.mvc.Result = {
-    NotFound(
-      views.html.errorPage(new Throwable(NOT_FOUND + ":" + request.path + " NOT_FOUND")))
+  override def onHandlerNotFound(request: RequestHeader): Future[play.api.mvc.SimpleResult] = {
+   Future.successful(NotFound(
+      views.html.errorPage(new Throwable(NOT_FOUND + ":" + request.path + " NOT_FOUND"))))
   }
 }

@@ -15,11 +15,12 @@
 */
 package controllers.stack
 
+import scala.concurrent.Future
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 import models._
 import play.api._
 import play.api.mvc._
-import play.api.mvc.{ Result, Controller }
+import play.api.mvc.{ SimpleResult, Controller }
 
 /**
  * @author rajthilak
@@ -37,7 +38,7 @@ trait RateLimitElement extends StackableController {
 
   case object RateLimitKey extends RequestAttributeKey[String]
 
-  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
+  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[SimpleResult]): Future[SimpleResult] = {
     /*
     * How do we do that ? If the api_cursor_bucket for an user is < X calls then proceed, or dump out 
     * a result as we did in APIAuthElement 
@@ -46,7 +47,7 @@ trait RateLimitElement extends StackableController {
       case db => super.proceed(req.set(RateLimitKey, ""))(f)
       case _  => BadRequest
     }*/
-    BadRequest
+    Future.successful(BadRequest)
   }
 
   implicit def rateLimitImplicit[A](implicit req: RequestWithAttributes[A]): String = req.get(RateLimitKey).get

@@ -15,14 +15,16 @@
 */
 package controllers.stack
 
+import controllers.Constants._
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
+import scala.concurrent.Future
 
 import play.api._
-import play.api.mvc.Request
 import play.api.Logger
 import play.api.mvc._
+import play.api.mvc.SimpleResult
 import play.api.libs.iteratee.Enumerator
 
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
@@ -51,7 +53,7 @@ trait APIAuthElement extends StackableController {
    * If HMAC authentication is true, the req send in super class
    * otherwise send out a json formatted error
    */
-  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Result): Result = {
+  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[SimpleResult]): Future[SimpleResult] = {
     play.api.Logger.debug("<M>>>------------------------------------->")
     play.api.Logger.debug("%-20s -->[%s]".format("APIAuthElement:", "Entry"))
 
@@ -61,7 +63,7 @@ trait APIAuthElement extends StackableController {
         val g = Action { implicit request =>
           val rn: FunnelResponse = new HttpReturningError(err) //implicitly loaded.
           SimpleResult(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
-            body = Enumerator(rn.toJson(true)))
+            body = Enumerator(rn.toJson(true).getBytes(UTF8Charset) ))
          }
         val origReq = req.asInstanceOf[Request[AnyContent]]
         g(origReq)
