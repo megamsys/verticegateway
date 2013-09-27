@@ -19,11 +19,11 @@ resolvers += "Sonatype Releases"  at "https://oss.sonatype.org/content/repositor
  resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("play" % "sbt-plugin" % "2.1.3")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
 
-//Packaging currently only works with native-package 0.5.4 and sbt-release 0.6 
-//when we move to sbt 0.13/play 2.2 we need to test it back. 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.5.4") 
+//Packaging currently only works with play 2.1.4 native-package 0.5.4
+//Test sbt 0.13/play 2.2, 0.6.2 
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.6.2") 
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-s3" % "0.5")
 

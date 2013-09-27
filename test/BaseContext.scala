@@ -35,6 +35,8 @@ import org.apache.commons.codec.binary.Base64
 import com.stackmob.newman._
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman.dsl._
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 import java.net.URL
 import java.util.Calendar
@@ -143,7 +145,7 @@ trait Context extends BaseContext {
   implicit private val encoding = Constants.UTF8Charset
 
   protected def execute[T](t: Builder) = {
-    val res = t.executeUnsafe
+    val res = Await.result(t.apply, 5.second)
     play.api.Logger.debug("%-20s%n:%s".format("*** RESP RECVD", new String(res.bodyString)))
     play.api.Logger.debug("<---------------------------------------->")
     res
