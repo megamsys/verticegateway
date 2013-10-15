@@ -1,17 +1,16 @@
 import sbt._
 import Process._
-import com.typesafe.sbt.SbtNativePackager._
 import com.typesafe.sbt.packager.debian.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPackageMapping
 import S3._
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.3"
 
 scalacOptions := Seq(
 	"-unchecked", 
 	"-deprecation",
 	"-feature",
- 	"-optimise",
+ 	"-optimissse",
   	"-Xcheckinit",
   	"-Xlint",
   	"-Xverify",
@@ -21,18 +20,15 @@ scalacOptions := Seq(
   	"-language:implicitConversions",
   	"-Ydead-code")
 
-seq(packagerSettings:_*)
+com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 
 maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
 
-packageSummary := "API server (REST based) for the megam platform." 
+packageSummary := "Cloud API server - Megam." 
 
-packageDescription in Debian:= "API server (REST based) for the megam platform.The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
-
-com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
+packageDescription in Debian:= " (REST based) Cloud API server for Megam platform.The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
 
 s3Settings
-
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
   (packageMapping((bd / "bin/mp") -> "/usr/local/share/megamplay/bin/mp")

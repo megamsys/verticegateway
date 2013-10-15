@@ -36,12 +36,12 @@ import controllers.stack.MConfig
  * authority
  */
 
-case class AccountResult(id: String, email: String, api_key: String, authority: String, created_at: String) {
+case class AppDefnsResult(id: String, email: String, api_key: String, authority: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.AccountResultSerialization
-    val acctser = new AccountResultSerialization()
+    import models.json.AppDefnsResultSerialization
+    val acctser = new AppDefnsResultSerialization()
     toJSON(this)(acctser.writer)
   }
 
@@ -53,41 +53,44 @@ case class AccountResult(id: String, email: String, api_key: String, authority: 
 
 }
 
-object AccountResult {
+object AppDefnsResult {
   
-  def apply(id: String, email: String, api_key: String, authority: String) = new AccountResult(id, email, api_key, authority, Time.now.toString)
+  def apply(id: String, email: String, api_key: String, authority: String) = new AppDefnsResult(id, email, api_key, authority, Time.now.toString)
 
-  def apply(email: String): AccountResult = AccountResult("not found", email, new String(), new String())
+  def apply(email: String): AppDefnsResult = AppDefnsResult("not found", email, new String(), new String())
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AppDefnsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.AccountResultSerialization
-    val acctser = new AccountResultSerialization()
+    import models.json.AppDefnsResultSerialization
+    val acctser = new AppDefnsResultSerialization()
     fromJSON(jValue)(acctser.reader)
   }
 
-  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[AppDefnsResult] = (Validation.fromTryCatch {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-case class AccountInput(email: String, api_key: String, authority: String) {
+
+
+case class AppDefnsInput(email: String, api_key: String, authority: String) {
   val json = "{\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\"}"
 }
-object Accounts {
+
+object AppDefns {
 
   implicit val formats = DefaultFormats
 
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "appdefns")
   /**
    * Parse the input body when you start, if its ok, then we process it.
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.
    * If there is an error in the snowflake connection, we need to send one.
    */
-  def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "create:Entry"))
+  def create(input: String): ValidationNel[Throwable, Option[AppDefnsResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("input json", input))
     (Validation.fromTryCatch {
       parse(input).extract[AccountInput]
@@ -100,17 +103,17 @@ object Accounts {
           val metadataVal = "1002"
           val bindex = BinIndex.named("accountId")
           val bvalue = Set(uid.get._1 + uid.get._2)
-          val acctRes = AccountResult(uid.get._1 + uid.get._2, m.email, m.api_key, m.authority)
+          val acctRes = AppDefnsResult(uid.get._1 + uid.get._2, m.email, m.api_key, m.authority)
           play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))
 
           val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
           storeValue match {
             case Success(succ) => acctRes.some.successNel[Throwable]
-            case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
+            case Failure(err) => Validation.failure[Throwable, Option[AppDefnsResult]](
               new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
           }
         }
-        case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
+        case Failure(err) => Validation.failure[Throwable, Option[AppDefnsResult]](
           new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
       }
     }
@@ -121,10 +124,10 @@ object Accounts {
    * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
    * When there is no gunnysack value (None), then return back a failure - ResourceItemNotFound
    */
-  def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "findByEmail:Entry"))
+  def findByEmail(email: String): ValidationNel[Throwable, Option[AppDefnsResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("findByEmail", email))
-    InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
+    InMemory[ValidationNel[Throwable, Option[AppDefnsResult]]]({
       name: String =>
         {
           play.api.Logger.debug(("%-20s -->[%s]").format("InMemory", email))
@@ -134,26 +137,26 @@ object Accounts {
             xso match {
               case Some(xs) => {
                 (Validation.fromTryCatch {
-                  parse(xs.value).extract[AccountResult]
+                  parse(xs.value).extract[AppDefnsResult]
                 } leftMap { t: Throwable =>
                   new ResourceItemNotFound(email, t.getMessage)
-                }).toValidationNel.flatMap { j: AccountResult =>
-                  Validation.success[Throwable, Option[AccountResult]](j.some).toValidationNel
+                }).toValidationNel.flatMap { j: AppDefnsResult =>
+                  Validation.success[Throwable, Option[AppDefnsResult]](j.some).toValidationNel
                 }
               }
-              case None => Validation.failure[Throwable, Option[AccountResult]](new ResourceItemNotFound(email, "")).toValidationNel
+              case None => Validation.failure[Throwable, Option[AppDefnsResult]](new ResourceItemNotFound(email, "")).toValidationNel
             }
           }
         }
-    }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
+    }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AppDefnsResult]]]())
 
   }
 
   /**
-   * Find by the accounts id.
+   * Find by the appdefns id.
    */
-  def findByAccountsId(id: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "findByAccountsId:Entry"))
+  def findByAppDefnsId(id: String): ValidationNel[Throwable, Option[AppDefnsResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "findByAppDefns:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("accounts id", id))
     val metadataKey = "Field"
     val metadataVal = "1002"
@@ -169,13 +172,13 @@ object Accounts {
         }
         findByEmail(key)
       }
-      case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
+      case Failure(err) => Validation.failure[Throwable, Option[AppDefnsResult]](
         new ServiceUnavailableError(id, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
     }
   }
 
-  implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
-    def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
+  implicit val sedimentAppDefnsEmail = new Sedimenter[ValidationNel[Throwable, Option[AppDefnsResult]]] {
+    def sediment(maybeASediment: ValidationNel[Throwable, Option[AppDefnsResult]]): Boolean = {
       val notSed = maybeASediment.isSuccess
       play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->ACT:sediment:", notSed))
       notSed

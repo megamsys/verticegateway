@@ -40,6 +40,7 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
   protected val EmailKey = "email"
   protected val APIKey = "api_key"
   protected val AuthorityKey = "authority"
+  protected val CreatedAtKey ="created_at"  
 
   override implicit val writer = new JSONW[AccountResult] {
 
@@ -48,7 +49,9 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
         JField(IdKey, toJSON(h.id)) ::
           JField(EmailKey, toJSON(h.email)) ::
           JField(APIKey, toJSON(h.api_key)) ::
-          JField(AuthorityKey, toJSON(h.authority)) :: JField(JSONClazKey, toJSON("Megam::Account")) :: Nil)
+          JField(AuthorityKey, toJSON(h.authority))    ::
+          JField(CreatedAtKey, toJSON(h.created_at))
+          :: JField(JSONClazKey, toJSON("Megam::Account")) :: Nil)
     }
   }
 
@@ -59,10 +62,11 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
       val emailField = field[String](EmailKey)(json)
       val apiKeyField = field[String](APIKey)(json)
       val authorityField = field[String](AuthorityKey)(json)
+      val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| emailField |@| apiKeyField |@| authorityField) {
-        (id: String, email: String, apikey: String, authority: String) =>
-          new AccountResult(id, email, apikey, authority)
+      (idField |@| emailField |@| apiKeyField |@| authorityField |@| createdAtField) {
+        (id: String, email: String, apikey: String, authority: String, created_at: String) =>
+          new AccountResult(id, email, apikey, authority, created_at)
       }
     }
   }
