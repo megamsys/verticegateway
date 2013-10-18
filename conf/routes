@@ -19,6 +19,7 @@ POST   /v1/nodes/content                controllers.Nodes.post
 # Requests for Nodes 
 GET    /v1/requests                     controllers.Requests.list()                          
 GET    /v1/requests/:nodeid             controllers.Requests.show(nodeid: String)
+POST   /v1/requests/content             controllers.Requests.post
 
 # Logs for Nodes 
 #just declare POST for testing

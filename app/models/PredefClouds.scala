@@ -21,6 +21,7 @@ import scalaz.NonEmptyList._
 import scalaz.Validation._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import com.twitter.util.Time
 import Scalaz._
 import controllers.stack._
 import controllers.Constants._
@@ -70,6 +71,7 @@ case class PredefCloudResult(id: String, name: String, accounts_id: String, spec
 }
 
 object PredefCloudResult {
+  
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PredefCloudResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON

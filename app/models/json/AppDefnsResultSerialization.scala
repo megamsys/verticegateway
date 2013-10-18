@@ -27,46 +27,47 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.AccountResult
+import models.{ AppDefnsResult, NodeAppDefns }
 
 /**
  * @author ram
  *
  */
-class AccountResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[AccountResult] {
+class AppDefnsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[AppDefnsResult] {
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
-  protected val EmailKey = "email"
-  protected val APIKey = "api_key"
-  protected val AuthorityKey = "authority"
-  protected val CreatedAtKey ="created_at"  
+  protected val NodeIdKey = "node_id"
+  protected val AppDefnsKey = "appdefns"
+  protected val CreatedAtKey ="created_at" 
+    
+  override implicit val writer = new JSONW[AppDefnsResult] {
 
-  override implicit val writer = new JSONW[AccountResult] {
+    import NodeAppDefnsSerialization.{ writer => NodeAppDefnsWriter }
 
-    override def write(h: AccountResult): JValue = {
+    override def write(h: AppDefnsResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(EmailKey, toJSON(h.email)) ::
-          JField(APIKey, toJSON(h.api_key)) ::
-          JField(AuthorityKey, toJSON(h.authority))    ::
-          JField(CreatedAtKey, toJSON(h.created_at))   :: 
-          JField(JSONClazKey, toJSON("Megam::Account")) :: Nil)
+        JField(JSONClazKey, toJSON("Megam::AppDefns")) ::
+          JField(NodeIdKey, toJSON(h.node_id)) ::
+          JField(AppDefnsKey, toJSON(h.appdefns)(NodeAppDefnsWriter)) :: 
+          JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[AccountResult] {
+  override implicit val reader = new JSONR[AppDefnsResult] {
 
-    override def read(json: JValue): Result[AccountResult] = {
+    import NodeAppDefnsSerialization.{ reader => NodeAppDefnsReader }
+
+    override def read(json: JValue): Result[AppDefnsResult] = {
       val idField = field[String](IdKey)(json)
-      val emailField = field[String](EmailKey)(json)
-      val apiKeyField = field[String](APIKey)(json)
-      val authorityField = field[String](AuthorityKey)(json)
+      val nodeidField = field[String](NodeIdKey)(json)
+      val appdefnsField = field[NodeAppDefns](AppDefnsKey)(json)(NodeAppDefnsReader)  
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| emailField |@| apiKeyField |@| authorityField |@| createdAtField) {
-        (id: String, email: String, apikey: String, authority: String, created_at: String) =>
-          new AccountResult(id, email, apikey, authority, created_at)
+      (idField |@| nodeidField |@| appdefnsField |@| createdAtField) {
+        (id: String, node_id: String, appdefns: NodeAppDefns, created_at: String) =>
+          new AppDefnsResult(id, node_id, appdefns, created_at)
       }
     }
   }

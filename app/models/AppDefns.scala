@@ -17,10 +17,13 @@ package models
 
 import scalaz._
 import Scalaz._
-import scalaz.Validation
+import scalaz.effect.IO
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.EitherT._
+import scalaz.Validation._
 import com.twitter.util.Time
 import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
@@ -30,14 +33,16 @@ import org.megam.common.uid.UID
 import models.cache._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
+import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import controllers.stack.MConfig
 /**
  * @author rajthilak
  * authority
  */
 
-case class AppDefnsResult(id: String, email: String, api_key: String, authority: String, created_at: String) {
-
+case class AppDefnsResult(id: String, node_id: String, appdefns: NodeAppDefns, created_at: String) {
+val json = "{\"id\": \"" + id + "\",\"node_id\":\"" + node_id + "\",\"appdefns\":" + appdefns.json + ",\"created_at\":\"" + created_at + "\"}"
+  
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.AppDefnsResultSerialization
@@ -55,10 +60,10 @@ case class AppDefnsResult(id: String, email: String, api_key: String, authority:
 
 object AppDefnsResult {
   
-  def apply(id: String, email: String, api_key: String, authority: String) = new AppDefnsResult(id, email, api_key, authority, Time.now.toString)
-
-  def apply(email: String): AppDefnsResult = AppDefnsResult("not found", email, new String(), new String())
-
+  def apply = new AppDefnsResult(new String(), new String(), new NodeAppDefns(new String(),new String(), new String(), new String()), new String())
+  
+  //def apply(timetokill: String): AppDefnsResult = AppDefnsResult(timetokill, new String(), new String(), new String())
+   
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AppDefnsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.AppDefnsResultSerialization
@@ -75,87 +80,152 @@ object AppDefnsResult {
 }
 
 
-case class AppDefnsInput(email: String, api_key: String, authority: String) {
-  val json = "{\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\"}"
+case class AppDefnsInput(node_id: String, appdefns: NodeAppDefns) {
+  play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns:json", appdefns.json))
+  val json = "\",\"node_id\":\"" + node_id + "\",\"appdefns\":" + appdefns.json 
 }
 
 object AppDefns {
 
-  implicit val formats = DefaultFormats
-
+  implicit val formats = DefaultFormats    
+  
   private def riak: GSRiak = GSRiak(MConfig.riakurl, "appdefns")
-  /**
-   * Parse the input body when you start, if its ok, then we process it.
-   * Or else send back a bad return code saying "the body contains invalid character, with the message received.
-   * If there is an error in the snowflake connection, we need to send one.
-   */
-  def create(input: String): ValidationNel[Throwable, Option[AppDefnsResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("input json", input))
-    (Validation.fromTryCatch {
-      parse(input).extract[AccountInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage)
-    }).toValidationNel.flatMap { m: AccountInput =>
-      play.api.Logger.debug(("%-20s -->[%s]").format("AccountInput", m))
-      UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get match {
-        case Success(uid) => {
-          val metadataKey = "Field"
-          val metadataVal = "1002"
-          val bindex = BinIndex.named("accountId")
-          val bvalue = Set(uid.get._1 + uid.get._2)
-          val acctRes = AppDefnsResult(uid.get._1 + uid.get._2, m.email, m.api_key, m.authority)
-          play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))
 
-          val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-          storeValue match {
-            case Success(succ) => acctRes.some.successNel[Throwable]
-            case Failure(err) => Validation.failure[Throwable, Option[AppDefnsResult]](
-              new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
-          }
-        }
-        case Failure(err) => Validation.failure[Throwable, Option[AppDefnsResult]](
-          new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
-      }
+  val metadataKey = "AppDefns"
+  val newnode_metadataVal = "App Definition Creation"
+  val newnode_bindex = BinIndex.named("appdefnsId")
+
+  /**
+   * A private method which chains computation to make GunnySack when provided with an input json, Option[node_id].
+   * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
+   * After that flatMap on its success and the GunnySack object is built.
+   * If the node_id is send by the Node model. It then yield the GunnySack object.
+   */
+  private def mkGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns:json", input))
+
+    //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
+    //This is a potential bug.
+    val ripNel: ValidationNel[Throwable, AppDefnsInput] = (Validation.fromTryCatch {
+      parse(input).extract[AppDefnsInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns:rip", ripNel))
+
+    for {
+      rip <- ripNel
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "adf").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+      //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
+      val bvalue = Set(rip.node_id)
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + rip.json + ",\"created_at\":\""+ Time.now.toString +"\"}"
+
+      new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
     }
-
   }
-  /**
-   * Performs a fetch from Riak bucket. If there is an error then ServiceUnavailable is sent back.
-   * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
-   * When there is no gunnysack value (None), then return back a failure - ResourceItemNotFound
+
+  /*
+   * create new Node with the 'name' of the node provide as input.
+   * A index name accountID will point to the "accounts" bucket
    */
-  def findByEmail(email: String): ValidationNel[Throwable, Option[AppDefnsResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "findByEmail:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("findByEmail", email))
-    InMemory[ValidationNel[Throwable, Option[AppDefnsResult]]]({
-      name: String =>
-        {
-          play.api.Logger.debug(("%-20s -->[%s]").format("InMemory", email))
-          (riak.fetch(email) leftMap { t: NonEmptyList[Throwable] =>
-            new ServiceUnavailableError(email, (t.list.map(m => m.getMessage)).mkString("\n"))
-          }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-            xso match {
-              case Some(xs) => {
-                (Validation.fromTryCatch {
-                  parse(xs.value).extract[AppDefnsResult]
-                } leftMap { t: Throwable =>
-                  new ResourceItemNotFound(email, t.getMessage)
-                }).toValidationNel.flatMap { j: AppDefnsResult =>
-                  Validation.success[Throwable, Option[AppDefnsResult]](j.some).toValidationNel
-                }
-              }
-              case None => Validation.failure[Throwable, Option[AppDefnsResult]](new ResourceItemNotFound(email, "")).toValidationNel
+  def create(input: String): ValidationNel[Throwable, Option[Tuple3[String, String, NodeAppDefns]]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    (mkGunnySack(input) leftMap { err: NonEmptyList[Throwable] =>
+      err
+    }).flatMap { gs: Option[GunnySack] =>
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+        flatMap { maybeGS: Option[GunnySack] =>
+          val adf_result = parse(gs.get.value).extract[AppDefnsResult]
+          play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("AppDefns.created successfully", "input", input))
+          maybeGS match {
+            case Some(thatGS) => (thatGS.key, adf_result.node_id, adf_result.appdefns).some.successNel[Throwable]
+            case None => {
+              play.api.Logger.warn(("%-20s -->[%s]").format("AppDefns.created success", "Scaliak returned => None. Thats OK."))
+              (gs.get.key, adf_result.node_id, adf_result.appdefns).some.successNel[Throwable]
             }
           }
         }
-    }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AppDefnsResult]]]())
+    }
+  }
+  
+  /**
+   * List all the defns for the nodenamelist.
+   */
+  def findByReqName(defNameList: Option[List[String]]): ValidationNel[Error, AppDefnsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefinition", "findByReqName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", defNameList))
+    (defNameList map {
+      _.map { defName =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("Name", defName))
+        (riak.fetch(defName) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(defName, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              (Validation.fromTryCatch {
+                parse(xs.value).extract[AppDefnsResult]
+              } leftMap { t: Throwable =>
+                new ResourceItemNotFound(defName, t.getMessage)
+              }).toValidationNel.flatMap { j: AppDefnsResult =>
+                Validation.success[Error, AppDefnsResults](nels(j.some)).toValidationNel  
+              }
+            }
+            case None => Validation.failure[Error, AppDefnsResults](new ResourceItemNotFound(defName, "")).toValidationNel
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((AppDefnsResults.empty).successNel[Error])(_ +++ _)
+    }).head //return the folded element in the head. 
 
   }
+  
+  /*
+   * An IO wrapped finder using an email. Upon fetching the node results for an email, 
+   * the nodeids are listed in bucket `Requests`.
+   * Using a "requestid" as key, return a list of ValidationNel[List[RequestResult]] 
+   * Takes an email, and returns a Future[ValidationNel, List[Option[RequestResult]]]
+   */
+  def findByEmail(email: String): ValidationNel[Throwable, AppDefnsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Error, AppDefnsResults]] {
+      ((((for {
+        nelnr <- (Nodes.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "fetched nodes by email"))
+        //this is ugly, since what we receive from Nodes always contains one None. We need to filter
+        //that. This is justa  hack for now. It calls for much more elegant soln.
+        (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
+          val bindex = BinIndex.named("")
+          val bvalue = Set("")
+          val metadataVal = "Nodes-name"
+          play.api.Logger.debug(("%-20s -->[%s]").format("models.Definition", nelnor))
+          new GunnySack("nodeId", nelnor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+            None, Map(metadataKey -> metadataVal), Map((bindex, bvalue)))
+        })
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap (({ gs: List[GunnySack] =>
+        gs.map { ngso: GunnySack => riak.fetchIndexByValue(ngso) }
+      }) map {
+        _.foldLeft((List[String]()).successNel[Throwable])(_ +++ _)
+      })) map { nm: List[String] =>
+        (if (!nm.isEmpty) findByReqName(nm.some) else
+          new ResourceItemNotFound(email, "definitions = nothing found.").failureNel[AppDefnsResults])
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", res))
+    res.getOrElse(new ResourceItemNotFound(email, "definitions = nothing found.").failureNel[AppDefnsResults])
+  }
+
 
   /**
    * Find by the appdefns id.
    */
-  def findByAppDefnsId(id: String): ValidationNel[Throwable, Option[AppDefnsResult]] = {
+  /*def findByAppDefnsId(id: String): ValidationNel[Throwable, Option[AppDefnsResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "findByAppDefns:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("accounts id", id))
     val metadataKey = "Field"
@@ -175,14 +245,14 @@ object AppDefns {
       case Failure(err) => Validation.failure[Throwable, Option[AppDefnsResult]](
         new ServiceUnavailableError(id, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
     }
-  }
+  }*/
 
-  implicit val sedimentAppDefnsEmail = new Sedimenter[ValidationNel[Throwable, Option[AppDefnsResult]]] {
+  /*implicit val sedimentAppDefnsEmail = new Sedimenter[ValidationNel[Throwable, Option[AppDefnsResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AppDefnsResult]]): Boolean = {
       val notSed = maybeASediment.isSuccess
       play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->ACT:sediment:", notSed))
       notSed
     }
-  }
+  }*/
 
 }

@@ -10,7 +10,7 @@ scalacOptions := Seq(
 	"-unchecked", 
 	"-deprecation",
 	"-feature",
- 	"-optimissse",
+ 	"-optimise",
   	"-Xcheckinit",
   	"-Xlint",
   	"-Xverify",

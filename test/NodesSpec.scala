@@ -36,10 +36,10 @@ class NodesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-     //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      //"Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-      //"Correctly do GET  (node name)requests with a valid userid and api key" ! findByName.succeeds ^
-      //"Correctly do GET  (morning.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+     "Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
+     "Correctly do GET  (node name)requests with an invalid Node name" ! findByName.succeeds ^
+      "Correctly do GET  (check.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
       end
 
   /**
@@ -54,8 +54,10 @@ class NodesSpec extends Specification {
         new NodeCompute("ec2", new NodeComputeDetail("megam_ec2","img1", "t1-micro"),
           new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
-      val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":" +
-        command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}}"
+      val contentToEncode = "{\"node_name\":\"check.megam.co\",\"req_type\":\"CREATE\",\"command\":" +
+        command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
+        "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},"+
+        "\"boltdefns\":{},\"appreq\":{},\"boltreq\":{}}"                         
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -75,7 +77,7 @@ class NodesSpec extends Specification {
     protected override def urlSuffix: String = "nodes/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"nodeo_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
+      val contentToEncode = "{\"node_name\":\"atlas.megam.co\",\"command\":\"commands\",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"db\":\"db\", \"queue\":\"queue\"}}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -103,7 +105,7 @@ class NodesSpec extends Specification {
     }
   }
   case object findByName extends Context {
-    protected override def urlSuffix: String = "nodes/atlas.megam.co"
+    protected override def urlSuffix: String = "nodes/samplecheck.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -116,7 +118,7 @@ class NodesSpec extends Specification {
   }
 
   case object findByNameForRuby extends Context {
-    protected override def urlSuffix: String = "nodes/morning.megam.co"
+    protected override def urlSuffix: String = "nodes/check.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

@@ -24,6 +24,7 @@ import scalaz.EitherT._
 import Scalaz._
 import models._
 import models.cache._
+import com.twitter.util.Time
 import controllers.funnel.FunnelErrors._
 import controllers.stack._
 import controllers.Constants._
@@ -63,8 +64,7 @@ object PredefInput {
 
 }
 
-case class PredefResult(id: String, name: String, provider: String, provider_role: String,
-  build_monkey: String) {
+case class PredefResult(id: String, name: String, provider: String, provider_role: String, build_monkey: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.PredefResultSerialization

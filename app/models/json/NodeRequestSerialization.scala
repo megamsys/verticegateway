@@ -37,6 +37,7 @@ import org.megam.common.enumeration._
  */
 object NodeRequestSerialization extends SerializationBase[NodeRequest] {
   protected val ReqIdKey = "req_id"
+  protected val ReqTypeKey = "req_type"
   protected val CommandKey = "command"
   
 
@@ -47,6 +48,7 @@ object NodeRequestSerialization extends SerializationBase[NodeRequest] {
     override def write(h: NodeRequest): JValue = {
       JObject(
         JField(ReqIdKey, toJSON(h.req_id)) ::
+        JField(ReqTypeKey, toJSON(h.req_type)) ::
           JField(CommandKey, toJSON(h.command)(NodeCommandWriter))  ::Nil)
     }
   }
@@ -56,11 +58,12 @@ object NodeRequestSerialization extends SerializationBase[NodeRequest] {
 
     override def read(json: JValue): Result[NodeRequest] = {
       val reqidField = field[String](ReqIdKey)(json)
+      val reqtypeField = field[String](ReqTypeKey)(json)
       val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
     
-      (reqidField |@| commandField) {
-        (req_id: String, command: NodeCommand) =>
-          new NodeRequest(req_id, command)
+      (reqidField |@| reqtypeField |@| commandField) {
+        (req_id: String, req_type: String, command: NodeCommand) =>
+          new NodeRequest(req_id, req_type, command)
       }
     }
   }

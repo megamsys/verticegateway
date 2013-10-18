@@ -252,4 +252,28 @@ package object models {
   implicit def transformPredefResults2Json(pres: PredefResults): Option[String] = PredefResults.toJson(pres, true).some
   implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): Option[String] = PredefCloudResults.toJson(prres, true).some
 
+  type AppDefnsResults = NonEmptyList[Option[AppDefnsResult]]
+
+  object AppDefnsResults {
+    val emptyRR = List(Option.empty[AppDefnsResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: AppDefnsResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.AppDefnsResultsSerialization.{ writer => AppDefnsResultsWriter }
+      toJSON(nres)(AppDefnsResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: AppDefnsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[AppDefnsResult]) = nels(m)
+    def apply(m: AppDefnsResult): AppDefnsResults = AppDefnsResults(m.some)
+    def empty: AppDefnsResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
 }

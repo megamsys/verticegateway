@@ -22,6 +22,7 @@ import scalaz.Validation._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import Scalaz._
+import com.twitter.util.Time
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
@@ -40,13 +41,14 @@ import java.nio.charset.Charset
  * @author ram
  *
  */
-case class NodeInput(node_name: String, command: NodeCommand, predefs: NodePredefs) {
-  val formatReqsJson = "\"node_name\":\"" + node_name + "\",\"command\": " + command.json
+case class NodeInput(node_name: String, req_type: String, command: NodeCommand, predefs: NodePredefs, appdefns: NodeAppDefns, boltdefns: NodeBoltDefns, appreq: NodeAppReq, boltreq: NodeBoltReq) {
+  val formatReqsJson = "\"command\": " + command.json
+  val appdefjson = "\"appdefns\": " + appdefns.json
 }
 
-case class NodeResult(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs) {
+case class NodeResult(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String) {
   val json = "{\"id\": \"" + id + "\",\"accounts_id\":\"" + accounts_id + "\",\"status\":\"" + status.stringVal +
-    "\",\"request\":{" + request.toString + "} ,\"predefs\":{" + predefs.toString + "}}"
+    "\",\"request\":{" + request.toString + "} ,\"predefs\":{" + predefs.toString + "},\"appdefnsid\":\"" + appdefnsid + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -64,8 +66,11 @@ case class NodeResult(id: String, accounts_id: String, status: NodeStatusType, r
 
 object NodeResult {
 
-  def apply = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
-    new String(), new String(), new String, new String(), new String()))
+  //def apply(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String) = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
+    //new String(), new String(), new String, new String(), new String()), new String())
+  
+   def apply = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
+    new String(), new String(), new String, new String(), new String()), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -82,13 +87,29 @@ object NodeResult {
 
 }
 
-case class NodeRequest(req_id: String, command: NodeCommand) {
-  def this() = this(new String(), NodeCommand.empty)
-  override def toString = "\"req_id\":\"" + req_id + "\",\"command\": " + command.json
+case class NodeRequest(req_id: String, req_type: String, command: NodeCommand) {
+  def this() = this(new String(), new String(), NodeCommand.empty)
+  override def toString = "\"req_id\":\"" + req_id + "\",\"req_type\":\"" + req_type + "\",\"command\": " + command.json
 }
 
 case class NodePredefs(name: String, scm: String, war: String, db: String, queue: String) {
   override def toString = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"war\":\"" + war + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
+}
+
+case class NodeAppDefns(timetokill: String, metered: String, logging: String, runtime_exec: String) {
+  val json = "{\"timetokill\":\"" + timetokill + "\",\"metered\":\"" + metered + "\",\"logging\":\"" + logging + "\",\"runtime_exec\":\"" + runtime_exec + "\"}"                    
+}
+
+case class NodeBoltDefns() {
+  override def toString = ""
+}
+
+case class NodeAppReq() {
+  override def toString = ""
+}
+
+case class NodeBoltReq() {
+  override def toString = ""
 }
 
 sealed abstract class NodeStatusType(override val stringVal: String) extends Enumeration
@@ -105,6 +126,16 @@ object NodeStatusType {
   implicit val NodeStatusTypeToReader = upperEnumReader(AM_HUNGRY, REQ_CREATED_AT_SOURCE, NODE_CREATED_AT_SOURCE,
     PUBLISHED, STARTED, LAUNCH_SUCCESSFUL, LAUNCH_FAILED)
 }
+
+/*sealed abstract class AppProcess(override val stringVal: String) extends Enumeration
+
+object AppProcess {
+  object AM_HUNGRY extends AppProcess("AM_HUNGRY")
+  object CREATE extends AppProcess("Process created")  
+
+  implicit val AppProcessToReader = upperEnumReader(AM_HUNGRY, CREATE)
+}*/
+
 
 case class NodeCommand(systemprovider: NodeSystemProvider, compute: NodeCompute, cloudtool: NodeCloudToolService) {
   val json = "{\"systemprovider\": " + systemprovider.json + "}, \"compute\": " + compute.json + "\"}}, \"cloudtool\": {" +
@@ -195,7 +226,9 @@ object Nodes {
       //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "nod").get leftMap { ut: NonEmptyList[Throwable] => ut })
-      req <- (Requests.create("{\"node_id\": \"" + (uir.get._1 + uir.get._2) + "\"," + nir.formatReqsJson + "}") leftMap { t: NonEmptyList[Throwable] => t })
+      req <- (Requests.createforNewNode("{\"node_id\": \"" + (uir.get._1 + uir.get._2) + "\",\"node_name\": \"" + nir.node_name + "\",\"req_type\": \"" + nir.req_type + "\"," + nir.formatReqsJson + "}") leftMap { t: NonEmptyList[Throwable] => t })
+      adef <- (AppDefns.create("{\"node_id\":\"" + (uir.get._1 + uir.get._2) + "\", " + nir.appdefjson + "}") leftMap { t: NonEmptyList[Throwable] => t })
+      
     } yield {
       aor match {
         //TO-DO: The errors may not be needed. But its a trap to see if it happens
@@ -203,10 +236,11 @@ object Nodes {
         case Some(asuc) => {
           val nuid = uir.getOrElse(throw new ServiceUnavailableError("[" + email + ":" + nir.node_name + "]", "UID not found (or) server unavailable. Retry again."))
           val rres = req.getOrElse(throw new ServiceUnavailableError("[" + email + ":" + nir.node_name + "]", "Request create failed (or) not found. Retry again."))
+          val adf = adef.getOrElse(throw new ServiceUnavailableError("[" + email + ":" + nir.node_name + "]", "App Definitions create failed (or) not found. Retry again."))
           play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "request created."))
-          val bvalue = Set(asuc.id)
+          val bvalue = Set(asuc.id)          
           val jsonobj = NodeResult((nuid._1 + nuid._2), asuc.id, NodeStatusType.REQ_CREATED_AT_SOURCE,
-            NodeRequest(rres._1, rres._2), nir.predefs)
+            NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, adf._1)
           play.api.Logger.debug(("%-20s -->[%s]").format("formatted node store", jsonobj.toJson(true)))
           val json = jsonobj.json
           new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
@@ -216,7 +250,7 @@ object Nodes {
       }
     }
   }
-
+  
   /*
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket

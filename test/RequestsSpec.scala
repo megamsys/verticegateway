@@ -23,6 +23,7 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
+import models._
 /**
  * @author ram
  *
@@ -34,12 +35,41 @@ class RequestsSpec extends Specification {
   RequestsSpec is the implementation that calls the megam_play API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-      "Correctly do GET  (node name)requests with a valid userid and api key" ! findByName.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
+      "Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
       end
 
-  case object findByEmail extends Context {
-    protected override def urlSuffix: String = "requests"
+  /**
+   * Change the body content in method bodyToStick
+   */
+  case object Post extends Context {
+
+    protected override def urlSuffix: String = "requests/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
+        new NodeCompute("ec2", new NodeComputeDetail("megam_ec2", "img1", "t1-micro"),
+          new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
+        new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
+      val contentToEncode = "{\"req_type\":\"STOP\",\"node_name\":\"badthink.megam.co\",\"command\":" +
+        command + "}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+
+  case object findByInvalidName extends Context {
+    protected override def urlSuffix: String = "requests/checksample"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -51,7 +81,7 @@ class RequestsSpec extends Specification {
     }
   }
   case object findByName extends Context {
-    protected override def urlSuffix: String = "requests/atlas.megam.co"
+    protected override def urlSuffix: String = "requests/badthink.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

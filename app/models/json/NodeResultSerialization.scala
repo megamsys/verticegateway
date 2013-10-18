@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest, NodeStatusType }
+import models.{ NodeResult, NodePredefs, NodeRequest, NodeStatusType, NodeAppDefns}
 import models.NodeStatusType._
 import org.megam.common.enumeration._
 
@@ -42,13 +42,16 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
   protected val StatusKey = "status"
   protected val RequestKey = "request"
   protected val PredefsKey = "predefs"
-
+  protected val AppDefnsIdKey = "appdefnsid"  
+    
+    
   override implicit val writer = new JSONW[NodeResult] {
 
     import NodeRequestSerialization.{ writer => NodeRequestWriter }
     import NodePredefsSerialization.{ writer => NodePredefsWriter }
     import NodeStatusTypeSerialization.{ writer => NodeStatusTypeWriter }
-
+    import NodeAppDefnsSerialization.{ writer => NodeAppDefnsWriter }
+    
     override def write(h: NodeResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
@@ -56,7 +59,9 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
           JField(JSONClazKey, toJSON("Megam::Node")) ::
           JField(StatusKey, toJSON(h.status)(NodeStatusTypeWriter)) ::
           JField(RequestKey, toJSON(h.request)(NodeRequestWriter)) ::
-          JField(PredefsKey, toJSON(h.predefs)(NodePredefsWriter)) :: Nil)
+          JField(PredefsKey, toJSON(h.predefs)(NodePredefsWriter)) :: 
+          JField(AppDefnsIdKey, toJSON(h.appdefnsid)) :: 
+           Nil)
     }
   }
 
@@ -65,7 +70,8 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
     import NodeRequestSerialization.{ reader => NodeRequestReader }
     import NodePredefsSerialization.{ reader => NodePredefsReader }
     import NodeStatusTypeSerialization.{ reader => NodeStatusTypeReader }
-
+    import NodeAppDefnsSerialization.{ reader => NodeAppDefnsReader }
+    
     override def read(json: JValue): Result[NodeResult] = {
       val statusField = field[NodeStatusType](StatusKey)(json)(NodeStatusTypeReader)
 
@@ -74,17 +80,17 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
         val accountField = field[String](AccountsIDKey)(json)
         val requestField = field[NodeRequest](RequestKey)(json)(NodeRequestReader)
         val predefsField = field[NodePredefs](PredefsKey)(json)(NodePredefsReader)
-
-        val noderes_fn = idField |@| accountField |@| requestField |@| predefsField
+        val appdefnsidField = field[String](AppDefnsIdKey)(json)        
+        val noderes_fn = idField |@| accountField |@| requestField |@| predefsField |@| appdefnsidField 
 
         val res: ValidationNel[Error, NodeResult] = statusType match {
-          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _))
-          case NodeStatusType.REQ_CREATED_AT_SOURCE  => noderes_fn(NodeResult(_, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _))
-          case NodeStatusType.NODE_CREATED_AT_SOURCE => noderes_fn(NodeResult(_, _, NodeStatusType.NODE_CREATED_AT_SOURCE, _, _))
-          case NodeStatusType.PUBLISHED              => noderes_fn(NodeResult(_, _, NodeStatusType.PUBLISHED, _, _))
-          case NodeStatusType.STARTED                => noderes_fn(NodeResult(_, _, NodeStatusType.STARTED, _, _))
-          case NodeStatusType.LAUNCH_SUCCESSFUL      => noderes_fn(NodeResult(_, _, NodeStatusType.LAUNCH_SUCCESSFUL, _, _))
-          case NodeStatusType.LAUNCH_FAILED          => noderes_fn(NodeResult(_, _, NodeStatusType.LAUNCH_FAILED, _, _))
+          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _))
+          case NodeStatusType.REQ_CREATED_AT_SOURCE  => noderes_fn(NodeResult(_, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _))
+          case NodeStatusType.NODE_CREATED_AT_SOURCE => noderes_fn(NodeResult(_, _, NodeStatusType.NODE_CREATED_AT_SOURCE, _, _, _))
+          case NodeStatusType.PUBLISHED              => noderes_fn(NodeResult(_, _, NodeStatusType.PUBLISHED, _, _, _))
+          case NodeStatusType.STARTED                => noderes_fn(NodeResult(_, _, NodeStatusType.STARTED, _, _, _))
+          case NodeStatusType.LAUNCH_SUCCESSFUL      => noderes_fn(NodeResult(_, _, NodeStatusType.LAUNCH_SUCCESSFUL, _, _, _))
+          case NodeStatusType.LAUNCH_FAILED          => noderes_fn(NodeResult(_, _, NodeStatusType.LAUNCH_FAILED, _, _, _))
           case _ => UncategorizedError("request type",
             "unsupported request type %s".format(statusType.stringVal),
             List()).failNel
