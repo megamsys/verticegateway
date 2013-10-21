@@ -38,6 +38,7 @@ class AppDefnsResultSerialization(charset: Charset = UTF8Charset) extends Serial
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NodeIdKey = "node_id"
+  protected val NodeNameKey = "node_name"
   protected val AppDefnsKey = "appdefns"
   protected val CreatedAtKey ="created_at" 
     
@@ -50,6 +51,7 @@ class AppDefnsResultSerialization(charset: Charset = UTF8Charset) extends Serial
         JField(IdKey, toJSON(h.id)) ::
         JField(JSONClazKey, toJSON("Megam::AppDefns")) ::
           JField(NodeIdKey, toJSON(h.node_id)) ::
+          JField(NodeNameKey, toJSON(h.node_name)) ::
           JField(AppDefnsKey, toJSON(h.appdefns)(NodeAppDefnsWriter)) :: 
           JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
@@ -62,12 +64,13 @@ class AppDefnsResultSerialization(charset: Charset = UTF8Charset) extends Serial
     override def read(json: JValue): Result[AppDefnsResult] = {
       val idField = field[String](IdKey)(json)
       val nodeidField = field[String](NodeIdKey)(json)
+      val nodenameField = field[String](NodeNameKey)(json)
       val appdefnsField = field[NodeAppDefns](AppDefnsKey)(json)(NodeAppDefnsReader)  
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nodeidField |@| appdefnsField |@| createdAtField) {
-        (id: String, node_id: String, appdefns: NodeAppDefns, created_at: String) =>
-          new AppDefnsResult(id, node_id, appdefns, created_at)
+      (idField |@| nodeidField |@| nodenameField |@| appdefnsField |@| createdAtField) {
+        (id: String, node_id: String, node_name: String, appdefns: NodeAppDefns, created_at: String) =>
+          new AppDefnsResult(id, node_id, node_name, appdefns, created_at)
       }
     }
   }

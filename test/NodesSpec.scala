@@ -54,7 +54,7 @@ class NodesSpec extends Specification {
         new NodeCompute("ec2", new NodeComputeDetail("megam_ec2","img1", "t1-micro"),
           new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
-      val contentToEncode = "{\"node_name\":\"check.megam.co\",\"req_type\":\"CREATE\",\"command\":" +
+      val contentToEncode = "{\"node_name\":\"checktest4.megam.co\",\"req_type\":\"CREATE\",\"command\":" +
         command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
         "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},"+
         "\"boltdefns\":{},\"appreq\":{},\"boltreq\":{}}"                         
@@ -118,7 +118,7 @@ class NodesSpec extends Specification {
   }
 
   case object findByNameForRuby extends Context {
-    protected override def urlSuffix: String = "nodes/check.megam.co"
+    protected override def urlSuffix: String = "nodes/checktest4.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

@@ -46,9 +46,9 @@ case class NodeInput(node_name: String, req_type: String, command: NodeCommand, 
   val appdefjson = "\"appdefns\": " + appdefns.json
 }
 
-case class NodeResult(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String) {
+case class NodeResult(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String, created_at: String) {
   val json = "{\"id\": \"" + id + "\",\"accounts_id\":\"" + accounts_id + "\",\"status\":\"" + status.stringVal +
-    "\",\"request\":{" + request.toString + "} ,\"predefs\":{" + predefs.toString + "},\"appdefnsid\":\"" + appdefnsid + "\"}"
+    "\",\"request\":{" + request.toString + "} ,\"predefs\":{" + predefs.toString + "},\"appdefnsid\":\"" + appdefnsid  + "\",\"created_at\":\"" + created_at  + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -70,7 +70,7 @@ object NodeResult {
     //new String(), new String(), new String, new String(), new String()), new String())
   
    def apply = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
-    new String(), new String(), new String, new String(), new String()), new String())
+    new String(), new String(), new String, new String(), new String()), new String(), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -227,7 +227,7 @@ object Nodes {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "nod").get leftMap { ut: NonEmptyList[Throwable] => ut })
       req <- (Requests.createforNewNode("{\"node_id\": \"" + (uir.get._1 + uir.get._2) + "\",\"node_name\": \"" + nir.node_name + "\",\"req_type\": \"" + nir.req_type + "\"," + nir.formatReqsJson + "}") leftMap { t: NonEmptyList[Throwable] => t })
-      adef <- (AppDefns.create("{\"node_id\":\"" + (uir.get._1 + uir.get._2) + "\", " + nir.appdefjson + "}") leftMap { t: NonEmptyList[Throwable] => t })
+      adef <- (AppDefns.createforNewNode("{\"node_id\":\"" + (uir.get._1 + uir.get._2) + "\",\"node_name\":\""+nir.node_name +"\"," + nir.appdefjson + "}") leftMap { t: NonEmptyList[Throwable] => t })
       
     } yield {
       aor match {
@@ -240,7 +240,7 @@ object Nodes {
           play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "request created."))
           val bvalue = Set(asuc.id)          
           val jsonobj = NodeResult((nuid._1 + nuid._2), asuc.id, NodeStatusType.REQ_CREATED_AT_SOURCE,
-            NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, adf._1)
+            NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, adf._1, Time.now.toString)
           play.api.Logger.debug(("%-20s -->[%s]").format("formatted node store", jsonobj.toJson(true)))
           val json = jsonobj.json
           new GunnySack(nir.node_name, json, RiakConstants.CTYPE_TEXT_UTF8, None,

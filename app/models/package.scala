@@ -276,4 +276,28 @@ package object models {
     def empty: AppDefnsResults = nel(emptyRR.head, emptyRR.tail)
   }
   
+  type AppRequestResults = NonEmptyList[Option[AppRequestResult]]
+
+  object AppRequestResults {
+    val emptyRR = List(Option.empty[AppRequestResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: AppRequestResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.AppRequestResultsSerialization.{ writer => AppRequestResultsWriter }
+      toJSON(nres)(AppRequestResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: AppRequestResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[AppRequestResult]) = nels(m)
+    def apply(m: AppRequestResult): AppRequestResults = AppRequestResults(m.some)
+    def empty: AppRequestResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
 }
