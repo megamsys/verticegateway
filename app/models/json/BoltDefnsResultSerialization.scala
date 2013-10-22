@@ -27,50 +27,50 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ AppDefnsResult, NodeAppDefns }
+import models.{ BoltDefnsResult, NodeBoltDefns }
 
 /**
  * @author ram
  *
  */
-class AppDefnsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[AppDefnsResult] {
+class BoltDefnsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[BoltDefnsResult] {
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NodeIdKey = "node_id"
   protected val NodeNameKey = "node_name"
-  protected val AppDefnsKey = "appdefns"
+  protected val BoltDefnsKey = "boltdefns"
   protected val CreatedAtKey ="created_at" 
     
-  override implicit val writer = new JSONW[AppDefnsResult] {
+  override implicit val writer = new JSONW[BoltDefnsResult] {
 
-    import NodeAppDefnsSerialization.{ writer => NodeAppDefnsWriter }
+    import NodeBoltDefnsSerialization.{ writer => NodeBoltDefnsWriter }
 
-    override def write(h: AppDefnsResult): JValue = {
+    override def write(h: BoltDefnsResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-        JField(JSONClazKey, toJSON("Megam::AppDefns")) ::
+        JField(JSONClazKey, toJSON("Megam::BoltDefns")) ::
           JField(NodeIdKey, toJSON(h.node_id)) ::
           JField(NodeNameKey, toJSON(h.node_name)) ::
-          JField(AppDefnsKey, toJSON(h.appdefns)(NodeAppDefnsWriter)) :: 
+          JField(BoltDefnsKey, toJSON(h.boltdefns)(NodeBoltDefnsWriter)) :: 
           JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[AppDefnsResult] {
+  override implicit val reader = new JSONR[BoltDefnsResult] {
 
-    import NodeAppDefnsSerialization.{ reader => NodeAppDefnsReader }
+    import NodeBoltDefnsSerialization.{ reader => NodeBoltDefnsReader }
 
-    override def read(json: JValue): Result[AppDefnsResult] = {
+    override def read(json: JValue): Result[BoltDefnsResult] = {
       val idField = field[String](IdKey)(json)
       val nodeidField = field[String](NodeIdKey)(json)
       val nodenameField = field[String](NodeNameKey)(json)
-      val appdefnsField = field[NodeAppDefns](AppDefnsKey)(json)(NodeAppDefnsReader)  
+      val boltdefnsField = field[NodeBoltDefns](BoltDefnsKey)(json)(NodeBoltDefnsReader)  
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nodeidField |@| nodenameField |@| appdefnsField |@| createdAtField) {
-        (id: String, node_id: String, node_name: String, appdefns: NodeAppDefns, created_at: String) =>
-          new AppDefnsResult(id, node_id, node_name, appdefns, created_at)
+      (idField |@| nodeidField |@| nodenameField |@| boltdefnsField |@| createdAtField) {
+        (id: String, node_id: String, node_name: String, boltdefns: NodeBoltDefns, created_at: String) =>
+          new BoltDefnsResult(id, node_id, node_name, boltdefns, created_at)
       }
     }
   }

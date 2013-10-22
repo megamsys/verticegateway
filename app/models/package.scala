@@ -276,4 +276,76 @@ package object models {
     def empty: AppDefnsResults = nel(emptyRR.head, emptyRR.tail)
   }
   
+  type AppRequestResults = NonEmptyList[Option[AppRequestResult]]
+
+  object AppRequestResults {
+    val emptyRR = List(Option.empty[AppRequestResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: AppRequestResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.AppRequestResultsSerialization.{ writer => AppRequestResultsWriter }
+      toJSON(nres)(AppRequestResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: AppRequestResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[AppRequestResult]) = nels(m)
+    def apply(m: AppRequestResult): AppRequestResults = AppRequestResults(m.some)
+    def empty: AppRequestResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
+  type BoltDefnsResults = NonEmptyList[Option[BoltDefnsResult]]
+
+  object BoltDefnsResults {
+    val emptyRR = List(Option.empty[BoltDefnsResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: BoltDefnsResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.BoltDefnsResultsSerialization.{ writer => BoltDefnsResultsWriter }
+      toJSON(nres)(BoltDefnsResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: BoltDefnsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[BoltDefnsResult]) = nels(m)
+    def apply(m: BoltDefnsResult): BoltDefnsResults = BoltDefnsResults(m.some)
+    def empty: BoltDefnsResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
+  type BoltRequestResults = NonEmptyList[Option[BoltRequestResult]]
+
+  object BoltRequestResults {
+    val emptyRR = List(Option.empty[BoltRequestResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: BoltRequestResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.BoltRequestResultsSerialization.{ writer => BoltRequestResultsWriter }
+      toJSON(nres)(BoltRequestResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: BoltRequestResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[BoltRequestResult]) = nels(m)
+    def apply(m: BoltRequestResult): BoltRequestResults = BoltRequestResults(m.some)
+    def empty: BoltRequestResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
 }
