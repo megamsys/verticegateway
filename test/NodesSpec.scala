@@ -36,10 +36,10 @@ class NodesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-     "Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-     "Correctly do GET  (node name)requests with an invalid Node name" ! findByName.succeeds ^
-      "Correctly do GET  (check.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+     //"Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
+     //"Correctly do GET  (node name)requests with an invalid Node name" ! findByName.succeeds ^
+      //"Correctly do GET  (check.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
       end
 
   /**
@@ -54,11 +54,18 @@ class NodesSpec extends Specification {
         new NodeCompute("ec2", new NodeComputeDetail("megam_ec2","img1", "t1-micro"),
           new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
-      val contentToEncode = "{\"node_name\":\"checktest4.megam.co\",\"req_type\":\"CREATE\",\"command\":" +
+      //val contentToEncode = "{\"node_name\":\"checktest5.megam.co\",\"node_type\":\"APP\",\"req_type\":\"CREATE\",\"command\":" +
+       // command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
+       // "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},"+
+      //  "\"boltdefns\":{\"username\":\"\",\"apikey\":\"\", \"store_name\":\"\",\"url\":\"\",\"prime\":\"\",\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},\"appreq\":{},\"boltreq\":{}}"                         
+     // Some(new String(contentToEncode))
+      
+      val contentToEncode = "{\"node_name\":\"checktest6.megam.co\",\"node_type\":\"BOLT\",\"req_type\":\"CREATE\",\"command\":" +
         command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
-        "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},"+
-        "\"boltdefns\":{},\"appreq\":{},\"boltreq\":{}}"                         
+        "\"appdefns\":{\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},"+
+        "\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},\"appreq\":{},\"boltreq\":{}}"                         
       Some(new String(contentToEncode))
+      
     }
     protected override def headersOpt: Option[Map[String, String]] = None
 
@@ -118,7 +125,7 @@ class NodesSpec extends Specification {
   }
 
   case object findByNameForRuby extends Context {
-    protected override def urlSuffix: String = "nodes/checktest4.megam.co"
+    protected override def urlSuffix: String = "nodes/checktest5.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

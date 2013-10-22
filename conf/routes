@@ -48,5 +48,13 @@ POST   /v1/appdefns/content             controllers.AppDefns.post
 GET    /v1/appreqs/:nodeid             controllers.AppReqs.show(nodeid: String)
 POST   /v1/appreqs/content             controllers.AppReqs.post
 
+# BoltDefns for Nodes                          
+GET    /v1/boltdefns/:nodeid             controllers.BoltDefns.show(nodeid: String)
+POST   /v1/boltdefns/content             controllers.BoltDefns.post
+
+# BoltRequests for Nodes                          
+GET    /v1/boltreqs/:nodeid             controllers.BoltReqs.show(nodeid: String)
+POST   /v1/boltreqs/content             controllers.BoltReqs.post
+
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)

@@ -24,17 +24,20 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models._
-
-class AppRequestSpec extends Specification {
+/**
+ * @author ram
+ *
+ */
+class BoltDefnsSpec extends Specification {
 
   def is =
-    "AppRequestSpec".title ^ end ^ """
-  AppRequestSpec is the implementation that calls the megam_play API server with the /requests url
+    "BoltDefnsSpec".title ^ end ^ """
+  BoltDefnsSpec is the implementation that calls the megam_play API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
-      "Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
+      "Correctly do POST Boltdefns with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do GET  (node name)Boltdefns with a invalid Node name" ! findByInvalidName.succeeds ^
+      "Correctly do GET  (node name)Boltdefns with a valid node name" ! findByName.succeeds ^
       end
 
   /**
@@ -42,10 +45,10 @@ class AppRequestSpec extends Specification {
    */
   case object Post extends Context {
 
-    protected override def urlSuffix: String = "appreqs/content"
+    protected override def urlSuffix: String = "boltdefns/content"
 
     protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"req_type\":\"NSTART\",\"node_name\":\"checktest5.megam.co\",\"appdefns_id\":\"ADF392283728375709696\",\"lc_apply\":\"lc_apply\",\"lc_additional\":\"lc_additional\",\"lc_when\":\"lc_when\"}"                                 
+      val contentToEncode = "{\"node_name\":\"checktest4.megam.co\",\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}}"      
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -61,7 +64,7 @@ class AppRequestSpec extends Specification {
   }
 
   case object findByInvalidName extends Context {
-    protected override def urlSuffix: String = "appreqs/checksample"
+    protected override def urlSuffix: String = "boltdefns/checksample"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -73,7 +76,7 @@ class AppRequestSpec extends Specification {
     }
   }
   case object findByName extends Context {
-    protected override def urlSuffix: String = "appreqs/checktest5.megam.co"
+    protected override def urlSuffix: String = "boltdefns/checktest4.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
