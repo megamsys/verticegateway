@@ -318,15 +318,14 @@ object Nodes {
     }
   }
 
-  def createn(email: String, input: String): ValidationNel[Throwable, NodeCreateResults] = {
+  def createnoofinstances(email: String, input: String): ValidationNel[Throwable, NodeCreateResults] = {
     val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
       parse(input).extract[NodeInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    
     for {
       nir <- nodeInput
     } yield {
-      (((1 to nir.noofinstances).toList).some map { 
+      (((1 to nir.noofinstances).toList).some map {
         _.map { i =>
           (create(email, input) leftMap { t: NonEmptyList[Throwable] => t }).toValidationNel.flatMap { j: NodeCreateResult =>
             play.api.Logger.debug(("%-20s -->[%s]").format("nodecreateresult", j))
@@ -334,12 +333,10 @@ object Nodes {
             Validation.success[Throwable, NodeCreateResults](NodeCreateResults(j)) //screwy kishore, every element in a list ? 
           }
         }
-      }  map { 
-        _.foldRight((NodeCreateResults.empty).successNel[Throwable])(_ +++ _)        
-      })  //return the folded element in the head.   
-        
-    }   
-    
+      } map {
+        _.foldRight((NodeCreateResults.empty).successNel[Throwable])(_ +++ _)
+      }) //return the folded element in the head.  
+    }
   }
 
   /*
