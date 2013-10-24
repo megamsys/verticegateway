@@ -41,7 +41,7 @@ import java.nio.charset.Charset
  * @author ram
  *
  */
-case class NodeInput(node_name: String, node_type: String, req_type: String, command: NodeCommand, predefs: NodePredefs, appdefns: NodeAppDefns, boltdefns: NodeBoltDefns, appreq: NodeAppReq, boltreq: NodeBoltReq) {
+case class NodeInput(node_name: String, node_type: String, noofinstances: Int, req_type: String, command: NodeCommand, predefs: NodePredefs, appdefns: NodeAppDefns, boltdefns: NodeBoltDefns, appreq: NodeAppReq, boltreq: NodeBoltReq) {
   val formatReqsJson = "\"command\": " + command.json
   val appdefjson = "\"appdefns\": " + appdefns.json
   val boltdefjson = "\"boltdefns\": " + boltdefns.json
@@ -81,6 +81,45 @@ object NodeResult {
   }
 
   def fromJson(json: String): Result[NodeResult] = (Validation.fromTryCatch {
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+
+}
+
+case class NodeCreateResult(key: String, node_type: String, req_id: String, req_type: String) {
+  val json = "{\"key\": \"" + key + "\",\"node_type\":\"" + node_type + "\",\"req_id\":\"" + req_id + "\",\"req_type\":\"" + req_type + "\"}"
+
+  def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.NodeCreateResultSerialization
+    val nrsser = new NodeCreateResultSerialization()
+    toJSON(this)(nrsser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+}
+
+object NodeCreateResult {
+
+  //def apply(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String) = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
+  //new String(), new String(), new String, new String(), new String()), new String())
+
+  def apply = new NodeCreateResult(new String(), new String(), new String(), new String())
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeCreateResult] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    import models.json.NodeCreateResultSerialization
+    val nrsser = new NodeCreateResultSerialization()
+    fromJSON(jValue)(nrsser.reader)
+  }
+
+  def fromJson(json: String): Result[NodeCreateResult] = (Validation.fromTryCatch {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -279,11 +318,36 @@ object Nodes {
     }
   }
 
+  def createn(email: String, input: String): ValidationNel[Throwable, NodeCreateResults] = {
+    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
+      parse(input).extract[NodeInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+    
+    for {
+      nir <- nodeInput
+    } yield {
+      (((1 to nir.noofinstances).toList).some map { 
+        _.map { i =>
+          (create(email, input) leftMap { t: NonEmptyList[Throwable] => t }).toValidationNel.flatMap { j: NodeCreateResult =>
+            play.api.Logger.debug(("%-20s -->[%s]").format("nodecreateresult", j))
+            //Validation.success[Throwable, NodeCreateResults](nels(j.some)).toValidationNel
+            Validation.success[Throwable, NodeCreateResults](NodeCreateResults(j)) //screwy kishore, every element in a list ? 
+          }
+        }
+      }  map { 
+        _.foldRight((NodeCreateResults.empty).successNel[Throwable])(_ +++ _)        
+      })  //return the folded element in the head.   
+        
+    }   
+    
+  }
+
   /*
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket
    */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[Tuple3[String, String, NodeCommand]]] = {
+  //def create(email: String, input: String): ValidationNel[Throwable, Option[Tuple3[String, String, NodeCommand]]] = {  
+  def create(email: String, input: String): ValidationNel[Throwable, NodeCreateResult] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
@@ -296,12 +360,14 @@ object Nodes {
       play.api.Logger.debug(("%-20s -->[%s],riak returned: %s").format("Node.created successfully", email, ogsr))
       ogsr match {
         case Some(thatGS) => {
-          Tuple3(thatGS.key, nrip.request.req_id,
-            nrip.request.command).some
+          //Tuple3(thatGS.key, nrip.request.req_id,
+          //nrip.request.command).some
+          new NodeCreateResult(thatGS.key, nrip.node_type, nrip.request.req_id, nrip.request.req_type)
         }
         case None => {
           play.api.Logger.warn(("%-20s -->[%s]").format("Node.created successfully", "Scaliak returned => None. Thats OK."))
-          Tuple3(ogsi.get.key, nrip.request.req_id, nrip.request.command).some
+          //Tuple3(ogsi.get.key, nrip.request.req_id, nrip.request.command).some
+          new NodeCreateResult(ogsi.get.key, nrip.node_type, nrip.request.req_id, nrip.request.req_type)
         }
       }
     }

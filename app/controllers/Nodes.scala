@@ -50,25 +50,28 @@ object Nodes extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
-          models.Nodes.create(email, clientAPIBody) match {
+          models.Nodes.createn(email, clientAPIBody) match {
             case Success(succ) =>
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Gah"))
-              MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
-                play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
+              NodeCreateResults.toJson(succ, true)
+              play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node++++++++++++++++++++++++>", NodeCreateResults.toJson(succ, true)))
+             // val tuple_succ = succ.getOrElse(("Nah", "Bah", "Gah"))
+              //MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
+              MessageObjects.Publish("RIP392631536052076544").dop.flatMap { x =>
+                //play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
                 Status(CREATED)(FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
             |Check back on the 'node name':{%s}
-            |The cloud is working for you. It will be ready shortly.""".format(tuple_succ._1).stripMargin, "Megam::Node").toJson(true)).successNel[Throwable]
+            |The cloud is working for you. It will be ready shortly.""".format("RIP392631536052076544").stripMargin, "Megam::Node").toJson(true)).successNel[Throwable]
               } match {
                 //this is only a temporary hack.
                 case Success(succ_cpc) => succ_cpc
                 case Failure(err) =>
                   Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
             |for 'node name':{%s} 'request_id':{%s}
-            |Retry again, our queue servers are crowded""".format(tuple_succ._1, tuple_succ._2).stripMargin, "Megam::Node").toJson(true))
+            |Retry again, our queue servers are crowded""".format("RIP392631536052076544", "RIP392631536052076544").stripMargin, "Megam::Node").toJson(true))
               }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)

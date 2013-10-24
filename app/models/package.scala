@@ -30,6 +30,7 @@ import controllers.Constants._
  */
 package object models {
 
+    
   type NodeResults = NonEmptyList[Option[NodeResult]]
 
   object NodeResults {
@@ -52,7 +53,30 @@ package object models {
     def apply(m: NodeResult): NodeResults = NodeResults(m.some)
     def empty: NodeResults = nel(emptyNR.head, emptyNR.tail)
   }
+  
+  type NodeCreateResults = NonEmptyList[Option[NodeCreateResult]]
 
+  object NodeCreateResults {
+    val emptyNR = List(Option.empty[NodeCreateResult])
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: NodeCreateResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.NodeCreateResultsSerialization.{ writer => NodeCreateResultsWriter }
+      toJSON(nres)(NodeCreateResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: NodeCreateResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[NodeCreateResult]) = nels(m)
+    def apply(m: NodeCreateResult): NodeCreateResults = NodeCreateResults(m.some)
+    def empty: NodeCreateResults = nel(emptyNR.head, emptyNR.tail)
+  }
+  
   type PredefResults = NonEmptyList[Option[PredefResult]]
 
   object PredefResults {

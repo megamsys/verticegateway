@@ -60,7 +60,7 @@ class NodesSpec extends Specification {
       //  "\"boltdefns\":{\"username\":\"\",\"apikey\":\"\", \"store_name\":\"\",\"url\":\"\",\"prime\":\"\",\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},\"appreq\":{},\"boltreq\":{}}"                         
      // Some(new String(contentToEncode))
       
-      val contentToEncode = "{\"node_name\":\"checktest6.megam.co\",\"node_type\":\"BOLT\",\"req_type\":\"CREATE\",\"command\":" +
+      val contentToEncode = "{\"node_name\":\"checktest6.megam.co\",\"node_type\":\"BOLT\",\"noofinstances\":2,\"req_type\":\"CREATE\",\"command\":" +
         command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
         "\"appdefns\":{\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},"+
         "\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},\"appreq\":{},\"boltreq\":{}}"                         
