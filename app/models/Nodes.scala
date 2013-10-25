@@ -318,7 +318,7 @@ object Nodes {
     }
   }
 
-  def createnoofinstances(email: String, input: String): ValidationNel[Throwable, NodeCreateResults] = {
+  /*def createnoofinstances(email: String, input: String): ValidationNel[Throwable, NodeCreateResults] = {
     val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
       parse(input).extract[NodeInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -338,7 +338,7 @@ object Nodes {
       }) //return the folded element in the head.  
     }
   }
-
+*/
   /*
    * create new Node with the 'name' of the node provide as input.
    * A index name accountID will point to the "accounts" bucket

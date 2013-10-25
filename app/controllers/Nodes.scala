@@ -50,12 +50,12 @@ object Nodes extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
-          models.Nodes.createnoofinstances(email, clientAPIBody) match {
+          models.Nodes.create(email, clientAPIBody) match {
             case Success(succ) =>
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              NodeCreateResults.toJson(succ, true)
+              //NodeCreateResults.toJson(succ, true)
              // val tuple_succ = succ.getOrElse(("Nah", "Bah", "Gah"))
               //MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
               MessageObjects.Publish("RIP392631536052076544").dop.flatMap { x =>

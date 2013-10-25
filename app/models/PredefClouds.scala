@@ -54,7 +54,7 @@ case class PredefCloudInput(name: String, spec: PredefCloudSpec, access: PredefC
 }
 
 case class PredefCloudResult(id: String, name: String, accounts_id: String, spec: PredefCloudSpec, access: PredefCloudAccess,
-  ideal: String = new String(), performance: String = new String()) {
+  ideal: String = new String(), performance: String = new String(), created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -122,7 +122,7 @@ object PredefClouds {
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
-      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.spec, pdc.access).toJson(false)
+      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.spec, pdc.access, "", "", Time.now.toString).toJson(false)
       new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
