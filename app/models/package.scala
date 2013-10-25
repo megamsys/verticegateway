@@ -54,27 +54,27 @@ package object models {
     def empty: NodeResults = nel(emptyNR.head, emptyNR.tail)
   }
   
-  type NodeCreateResults = NonEmptyList[Option[NodeCreateResult]]
+  type NodeProcessedResults = NonEmptyList[Option[NodeProcessedResult]]
 
-  object NodeCreateResults {
-    val emptyNR = List(Option.empty[NodeCreateResult])
+  object NodeProcessedResults {
+    val emptyNR = List(Option.empty[NodeProcessedResult])
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(nres: NodeCreateResults): JValue = {
+    def toJValue(nres: NodeProcessedResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.NodeCreateResultsSerialization.{ writer => NodeCreateResultsWriter }
-      toJSON(nres)(NodeCreateResultsWriter)
+      import models.json.NodeProcessedResultsSerialization.{ writer => NodeProcessedResultsWriter }
+      toJSON(nres)(NodeProcessedResultsWriter)
     }
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: NodeCreateResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    def toJson(nres: NodeProcessedResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(nres)))
     } else {
       compactRender(toJValue(nres))
     }
 
-    def apply(m: Option[NodeCreateResult]) = nels(m)
-    def apply(m: NodeCreateResult): NodeCreateResults = NodeCreateResults(m.some)
-    def empty: NodeCreateResults = nel(emptyNR.head, emptyNR.tail)
+    def apply(m: Option[NodeProcessedResult]) = nels(m)
+    def apply(m: NodeProcessedResult): NodeProcessedResults = NodeProcessedResults(m.some)
+    def empty: NodeProcessedResults = nel(emptyNR.head, emptyNR.tail)
   }
   
   type PredefResults = NonEmptyList[Option[PredefResult]]

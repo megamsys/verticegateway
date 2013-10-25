@@ -88,13 +88,13 @@ object NodeResult {
 
 }
 
-case class NodeCreateResult(key: String, node_type: String, req_id: String, req_type: String) {
+case class NodeProcessedResult(key: String, node_type: String, req_id: String, req_type: String) {
   val json = "{\"key\": \"" + key + "\",\"node_type\":\"" + node_type + "\",\"req_id\":\"" + req_id + "\",\"req_type\":\"" + req_type + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.NodeCreateResultSerialization
-    val nrsser = new NodeCreateResultSerialization()
+    import models.json.NodeProcessedResultSerialization
+    val nrsser = new NodeProcessedResultSerialization()
     toJSON(this)(nrsser.writer)
   }
 
@@ -105,21 +105,18 @@ case class NodeCreateResult(key: String, node_type: String, req_id: String, req_
   }
 }
 
-object NodeCreateResult {
+object NodeProcessedResult {
 
-  //def apply(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String) = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
-  //new String(), new String(), new String, new String(), new String()), new String())
+  def apply = new NodeProcessedResult(new String(), new String(), new String(), new String())
 
-  def apply = new NodeCreateResult(new String(), new String(), new String(), new String())
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeCreateResult] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeProcessedResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.NodeCreateResultSerialization
-    val nrsser = new NodeCreateResultSerialization()
+    import models.json.NodeProcessedResultSerialization
+    val nrsser = new NodeProcessedResultSerialization()
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[NodeCreateResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[NodeProcessedResult] = (Validation.fromTryCatch {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -145,10 +142,6 @@ case class NodeBoltDefns(username: String, apikey: String, store_name: String, u
 
 }
 
-//case class NodeBoltDefns() {
-// override def toString = ""
-//}
-
 case class NodeAppReq() {
   override def toString = ""
 }
@@ -171,15 +164,6 @@ object NodeStatusType {
   implicit val NodeStatusTypeToReader = upperEnumReader(AM_HUNGRY, REQ_CREATED_AT_SOURCE, NODE_CREATED_AT_SOURCE,
     PUBLISHED, STARTED, LAUNCH_SUCCESSFUL, LAUNCH_FAILED)
 }
-
-/*sealed abstract class AppProcess(override val stringVal: String) extends Enumeration
-
-object AppProcess {
-  object AM_HUNGRY extends AppProcess("AM_HUNGRY")
-  object CREATE extends AppProcess("Process created")  
-
-  implicit val AppProcessToReader = upperEnumReader(AM_HUNGRY, CREATE)
-}*/
 
 case class NodeCommand(systemprovider: NodeSystemProvider, compute: NodeCompute, cloudtool: NodeCloudToolService) {
   val json = "{\"systemprovider\": " + systemprovider.json + "}, \"compute\": " + compute.json + "\"}}, \"cloudtool\": {" +
@@ -240,6 +224,7 @@ object Nodes {
   implicit val formats = DefaultFormats
 
   implicit def NodeResultsSemigroup: Semigroup[NodeResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  implicit def NodeProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
 
   private def riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
 
@@ -266,26 +251,100 @@ object Nodes {
   }
 
   /**
+   * The no_of_instances as sent as the input dictates the 'x' times the private
+   * create method is called.
+   * If you need 1 instance send no_of_instance as 1
+   */
+  def createMany(email: String, input: String): ValidationNel[Throwable, NodeProcessedResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "createMany:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
+      parse(input).extract[NodeInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeInput", nodeInput))
+
+    val res = (for {
+      nir <- nodeInput
+    } yield {
+      broadenNodes(nir)
+    }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+      nodpl: Option[List[NodeInput]] =>
+        (nodpl map {
+          _.map { nodinp =>
+            play.api.Logger.debug(("%-20s -->[%s]").format("node", nodinp))
+            (create(email, nodinp))
+          }
+        } map {
+          _.foldRight((NodeProcessedResults.empty).successNel[Throwable])(_ +++ _)
+        }).head
+    }
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", res))
+    res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[NodeProcessedResults])
+    res
+  }
+
+  private def broadenNodes(inp: NodeInput): Option[List[NodeInput]] = {
+    val fn1 = inp.node_name.some map { fs1 => fs1.split('.').take(1).mkString }
+    val rn1 = inp.node_name.some map { fs2 => fs2.split('.').drop(1).mkString(".", ".", "") }
+
+    ((1 to inp.noofinstances).toList map { sufc: Int =>
+      val fnsxrn = ((fn1 |@| sufc.some |@| rn1).apply { _ + _ + _ })
+      ((fnsxrn |@| inp.node_type.some |@| inp.noofinstances.some |@| inp.req_type.some
+        |@| inp.command.some |@| inp.predefs.some |@| inp.appdefns.some
+        |@| inp.boltdefns.some |@| inp.appreq.some |@| inp.boltreq.some)(NodeInput)).get
+    }).some
+  }
+
+  /*
+   * create new Node with the 'name' of the node provide as input.
+   * A index name accountID will point to the "accounts" bucket
+   */
+  private def create(email: String, input: NodeInput): ValidationNel[Throwable, NodeProcessedResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    for {
+      ogsi <- mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err }
+      nrip <- NodeResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => println("osgi\n" + ogsi.get.value); play.api.Logger.debug(JSONParsingError(t).toString); nels(JSONParsingError(t)) }
+      ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => play.api.Logger.debug("--------> ooo"); t }
+    } yield {
+      play.api.Logger.debug(("%-20s -->[%s],riak returned: %s").format("Node.created successfully", email, ogsr))
+      ogsr match {
+        case Some(thatGS) => {
+          nels(NodeProcessedResult(thatGS.key, nrip.node_type, nrip.request.req_id, nrip.request.req_type).some)
+        }
+        case None => {
+          play.api.Logger.warn(("%-20s -->[%s]").format("Node.created successfully", "Scaliak returned => None. Thats OK."))
+          nels(NodeProcessedResult(ogsi.get.key, nrip.node_type, nrip.request.req_id, nrip.request.req_type).some)
+        }
+      }
+    }
+
+    /*
+    val reqPush: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
+      MessageObjects.Publish(Message)
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeinp", nodeInput))
+  */
+  }
+
+  /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkGunnySack(email: String, nir: NodeInput): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nir", nir))
 
-    //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
-    //This is a potential bug.
-    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
-      parse(input).extract[NodeInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeinp", nodeInput))
     for {
-      nir <- nodeInput
-      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "nod").get leftMap { ut: NonEmptyList[Throwable] => ut })
       req <- (Requests.createforNewNode("{\"node_id\": \"" + (uir.get._1 + uir.get._2) + "\",\"node_name\": \"" + nir.node_name + "\",\"req_type\": \"" + nir.req_type + "\"," + nir.formatReqsJson + "}") leftMap { t: NonEmptyList[Throwable] => t })
@@ -318,65 +377,6 @@ object Nodes {
     }
   }
 
-  def createnoofinstances(email: String, input: String): ValidationNel[Throwable, NodeCreateResults] = {
-    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
-      parse(input).extract[NodeInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    for {
-      nir <- nodeInput
-    } yield {
-      (((1 to nir.noofinstances).toList).some map {
-        _.map { i =>
-          (create(email, input) leftMap { t: NonEmptyList[Throwable] => t }).toValidationNel.flatMap { j: NodeCreateResult =>
-            play.api.Logger.debug(("%-20s -->[%s]").format("nodecreateresult", j))
-            //Validation.success[Throwable, NodeCreateResults](nels(j.some)).toValidationNel
-            Validation.success[Throwable, NodeCreateResults](NodeCreateResults(j)) //screwy kishore, every element in a list ? 
-          }
-        }
-      } map {
-        _.foldRight((NodeCreateResults.empty).successNel[Throwable])(_ +++ _)
-      }) //return the folded element in the head.  
-    }
-  }
-
-  /*
-   * create new Node with the 'name' of the node provide as input.
-   * A index name accountID will point to the "accounts" bucket
-   */
-  //def create(email: String, input: String): ValidationNel[Throwable, Option[Tuple3[String, String, NodeCommand]]] = {  
-  def create(email: String, input: String): ValidationNel[Throwable, NodeCreateResult] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
-    for {
-      ogsi <- mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err }
-      nrip <- NodeResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => println("osgi\n" + ogsi.get.value); play.api.Logger.debug(JSONParsingError(t).toString); nels(JSONParsingError(t)) }
-      ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => play.api.Logger.debug("--------> ooo"); t }
-    } yield {
-      play.api.Logger.debug(("%-20s -->[%s],riak returned: %s").format("Node.created successfully", email, ogsr))
-      ogsr match {
-        case Some(thatGS) => {
-          //Tuple3(thatGS.key, nrip.request.req_id,
-          //nrip.request.command).some
-          new NodeCreateResult(thatGS.key, nrip.node_type, nrip.request.req_id, nrip.request.req_type)
-        }
-        case None => {
-          play.api.Logger.warn(("%-20s -->[%s]").format("Node.created successfully", "Scaliak returned => None. Thats OK."))
-          //Tuple3(ogsi.get.key, nrip.request.req_id, nrip.request.command).some
-          new NodeCreateResult(ogsi.get.key, nrip.node_type, nrip.request.req_id, nrip.request.req_type)
-        }
-      }
-    }
-
-    /*
-    val reqPush: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
-      MessageObjects.Publish(Message)
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeinp", nodeInput))
-  */
-  }
   /**
    * Measure the duration to accomplish a usecase by listing an user who has 10 nodes using single threaded
    * (current behaviour)

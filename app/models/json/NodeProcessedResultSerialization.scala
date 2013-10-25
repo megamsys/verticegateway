@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeCreateResult}
+import models.{ NodeProcessedResult}
 import models.NodeStatusType._
 import org.megam.common.enumeration._
 
@@ -35,30 +35,30 @@ import org.megam.common.enumeration._
  * @author ram
  *
  */
-class NodeCreateResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[NodeCreateResult] {
+class NodeProcessedResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[NodeProcessedResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val NodeKKey = "key"  
     protected val NodeTypeKey = "node_type"
       protected val ReqIdKey = "req_id"
   protected val ReqTypeKey = "req_type"  
     
-  override implicit val writer = new JSONW[NodeCreateResult] {  
+  override implicit val writer = new JSONW[NodeProcessedResult] {  
     
     
-    override def write(h: NodeCreateResult): JValue = {
+    override def write(h: NodeProcessedResult): JValue = {
       JObject(
         JField(NodeKKey, toJSON(h.key)) ::          
           JField(NodeTypeKey, toJSON(h.node_type)) ::
-          JField(JSONClazKey, toJSON("Megam::NodeCreate")) ::
+          JField(JSONClazKey, toJSON("Megam::NodeProcessed")) ::
           JField(ReqTypeKey, toJSON(h.req_type)) ::
               JField(ReqIdKey, toJSON(h.req_id)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeCreateResult] {    
+  override implicit val reader = new JSONR[NodeProcessedResult] {    
     
     
-    override def read(json: JValue): Result[NodeCreateResult] = {
+    override def read(json: JValue): Result[NodeProcessedResult] = {
      val keyField = field[String](NodeKKey)(json)
       val nodeTypeField = field[String](NodeTypeKey)(json)      
       val reqtypeField = field[String](ReqTypeKey)(json)    
@@ -66,7 +66,7 @@ class NodeCreateResultSerialization(charset: Charset = UTF8Charset) extends Seri
 
       (keyField |@| nodeTypeField |@| reqidField |@| reqtypeField ) {
         (id: String, node_type: String, req_id: String, req_type: String) =>
-          new NodeCreateResult(id, node_type, req_id, req_type)
+          new NodeProcessedResult(id, node_type, req_id, req_type)
       }
     }
   }
