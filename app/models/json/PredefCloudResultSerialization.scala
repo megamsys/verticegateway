@@ -42,6 +42,7 @@ class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val AccessKey = "access"
   protected val IdealKey = "ideal"
   protected val PerformanceKey = "performance"  
+    protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[PredefCloudResult] {
 
@@ -57,6 +58,7 @@ class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends Ser
           JField(SpecKey, toJSON(h.spec)(PredefCloudSpecWriter)) ::
           JField(AccessKey, toJSON(h.access)(PredefCloudAccessWriter)) ::
           JField(IdealKey, toJSON(h.ideal)) ::
+          JField(CreatedAtKey, toJSON(h.created_at))   ::
           JField(PerformanceKey, toJSON(h.performance)) ::
            Nil)
     }
@@ -75,12 +77,12 @@ class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends Ser
       val accessField = field[PredefCloudAccess](AccessKey)(json)(PredefCloudAccessReader)
       val idealField = field[String](IdealKey)(json)
       val perfField = field[String](PerformanceKey)(json)
-      
+      val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| accountIdField |@| specField |@| accessField |@| idealField |@| perfField ) {
+      (idField |@| nameField |@| accountIdField |@| specField |@| accessField |@| idealField |@| perfField |@| createdAtField) {
         (id: String, name: String, accountId: String, spec: PredefCloudSpec, access: PredefCloudAccess,
-        ideal: String, perf: String) =>
-          new PredefCloudResult(id, name, accountId, spec, access, ideal, perf)
+        ideal: String, perf: String, created_at: String) =>
+          new PredefCloudResult(id, name, accountId, spec, access, ideal, perf, created_at)
       }
     }
   }

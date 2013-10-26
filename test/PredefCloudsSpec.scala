@@ -37,14 +37,14 @@ class PredefCloudsSpec extends Specification {
       PredefCloudsSpec is the implementation that calls the megam_play API server with the /predefcloud url to create predefclouds
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post0.succeeds ^
-      "Correctly do POST requests" ! Post1.succeeds ^
+      //"Correctly do POST requests" ! Post0.succeeds ^
+      //"Correctly do POST requests" ! Post1.succeeds ^
       "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
-      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   //post the headers and their body for specifing url

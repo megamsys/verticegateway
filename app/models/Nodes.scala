@@ -296,6 +296,7 @@ object Nodes {
         |@| inp.command.some |@| inp.predefs.some |@| inp.appdefns.some
         |@| inp.boltdefns.some |@| inp.appreq.some |@| inp.boltreq.some)(NodeInput)).get
     }).some
+
   }
 
   /*

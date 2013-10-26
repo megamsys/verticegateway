@@ -40,6 +40,7 @@ class PredefResultSerialization(charset: Charset = UTF8Charset) extends Serializ
   protected val ProviderKey = "provider"
   protected val ProviderRoleKey = "provider_role"
   protected val BuildMonkeyKey = "build_monkey"  
+    protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[PredefResult] {
 
@@ -49,7 +50,8 @@ class PredefResultSerialization(charset: Charset = UTF8Charset) extends Serializ
           JField(NameKey, toJSON(h.name)) ::
           JField(ProviderKey, toJSON(h.provider)) ::
           JField(ProviderRoleKey, toJSON(h.provider_role)) ::
-          JField(BuildMonkeyKey, toJSON(h.build_monkey)) ::           
+          JField(BuildMonkeyKey, toJSON(h.build_monkey)) ::  
+          JField(CreatedAtKey, toJSON(h.created_at))   ::
           JField(JSONClazKey, toJSON("Megam::Predef")) :: Nil)
     }
   }
@@ -61,11 +63,12 @@ class PredefResultSerialization(charset: Charset = UTF8Charset) extends Serializ
       val nameField = field[String](NameKey)(json)
       val providerField = field[String](ProviderKey)(json)
       val providerRoleField = field[String](ProviderRoleKey)(json)
-      val buildMonkeyField = field[String](BuildMonkeyKey)(json)      
+      val buildMonkeyField = field[String](BuildMonkeyKey)(json) 
+      val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| providerField |@| providerRoleField |@| buildMonkeyField ) {
-        (id: String, name: String, provider: String, provider_role: String, build_monkey: String) =>
-          new PredefResult(id, name, provider, provider_role, build_monkey)
+      (idField |@| nameField |@| providerField |@| providerRoleField |@| buildMonkeyField |@| createdAtField) {
+        (id: String, name: String, provider: String, provider_role: String, build_monkey: String, created_at: String) =>
+          new PredefResult(id, name, provider, provider_role, build_monkey, created_at)
       }
     }
   }

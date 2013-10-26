@@ -56,7 +56,6 @@ object Nodes extends Controller with APIAuthElement {
                We need to trap success/fialures.
                */
               NodeProcessedResults.toJson(succ, true)
-             // val tuple_succ = succ.getOrElse(("Nah", "Bah", "Gah"))
               //MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
               MessageObjects.Publish("RIP392631536052076544").dop.flatMap { x =>
                 //play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
