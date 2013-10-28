@@ -26,7 +26,7 @@ import play.api.mvc.SimpleResult
 import models._
 import controllers.stack._
 import controllers.stack.APIAuthElement
-import controllers.funnel.FunnelResponse
+import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import controllers.funnel.FunnelErrors._
 import org.megam.common.amqp._
 
@@ -51,26 +51,41 @@ object Nodes extends Controller with APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
           models.Nodes.createMany(email, clientAPIBody) match {
-            case Success(succ) =>
+            case Success(succ) => {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              NodeProcessedResults.toJson(succ, true)
-              //MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
-              MessageObjects.Publish("RIP392631536052076544").dop.flatMap { x =>
-                //play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
-                Status(CREATED)(FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
+              play.api.Logger.debug(("%-20s -->[%s]").format("-------------------->", succ))
+              val chainedComps = (succ.map {
+                nrOpt: Option[NodeProcessedResult] =>
+                  (nrOpt.map { nr =>
+                    play.api.Logger.debug(("%-20s -->[%s]").format("-------------------->", (nr.req_id)))
+                    //MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
+                    MessageObjects.Publish(nr.req_id).dop.flatMap { x =>
+                      //play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
+                      FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
             |Check back on the 'node name':{%s}
-            |The cloud is working for you. It will be ready shortly.""".format("RIP392631536052076544").stripMargin, "Megam::Node").toJson(true)).successNel[Throwable]
-              } match {
-                //this is only a temporary hack.
-                case Success(succ_cpc) => succ_cpc
-                case Failure(err) =>
-                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
+            |The cloud is working for you. It will be ready shortly.""".format(nr.req_id).stripMargin, "Megam::Node").successNel[Throwable]
+                    } match {
+                      //this is only a temporary hack.
+                      case Success(succ_cpc) => succ_cpc
+                      case Failure(err) =>
+                        FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
             |for 'node name':{%s} 'request_id':{%s}
-            |Retry again, our queue servers are crowded""".format("RIP392631536052076544", "RIP392631536052076544").stripMargin, "Megam::Node").toJson(true))
+            |Retry again, our queue servers are crowded""".format(nr.req_id, nr.req_id).stripMargin, "Megam::Node")
+                    }
+                  })
+              }).map {
+                fr => {              
+                      fr.getOrElse(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
+            |for 'node name':{%s} 'request_id':{%s}
+            |Retry again, our queue servers are crowded""".format("","").stripMargin, "Megam::Node"))                    
+                  }
               }
+              Status(CREATED)(FunnelResponses.toJson(FunnelResponses(chainedComps), true))
+            }
+
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

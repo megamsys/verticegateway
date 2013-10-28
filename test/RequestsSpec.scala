@@ -36,8 +36,8 @@ class RequestsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
-      "Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
+     // "Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
+      //"Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
       end
 
   /**
@@ -52,7 +52,7 @@ class RequestsSpec extends Specification {
         new NodeCompute("ec2", new NodeComputeDetail("megam_ec2", "img1", "t1-micro"),
           new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
-      val contentToEncode = "{\"req_type\":\"STOP\",\"node_name\":\"badthink.megam.co\",\"command\":" +
+      val contentToEncode = "{\"req_type\":\"STOP\",\"node_name\":\"todaysample1.megam.co\",\"command\":" +
         command + "}"
       Some(new String(contentToEncode))
     }
