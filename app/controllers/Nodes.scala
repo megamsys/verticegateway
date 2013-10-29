@@ -52,15 +52,11 @@ object Nodes extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
           models.Nodes.createMany(email, clientAPIBody) match {
             case Success(succ) => {
-              /*This isn't correct. Revisit, as the testing progresses.
-               We need to trap success/fialures.           */
-              
-              val chainedComps = (succ.map {
+              val chainedComps = (succ.list filter (nelwop => nelwop.isDefined) map { //filter None, as foldRight creates it.
                 nrOpt: Option[NodeProcessedResult] =>
-                  (nrOpt.map { nr =>                    
-                    //MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
+                  (nrOpt.map { nr =>
                     CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap { x =>
-                      //play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
+                      play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", nr.key + " " + nr.req_id))
                       FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
             |Check back on the 'node name':{%s}
@@ -69,19 +65,17 @@ object Nodes extends Controller with APIAuthElement {
                       //this is only a temporary hack.
                       case Success(succ_cpc) => succ_cpc
                       case Failure(err) =>
-                        FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
+                        FunnelResponse(BAD_REQUEST, """Node initiation submission failed.   
             |for 'node name':{%s} 'request_id':{%s}
-            |Retry again, our queue servers are crowded""".format(nr.req_id, nr.req_id).stripMargin, "Megam::Node")
+            |Retry again, our queue servers isn't running or maxed""".format(nr.req_id, nr.req_id).stripMargin, "Megam::Node")
                     }
                   })
-              }).map {
-                fr =>
-                  {
-                    fr.getOrElse(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
+              }).map { fr =>
+                {
+                  fr.getOrElse(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
             |for 'node name':{%s} 'request_id':{%s}
-            |Retry again, our queue servers are crowded""".format("", "").stripMargin, "Megam::Node"))
-                    // }).asInstanceOf[Option[FunnelResponse]]
-                  }
+            |Retry again, our cloud api servers barfed""".format("", "").stripMargin, "Megam::Node"))
+                }
               }
               Status(CREATED)(FunnelResponses.toJson(FunnelResponses(chainedComps), true))
             }
