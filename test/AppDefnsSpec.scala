@@ -36,8 +36,8 @@ class AppDefnsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST appdefns with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do GET  (node name)appdefns with a invalid Node name" ! findByInvalidName.succeeds ^
-      "Correctly do GET  (node name)appdefns with a valid node name" ! findByName.succeeds ^
+      //"Correctly do GET  (node name)appdefns with a invalid Node name" ! findByInvalidName.succeeds ^
+      //"Correctly do GET  (node name)appdefns with a valid node name" ! findByName.succeeds ^
       end
 
   /**
@@ -48,7 +48,7 @@ class AppDefnsSpec extends Specification {
     protected override def urlSuffix: String = "appdefns/content"
 
     protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"node_name\":\"checktest4.megam.co\",\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}}"      
+      val contentToEncode = "{\"node_name\":\"todaysample1.megam.co\",\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}}"      
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

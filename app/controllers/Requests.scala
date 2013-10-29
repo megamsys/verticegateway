@@ -54,8 +54,8 @@ object Requests extends Controller with APIAuthElement  {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              val tuple_succ = succ.getOrElse(("Nah", "Bah"))              
-              MessageObjects.Publish(tuple_succ._1).dop.flatMap { x =>
+              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Hah"))              
+              CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
                 Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
             |

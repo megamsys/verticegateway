@@ -151,10 +151,10 @@ object BoltDefns {
           val adf_result = parse(gs.get.value).extract[BoltDefnsResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("BoltDefns.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => (thatGS.key, adf_result.node_id, adf_result.boltdefns).some.successNel[Throwable]
+            case Some(thatGS) => (thatGS.key, adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("BoltDefns.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, adf_result.node_id, adf_result.boltdefns).some.successNel[Throwable]
+              (gs.get.key, adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
             }
           }
         }
@@ -209,10 +209,10 @@ object BoltDefns {
           val adf_result = parse(gs.get.value).extract[BoltDefnsResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("BoltDefns.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => (thatGS.key, adf_result.node_id, adf_result.boltdefns).some.successNel[Throwable]
+            case Some(thatGS) => (thatGS.key, adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("BoltDefns.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, adf_result.node_id, adf_result.boltdefns).some.successNel[Throwable]
+              (gs.get.key, adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
             }
           }
         }

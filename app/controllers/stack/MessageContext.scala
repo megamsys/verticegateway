@@ -32,27 +32,21 @@ import play.api.Play._
  * @author rajthilak
  *
  */
-object MessageObjects {
 
-  trait MessageContext {
+/*
+ * Used it to perform rate limiting
+ * TO-DO: Yet to me implemented. 
+ * 
+ */
+trait MessageContext {
 
-    play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Entry"))
-    play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ"))
+  play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Entry"))
+  play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ"))
 
-    //create the RabbitMQ Client using url, exchange name and queue name
-    val client = new RabbitMQClient(MConfig.amqpuri, MConfig.exchange_name, MConfig.queue_name)
-
-    protected def execute(ampq_request: AMQPRequest, duration: Duration = org.megam.common.concurrent.duration) = {
-      import org.megam.common.concurrent.SequentialExecutionContext
-      val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] = ampq_request.apply
-      responseFuture.block(duration)
-    }
-  }
-
-  
-  case class Publish(messages: String) extends MessageContext {
-    val pubMsg = Messages("id" -> messages)
-    play.api.Logger.debug("%-20s -->[%s]".format("Publish", pubMsg))
-    def dop(): ValidationNel[Throwable, AMQPResponse] = execute(client.publish(pubMsg, MConfig.routing_key))
+  protected def execute(ampq_request: AMQPRequest, duration: Duration = org.megam.common.concurrent.duration) = {
+    import org.megam.common.concurrent.SequentialExecutionContext
+    val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] = ampq_request.apply
+    responseFuture.block(duration)
   }
 }
+

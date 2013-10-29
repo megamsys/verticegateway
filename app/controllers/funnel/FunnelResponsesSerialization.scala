@@ -31,8 +31,9 @@ object FunnelResponsesSerialization extends SerializationBase[FunnelResponses] {
     override def write(h: FunnelResponses): JValue = {
       val frsList: List[JValue] = h.map {
         frList: FunnelResponseList =>
+          play.api.Logger.debug(("%-20s -->[%s]").format("-------------((())))------->", frList))
           (frList.list.map { fr: FunnelResponse => fr.toJValue }).toList
-      } | List[JObject]()
+      } | List[JObject]() 
 
 
       JArray(frsList)
@@ -62,7 +63,7 @@ object FunnelResponsesSerialization extends SerializationBase[FunnelResponses] {
               case Success(fr)   => List(fr)
               case Failure(fail) => List[FunnelResponse]()
             }
-          }
+          } map { x: FunnelResponse => x }
           val frs: FunnelResponses = FunnelResponses(list)
           frs.successNel[Error]
         }

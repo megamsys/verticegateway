@@ -53,15 +53,13 @@ object Nodes extends Controller with APIAuthElement {
           models.Nodes.createMany(email, clientAPIBody) match {
             case Success(succ) => {
               /*This isn't correct. Revisit, as the testing progresses.
-               We need to trap success/fialures.
-               */
-              play.api.Logger.debug(("%-20s -->[%s]").format("-------------------->", succ))
+               We need to trap success/fialures.           */
+              
               val chainedComps = (succ.map {
                 nrOpt: Option[NodeProcessedResult] =>
-                  (nrOpt.map { nr =>
-                    play.api.Logger.debug(("%-20s -->[%s]").format("-------------------->", (nr.req_id)))
+                  (nrOpt.map { nr =>                    
                     //MessageObjects.Publish(tuple_succ._2).dop.flatMap { x =>
-                    MessageObjects.Publish(nr.req_id).dop.flatMap { x =>
+                    CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap { x =>
                       //play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", tuple_succ._2))
                       FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
@@ -77,10 +75,12 @@ object Nodes extends Controller with APIAuthElement {
                     }
                   })
               }).map {
-                fr => {              
-                      fr.getOrElse(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
+                fr =>
+                  {
+                    fr.getOrElse(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
             |for 'node name':{%s} 'request_id':{%s}
-            |Retry again, our queue servers are crowded""".format("","").stripMargin, "Megam::Node"))                    
+            |Retry again, our queue servers are crowded""".format("", "").stripMargin, "Megam::Node"))
+                    // }).asInstanceOf[Option[FunnelResponse]]
                   }
               }
               Status(CREATED)(FunnelResponses.toJson(FunnelResponses(chainedComps), true))
@@ -112,12 +112,14 @@ object Nodes extends Controller with APIAuthElement {
     (Validation.fromTryCatch[SimpleResult] {
       reqFunneled match {
         case Success(succ) => {
+          play.api.Logger.debug(("%-20s -->[%s]").format("-------------------->", succ))
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
 
           models.Nodes.findByNodeName(List(id).some) match {
             case Success(succ) =>
+              play.api.Logger.debug(("%-20s -->[%s]").format("-------------------->", succ))
               Ok(NodeResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

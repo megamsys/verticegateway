@@ -151,10 +151,10 @@ object AppDefns {
           val adf_result = parse(gs.get.value).extract[AppDefnsResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("AppDefns.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => (thatGS.key, adf_result.node_id, adf_result.appdefns).some.successNel[Throwable]
+            case Some(thatGS) => (thatGS.key, adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("AppDefns.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, adf_result.node_id, adf_result.appdefns).some.successNel[Throwable]
+              (gs.get.key, adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             }
           }
         }
@@ -209,10 +209,10 @@ object AppDefns {
           val adf_result = parse(gs.get.value).extract[AppDefnsResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("AppDefns.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => (thatGS.key, adf_result.node_id, adf_result.appdefns).some.successNel[Throwable]
+            case Some(thatGS) => (thatGS.key, adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("AppDefns.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, adf_result.node_id, adf_result.appdefns).some.successNel[Throwable]
+              (gs.get.key, adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             }
           }
         }

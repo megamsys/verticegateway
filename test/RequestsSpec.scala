@@ -51,7 +51,7 @@ class RequestsSpec extends Specification {
       val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
         new NodeCompute("ec2", new NodeComputeDetail("megam_ec2", "img1", "t1-micro"),
           new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
-        new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
+        new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N todaysample1.megam.co"))).json
       val contentToEncode = "{\"req_type\":\"STOP\",\"node_name\":\"todaysample1.megam.co\",\"command\":" +
         command + "}"
       Some(new String(contentToEncode))

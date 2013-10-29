@@ -32,4 +32,10 @@ object MConfig {
   val routing_key = "megam_key"
   val snowflakeHost = play.api.Play.application(play.api.Play.current).configuration.getString("sf.host").get
   val snowflakePort: Int = play.api.Play.application(play.api.Play.current).configuration.getInt("sf.port").get
+  val cloudstandup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.queue").get
+  val cloudstandup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.exchange").get       
+  val cloudper_node_queue_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.queue").get
+  val cloudper_node_exchage_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.exchange").get
+
+
 }

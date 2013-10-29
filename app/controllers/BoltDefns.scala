@@ -55,7 +55,7 @@ object BoltDefns extends Controller with APIAuthElement  {
                We need to trap success/fialures.
                */
               val tuple_succ = succ.getOrElse(("Nah", "Bah", "Hah"))              
-              MessageObjects.Publish(tuple_succ._1).dop.flatMap { x =>
+              CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltDefns", "published successfully."))
                 Status(CREATED)(FunnelResponse(CREATED, """BoltDefns initiation instruction submitted successfully.
             |
