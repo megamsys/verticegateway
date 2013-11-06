@@ -168,7 +168,13 @@ object CloudTool {
 
   val rackspace = CloudTemplate("rackspace", CloudInstructionGroup.empty)
   val openstack = CloudTemplate("openstack", CloudInstructionGroup.empty)
-  val hp = CloudTemplate("hp", CloudInstructionGroup.empty)
+  
+  val hp = CloudTemplate("hp", CloudInstructionGroup(List("server" -> CloudInstructions(
+    CloudInstruction("create", "server create", "-N"),
+    CloudInstruction("delete", "server delete", "-N"),
+    CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
+    CloudInstruction("data", "instance set", "-N")))))
+    
   val myiaas = CloudTemplate("myiaas", CloudInstructionGroup.empty)
 
   val cloudtemplates = CloudTemplates(ec2, rackspace, openstack, hp,myiaas)
