@@ -51,16 +51,16 @@ class NodesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
-        new NodeCompute("ec2", new NodeComputeDetail("megam_ec2","img1", "t1-micro"),
-          new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem")),
-        new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N someone.megam.co"))).json
+        new NodeCompute("ec2", new NodeComputeDetail("default","106719", "100"),
+          new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem")),
+        new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create", "java", "-N todaysample.megam.co"))).json
       //val contentToEncode = "{\"node_name\":\"checktest5.megam.co\",\"node_type\":\"APP\",\"req_type\":\"CREATE\",\"command\":" +
        // command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
        // "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},"+
       //  "\"boltdefns\":{\"username\":\"\",\"apikey\":\"\", \"store_name\":\"\",\"url\":\"\",\"prime\":\"\",\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},\"appreq\":{},\"boltreq\":{}}"                         
      // Some(new String(contentToEncode))
       
-      val contentToEncode = "{\"node_name\":\"todaysample.megam.co\",\"node_type\":\"BOLT\",\"noofinstances\":2,\"req_type\":\"CREATE\",\"command\":" +
+      val contentToEncode = "{\"node_name\":\"todaysample.megam.co\",\"node_type\":\"BOLT\",\"noofinstances\":1,\"req_type\":\"CREATE\",\"command\":" +
         command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
         "\"appdefns\":{\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},"+
         "\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},\"appreq\":{},\"boltreq\":{}}"                         
