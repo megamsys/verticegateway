@@ -42,7 +42,7 @@ import java.nio.charset.Charset
  *
  */
 case class PredefInput(id: String = new String(), name: String, provider: String, provider_role: String, build_monkey: String = "none", runtime_exec: String, created_at: String) {
-  val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"provider_role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\",\"created_at\":\"" + created_at + "\"}"     
+  val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"provider_role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\",\"runtime_exec\":\"" + runtime_exec + "\",\"created_at\":\"" + created_at + "\"}"     
 }
 
 object PredefInput {
