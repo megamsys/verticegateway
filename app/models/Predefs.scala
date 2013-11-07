@@ -41,30 +41,30 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-case class PredefInput(id: String = new String(), name: String, provider: String, provider_role: String, build_monkey: String = "none", created_at: String) {
+case class PredefInput(id: String = new String(), name: String, provider: String, provider_role: String, build_monkey: String = "none", runtime_exec: String, created_at: String) {
   val json = "{\"id\": \"" + id + "\",\"name\":\"" + name + "\",\"provider\":\"" + provider + "\",\"provider_role\":\"" + provider_role + "\",\"build_monkey\":\"" + build_monkey + "\",\"created_at\":\"" + created_at + "\"}"     
 }
 
 object PredefInput {
 
   val toMap = Map[String, PredefInput](
-    "rails" -> PredefInput("", "rails", "chef", "rails", "bundle", ""),
-    "java" -> PredefInput("", "java", "chef", "java", "mvn", ""),
-    "scala" -> PredefInput("", "scala", "chef", "scala", "sbt", ""),
-    "play" -> PredefInput("", "play", "chef", "play", "sbt", ""),
-    "akka" -> PredefInput("", "akka", "chef", "scala", "sbt", ""),
-    "nodejs" -> PredefInput("", "nodejs", "chef", "nodejs", "npm", ""),
-    "mobhtml5" -> PredefInput("", "mobhtml5", "chef", "sencha", "", ""),
-    "postgresql" -> PredefInput("", "postgresql", "chef", "postgresql", "", ""),
-    "rabbitmq" -> PredefInput("", "rabbitmq", "chef", "rabbitmq", "", ""),
-    "redis" -> PredefInput("", "redis", "chef", "redis", "", ""),
-    "riak" -> PredefInput("", "riak", "chef", "riak", "", ""))
+    "rails" -> PredefInput("", "rails", "chef", "rails", "bundle", "sudo start rails", ""),
+    "java" -> PredefInput("", "java", "chef", "java", "mvn", "", ""),
+    "scala" -> PredefInput("", "scala", "chef", "scala", "sbt", "", ""),
+    "play" -> PredefInput("", "play", "chef", "play", "sbt", "", ""),
+    "akka" -> PredefInput("", "akka", "chef", "scala", "sbt", "", ""),
+    "nodejs" -> PredefInput("", "nodejs", "chef", "nodejs", "npm", "", ""),
+    "mobhtml5" -> PredefInput("", "mobhtml5", "chef", "sencha", "", "", ""),
+    "postgresql" -> PredefInput("", "postgresql", "chef", "postgresql", "", "", ""),
+    "rabbitmq" -> PredefInput("", "rabbitmq", "chef", "rabbitmq", "", "sudo rabbitmqctl start_app", ""),
+    "redis" -> PredefInput("", "redis", "chef", "redis", "", "sudo redis-server", ""),
+    "riak" -> PredefInput("", "riak", "chef", "riak", "", "sudo start raik", ""))
 
   val toStream = toMap.keySet.toStream
 
 }
 
-case class PredefResult(id: String, name: String, provider: String, provider_role: String, build_monkey: String, created_at: String) {
+case class PredefResult(id: String, name: String, provider: String, provider_role: String, build_monkey: String, runtime_exec: String, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.PredefResultSerialization
@@ -81,9 +81,9 @@ case class PredefResult(id: String, name: String, provider: String, provider_rol
 
 object PredefResult {
 
-  def apply(name: String): PredefResult = new PredefResult("not found", name, new String(), new String(), new String(), new String())
+  def apply(name: String): PredefResult = new PredefResult("not found", name, new String(), new String(), new String(), new String(), new String())
 
-  def apply = new PredefResult(new String(), new String(), new String(), new String(),new String(), new String())
+  def apply = new PredefResult(new String(), new String(), new String(), new String(), new String(), new String(), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PredefResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -129,7 +129,7 @@ object Predefs {
       //TO-DO: do we need a match for uir to filter the None case. confirm it during function testing.
       play.api.Logger.debug("models.Predefs mkGunnySack: yield:\n" + (uir.get._1 + uir.get._2))
       val bvalue = Set(pip.name)
-      val pipJson = new PredefInput((uir.get._1 + uir.get._2), pip.name, pip.provider, pip.provider_role, pip.build_monkey, Time.now.toString).json
+      val pipJson = new PredefInput((uir.get._1 + uir.get._2), pip.name, pip.provider, pip.provider_role, pip.build_monkey, pip.runtime_exec, Time.now.toString).json
       new GunnySack(pip.name, pipJson, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -154,7 +154,7 @@ object Predefs {
                 case None => {
                   play.api.Logger.warn(("%-20s -->[%s]").format("Predefs.created success", "Scaliak returned => None. Thats OK."))
                   PredefResults(PredefResult(new String(), p._2.name, p._2.provider,
-                    p._2.provider_role, p._2.build_monkey, new String())).successNel[Throwable]
+                    p._2.provider_role, p._2.build_monkey, new String(), new String())).successNel[Throwable]
                 }
               }
             }
