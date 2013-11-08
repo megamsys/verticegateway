@@ -38,8 +38,9 @@ import org.megam.common.enumeration._
 class NodeResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[NodeResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
+    protected val NodeNameKey = "node_name"
   protected val AccountsIDKey = "accounts_id"
-    protected val NodeTypeKey = "node_type"
+  protected val NodeTypeKey = "node_type"
   protected val StatusKey = "status"
   protected val RequestKey = "request"
   protected val PredefsKey = "predefs"
@@ -57,6 +58,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
     override def write(h: NodeResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
+        JField(NodeNameKey, toJSON(h.node_name)) ::
           JField(AccountsIDKey, toJSON(h.accounts_id)) ::
           JField(NodeTypeKey, toJSON(h.node_type)) ::
           JField(JSONClazKey, toJSON("Megam::Node")) ::
@@ -81,6 +83,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
 
       statusField.flatMap { statusType: NodeStatusType =>
         val idField = field[String](IdKey)(json)
+        val nodenameField = field[String](NodeNameKey)(json)
         val accountField = field[String](AccountsIDKey)(json)
         val nodetypeField = field[String](NodeTypeKey)(json)
         val requestField = field[NodeRequest](RequestKey)(json)(NodeRequestReader)
@@ -88,16 +91,16 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
         val appdefnsidField = field[String](AppDefnsIdKey)(json) 
         val boltdefnsidField = field[String](BoltDefnsIdKey)(json)
         val createdAtField = field[String](CreatedAtKey)(json)
-        val noderes_fn = idField |@| accountField |@| nodetypeField |@| requestField |@| predefsField |@| appdefnsidField |@| boltdefnsidField |@| createdAtField
+        val noderes_fn = idField |@| nodenameField |@| accountField |@| nodetypeField |@| requestField |@| predefsField |@| appdefnsidField |@| boltdefnsidField |@| createdAtField
 
         val res: ValidationNel[Error, NodeResult] = statusType match {
-          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _, _, _))
-          case NodeStatusType.REQ_CREATED_AT_SOURCE  => noderes_fn(NodeResult(_, _, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _, _, _))
-          case NodeStatusType.NODE_CREATED_AT_SOURCE => noderes_fn(NodeResult(_, _, _, NodeStatusType.NODE_CREATED_AT_SOURCE, _, _, _, _, _))
-          case NodeStatusType.PUBLISHED              => noderes_fn(NodeResult(_, _, _, NodeStatusType.PUBLISHED, _, _, _, _, _))
-          case NodeStatusType.STARTED                => noderes_fn(NodeResult(_, _, _, NodeStatusType.STARTED, _, _, _, _, _))
-          case NodeStatusType.LAUNCH_SUCCESSFUL      => noderes_fn(NodeResult(_, _, _, NodeStatusType.LAUNCH_SUCCESSFUL, _, _, _, _, _))
-          case NodeStatusType.LAUNCH_FAILED          => noderes_fn(NodeResult(_, _, _, NodeStatusType.LAUNCH_FAILED, _, _, _, _, _))
+          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _, _, _))
+          case NodeStatusType.REQ_CREATED_AT_SOURCE  => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _, _, _))
+          case NodeStatusType.NODE_CREATED_AT_SOURCE => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.NODE_CREATED_AT_SOURCE, _, _, _, _, _))
+          case NodeStatusType.PUBLISHED              => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.PUBLISHED, _, _, _, _, _))
+          case NodeStatusType.STARTED                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.STARTED, _, _, _, _, _))
+          case NodeStatusType.LAUNCH_SUCCESSFUL      => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCH_SUCCESSFUL, _, _, _, _, _))
+          case NodeStatusType.LAUNCH_FAILED          => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCH_FAILED, _, _, _, _, _))
           case _ => UncategorizedError("request type",
             "unsupported request type %s".format(statusType.stringVal),
             List()).failNel
