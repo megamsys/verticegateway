@@ -47,8 +47,8 @@ case class NodeInput(node_name: String, node_type: String, noofinstances: Int, r
   val boltdefjson = "\"boltdefns\": " + boltdefns.json
 }
 
-case class NodeResult(id: String, accounts_id: String, node_type: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String, boltdefnsid: String, created_at: String) {
-  val json = "{\"id\": \"" + id + "\",\"accounts_id\":\"" + accounts_id + "\",\"node_type\":\"" + node_type + "\",\"status\":\"" + status.stringVal +
+case class NodeResult(id: String, node_name: String, accounts_id: String, node_type: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String, boltdefnsid: String, created_at: String) {
+  val json = "{\"id\": \"" + id + "\",\"node_name\":\"" + node_name + "\",\"accounts_id\":\"" + accounts_id + "\",\"node_type\":\"" + node_type + "\",\"status\":\"" + status.stringVal +
     "\",\"request\":{" + request.toString + "} ,\"predefs\":{" + predefs.toString + "},\"appdefnsid\":\"" + appdefnsid + "\",\"boltdefnsid\":\"" + boltdefnsid + "\",\"created_at\":\"" + created_at + "\"}"
 
   def toJValue: JValue = {
@@ -70,7 +70,7 @@ object NodeResult {
   //def apply(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String) = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
   //new String(), new String(), new String, new String(), new String()), new String())
 
-  def apply = new NodeResult(new String(), new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
+  def apply = new NodeResult(new String(), new String(), new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
     new String(), new String(), new String, new String(), new String()), new String(), new String(), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeResult] = {
@@ -361,10 +361,10 @@ object Nodes {
           play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "request created."))
           val bvalue = Set(asuc.id)
           val jsonobj = if (nir.node_type == "APP") {
-            NodeResult((nuid._1 + nuid._2), asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
+            NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
               NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, abid._1, "", Time.now.toString)
           } else {
-            NodeResult((nuid._1 + nuid._2), asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
+            NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
               NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, "", abid._1, Time.now.toString)
           }
 
