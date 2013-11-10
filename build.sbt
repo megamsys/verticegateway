@@ -4,6 +4,8 @@ import com.typesafe.sbt.packager.debian.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPackageMapping
 import S3._
 
+s3Settings
+
 scalaVersion := "2.10.3"
 
 scalacOptions := Seq(
@@ -22,13 +24,16 @@ scalacOptions := Seq(
 
 com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 
+com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbt.Keys.version) apply { (v, sv) =>
+      val nums = (v split "[^\\d]")
+      "%s" format (sv)
+    }
+    
 maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
 
 packageSummary := "Cloud API server - Megam." 
 
 packageDescription in Debian:= " (REST based) Cloud API server for Megam platform.The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
-
-s3Settings
 
 linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
   (packageMapping((bd / "bin/mp") -> "/usr/local/share/megamplay/bin/mp")
@@ -70,11 +75,8 @@ linuxPackageMappings in Debian <+= (baseDirectory) map { bd =>
   (packageMapping((bd / "conf/play.plugins") -> "/usr/local/share/megamplay/conf/play.plugins")
    withConfig())
 }
- 
-com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbtVersion) apply { (v, sv) =>
-  sv + "-build-" + (v split "\\." map (_.toInt) dropWhile (_ == 0) map ("%02d" format _) mkString "")
-}
 
+ 
 debianPackageDependencies in Debian ++= Seq("curl", "java2-runtime", "bash (>= 2.05a-11)")
 
 debianPackageRecommends in Debian += "riak"
@@ -91,7 +93,7 @@ linuxPackageMappings in Debian <+= (com.typesafe.sbt.packager.debian.Keys.source
   ) withUser "root" withGroup "root" withPerms "0644" gzipped) asDocs()
 }
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.12.4-build-0100")),"0.1/debs/megam_play.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.1.0")),"debs/megam_play.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 
