@@ -292,8 +292,19 @@ object Nodes {
 
     ((1 to inp.noofinstances).toList map { sufc: Int =>
       val fnsxrn = ((fn1 |@| sufc.some |@| rn1).apply { _ + _ + _ })
+      
+      //let us append the numerically sufixed node name to the cmd as well.
+      val sxtool = (NodeCloudToolService(((inp.command.cloudtool.chef.command.some |@| inp.command.cloudtool.chef.plugin.some
+        |@| inp.command.cloudtool.chef.run_list.some
+        |@| fnsxrn)(NodeCloudToolChef)).get)).some
+
+      val sxcmd = (inp.command.systemprovider.some |@| inp.command.compute.some |@| sxtool) {
+        (sysp: NodeSystemProvider, cmdp: NodeCompute, cldtoolp: NodeCloudToolService) =>
+          NodeCommand(sysp, cmdp, cldtoolp)
+      }
+
       ((fnsxrn |@| inp.node_type.some |@| inp.noofinstances.some |@| inp.req_type.some
-        |@| inp.command.some |@| inp.predefs.some |@| inp.appdefns.some
+        |@| sxcmd |@| inp.predefs.some |@| inp.appdefns.some
         |@| inp.boltdefns.some |@| inp.appreq.some |@| inp.boltreq.some)(NodeInput)).get
     }).some
 

@@ -35,37 +35,63 @@ class NodesSpec extends Specification {
   NodesSpec is the implementation that calls the megam_play API server with the /nodes url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-     //"Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-     //"Correctly do GET  (node name)requests with an invalid Node name" ! findByName.succeeds ^
-      "Correctly do GET  (check.megam.co)requests with a valid userid and api key" ! findByNameForRuby.succeeds ^
-      end
+      "Correctly do POST requests APP  n EC2 with a valid userid and api key" ! PostApp.succeeds ^
+      "Correctly do POST requests BOLT   EC2 with a valid userid and api key" ! PostBolt.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
+      "Correctly do GET  (appsample1.megam.co) requests with an valid Node name" ! findByNameApp.succeeds ^
+      "Correctly do GET  (boltsample1.megam.co) requests with a valid Node name" ! findByNameBolt.succeeds ^
+      "Correctly do GET  (appfail1.megam.co) requests with an Invalid Node name" ! findByInvalidName.succeeds ^
+  end
 
   /**
    * Change the body content in method bodyToStick
    */
-  case object Post extends Context {
+  case object PostApp extends Context {
 
     protected override def urlSuffix: String = "nodes/content"
 
     protected override def bodyToStick: Option[String] = {
       val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
-        new NodeCompute("ec2", new NodeComputeDetail("default","106719", "100"),
+        new NodeCompute("ec2", new NodeComputeDetail("default", "106719", "100"),
           new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem")),
-        new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create", "java", "-N todaysample.megam.co"))).json
-      //val contentToEncode = "{\"node_name\":\"checktest5.megam.co\",\"node_type\":\"APP\",\"req_type\":\"CREATE\",\"command\":" +
-       // command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
-       // "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},"+
-      //  "\"boltdefns\":{\"username\":\"\",\"apikey\":\"\", \"store_name\":\"\",\"url\":\"\",\"prime\":\"\",\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},\"appreq\":{},\"boltreq\":{}}"                         
-     // Some(new String(contentToEncode))
-      
-      val contentToEncode = "{\"node_name\":\"todaysample.megam.co\",\"node_type\":\"BOLT\",\"noofinstances\":1,\"req_type\":\"CREATE\",\"command\":" +
+        new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create", "java", "-N appsample.megam.co"))).json
+
+      val contentToEncode = "{\"node_name\":\"appsample.megam.co\",\"node_type\":\"APP\",\"noofinstances\":2,\"req_type\":\"CREATE\",\"command\":" +
         command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
-        "\"appdefns\":{\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},"+
-        "\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},\"appreq\":{},\"boltreq\":{}}"                         
+        "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}," +
+        "\"boltdefns\":{\"username\":\"\",\"apikey\":\"\", \"store_name\":\"\",\"url\":\"\",\"prime\":\"\",\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},\"appreq\":{},\"boltreq\":{}}"
       Some(new String(contentToEncode))
-      
+
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+
+  case object PostBolt extends Context {
+
+    protected override def urlSuffix: String = "nodes/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
+        new NodeCompute("ec2", new NodeComputeDetail("default", "106719", "100"),
+          new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem")),
+        new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create", "java", "-N boltsample.megam.co"))).json
+
+      val contentToEncode = "{\"node_name\":\"boltsample.megam.co\",\"node_type\":\"BOLT\",\"noofinstances\":1,\"req_type\":\"CREATE\",\"command\":" +
+        command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
+        "\"appdefns\":{\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"}," +
+        "\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"},\"appreq\":{},\"boltreq\":{}}"
+      Some(new String(contentToEncode))
+
     }
     protected override def headersOpt: Option[Map[String, String]] = None
 
@@ -111,8 +137,8 @@ class NodesSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  case object findByName extends Context {
-    protected override def urlSuffix: String = "nodes/todaysample1.megam.co"
+  case object findByNameApp extends Context {
+    protected override def urlSuffix: String = "nodes/appsample1.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -124,8 +150,8 @@ class NodesSpec extends Specification {
     }
   }
 
-  case object findByNameForRuby extends Context {
-    protected override def urlSuffix: String = "nodes/todaysample1.megam.co"
+  case object findByNameBolt extends Context {
+    protected override def urlSuffix: String = "nodes/boltsample1.megam.co"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -136,5 +162,19 @@ class NodesSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
+  
+  case object findByInvalidName extends Context {
+    protected override def urlSuffix: String = "nodes/appfail1.megam.co"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
+  }
+
 
 }
