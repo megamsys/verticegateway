@@ -22,7 +22,7 @@ object ApplicationBuild extends Build {
    */
 
   val play2AuthVersion = "0.11.0"
-  val megamVersion = "0.1.0"
+  val megamVersion = "0.1.0-SNAPSHOT"
 
   val appDependencies = Seq(
     javaCore, cache, javaEbean,
