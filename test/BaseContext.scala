@@ -128,7 +128,8 @@ trait Context extends BaseContext {
   play.api.Logger.debug("<---------------------------------------->")
   play.api.Logger.debug("%-20s -->[%s]".format("RESP SEND", urlSuffix))
 
-  lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
+  //lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
+   lazy val url = new URL("https://api.megam.co/v1/" + urlSuffix)
   play.api.Logger.debug("%-20s -->[%s]".format("MYURL", url))
   play.api.Logger.debug("%-20s -->[%s]".format("MYBODY", bodyToStick))
 

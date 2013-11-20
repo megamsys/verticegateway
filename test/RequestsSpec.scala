@@ -36,7 +36,7 @@ class RequestsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-     // "Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
+      //"Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
       //"Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
       end
 

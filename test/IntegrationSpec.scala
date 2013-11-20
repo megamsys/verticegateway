@@ -16,8 +16,8 @@ class IntegrationSpec extends Specification {
     "work from within a browser" in {
       running(TestServer(9000), HTMLUNIT) { browser =>
 
-        browser.goTo("http://localhost:9000/")
-
+        //browser.goTo("http://localhost:9000/")
+        browser.goTo("https://api.megam.co/")
         browser.pageSource must contain("Your new application is ready.")
        
       }

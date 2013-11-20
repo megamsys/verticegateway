@@ -33,8 +33,8 @@ class AppRequestSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      //"Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
-      //"Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
+      "Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
+      "Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
       end
 
   /**
@@ -45,7 +45,7 @@ class AppRequestSpec extends Specification {
     protected override def urlSuffix: String = "appreqs/content"
 
     protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"req_type\":\"NSTART\",\"node_name\":\"todaysample2.megam.co\",\"appdefns_id\":\"ADF392283728375709696\",\"lc_apply\":\"lc_apply\",\"lc_additional\":\"lc_additional\",\"lc_when\":\"lc_when\"}"                                 
+      val contentToEncode = "{\"req_type\":\"NSTART\",\"node_name\":\"todaysample1.megam.co\",\"appdefns_id\":\"ADF392283728375709696\",\"lc_apply\":\"lc_apply\",\"lc_additional\":\"lc_additional\",\"lc_when\":\"lc_when\"}"                                 
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
