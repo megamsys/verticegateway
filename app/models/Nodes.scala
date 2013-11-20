@@ -174,7 +174,7 @@ object NodeCommand {
   //this is a very ugly hack. I am tad lazy to write individual objects.
   def empty: NodeCommand = new NodeCommand(NodeSystemProvider.empty,
     new NodeCompute(new String(), new NodeComputeDetail(new String(), new String(), new String()),
-      new NodeComputeAccess(new String(), new String(), new String())),
+      new NodeComputeAccess(new String(), new String(), new String(), new String())),
     NodeCloudToolService.empty)
 }
 
@@ -202,8 +202,8 @@ case class NodeComputeDetail(groups: String, image: String, flavor: String) {
   val json = "\"groups\": \"" + groups + "\", " + "\"image\": \"" + image + "\", " + "\"flavor\": \"" + flavor + "\""
 }
 
-case class NodeComputeAccess(ssh_key: String, identity_file: String, ssh_user: String) {
-  val json = "{\"ssh_key\": \"" + ssh_key + "\", " + "\"identity_file\": \"" + identity_file + "\", " + "\"ssh_user\": \"" + ssh_user
+case class NodeComputeAccess(ssh_key: String, identity_file: String, ssh_user: String, vault_location: String) {
+  val json = "{\"ssh_key\": \"" + ssh_key + "\", " + "\"identity_file\": \"" + identity_file + "\", " + "\"ssh_user\": \"" + ssh_user + "\",\"vault_location\": \"" + vault_location
 }
 
 case class NodeCloudToolService(chef: NodeCloudToolChef) {
@@ -292,8 +292,19 @@ object Nodes {
 
     ((1 to inp.noofinstances).toList map { sufc: Int =>
       val fnsxrn = ((fn1 |@| sufc.some |@| rn1).apply { _ + _ + _ })
+      
+      //let us append the numerically sufixed node name to the cmd as well.
+      val sxtool = (NodeCloudToolService(((inp.command.cloudtool.chef.command.some |@| inp.command.cloudtool.chef.plugin.some
+        |@| inp.command.cloudtool.chef.run_list.some
+        |@| fnsxrn)(NodeCloudToolChef)).get)).some
+
+      val sxcmd = (inp.command.systemprovider.some |@| inp.command.compute.some |@| sxtool) {
+        (sysp: NodeSystemProvider, cmdp: NodeCompute, cldtoolp: NodeCloudToolService) =>
+          NodeCommand(sysp, cmdp, cldtoolp)
+      }
+
       ((fnsxrn |@| inp.node_type.some |@| inp.noofinstances.some |@| inp.req_type.some
-        |@| inp.command.some |@| inp.predefs.some |@| inp.appdefns.some
+        |@| sxcmd |@| inp.predefs.some |@| inp.appdefns.some
         |@| inp.boltdefns.some |@| inp.appreq.some |@| inp.boltreq.some)(NodeInput)).get
     }).some
 

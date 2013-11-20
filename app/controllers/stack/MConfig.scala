@@ -32,8 +32,8 @@ object MConfig {
   val snowflakePort: Int = play.api.Play.application(play.api.Play.current).configuration.getInt("sf.port").get
   val cloudstandup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.queue").get
   val cloudstandup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.exchange").get       
-  val cloudper_node_queue_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.queue").get
-  val cloudper_node_exchage_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.exchange").get
+  val cloudper_node_queue_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.queue.prefix").get
+  val cloudper_node_exchage_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.exchange.prefix").get
 
 
 }

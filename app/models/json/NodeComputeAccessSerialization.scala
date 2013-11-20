@@ -36,6 +36,7 @@ object NodeComputeAccessSerialization  extends SerializationBase[NodeComputeAcce
   protected val SSHKey = "ssh_key"
   protected val IdentityFileKey = "identity_file"
   protected val SSHUserKey = "ssh_user"
+    protected val VaultLocationKey = "vault_location"
 
   override implicit val writer = new JSONW[NodeComputeAccess] {
 
@@ -44,6 +45,7 @@ object NodeComputeAccessSerialization  extends SerializationBase[NodeComputeAcce
         JField(SSHKey, toJSON(h.ssh_user)) ::
           JField(IdentityFileKey, toJSON(h.identity_file)) ::
           JField(SSHUserKey, toJSON(h.ssh_user))  ::
+          JField(VaultLocationKey, toJSON(h.vault_location))  ::
           Nil)
     }
   }
@@ -54,10 +56,11 @@ object NodeComputeAccessSerialization  extends SerializationBase[NodeComputeAcce
       val sshkeyField = field[String](SSHKey)(json)
       val identity_Field = field[String](IdentityFileKey)(json)
       val sshuserField = field[String](SSHUserKey)(json)
+      val vaultlocationField = field[String](VaultLocationKey)(json)
 
-      (sshkeyField |@| identity_Field |@| sshuserField) {
-        (sshkey: String, identity_f: String, sshuser: String) =>
-          new NodeComputeAccess(sshkey,identity_f,sshuser)
+      (sshkeyField |@| identity_Field |@| sshuserField |@| vaultlocationField) {
+        (sshkey: String, identity_f: String, sshuser: String, vault_location: String) =>
+          new NodeComputeAccess(sshkey,identity_f,sshuser, vault_location)
       }
     }
   }
