@@ -286,12 +286,16 @@ object Nodes {
     res
   }
 
-  private def broadenNodes(inp: NodeInput): Option[List[NodeInput]] = {
-    val fn1 = inp.node_name.some map { fs1 => fs1.split('.').take(1).mkString }
-    val rn1 = inp.node_name.some map { fs2 => fs2.split('.').drop(1).mkString(".", ".", "") }
+  private def broadenNodes(inp: NodeInput): Option[List[NodeInput]] = {     
+      
+     val fn1 = inp.node_name.some map { fs1 => fs1.split('.').take(1).mkString }
+     val rn1 = inp.node_name.some map { fs2 => fs2.split('.').drop(1).mkString(".", ".", "") }
+      val sxname = NodeCloudToolChef(inp.command.cloudtool.chef.command, inp.command.cloudtool.chef.plugin, 
+       inp.command.cloudtool.chef.run_list, inp.command.cloudtool.chef.name).name.some map { fs2 => fs2.split(' ').take(1).mkString }
 
     ((1 to inp.noofinstances).toList map { sufc: Int =>
-      val fnsxrn = ((fn1 |@| sufc.some |@| rn1).apply { _ + _ + _ })
+      val cmdsxrn = ((fn1 |@| sufc.some |@| rn1).apply { _ + _ + _ })
+      val fnsxrn = ((sxname |@| fn1 |@| sufc.some |@| rn1).apply { _+" "+_ + _ + _ })           
       
       //let us append the numerically sufixed node name to the cmd as well.
       val sxtool = (NodeCloudToolService(((inp.command.cloudtool.chef.command.some |@| inp.command.cloudtool.chef.plugin.some
@@ -303,7 +307,7 @@ object Nodes {
           NodeCommand(sysp, cmdp, cldtoolp)
       }
 
-      ((fnsxrn |@| inp.node_type.some |@| inp.noofinstances.some |@| inp.req_type.some
+      ((cmdsxrn |@| inp.node_type.some |@| inp.noofinstances.some |@| inp.req_type.some
         |@| sxcmd |@| inp.predefs.some |@| inp.appdefns.some
         |@| inp.boltdefns.some |@| inp.appreq.some |@| inp.boltreq.some)(NodeInput)).get
     }).some
