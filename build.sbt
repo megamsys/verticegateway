@@ -9,14 +9,16 @@ s3Settings
 scalaVersion := "2.10.3"
 
 scalacOptions := Seq(
-	"-unchecked", 
+	"-target:jvm-1.7",
 	"-deprecation",
 	"-feature",
  	"-optimise",
   	"-Xcheckinit",
   	"-Xlint",
   	"-Xverify",
-  	"-Yinline-warnings",
+ // 	"-Yconst-opt",  	available in scala 2.11
+  	"-Yinline",
+  	"-Ywarn-all",
   	"-Yclosure-elim",
   	"-language:postfixOps",
   	"-language:implicitConversions",
