@@ -1,8 +1,6 @@
-@(form: Form[UserData])(implicit flash: play.api.mvc.Flash)
-
-@main("Login..") {  
-
-    @helper.form(routes.Authentication.authenticate) {
+@(form: play.api.data.Form[controllers.UserData])(implicit flash: play.api.mvc.Flash)
+@main("Megam Cloud v1") {
+   { @helper.form(routes.Authentication.authenticate) {
         
         @form.globalError.map { error =>
             <p class="error">
@@ -17,10 +15,10 @@
         }
         
         <p>
-            <input type="email" name="email" placeholder="Email" id="email" value=form("email")>
+            <input type="email" name="email" placeholder="Email" id="email" value=@form("email")>
         </p>
         <p>
-            <input type="password" name="password" id="password" placeholder="Password">
+            <input type="password" name="password" id="password" placeholder=@form("password")>
         </p>
         <p>
             <button type="submit" id="loginbutton">Login</button>
@@ -29,4 +27,4 @@
     }   
    
 }
-
+}

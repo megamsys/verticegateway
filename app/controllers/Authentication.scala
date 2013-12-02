@@ -3,6 +3,7 @@ package controllers
 import play.api._
 import play.api.mvc._
 import play.api.data._
+import play.api.data.Form._
 import play.api.data.Forms._
 import views._
 import scalaz._
@@ -26,7 +27,7 @@ object Authentication extends Controller {
 * Login page.
 */
   def login = Action { implicit request =>
-    Ok(html.login(loginForm))
+    Ok(views.html.login(loginForm))
   }
 
   /**
@@ -44,7 +45,7 @@ object Authentication extends Controller {
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(html.login(formWithErrors)),
-      user => Redirect("/").withSession("email" -> user._1)
+      user => Redirect("/").withSession("email" -> user.email)
     )
   }
 
