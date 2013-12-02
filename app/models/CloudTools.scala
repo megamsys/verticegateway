@@ -36,7 +36,6 @@ import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 
-
 /**
  * @author ram
  *
@@ -80,7 +79,6 @@ object CloudTemplate {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  
 }
 
 case class CloudInstruction(action: String, command: String, name: String) {
@@ -117,7 +115,6 @@ object CloudInstruction {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   
 }
 
 case class CloudTool(id: String, name: String, cli: String, cloudtemplates: CloudTemplates) {
@@ -158,8 +155,6 @@ object CloudTool {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   
-
   val ec2 = CloudTemplate("ec2", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create", "-N"),
     CloudInstruction("delete", "server delete `knife search node name:<node_name> -a ec2.instance_id | grep ec2.instance_id | awk '{print $2}'` -P -y", "-N"),
@@ -168,16 +163,22 @@ object CloudTool {
 
   val rackspace = CloudTemplate("rackspace", CloudInstructionGroup.empty)
   val openstack = CloudTemplate("openstack", CloudInstructionGroup.empty)
-  
+
   val hp = CloudTemplate("hp", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create", "-N"),
     CloudInstruction("delete", "server delete", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
-    
+
+  val gce = CloudTemplate("google", CloudInstructionGroup(List("server" -> CloudInstructions(
+    CloudInstruction("create", "server create <node_name> -f", "-N"),
+    CloudInstruction("delete", "server delete", "-N"),
+    CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
+    CloudInstruction("data", "instance set", "-N")))))
+
   val myiaas = CloudTemplate("myiaas", CloudInstructionGroup.empty)
 
-  val cloudtemplates = CloudTemplates(ec2, rackspace, openstack, hp,myiaas)
+  val cloudtemplates = CloudTemplates(ec2, rackspace, openstack, hp, gce, myiaas)
 
   val toMap = Map[String, CloudTool]("chef" -> CloudTool("", "chef", "knife", cloudtemplates))
 
@@ -293,7 +294,7 @@ object CloudTools {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.CloudTools", "listAll:Entry"))
     findByName(CloudTool.toStream.some) //return the folded element in the head.  
   }
-  
+
   implicit val sedimentCloudToolResults = new Sedimenter[ValidationNel[Throwable, CloudToolResults]] {
     override def sediment(maybeASediment: ValidationNel[Throwable, CloudToolResults]): Boolean = maybeASediment.isSuccess
   }

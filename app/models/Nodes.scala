@@ -174,7 +174,7 @@ object NodeCommand {
   //this is a very ugly hack. I am tad lazy to write individual objects.
   def empty: NodeCommand = new NodeCommand(NodeSystemProvider.empty,
     new NodeCompute(new String(), new NodeComputeDetail(new String(), new String(), new String()),
-      new NodeComputeAccess(new String(), new String(), new String(), new String())),
+      new NodeComputeAccess(new String(), new String(), new String(), new String(), new String())),
     NodeCloudToolService.empty)
 }
 
@@ -202,8 +202,8 @@ case class NodeComputeDetail(groups: String, image: String, flavor: String) {
   val json = "\"groups\": \"" + groups + "\", " + "\"image\": \"" + image + "\", " + "\"flavor\": \"" + flavor + "\""
 }
 
-case class NodeComputeAccess(ssh_key: String, identity_file: String, ssh_user: String, vault_location: String) {
-  val json = "{\"ssh_key\": \"" + ssh_key + "\", " + "\"identity_file\": \"" + identity_file + "\", " + "\"ssh_user\": \"" + ssh_user + "\",\"vault_location\": \"" + vault_location
+case class NodeComputeAccess(ssh_key: String, identity_file: String, ssh_user: String, vault_location: String, sshpub_location: String) {
+  val json = "{\"ssh_key\": \"" + ssh_key + "\", " + "\"identity_file\": \"" + identity_file + "\", " + "\"ssh_user\": \"" + ssh_user + "\",\"vault_location\": \"" + vault_location + "\",\"sshpub_location\": \"" + sshpub_location
 }
 
 case class NodeCloudToolService(chef: NodeCloudToolChef) {
