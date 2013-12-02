@@ -377,10 +377,10 @@ object Nodes {
           val bvalue = Set(asuc.id)
           val jsonobj = if (nir.node_type == "APP") {
             NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
-              NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, abid._1, "", Time.now.toString)
+              NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, abid._1, "", Time.now.toString())
           } else {
             NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
-              NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, "", abid._1, Time.now.toString)
+              NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, "", abid._1, Time.now.toString())
           }
 
           play.api.Logger.debug(("%-20s -->[%s]").format("formatted node store", jsonobj.toJson(true)))

@@ -20,9 +20,10 @@
 				</div>
 			</div>
 			<div class="col-lg-3">
+				<a href="@routes.Authentication.login">Login</a>
 				<a href="@routes.Application.init" class="btn btn-danger btn-block"> <span class="glyphicon glyphicon-flash">Quick Init </span> </a>
 
-			</div>
+			</div>			
 		</div>
 
 		@flash.get("success").map { suc=>
@@ -114,7 +115,7 @@
 
 		<h1><a name="rest_docs" href="#a-rest_docs">REST API</a></h1>
 		<p>
-			Megam's Cloud API is a stateless REST based cloud server.
+			Megam Cloud API Server is a stateless REST based cloud server.
 			Our SDKs abstract away the REST interface and provide a set of handy methods you can interact with
 			when deleting, creating, updating and deleting objects.
 
@@ -135,9 +136,9 @@
 				</code>
 				registered with us.
 				<div class="bs-callout bs-callout-info">
-					<h4>Register &amp; www.megam.co</h4>
+					<h4>Register &amp; https://www.megam.co</h4>
 					<p>
-						Click <a href="http://www.megam.co">www.megam.co</a> to get access to our
+						Click <a href="https://www.megam.co" target="_blank">https://www.megam.co</a> to get access to our
 						<code>
 							free sandbox
 						</code>
@@ -153,7 +154,7 @@
 			<p>
 				Request URL:
 			</p>
-			<pre><code class="html">POST http://api.megam.co/v1/auth</code></pre>
+			<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
 			<p>
 				Request Headers:
 			</p>
@@ -379,7 +380,8 @@
 			</div>
 			<pre><code class="brush: bash; toolbar: false; ">
 					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-                </code> </pre>																																																																																																																																																							
+                </code> </pre>																																																																																																																																																										
+
 
 
 

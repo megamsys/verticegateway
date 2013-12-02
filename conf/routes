@@ -5,6 +5,7 @@
 # Home page
 GET    /                                controllers.Application.index
 GET    /init                            controllers.Application.init
+GET    /login                           controllers.Authentication.login
 
 # Authentication - HMAC
 POST   /v1/auth                         controllers.Application.authenticate

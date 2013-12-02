@@ -25,7 +25,6 @@ import play.api.mvc._
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
-
 /**
  * @author rajthilak
  *
@@ -39,7 +38,7 @@ object Application extends Controller with APIAuthElement {
   def init = Action { implicit request =>
     PlatformAppPrimer.prep match {
       case Success(succ) => {
-        val fu = List(("success" -> "Megam Cloud Platform is ready.")) ++ FunnelResponses.toTuple2(succ) 
+        val fu = List(("success" -> "Megam Cloud Platform is ready.")) ++ FunnelResponses.toTuple2(succ)
         Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
       }
       case Failure(err) => {
