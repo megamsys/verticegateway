@@ -50,17 +50,24 @@ object PlatformAppPrimer {
   //define the cloud tools used to manage the cloud platform. 
   def cloudtools = models.CloudTools.create
 
-  def prep: ValidationNel[Throwable, FunnelResponses] = for {
-    sada <- sandboxAcct
-    lpd <- predefs
-    ccd <- clone_predefcloud(SANDBOX_EMAIL)
-    cts <- cloudtools
+  def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
+    sada <- sandboxAcct    
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Account created successfully.
             |
             |Your email '%s' and api_key '%s' registered successully.""".
-        format(sada.get.email, sada.get.api_key).stripMargin, "Megam::Account"),
+        format(sada.get.email, sada.get.api_key).stripMargin, "Megam::Account"))      
+    FunnelResponses(chainedComps)
+  }
+
+  
+  def prep: ValidationNel[Throwable, FunnelResponses] = for {   
+    lpd <- predefs
+    ccd <- clone_predefcloud(SANDBOX_EMAIL)
+    cts <- cloudtools
+  } yield {
+    val chainedComps = List[FunnelResponse](      
       FunnelResponse(CREATED, """Predefs created successfully. Cache gets loaded upon first fetch. 
             |
             |%nLoaded values are ----->%n[%s]""".format(lpd.toString).stripMargin, "Megam::Predef"),

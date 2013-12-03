@@ -19,13 +19,11 @@
 					to prime your Cloud App Platform.
 				</div>
 			</div>
-			<div class="col-lg-3">
-				<a href="@routes.Authentication.login">Login</a>
-				<a href="@routes.Application.init" class="btn btn-danger btn-block"> <span class="glyphicon glyphicon-flash">Quick Init </span> </a>
-
-			</div>			
-		</div>
-
+			<div class="col-lg-3">				
+				<a href="@routes.Application.login" class="btn btn-danger btn-block"> <span class="glyphicon glyphicon-flash">Quick Init </span> </a>
+			</div>
+		</div>		
+		
 		@flash.get("success").map { suc=>
 		<div class="alert alert-success">
 			<button type="button" class="close" data-dismiss="alert">
@@ -380,7 +378,9 @@
 			</div>
 			<pre><code class="brush: bash; toolbar: false; ">
 					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-                </code> </pre>																																																																																																																																																										
+                </code> </pre>																																																																																																																																																																
+
+
 
 
 
