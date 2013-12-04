@@ -3309,3 +3309,36 @@ fieldset[disabled] .btn-yellow.active {
 #footer a:hover {
   color: rgba(255, 255, 255, 0.8);
 }
+
+
+/*login messages */
+#login_error
+ {
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+#login_error p {
+  width: 215px;
+  margin: 0 auto;
+  display: block;
+  padding-left: 50px;
+  padding-bottom: 10px;
+  color: red;
+}
+#login_success
+ {
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+#login_success p {
+  width: 215px;
+  margin: 0 auto;
+  display: block;
+  padding-left: 50px;
+  padding-bottom: 10px;
+  color: blue;
+}

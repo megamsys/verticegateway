@@ -32,21 +32,21 @@ import play.api.data.Forms._
  * @author rajthilak
  *
  */
-case class UserData(email: String, apikey: String)
+
 object Application extends Controller with APIAuthElement {
 
   val loginForm = Form(
     mapping(
       "email" -> text,
       "apikey" -> text)(UserData.apply)(UserData.unapply) verifying ("Invalid email or apikey", result => result match {
-        case userdata => validate(userdata.email, userdata.apikey).isDefined
+        case userdata => Authenticate.authenticate(userdata.email, userdata.apikey).isDefined
       }))
 
-  def validate(name: String, apikey: String) = {
-    name match {
-      case "a@b.com" if apikey == "admin" =>
-        Some(UserData(name, apikey))
-      case "a@b.com" if apikey != "admin" =>
+  def validate(email: String, apikey: String) = {    
+    email match {
+      case "a@b.com" if apikey == "admin" =>        
+        Some(UserData(email, apikey))
+      case "a@b.com" if apikey != "admin" =>        
         None
       case _ =>
         None
@@ -65,7 +65,7 @@ object Application extends Controller with APIAuthElement {
    * Make this role based (Admin),
    * based on a private key.
    */
-  def init = Action { implicit request =>
+  def init = Action { implicit request =>    
     PlatformAppPrimer.prep match {
       case Success(succ) => {
         val fu = List(("success" -> "Megam Cloud Platform is ready.")) ++ FunnelResponses.toTuple2(succ)
@@ -99,10 +99,11 @@ object Application extends Controller with APIAuthElement {
   /**
    * Handle login form submission.
    */
-  def loginauthenticate = Action { implicit request =>   
+  def loginauthenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
-      user => Redirect("/init"))
+      user => Redirect("/init")
+    )
   }
 
   def initaccount = Action { implicit request =>

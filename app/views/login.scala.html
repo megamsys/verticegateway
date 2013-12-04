@@ -1,29 +1,28 @@
-@(form: play.api.data.Form[controllers.UserData])(implicit flash: play.api.mvc.Flash)
+@(form: play.api.data.Form[models.UserData])(implicit flash: play.api.mvc.Flash)
 @main("Megam Cloud v1") {
 
 @helper.form(routes.Application.loginauthenticate) {
 <div class="container">
-	@form.globalError.map { error =>
-	<p class="error">
-		@error.message
-	</p>
-	}
-
-	@flash.get("error").map { message =>
-	<p class="error">
-		@message
-	</p>
-	}
-
-	@flash.get("success").map { message =>
-	<p class="success">
-		@message
-	</p>
-	}
 
 	<div id="logo">
-		<img src="@routes.Assets.at("images/logo-megam160x43.png")"/>
+		<img src="@routes.Assets.at("images/logo-megam160x43.png")"/>	
+		
 	</div>
+	@form.globalError.map { error =>
+		<div id="login_error">
+			<p>
+				@error.message
+			</p>
+		</div>
+		}
+
+		@flash.get("success").map { message =>
+		<div class="login_success">
+			<p>
+				@message
+			</p>
+		</div>
+		}
 	<div id="loginbox">
 		<form id="loginform" class="form-vertical" action="index.html">
 			<p>
@@ -31,12 +30,12 @@
 			</p>
 			<div class="input-group input-sm">
 				<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i> </span>
-				<input class="form-control" type="email" id="email" placeholder="Email" value="@form("email").value" />
+				<input type="email" name="email" class="form-control" placeholder="Email" id="email" value="@form("email").value">
 			</div>
 
 			<div class="input-group">
 				<span class="input-group-addon"> <i class="glyphicon glyphicon-lock"></i></span>
-				<input class="form-control"  type="text" name="apikey" id="apikey" placeholder="ApiKey">
+				<input type="text" name="apikey" class="form-control" id="apikey" placeholder="ApiKey">
 			</div>
 			<div class="form-actions clearfix">
 				<div class="pull-left">
@@ -46,7 +45,6 @@
 				<div class="pull-right">
 					<a href="https://www.megam.co/forgot_password" class="flip-link to-recover grey" target="_blank"> Lost API Key?</a>
 				</div>
-
 				<input type="submit" class="btn btn-block btn-primary btn-default" value="Yup. Init Me" />
 			</div>
 			<div class="footer-login">
@@ -58,17 +56,6 @@
 	</div>
 </div>
 
-<!--
-<p>
-<input type="email" name="email" placeholder="Email" id="email" value=@form("email")>
-</p>
-<p>
-<input type="password" name="password" id="password" placeholder=@form("password")>
-</p>
-<p>
-<button type="submit" id="loginbutton">Login</button>
-</p>
--->
 }
 
 }
