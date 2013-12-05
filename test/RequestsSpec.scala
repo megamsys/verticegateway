@@ -50,7 +50,7 @@ class RequestsSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
         new NodeCompute("ec2", new NodeComputeDetail("megam_ec2", "img1", "t1-micro"),
-          new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "")),
+          new NodeComputeAccess("megam_ec2", "ubuntu", "~/sss.pem", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "ec2 server create", "java", "-N todaysample1.megam.co"))).json
       val contentToEncode = "{\"req_type\":\"STOP\",\"node_name\":\"appsample1.megam.co\",\"command\":" +
         command + "}"

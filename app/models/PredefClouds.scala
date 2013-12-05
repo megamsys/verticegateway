@@ -45,8 +45,8 @@ case class PredefCloudSpec(type_name: String, groups: String, image: String, fla
   val json = "\"type_name\":\"" + type_name + "\",\"groups\":\"" + groups + "\",\"image\":\"" + image + "\",\"flavor\":\"" + flavor + "\""
 }
 
-case class PredefCloudAccess(ssh_key: String, identity_file: String, ssh_user: String, vault_location: String, sshpub_location: String) {
-  val json = "\"ssh_key\":\"" + ssh_key + "\",\"identity_file\":\"" + identity_file + "\",\"ssh_user\":\"" + ssh_user + "\",\"vault_location\":\"" + vault_location + "\",\"sshpub_location\":\"" + sshpub_location + "\""           
+case class PredefCloudAccess(ssh_key: String, identity_file: String, ssh_user: String, vault_location: String, sshpub_location: String, zone: String) {
+  val json = "\"ssh_key\":\"" + ssh_key + "\",\"identity_file\":\"" + identity_file + "\",\"ssh_user\":\"" + ssh_user + "\",\"vault_location\":\"" + vault_location + "\",\"sshpub_location\":\"" + sshpub_location + "\",\"zone\":\"" + zone + "\""           
 }
 
 case class PredefCloudInput(name: String, spec: PredefCloudSpec, access: PredefCloudAccess) {

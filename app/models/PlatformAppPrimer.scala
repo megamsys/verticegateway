@@ -43,7 +43,7 @@ object PlatformAppPrimer {
 
  def sandbox_default = PredefCloudInput("sandbox_default",
     new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "m1.small"),
-    new PredefCloudAccess("megam_ec2", "sandy@megamsandbox.com/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "")).json
+    new PredefCloudAccess("megam_ec2", "sandy@megamsandbox.com/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "")).json
 
   def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_default) }
 
