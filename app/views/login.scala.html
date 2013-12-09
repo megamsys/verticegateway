@@ -5,24 +5,24 @@
 <div class="container">
 
 	<div id="logo">
-		<img src="@routes.Assets.at("images/logo-megam160x43.png")"/>	
-		
+		<img src="@routes.Assets.at("images/logo-megam160x43.png")"/>
+
 	</div>
 	@form.globalError.map { error =>
-		<div id="login_error">
-			<p>
-				@error.message
-			</p>
-		</div>
-		}
+	<div id="login_error">
+		<p>
+			@error.message
+		</p>
+	</div>
+	}
 
-		@flash.get("success").map { message =>
-		<div class="login_success">
-			<p>
-				@message
-			</p>
-		</div>
-		}
+	@flash.get("success").map { message =>
+	<div class="login_success">
+		<p>
+			@message
+		</p>
+	</div>
+	}
 	<div id="loginbox">
 		<form id="loginform" class="form-vertical" action="index.html">
 			<p>
@@ -39,7 +39,32 @@
 			</div>
 			<div class="form-actions clearfix">
 				<div class="pull-left">
-					<a href="@routes.Application.initaccount" class="flip-link to-register blue"> Create Sandbox Account</a>
+					<div class="accordion" id="collapse-group" style="width:200px;">
+						<div class="accordion-group widget-box">
+							<div class="accordion-heading">
+								<div class="widget-title">
+									<a data-parent="#collapse-group" href="#collapseGOne" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h5>step 1</h5> </a>
+								</div>
+							</div>
+							<div class="collapse in accordion-body" id="collapseGOne">
+								<div class="widget-content">
+									<a href="@routes.Application.initaccount" class="flip-link to-register blue"> Create Sandbox Account</a>
+								</div>
+							</div>
+						</div>
+						<div class="accordion-group widget-box">
+							<div class="accordion-heading">
+								<div class="widget-title">
+									<a data-parent="#collapse-group" href="#collapseGTwo" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h5>step 2</h5> </a>
+								</div>
+							</div>
+							<div class="collapse accordion-body" id="collapseGTwo">
+								<div class="widget-content">
+									<a href="#" class="flip-link to-register blue"> Create Cloud Recipe</a>
+								</div>
+							</div>
+						</div>						
+					</div>					
 				</div>
 
 				<div class="pull-right">
