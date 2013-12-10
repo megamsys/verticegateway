@@ -33,7 +33,7 @@ object ApplicationBuild extends Build {
     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
     "jp.t2v" %% "play2-auth-test" % play2AuthVersion % "test",
-    "com.stackmob" %% "newman" % "1.3.4" % "test")
+    "com.stackmob" %% "newman" % "1.3.5" % "test")
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     sbt.Keys.resolvers += "Sonatype Snapshots" at Opts.resolver.sonatypeSnapshots.root,
