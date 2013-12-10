@@ -122,4 +122,20 @@ object Application extends Controller with APIAuthElement {
     }
   }
   
+  def initcloudtoolsetting = Action { implicit request =>
+      PlatformAppPrimer.cts_prep match {
+      case Success(succ) => {
+        val fu = List(("success" -> "Megam Cloud Platform Default CloudToolSettings is ready.")) ++ FunnelResponses.toTuple2(succ)
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
+      }
+      case Failure(err) => {
+        val rn: FunnelResponses = new HttpReturningError(err)
+        val rnjson = FunnelResponses.toJson(rn, false)
+        val fu = List(("error" -> "Duh Megam Cloud Platform default CloudToolSettings couldn't be primed.")) ++ FunnelResponses.toTuple2(rn)
+        Logger.debug(rnjson)
+        Redirect("/").flashing(fu: _*)
+      }
+    }
+  }
+  
 }

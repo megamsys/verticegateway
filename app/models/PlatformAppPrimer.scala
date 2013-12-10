@@ -41,7 +41,7 @@ object PlatformAppPrimer {
   //populate the predefinitions of the platform supported by megam.
   def predefs = models.Predefs.create
 
- def sandbox_default = PredefCloudInput("sandbox_default",
+  def sandbox_default = PredefCloudInput("sandbox_default",
     new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "m1.small"),
     new PredefCloudAccess("megam_ec2", "sandy@megamsandbox.com/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "")).json
 
@@ -51,23 +51,22 @@ object PlatformAppPrimer {
   def cloudtools = models.CloudTools.create
 
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    sada <- sandboxAcct    
+    sada <- sandboxAcct
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Account created successfully.
             |
             |Your email '%s' and api_key '%s' registered successully.""".
-        format(sada.get.email, sada.get.api_key).stripMargin, "Megam::Account"))      
+        format(sada.get.email, sada.get.api_key).stripMargin, "Megam::Account"))
     FunnelResponses(chainedComps)
   }
 
-  
-  def prep: ValidationNel[Throwable, FunnelResponses] = for {   
+  def prep: ValidationNel[Throwable, FunnelResponses] = for {
     lpd <- predefs
     ccd <- clone_predefcloud(SANDBOX_EMAIL)
     cts <- cloudtools
   } yield {
-    val chainedComps = List[FunnelResponse](      
+    val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Predefs created successfully. Cache gets loaded upon first fetch. 
             |
             |%nLoaded values are ----->%n[%s]""".format(lpd.toString).stripMargin, "Megam::Predef"),
@@ -81,4 +80,21 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
+  //populate the default cloud tool settings  
+  def cloudtoolsetting_default = CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default").json
+
+  def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
+
+  def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
+    cts <- clone_cloudtoolsettings(SANDBOX_EMAIL)
+  } yield {
+    val chainedComps = List[FunnelResponse](
+      FunnelResponse(CREATED, """CloudToolSettings created successfully.
+            |
+            |You can use the the 'cloud tool setting name':{%s}.""".format(cts.getOrElse("none")), "Megam::CloudToolSetting"))
+    FunnelResponses(chainedComps)
+  }
+
 }
+
+
