@@ -81,7 +81,7 @@ object PlatformAppPrimer {
   }
 
   //populate the default cloud tool settings  
-  def cloudtoolsetting_default = CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default").json
+  def cloudtoolsetting_default = CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default/chef-repo.zip").json
 
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
