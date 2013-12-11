@@ -49,9 +49,4 @@ case class CloudPerNodePublish(name: String, messages: String) extends MessageCo
   play.api.Logger.debug("%-20s -->[%s]".format("Publish", cnp_pubMsg))
   def dop(): ValidationNel[Throwable, AMQPResponse] = execute(cnp_client.publish(cnp_pubMsg, MConfig.routing_key))
 }
-  
-
-
-
-
 
