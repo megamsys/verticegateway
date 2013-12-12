@@ -58,13 +58,25 @@ object CloudToolSettings extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CloudToolSetting", "request funneled."))
           models.CloudToolSettings.create(email, clientAPIBody) match {
             case Success(succ) =>
-              Status(CREATED)(
-                FunnelResponse(CREATED, """CloudToolSettings created successfully.
+              val tuple_succ = succ.getOrElse(("Nah", "Bah"))
+              CloudToolPublish(tuple_succ._2).dop.flatMap { x =>
+                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
+                Status(CREATED)(
+                  FunnelResponse(CREATED, """CloudToolSettings created successfully.
             |
-            |You can use the the 'CloudToolSetting name':{%s}.""".format(succ.getOrElse("none")), "Megam::CloudToolSetting").toJson(true))
-            case Failure(err) =>
+            |You can use the the 'CloudToolSetting name':{%s}.""".format(succ.getOrElse("none")), "Megam::CloudToolSetting").toJson(true)).successNel[Throwable]   
+              } match {
+                //this is only a temporary hack.
+                case Success(succ_cpc) => succ_cpc
+                case Failure(err) =>
+                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """CloudToolSettings submission failed.
+            |
+            |Retry again, our queue servers are crowded""", "Megam::CloudToolSetting").toJson(true))
+              }
+            case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
+            }
           }
         }
         case Failure(err) => {

@@ -21,7 +21,7 @@ import Scalaz._
 
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import play.api.http.Status._
-
+import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
@@ -81,17 +81,21 @@ object PlatformAppPrimer {
   }
 
   //populate the default cloud tool settings  
-  def cloudtoolsetting_default = CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default/chef-repo.zip").json
+  def cloudtoolsetting_default = CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/chef/chef-repo.zip").json
 
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
   def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
     cts <- clone_cloudtoolsettings(SANDBOX_EMAIL)
+    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/chef/chef-repo.zip").dop
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """CloudToolSettings created successfully.
             |
             |You can use the the 'cloud tool setting name':{%s}.""".format(cts.getOrElse("none")), "Megam::CloudToolSetting"))
+    FunnelResponse(CREATED, """CloudToolSettings inilization published successfully.
+            |
+            |You can use the the 'CloudToolSetting.""", "Megam::CloudToolSetting")
     FunnelResponses(chainedComps)
   }
 

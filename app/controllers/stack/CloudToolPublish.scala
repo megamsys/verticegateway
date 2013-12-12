@@ -32,27 +32,30 @@ import play.api.Play._
  * @author rajthilak
  *
  */
-object CloudStandUpPublish {
 
-  def apply = new CloudStandUpPublish(new String(), new String())
-  
+object CloudToolPublish {
+
+  def apply = new CloudToolPublish(new String())
+
 }
 
-case class CloudStandUpPublish(name: String, messages: String) extends MessageContext {
+case class CloudToolPublish(messages: String) extends MessageContext {
 
-  val cspURL = MConfig.amqpuri
-  val cspQueueName = MConfig.cloudstandup_queue 
-  val cspExchangeName = MConfig.cloudstandup_exchange 
+  val ctpURL = MConfig.amqpuri
+  val ctpQueueName = MConfig.cloudrecipe_queue
+  val ctpExchangeName = MConfig.cloudrecipe_exchange
 
   //create the RabbitMQ Client using url, exchange name and queue name
-  val csp_client = new RabbitMQClient(cspURL, cspExchangeName, cspQueueName)
-  val csp_pubMsg = Messages("id" -> messages)
-  play.api.Logger.debug("%-20s -->[%s]".format("Publish", csp_pubMsg))
-  def dop(): ValidationNel[Throwable, AMQPResponse] = execute(csp_client.publish(csp_pubMsg, MConfig.routing_key))
+  val ctp_client = new RabbitMQClient(ctpURL, ctpExchangeName, ctpQueueName)
+  val ctp_pubMsg = Messages("id" -> messages)
+  play.api.Logger.debug("%-20s -->[%s]".format("Publish", ctp_pubMsg))
+  def dop(): ValidationNel[Throwable, AMQPResponse] = execute(ctp_client.publish(ctp_pubMsg, MConfig.routing_key))
 }
   
 
-  
+
+
+
 
 
 

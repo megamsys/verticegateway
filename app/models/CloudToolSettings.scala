@@ -121,7 +121,7 @@ object CloudToolSettings {
    * create new Node with the 'name' of the node provide as input.
    * A index name CloudToolSettingID will point to the "CloudToolSettings" bucket
    */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[CloudToolSettingResult]] = {
+  def create(email: String, input: String): ValidationNel[Throwable, Option[Tuple2[String, String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.CloudToolSettings", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
@@ -129,13 +129,14 @@ object CloudToolSettings {
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
+      val req_result = parse(gs.get.value).extract[CloudToolSettingResult]
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[CloudToolSettingResult].some).successNel[Throwable]
+            case Some(thatGS) => Tuple2(thatGS.key, req_result.vault_location).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("CloudToolSettings.created success", "Scaliak returned => None. Thats OK."))
-              (parse(gs.get.value).extract[CloudToolSettingResult].some).successNel[Throwable];
+              (gs.get.key, req_result.vault_location).some.successNel[Throwable];
             }
           }
 
