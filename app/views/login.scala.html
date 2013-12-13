@@ -26,75 +26,73 @@
 	<div class="row">
 		<div class="col-lg-3"></div>
 		<div class="col-lg-7">
-			<div class="accordion" id="collapse-group">
-				<div class="accordion-group widget-box">
-					<div class="accordion-heading">
-						<div class="widget-title">
-							<a data-parent="#collapse-group" href="#collapseGOne" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 1 : Initialize a Sandbox Account</h3> </a>
-						</div>
-					</div>
-					<div class="collapse in accordion-body" id="collapseGOne">
-						<div class="widget-content">
-							<a href="@routes.Application.initaccount" class="btn btn-primary btn-lg active btn-block"> Create Sandbox Account</a>
-						</div>
-					</div>
-				</div>
-				<div class="accordion-group widget-box">
-					<div class="accordion-heading">
-						<div class="widget-title">
-							<a data-parent="#collapse-group" href="#collapseGTwo" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 2: Intialize the Cross Cloud</h3> </a>
-						</div>
-					</div>
-					<div class="collapse in accordion-body" id="collapseGTwo">
-						<div class="widget-content">
-							<div id="loginbox">
-								<form id="loginform" class="form-vertical" action="index.html">
-									<p>
-										Enter email and apikey to continue.
-									</p>
-									<div class="input-group input-sm">
-										<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i> </span>
-										<input type="email" name="email" class="form-control" placeholder="Email" id="email" value="@form("email").value">
-									</div>
 
-									<div class="input-group">
-										<span class="input-group-addon"> <i class="glyphicon glyphicon-lock"></i></span>
-										<input type="text" name="apikey" class="form-control" id="apikey" placeholder="ApiKey">
-									</div>
-									<div class="form-actions clearfix">
-										<div class="pull-right">
-											<a href="https://www.megam.co/forgot_password" class="flip-link to-recover grey" target="_blank"> Lost API Key?</a>
-										</div>
-										<input type="submit" class="btn btn-block btn-primary btn-default" value="Yup. Init Me" />
-									</div>
-									<div class="footer-login">
-										<div class="pull-left text">
-											Hint : Enter
-											<code>
-												[sandbox(email,passsword)]
-											</code>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
+			<div class="widget-box collapsible">
+				<div class="widget-title">
+					<a  href="#collapseOne" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 1 : Initialize a Sandbox Account</h3> </a>
+				</div>
+				<div class="collapse" id="collapseOne">
+					<div class="widget-content">
+						<a href="@routes.Application.initaccount" class="btn btn-primary btn-lg active btn-block"> Create Sandbox Account</a>
 					</div>
 				</div>
-				<div class="accordion-group widget-box">
-					<div class="accordion-heading">
-						<div class="widget-title">
-							<a data-parent="#collapse-group" href="#collapseGThree" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 3: Intialize the Cloud Tool</h3> </a>
-						</div>
-					</div>
-					<div class="collapse accordion-body" id="collapseGThree">
-						<div class="widget-content">
-							<a href="@routes.Application.initcloudtoolsetting" class="btn btn-primary btn-lg active btn-block"> Create Cloud Recipe</a>
+			</div>
+
+			<div class="widget-box collapsible">
+				<div class="widget-title">
+					<a href="#collapseTwo" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 2: Intialize the Cross Cloud</h3> </a>
+
+				</div>
+				<div class="collapse" id="collapseTwo">
+					<div class="widget-content">
+						<div id="loginbox">
+							<form id="loginform" class="form-vertical" action="index.html">
+								<p>
+									Enter email and apikey to continue.
+								</p>
+								<div class="input-group input-sm">
+									<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i> </span>
+									<input type="email" name="email" class="form-control" placeholder="Email" id="email" value="@form("email").value">
+								</div>
+
+								<div class="input-group">
+									<span class="input-group-addon"> <i class="glyphicon glyphicon-lock"></i></span>
+									<input type="text" name="apikey" class="form-control" id="apikey" placeholder="ApiKey">
+								</div>
+								<div class="form-actions clearfix">
+									<div class="pull-right">
+										<a href="https://www.megam.co/forgot_password" class="flip-link to-recover grey" target="_blank"> Lost API Key?</a>
+									</div>
+									<input type="submit" class="btn btn-block btn-primary btn-default" value="Yup. Init Me" />
+								</div>
+								<div class="footer-login">
+									<div class="pull-left text">
+										Hint : Enter
+										<code>
+											[sandbox(email,passsword)]
+										</code>
+									</div>
+								</div>
+							</form>
+
 						</div>
 					</div>
 				</div>
 			</div>
+			<div class="widget-box collapsible">
+				<div class="widget-title">
+					<a  href="#collapseThree" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 3: Intialize the Cloud Tool</h3> </a>
+				</div>
+				<div class="collapse" id="collapseThree">
+					<div class="widget-content">
+						<a href="@routes.Application.initcloudtoolsetting" class="btn btn-primary btn-lg active btn-block"> Create Cloud Recipe</a>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</div>
+</div>
 </div>
 }
 }
