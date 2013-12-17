@@ -87,7 +87,7 @@ object AppDefns extends Controller with APIAuthElement  {
    * Email grabbed from header
    * Output: JSON (AppDefnsResults)  
    **/
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+  def shown(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
@@ -99,6 +99,40 @@ object AppDefns extends Controller with APIAuthElement  {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "request funneled."))
 
           models.AppDefns.findByNodeName(List(id).some) match {
+            case Success(succ) =>
+              Ok(AppDefnsResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+
+  }
+  
+  
+  /*
+   * GET: findByAppDefnsName: Show the appdefns for a  node name per user(by email)
+   * Email grabbed from header
+   * Output: JSON (AppDefnsResults)  
+   **/
+  def show(nodeid: String, id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%-10s,%10s]").format("nodename", nodeid,id))
+
+    (Validation.fromTryCatch[SimpleResult] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("AppDefns wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "request funneled."))
+
+          models.AppDefns.findByReqName(List(id).some) match {
             case Success(succ) =>
               Ok(AppDefnsResults.toJson(succ, true))
             case Failure(err) =>

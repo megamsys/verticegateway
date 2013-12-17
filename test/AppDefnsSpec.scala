@@ -35,10 +35,11 @@ class AppDefnsSpec extends Specification {
   AppDefnsSpec is the implementation that calls the megam_play API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST appdefns with a valid userid and api key" ! Post.succeeds ^
-      //"Correctly do GET  (node name)appdefns with a invalid Node name" ! findByInvalidName.succeeds ^
-      //"Correctly do GET  (node name)appdefns with a valid node name" ! findByName.succeeds ^
-      end
+      //"Correctly do POST appdefns with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do GET  (node name)appdefns with a invalid Node name" ! findByInvalidName.succeeds ^
+      "Correctly do GET  (node name)appdefns with a valid node name" ! findByNodeName.succeeds ^
+      "Correctly do GET  (node name)appdefns with a valid appdefn name" ! findByDefnsId.succeeds ^
+  end
 
   /**
    * Change the body content in method bodyToStick
@@ -47,8 +48,8 @@ class AppDefnsSpec extends Specification {
 
     protected override def urlSuffix: String = "appdefns/content"
 
-    protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"node_name\":\"todaysample1.megam.co\",\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}}"      
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"node_name\":\"todaysample1.megam.co\",\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -72,11 +73,25 @@ class AppDefnsSpec extends Specification {
       .addHeaders(headers)
     def succeeds = {
       val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
+  }
+
+  case object findByNodeName extends Context {
+    protected override def urlSuffix: String = "appdefns/asphyxiated1.megam.co"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  case object findByName extends Context {
-    protected override def urlSuffix: String = "appdefns/checktest4.megam.co"
+
+  case object findByDefnsId extends Context {
+    protected override def urlSuffix: String = "appdefns/asphyxiated1.megam.co/ADF412857952341327872"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
