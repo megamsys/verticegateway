@@ -53,8 +53,8 @@ class PredefCloudsSpec extends Specification {
     protected override def urlSuffix: String = "predefclouds/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new PredefCloudInput("ec2_rails", new PredefCloudSpec("ec2", "megam", "ami-d783cd85", "m1.small"),
-        new PredefCloudAccess("megam_ec2", "~/.ssh/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "~/.ssh/megam_ec2.pem", "")).json
+      val contentToEncode = new PredefCloudInput("ec2_rails", new PredefCloudSpec("ec2", "megam", "ami-d783cd85", "m1.small", ""),
+        new PredefCloudAccess("megam_ec2", "~/.ssh/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "~/.ssh/megam_ec2.pem", "", "region")).json
       Some(contentToEncode)
     }
 
@@ -77,8 +77,8 @@ class PredefCloudsSpec extends Specification {
     protected override def urlSuffix: String = "predefclouds/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new PredefCloudInput("ec2_play", new PredefCloudSpec("fooz-type", "fooz-group", "fooz-image", "fooz-flvr"),
-        new PredefCloudAccess("fooz-ssh", "fooz-identity-file", "fooz-sshuser", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "fooz-identity-file", "")).json
+      val contentToEncode = new PredefCloudInput("ec2_play", new PredefCloudSpec("fooz-type", "fooz-group", "fooz-image", "fooz-flvr", ""),
+        new PredefCloudAccess("fooz-ssh", "fooz-identity-file", "fooz-sshuser", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "fooz-identity-file", "", "region")).json
       Some(contentToEncode)
     }
 

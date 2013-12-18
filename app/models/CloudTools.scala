@@ -156,7 +156,7 @@ object CloudTool {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
   val ec2 = CloudTemplate("ec2", CloudInstructionGroup(List("server" -> CloudInstructions(
-    CloudInstruction("create", "server create", "-N"),
+    CloudInstruction("create", "server create -c", "-N"),
     CloudInstruction("delete", "server delete `knife search node name:<node_name> -a ec2.instance_id | grep ec2.instance_id | awk '{print $2}'` -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
@@ -165,13 +165,13 @@ object CloudTool {
   val openstack = CloudTemplate("openstack", CloudInstructionGroup.empty)
 
   val hp = CloudTemplate("hp", CloudInstructionGroup(List("server" -> CloudInstructions(
-    CloudInstruction("create", "server create", "-N"),
+    CloudInstruction("create", "server create -c", "-N"),
     CloudInstruction("delete", "server delete", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
   val gce = CloudTemplate("google", CloudInstructionGroup(List("server" -> CloudInstructions(
-    CloudInstruction("create", "server create <node_name> -f", "-N"),
+    CloudInstruction("create", "server create <node_name> -f -c", "-N"),
     CloudInstruction("delete", "server delete", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))

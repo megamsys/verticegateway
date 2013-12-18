@@ -41,11 +41,11 @@ import java.nio.charset.Charset
  *
  */
 
-case class CloudToolSettingInput(cloud_type: String, repo: String, vault_location: String) {
-  val json = "{\"cloud_type\":\"" + cloud_type + "\",\"repo\":\"" + repo + "\",\"vault_location\":\"" + vault_location + "\"}"
+case class CloudToolSettingInput(cloud_type: String, repo_name: String, repo: String, vault_location: String, conf_location: String) {
+  val json = "{\"cloud_type\":\"" + cloud_type + "\",\"repo_name\":\"" + repo_name + "\",\"repo\":\"" + repo + "\",\"vault_location\":\"" + vault_location + "\",\"conf_location\":\"" + conf_location + "\"}"
 }
 
-case class CloudToolSettingResult(id: String, accounts_id: String, cloud_type: String, repo: String, vault_location: String, created_at: String) {
+case class CloudToolSettingResult(id: String, accounts_id: String, cloud_type: String, repo_name: String, repo: String, vault_location: String, conf_location: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -111,7 +111,7 @@ object CloudToolSettings {
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
-      val json = new CloudToolSettingResult(uir.get._1 + uir.get._2, aor.get.id, pdc.cloud_type, pdc.repo, pdc.vault_location, Time.now.toString).toJson(false)
+      val json = new CloudToolSettingResult(uir.get._1 + uir.get._2, aor.get.id, pdc.cloud_type, pdc.repo_name, pdc.repo, pdc.vault_location, pdc.conf_location, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }

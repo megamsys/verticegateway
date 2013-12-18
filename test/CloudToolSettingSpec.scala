@@ -37,9 +37,9 @@ class CloudToolSettingSpec extends Specification {
       CloudToolSettingSpec is the implementation that calls the megam_play API server with the /CloudToolSetting url to create CloudToolSettings
     """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests" ! Post0.succeeds ^
+      "Correctly do POST requests" ! Post0.succeeds ^
       //"Correctly do POST requests" ! Post1.succeeds ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+     // "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       // "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
@@ -53,7 +53,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/chef").json
       Some(contentToEncode)
     }
 
@@ -76,7 +76,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/default").json
       Some(contentToEncode)
     }
 
@@ -128,7 +128,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/default").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -152,7 +152,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/default").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

@@ -38,8 +38,10 @@ class CloudToolSettingResultSerialization(charset: Charset = UTF8Charset) extend
   protected val IdKey = "id"
   protected val AccountIdKey = "accounts_id"
   protected val CloudTypeKey = "cloud_type"
+    protected val RepoNameKey = "repo_name"
   protected val RepoKey = "repo"
   protected val VaultLocationKey = "vault_location"
+    protected val ConfLocationKey = "conf_location"
   protected val CreatedAtKey = "created_at"
 
   override implicit val writer = new JSONW[CloudToolSettingResult] {
@@ -50,8 +52,10 @@ class CloudToolSettingResultSerialization(charset: Charset = UTF8Charset) extend
           JField(AccountIdKey, toJSON(h.accounts_id)) ::
           JField(JSONClazKey, toJSON("Megam::CloudToolSetting")) ::
           JField(CloudTypeKey, toJSON(h.cloud_type)) ::
+          JField(RepoNameKey, toJSON(h.repo_name)) ::
           JField(RepoKey, toJSON(h.repo)) ::
           JField(VaultLocationKey, toJSON(h.vault_location)) ::
+          JField(ConfLocationKey, toJSON(h.conf_location)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) ::
           Nil)
     }
@@ -63,13 +67,15 @@ class CloudToolSettingResultSerialization(charset: Charset = UTF8Charset) extend
       val idField = field[String](IdKey)(json)
       val accountIdField = field[String](AccountIdKey)(json)
       val cloudtypeField = field[String](CloudTypeKey)(json)
+      val reponameField = field[String](RepoNameKey)(json)
       val repoField = field[String](RepoKey)(json)
       val vaultlocationField = field[String](VaultLocationKey)(json)
+      val ConflocationField = field[String](ConfLocationKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| accountIdField |@| cloudtypeField |@| repoField |@| vaultlocationField |@| createdAtField) {
-        (id: String, accountId: String, cloud_type: String, repo: String, vault_location: String, created_at: String) =>
-          new CloudToolSettingResult(id, accountId, cloud_type, repo, vault_location, created_at)
+      (idField |@| accountIdField |@| cloudtypeField |@| reponameField |@| repoField |@| vaultlocationField |@| ConflocationField |@| createdAtField) {
+        (id: String, accountId: String, cloud_type: String, repo_name: String, repo: String, vault_location: String, conf_location: String, created_at: String) =>
+          new CloudToolSettingResult(id, accountId, cloud_type, repo_name, repo, vault_location, conf_location, created_at)
       }
     }
   }
