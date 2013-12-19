@@ -38,6 +38,7 @@ object NodeComputeDetailSerialization extends SerializationBase[NodeComputeDetai
   protected val GroupsKey = "groups"
   protected val ImageKey = "image"
   protected val FlavorKey = "flavor"
+  protected val TenantIdKey = "tenant_id"
 
   override implicit val writer = new JSONW[NodeComputeDetail] {
 
@@ -45,7 +46,8 @@ object NodeComputeDetailSerialization extends SerializationBase[NodeComputeDetai
       JObject(
           JField(GroupsKey, toJSON(h.groups)) ::
           JField(ImageKey, toJSON(h.image)) ::
-          JField(FlavorKey, toJSON(h.flavor)) :: Nil)
+          JField(FlavorKey, toJSON(h.flavor)) :: 
+          JField(TenantIdKey, toJSON(h.tenant_id)) :: Nil)
     }
   }
 
@@ -55,11 +57,11 @@ object NodeComputeDetailSerialization extends SerializationBase[NodeComputeDetai
       val groupsField = field[String](GroupsKey)(json)
       val imageField = field[String](ImageKey)(json)
       val flavorField = field[String](FlavorKey)(json)
-      
+      val tenantidField = field[String](TenantIdKey)(json)
 
-      (groupsField |@| imageField |@| flavorField) {
-        (groups: String, image: String, flavor: String) =>
-          new NodeComputeDetail(groups, image, flavor)
+      (groupsField |@| imageField |@| flavorField |@| tenantidField) {
+        (groups: String, image: String, flavor: String, tenant_id: String) =>
+          new NodeComputeDetail(groups, image, flavor, tenant_id)
       }
     }
   }

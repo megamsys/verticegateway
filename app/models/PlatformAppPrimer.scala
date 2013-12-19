@@ -42,8 +42,8 @@ object PlatformAppPrimer {
   def predefs = models.Predefs.create
 
   def sandbox_default = PredefCloudInput("sandbox_default",
-    new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "m1.small"),
-    new PredefCloudAccess("megam_ec2", "sandy@megamsandbox.com/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "")).json
+    new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "t1.micro", ""),
+    new PredefCloudAccess("megam_ec2", "cloudkeys/sandy@megamsandbox.com/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "", "ap-southeast-1")).json
 
   def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_default) }
 
@@ -81,13 +81,13 @@ object PlatformAppPrimer {
   }
 
   //populate the default cloud tool settings  
-  def cloudtoolsetting_default = CloudToolSettingInput("chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/chef/chef-repo.zip").json
+  def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo/.chef/knife.rb").json
 
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
   def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
     cts <- clone_cloudtoolsettings(SANDBOX_EMAIL)
-    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/chef/chef-repo.zip").dop
+    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip").dop
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """CloudToolSettings created successfully.

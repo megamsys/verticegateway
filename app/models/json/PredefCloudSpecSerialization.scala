@@ -39,6 +39,7 @@ object PredefCloudSpecSerialization extends SerializationBase[PredefCloudSpec] {
   protected val GroupsKey = "groups"
   protected val ImageKey = "image"
   protected val FlavorKey = "flavor"
+  protected val TenantIdKey = "tenant_id"
 
   override implicit val writer = new JSONW[PredefCloudSpec] {
 
@@ -47,7 +48,8 @@ object PredefCloudSpecSerialization extends SerializationBase[PredefCloudSpec] {
         JField(NameKey, toJSON(h.type_name)) ::
           JField(GroupsKey, toJSON(h.groups)) ::
           JField(ImageKey, toJSON(h.image)) ::
-          JField(FlavorKey, toJSON(h.flavor)) :: Nil)
+          JField(FlavorKey, toJSON(h.flavor)) :: 
+          JField(TenantIdKey, toJSON(h.tenant_id)) :: Nil)
     }
   }
 
@@ -58,11 +60,11 @@ object PredefCloudSpecSerialization extends SerializationBase[PredefCloudSpec] {
       val groupField = field[String](GroupsKey)(json)
       val imageField = field[String](ImageKey)(json)
       val flavorField = field[String](FlavorKey)(json)
-      
+      val tenantidField = field[String](TenantIdKey)(json)
 
-      (typeNameField |@| groupField |@| imageField |@| flavorField) {
-        (typeName: String, groups: String, image: String, flavor: String) =>
-          new PredefCloudSpec(typeName, groups, image, flavor)
+      (typeNameField |@| groupField |@| imageField |@| flavorField |@| tenantidField) {
+        (typeName: String, groups: String, image: String, flavor: String, tenant_id: String) =>
+          new PredefCloudSpec(typeName, groups, image, flavor, tenant_id)
       }
     }
   }

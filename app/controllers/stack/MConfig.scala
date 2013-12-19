@@ -27,7 +27,7 @@ object MConfig {
 
   val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get
   val amqpuri = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.url").get
-  val routing_key = "megam_key"
+  val routing_key = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.routing.key").get
   val snowflakeHost = play.api.Play.application(play.api.Play.current).configuration.getString("sf.host").get
   val snowflakePort: Int = play.api.Play.application(play.api.Play.current).configuration.getInt("sf.port").get
   val cloudstandup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.queue").get

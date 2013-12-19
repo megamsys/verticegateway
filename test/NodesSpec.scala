@@ -53,9 +53,9 @@ class NodesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
-        new NodeCompute("ec2", new NodeComputeDetail("default", "106719", "100"),
-          new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "")),
-        new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create", "java", "-N appsample.megam.co"))).json
+        new NodeCompute("ec2", new NodeComputeDetail("default", "106719", "100", ""),
+          new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "", "region")),
+        new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create -c", "java", "-N appsample.megam.co"))).json
 
       val contentToEncode = "{\"node_name\":\"appsample.megam.co\",\"node_type\":\"APP\",\"noofinstances\":2,\"req_type\":\"CREATE\",\"command\":" +
         command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
@@ -82,8 +82,8 @@ class NodesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val command = new NodeCommand(new NodeSystemProvider(NodeProvider.empty),
-        new NodeCompute("ec2", new NodeComputeDetail("default", "106719", "100"),
-          new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "")),
+        new NodeCompute("ec2", new NodeComputeDetail("default", "106719", "100", "tenant"),
+          new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "", "region")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create", "java", "-N boltsample.megam.co"))).json
 
       val contentToEncode = "{\"node_name\":\"boltsample.megam.co\",\"node_type\":\"BOLT\",\"noofinstances\":1,\"req_type\":\"CREATE\",\"command\":" +

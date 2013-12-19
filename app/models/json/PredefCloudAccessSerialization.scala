@@ -41,7 +41,8 @@ object PredefCloudAccessSerialization extends SerializationBase[PredefCloudAcces
   protected val SSHUserKey = "ssh_user"
   protected val VaultLocationKey = "vault_location"
   protected val SshPubLocationKey = "sshpub_location"
-    protected val ZoneKey = "zone"
+  protected val ZoneKey = "zone"
+  protected val RegionKey = "region"
 
   override implicit val writer = new JSONW[PredefCloudAccess] {
 
@@ -52,7 +53,8 @@ object PredefCloudAccessSerialization extends SerializationBase[PredefCloudAcces
           JField(SSHUserKey, toJSON(h.ssh_user)) :: 
           JField(VaultLocationKey, toJSON(h.vault_location))  :: 
           JField(SshPubLocationKey, toJSON(h.sshpub_location))  :: 
-          JField(ZoneKey, toJSON(h.zone)) :: Nil)
+          JField(ZoneKey, toJSON(h.zone)) :: 
+          JField(RegionKey, toJSON(h.region)) :: Nil)
     }
   }
 
@@ -65,10 +67,11 @@ object PredefCloudAccessSerialization extends SerializationBase[PredefCloudAcces
       val vaultlocationField = field[String](VaultLocationKey)(json)
       val sshpublocationField = field[String](SshPubLocationKey)(json)
       val zoneField = field[String](ZoneKey)(json)
+      val regionField = field[String](RegionKey)(json)
 
-      (sshKeyField |@| identityFileField |@| sshUserField |@| vaultlocationField |@| sshpublocationField |@| zoneField) {
-        (ssh_key: String, identity_file: String, ssh_user, vault_location: String, sshpub_location: String, zone: String) =>
-          new PredefCloudAccess(ssh_key, identity_file, ssh_user, vault_location, sshpub_location, zone)
+      (sshKeyField |@| identityFileField |@| sshUserField |@| vaultlocationField |@| sshpublocationField |@| zoneField |@| regionField) {
+        (ssh_key: String, identity_file: String, ssh_user, vault_location: String, sshpub_location: String, zone: String, region: String) =>
+          new PredefCloudAccess(ssh_key, identity_file, ssh_user, vault_location, sshpub_location, zone, region)
       }
     }
   }
