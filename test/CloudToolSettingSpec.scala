@@ -53,7 +53,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/chef").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com/rajthilakmca/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "sandy@megamsandbox.com/default_chef").json
       Some(contentToEncode)
     }
 

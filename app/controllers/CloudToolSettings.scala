@@ -58,8 +58,8 @@ object CloudToolSettings extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CloudToolSetting", "request funneled."))
           models.CloudToolSettings.create(email, clientAPIBody) match {
             case Success(succ) =>
-              val tuple_succ = succ.getOrElse(("Nah", "Bah"))
-              CloudToolPublish(tuple_succ._2).dop.flatMap { x =>
+              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Hah"))
+              CloudToolPublish(tuple_succ._2, tuple_succ._3).dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
                 Status(CREATED)(
                   FunnelResponse(CREATED, """CloudToolSettings created successfully.
