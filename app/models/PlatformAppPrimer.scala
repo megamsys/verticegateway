@@ -87,7 +87,7 @@ object PlatformAppPrimer {
 
   def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
     cts <- clone_cloudtoolsettings(SANDBOX_EMAIL)
-    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip").dop
+    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """CloudToolSettings created successfully.
