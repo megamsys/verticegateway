@@ -45,25 +45,27 @@ GET    /v1/cloudtools                   controllers.CloudTools.list()
 GET    /v1/cloudtools/:cloud_toolname   controllers.CloudTools.show(cloud_toolname: String)
 
 # AppDefns for Nodes                          
-GET    /v1/appdefns/:nodeid             controllers.AppDefns.show(nodeid: String)
+GET    /v1/appdefns                     controllers.AppDefns.list()
+GET    /v1/appdefns/:nodeid/:id	        controllers.AppDefns.show(nodeid: String, id: String)
+GET    /v1/appdefns/:nodeid             controllers.AppDefns.shown(nodeid: String)
 POST   /v1/appdefns/content             controllers.AppDefns.post
 
 # AppRequests for Nodes                          
-GET    /v1/appreqs/:nodeid             controllers.AppReqs.show(nodeid: String)
-POST   /v1/appreqs/content             controllers.AppReqs.post
+GET    /v1/appreqs/:nodeid              controllers.AppReqs.show(nodeid: String)
+POST   /v1/appreqs/content              controllers.AppReqs.post
 
 # BoltDefns for Nodes                          
-GET    /v1/boltdefns/:nodeid             controllers.BoltDefns.show(nodeid: String)
-POST   /v1/boltdefns/content             controllers.BoltDefns.post
+GET    /v1/boltdefns/:nodeid            controllers.BoltDefns.show(nodeid: String)
+POST   /v1/boltdefns/content            controllers.BoltDefns.post
 
 # BoltRequests for Nodes                          
 GET    /v1/boltreqs/:nodeid             controllers.BoltReqs.show(nodeid: String)
 POST   /v1/boltreqs/content             controllers.BoltReqs.post
 
 # CloudToolSetting
-GET    /v1/cloudtoolsettings                        controllers.CloudToolSettings.list
-GET    /v1/cloudtoolsettings/:id                    controllers.CloudToolSettings.show(id: String)
-POST   /v1/cloudtoolsettings/content                controllers.CloudToolSettings.post
+GET    /v1/cloudtoolsettings            controllers.CloudToolSettings.list
+GET    /v1/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: String)
+POST   /v1/cloudtoolsettings/content    controllers.CloudToolSettings.post
 
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)

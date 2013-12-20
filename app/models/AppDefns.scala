@@ -220,7 +220,7 @@ object AppDefns {
   }
   
   /**
-   * List all the defns for the nodenamelist.
+   * List all the app defns for a list of appdefns id for a particular node.
    */
   def findByReqName(defNameList: Option[List[String]]): ValidationNel[Error, AppDefnsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefinition", "findByReqName:Entry"))
