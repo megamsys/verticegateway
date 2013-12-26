@@ -15,6 +15,7 @@
 */
 package controllers
 
+import scala.collection.immutable.Map
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
@@ -54,7 +55,8 @@ object AppDefns extends Controller with APIAuthElement  {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Hah"))              
+              val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "Hah"))    
+             
               CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "published successfully."))
                 Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation instruction submitted successfully.

@@ -18,6 +18,7 @@ package controllers.stack
 import scalaz._
 import Scalaz._
 import scala.concurrent._
+import scala.collection.immutable.Map
 import scala.concurrent.duration.Duration
 import org.megam.common._
 import org.megam.common.amqp._
@@ -35,17 +36,17 @@ import play.api.Play._
 
 object CloudPerNodePublish {
 
-  def apply = new CloudPerNodePublish(new String(), new String())
+  def apply = new CloudPerNodePublish(new String(), Map.empty[String, String])
 
 }
 
-case class CloudPerNodePublish(name: String, messages: String) extends MessageContext {
+case class CloudPerNodePublish(name: String, messages: Map[String,String]) extends MessageContext {
   val cnpURL = MConfig.amqpuri
   val cnpQueueName = MConfig.cloudper_node_queue_prefix + "_" + name + "_queue"
   val cnpExchangeName = MConfig.cloudper_node_exchage_prefix + "_" + name + "_exchange"
   //create the RabbitMQ Client using url, exchange name and queue name
   val cnp_client = new RabbitMQClient(cnpURL, cnpExchangeName, cnpQueueName)
-  val cnp_pubMsg = Messages("id" -> messages)
+  val cnp_pubMsg = Messages(messages.toList)
   play.api.Logger.debug("%-20s -->[%s]".format("Publish", cnp_pubMsg))
   def dop(): ValidationNel[Throwable, AMQPResponse] = execute(cnp_client.publish(cnp_pubMsg, MConfig.routing_key))
 }

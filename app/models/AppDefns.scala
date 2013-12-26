@@ -15,6 +15,7 @@
 */
 package models
 
+import scala.collection.immutable.Map
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
@@ -139,7 +140,8 @@ object AppDefns {
    * create new Request with the existing 'Nodename' of the nodename provide as input.
    * A index name nodeID will point to the "nodes" bucket
    */
-  def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple3[String, String, NodeAppDefns]]] = {
+  def createforExistNode(input: String): ValidationNel[Throwable, Option[(Map[String,String], String, NodeAppDefns)]] = {
+    import models.Defns._
     play.api.Logger.debug(("%-20s -->[%s]").format("models.AppDefns", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -151,10 +153,10 @@ object AppDefns {
           val adf_result = parse(gs.get.value).extract[AppDefnsResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("AppDefns.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => (thatGS.key, adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
+            case Some(thatGS) => ((Map[String,String](("Id" -> thatGS.key))), adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("AppDefns.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
+              ((Map[String,String](("Id" -> gs.get.key), ("Action" -> DefnType.APP_DEFN.toString), ("Args" -> List().toString))), adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             }
           }
         }

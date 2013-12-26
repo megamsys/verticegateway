@@ -41,8 +41,8 @@ import controllers.stack.MConfig
  */
 
 case class BoltDefnsResult(id: String, node_id: String, node_name: String, boltdefns: NodeBoltDefns, created_at: String) {
-val json = "{\"id\": \"" + id + "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"boltdefns\":" + boltdefns.json + ",\"created_at\":\"" + created_at + "\"}"
-  
+  val json = "{\"id\": \"" + id + "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"boltdefns\":" + boltdefns.json + ",\"created_at\":\"" + created_at + "\"}"
+
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.BoltDefnsResultSerialization
@@ -59,11 +59,11 @@ val json = "{\"id\": \"" + id + "\",\"node_id\":\"" + node_id + "\",\"node_name\
 }
 
 object BoltDefnsResult {
-  
-  def apply = new BoltDefnsResult(new String(), new String(), new String(), new NodeBoltDefns(new String(),new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String()), new String())
-  
+
+  def apply = new BoltDefnsResult(new String(), new String(), new String(), new NodeBoltDefns(new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String()), new String())
+
   //def apply(timetokill: String): AppDefnsResult = AppDefnsResult(timetokill, new String(), new String(), new String())
-   
+
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[BoltDefnsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.BoltDefnsResultSerialization
@@ -79,21 +79,20 @@ object BoltDefnsResult {
 
 }
 
-
 case class BoltDefnsInputforNewNode(node_id: String, node_name: String, boltdefns: NodeBoltDefns) {
   play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns:json", boltdefns.json))
-  val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"boltdefns\":" + boltdefns.json 
+  val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"boltdefns\":" + boltdefns.json
 }
 
 case class BoltDefnsInputforExistNode(node_name: String, boltdefns: NodeBoltDefns) {
   play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns:json", boltdefns.json))
-  val json = "\",\"node_name\":\"" + node_name + "\",\"boltdefns\":" + boltdefns.json 
+  val json = "\",\"node_name\":\"" + node_name + "\",\"boltdefns\":" + boltdefns.json
 }
 
 object BoltDefns {
 
-  implicit val formats = DefaultFormats    
-  
+  implicit val formats = DefaultFormats
+
   private def riak: GSRiak = GSRiak(MConfig.riakurl, "boltdefns")
 
   val metadataKey = "BoltDefns"
@@ -120,7 +119,7 @@ object BoltDefns {
     for {
       rip <- ripNel
       aor <- (models.Nodes.findByNodeName(List(rip.node_name).some) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bdf").get leftMap { ut: NonEmptyList[Throwable] => ut })      
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bdf").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val node_id = aor.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
         (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
@@ -131,15 +130,15 @@ object BoltDefns {
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"node_id\":\"" + node_id(0) + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
-    }    
-  }  
+    }
+  }
 
-  
   /*
    * create new Request with the existing 'Nodename' of the nodename provide as input.
    * A index name nodeID will point to the "nodes" bucket
    */
-  def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple3[String, String, NodeBoltDefns]]] = {
+  def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple3[Map[String,String], String, NodeBoltDefns]]] = {
+    import models.Defns._
     play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -151,17 +150,16 @@ object BoltDefns {
           val adf_result = parse(gs.get.value).extract[BoltDefnsResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("BoltDefns.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => (thatGS.key, adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
+            case Some(thatGS) => (Map[String,String](("Id"-> thatGS.key)), adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("BoltDefns.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
+              (Map[String,String](("Id"-> gs.get.key), ("Action" -> DefnType.BOLT_DEFN.toString), ("Args" -> List().toString)), adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
             }
           }
         }
     }
   }
-  
-  
+
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, Option[node_id].
    * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -186,7 +184,7 @@ object BoltDefns {
     } yield {
       //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
       val bvalue = Set(rip.node_id)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + rip.json + ",\"created_at\":\""+ Time.now.toString +"\"}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
 
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
@@ -218,7 +216,7 @@ object BoltDefns {
         }
     }
   }
-  
+
   /**
    * List all the defns for the nodenamelist.
    */
@@ -238,7 +236,7 @@ object BoltDefns {
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(defName, t.getMessage)
               }).toValidationNel.flatMap { j: BoltDefnsResult =>
-                Validation.success[Error, BoltDefnsResults](nels(j.some)).toValidationNel  
+                Validation.success[Error, BoltDefnsResults](nels(j.some)).toValidationNel
               }
             }
             case None => Validation.failure[Error, BoltDefnsResults](new ResourceItemNotFound(defName, "")).toValidationNel
@@ -250,8 +248,8 @@ object BoltDefns {
     }).head //return the folded element in the head. 
 
   }
-  
-   /*
+
+  /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
    * the nodenames are listed on the index (account.id) in bucket `Nodes`.
    * Using a "nodename" as key, return a list of ValidationNel[List[BoltDefnsResult]] 
@@ -290,7 +288,6 @@ object BoltDefns {
 
   }
 
-  
   /*
    * An IO wrapped finder using an email. Upon fetching the node results for an email, 
    * the nodeids are listed in bucket `Requests`.
@@ -327,6 +324,5 @@ object BoltDefns {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns", res))
     res.getOrElse(new ResourceItemNotFound(email, "definitions = nothing found.").failureNel[BoltDefnsResults])
   }
-  
 
 }
