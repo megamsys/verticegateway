@@ -157,7 +157,7 @@ object CloudTool {
 
   val ec2 = CloudTemplate("ec2", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create -c", "-N"),
-    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a ec2.instance_id | grep ec2.instance_id | awk '{print $2}'` -P -y", "-N"),
+    CloudInstruction("delete", "server delete -c `knife search node name:<node_name> -a ec2.instance_id | grep ec2.instance_id | awk '{print $2}'` -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
@@ -166,13 +166,13 @@ object CloudTool {
 
   val hp = CloudTemplate("hp", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create -c", "-N"),
-    CloudInstruction("delete", "server delete", "-N"),
+    CloudInstruction("delete", "server delete -c", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
   val gce = CloudTemplate("google", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create <node_name> -f -c", "-N"),
-    CloudInstruction("delete", "server delete", "-N"),
+    CloudInstruction("delete", "server delete -f -c", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
