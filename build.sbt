@@ -33,9 +33,9 @@ com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.pa
     
 maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
 
-packageSummary := "Cloud API server - Megam Cloud." 
+packageSummary := "Cloud Gateway - Megam Cloud." 
 
-packageDescription in Debian:= " (REST based) Cloud API server for Megam platform.The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
+packageDescription in Debian:= "(REST based) Cloud Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
 
 debianPackageDependencies in Debian ++= Seq("curl", "java2-runtime", "bash (>= 2.05a-11)")
 
