@@ -55,7 +55,7 @@ object AppReqs extends Controller with APIAuthElement  {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              val tuple_succ = succ.getOrElse(("Nah", "Bah"))              
+              val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))  
               CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppRequests", "published successfully."))
                 Status(CREATED)(FunnelResponse(CREATED, """AppRequest initiation instruction submitted successfully.

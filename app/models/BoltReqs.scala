@@ -134,7 +134,7 @@ object BoltRequests {
    * create new BoltRequest with the 'Nodename' of the node provide as input.
    * A index name BoltreqID will point to the "Boltreqs" bucket
    */
-  def create(input: String): ValidationNel[Throwable, Option[Tuple2[String, String]]] = {
+  def create(input: String): ValidationNel[Throwable, Option[Tuple2[Map[String,String], String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltRequests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -146,10 +146,10 @@ object BoltRequests {
           val req_result = parse(gs.get.value).extract[BoltRequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("BoltRequest.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple2(thatGS.key, req_result.node_name).some.successNel[Throwable]
+            case Some(thatGS) => Tuple2(Map[String,String](("Id" ->thatGS.key)), req_result.node_name).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("BoltRequest.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, req_result.node_name).some.successNel[Throwable]
+            Tuple2(Map[String,String](("Id"-> gs.get.key), ("Action"-> req_result.req_type), ("Args"-> List().toString)), req_result.node_name).some.successNel[Throwable]
             }
           }
         }
