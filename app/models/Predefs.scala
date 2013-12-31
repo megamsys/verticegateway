@@ -48,17 +48,17 @@ case class PredefInput(id: String = new String(), name: String, provider: String
 object PredefInput {
 
   val toMap = Map[String, PredefInput](
-    "rails" -> PredefInput("", "rails", "chef", "rails", "bundle", "sudo start unicorn_projectname", ""),
-    "java" -> PredefInput("", "java", "chef", "java", "mvn", "sudo service tomcat restart", ""),
+    "rails" -> PredefInput("", "rails", "chef", "rails", "bundle", "#[start] unicorn_<projectname>", ""),
+    "java" -> PredefInput("", "java", "chef", "java", "mvn", "#[start] tomcat", ""),
     "scala" -> PredefInput("", "scala", "chef", "scala", "sbt", "", ""),
-    "play" -> PredefInput("", "play", "chef", "play", "sbt", "sudo start play", ""),
-    "akka" -> PredefInput("", "akka", "chef", "scala", "sbt", "sudo start akka", ""),
-    "nodejs" -> PredefInput("", "nodejs", "chef", "nodejs", "npm", "sudo start nodejs", ""),
-    "mobhtml5" -> PredefInput("", "mobhtml5", "chef", "sencha", "", "sudo service nginx restart", ""),
-    "postgresql" -> PredefInput("", "postgresql", "chef", "postgresql", "gulpd", "sudo service postgresql restart", ""),
-    "rabbitmq" -> PredefInput("", "rabbitmq", "chef", "rabbitmq", "gulpd", "sudo rabbitmqctl start_app", ""),
-    "redis" -> PredefInput("", "redis", "chef", "redis", "gulpd", "sudo redis-server", ""),
-    "riak" -> PredefInput("", "riak", "chef", "riak", "gulpd", "sudo start raik", ""))
+    "play" -> PredefInput("", "play", "chef", "play", "sbt", "#[start] play", ""),
+    "akka" -> PredefInput("", "akka", "chef", "scala", "sbt", "#[start] akka", ""),
+    "nodejs" -> PredefInput("", "nodejs", "chef", "nodejs", "npm", "#[start] nodejs", ""),
+    "mobhtml5" -> PredefInput("", "mobhtml5", "chef", "sencha", "", "service nginx restart", ""),
+    "postgresql" -> PredefInput("", "postgresql", "chef", "postgresql", "gulpd", "service postgresql restart", ""),
+    "rabbitmq" -> PredefInput("", "rabbitmq", "chef", "rabbitmq", "gulpd", "rabbitmqctl start_app", ""),
+    "redis" -> PredefInput("", "redis", "chef", "redis", "gulpd", "redis-server", ""),
+    "riak" -> PredefInput("", "riak", "chef", "riak", "gulpd", "#[start] riak", ""))
 
   val toStream = toMap.keySet.toStream
 
