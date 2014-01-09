@@ -58,7 +58,18 @@ object PredefInput {
     "postgresql" -> PredefInput("", "postgresql", "chef", "postgresql", "gulpd", "service postgresql restart", ""),
     "rabbitmq" -> PredefInput("", "rabbitmq", "chef", "rabbitmq", "gulpd", "rabbitmqctl start_app", ""),
     "redis" -> PredefInput("", "redis", "chef", "redis", "gulpd", "redis-server", ""),
-    "riak" -> PredefInput("", "riak", "chef", "riak", "gulpd", "#[start] riak", ""))
+    "riak" -> PredefInput("", "riak", "chef", "riak", "gulpd", "#[start] riak", ""),
+    "wordpress" -> PredefInput("", "wordpress", "chef", "wordpress", "", "#[start] wordpress", ""),
+    "joomla" -> PredefInput("", "joomla", "chef", "joomla", "", "#[start] joomla", ""),
+    "jenkins" -> PredefInput("", "jenkins", "chef", "jenkins", "", "#[start] jenkins", ""),
+    "hadoop" -> PredefInput("", "hadoop", "chef", "hadoop", "", "#[start] hadoop", ""),
+    "scmmanager" -> PredefInput("", "scmmanager", "chef", "scmmanager", "", "#[start] scmmanager", ""),
+    "orion" -> PredefInput("", "orion", "chef", "orion", "", "#[start] orion", ""),
+    "otrs" -> PredefInput("", "otrs", "chef", "otrs", "", "#[start] otrs", ""),
+    "redmine" -> PredefInput("", "redmine", "chef", "redmine", "", "#[start] redmine", ""),
+    "liferay" -> PredefInput("", "liferay", "chef", "liferay", "", "#[start] liferay", ""),
+    "sugercrm" -> PredefInput("", "sugercrm", "chef", "sugercrm", "", "#[start] sugercrm", "")
+  )
 
   val toStream = toMap.keySet.toStream
 
