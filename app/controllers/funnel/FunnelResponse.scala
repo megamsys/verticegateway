@@ -30,7 +30,7 @@ import org.megam.common.jsonscalaz._
  * @author ram
  *
  */
-case class FunnelResponse(code: Int, msg: String, more: String, json_claz: String, 
+case class FunnelResponse(code: Int, msg: String, more: String, json_claz: String,
     msg_type: String = "error", links: String = tailMsg) {
 
   def toJValue: JValue = {

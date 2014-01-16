@@ -59,15 +59,15 @@ object Nodes extends Controller with APIAuthElement {
                       play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", nr.key + " " + nr.req_id))
                       FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
-            |Check back on the 'node name':{%s}
-            |The cloud is working for you. It will be ready shortly.""".format(nr.req_id).stripMargin, "Megam::Node").successNel[Throwable]
+            |Check back on the {:node_name=>'%s', :req_id=>'%s'}
+            |The cloud is working for you. It will be ready shortly.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node").successNel[Throwable]
                     } match {
                       //this is only a temporary hack.
                       case Success(succ_cpc) => succ_cpc
                       case Failure(err) =>
                         FunnelResponse(BAD_REQUEST, """Node initiation submission failed.   
             |for 'node name':{%s} 'request_id':{%s}
-            |Retry again, our queue servers isn't running or maxed""".format(nr.req_id, nr.req_id).stripMargin, "Megam::Node")
+            |Retry again, our queue servers isn't running or maxed""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
                     }
                   })
               }).map { fr =>
