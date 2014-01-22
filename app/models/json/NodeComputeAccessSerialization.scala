@@ -45,7 +45,7 @@ object NodeComputeAccessSerialization  extends SerializationBase[NodeComputeAcce
 
     override def write(h: NodeComputeAccess): JValue = {
       JObject(
-        JField(SSHKey, toJSON(h.ssh_user)) ::
+        JField(SSHKey, toJSON(h.ssh_key)) ::
           JField(IdentityFileKey, toJSON(h.identity_file)) ::
           JField(SSHUserKey, toJSON(h.ssh_user))  ::
           JField(VaultLocationKey, toJSON(h.vault_location))  ::
