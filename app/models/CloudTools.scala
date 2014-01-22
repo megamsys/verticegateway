@@ -166,7 +166,7 @@ object CloudTool {
 
   val hp = CloudTemplate("hp", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create -c", "-N"),
-    CloudInstruction("delete", "server delete -c", "-N"),
+    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a hp.id` -c -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
