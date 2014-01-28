@@ -9,7 +9,7 @@ object ApplicationBuild extends Build {
 
   val organization = "Megam Systems"
 
-  val homepage = Some(url("http://www.megam.co"))
+  val homepage = Some(url("https://www.megam.co"))
 
   val startYear = Some(2013)
 
