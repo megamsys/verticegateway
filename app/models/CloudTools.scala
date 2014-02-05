@@ -157,7 +157,7 @@ object CloudTool {
 
   val ec2 = CloudTemplate("ec2", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create -c", "-N"),
-    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a ec2.instance_id` -c -P -y", "-N"),
+    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a megam.instanceid` -c -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
