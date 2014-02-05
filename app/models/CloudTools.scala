@@ -161,24 +161,29 @@ object CloudTool {
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
-  val rackspace = CloudTemplate("rackspace", CloudInstructionGroup.empty)
-  val openstack = CloudTemplate("openstack", CloudInstructionGroup.empty)
-
   val hp = CloudTemplate("hp", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create -c", "-N"),
-    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a hp.id` -c -P -y", "-N"),
+    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a megam.instanceid` -c -P -y", "-N"),
+    CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
+    CloudInstruction("data", "instance set", "-N")))))
+
+  val profitbricks = CloudTemplate("profitbricks", CloudInstructionGroup(List("server" -> CloudInstructions(
+    CloudInstruction("create", "server create ", "--name"),
+    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a megam.instanceid` -c -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
   val gce = CloudTemplate("google", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create <node_name> -f -c", "-N"),
-    CloudInstruction("delete", "server delete -f -c", "-N"),
+    CloudInstruction("delete", "server delete `knife search node name:<node_name> -a megam.instanceid` -c -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
+  val rackspace = CloudTemplate("rackspace", CloudInstructionGroup.empty)
+  val openstack = CloudTemplate("openstack", CloudInstructionGroup.empty)
   val myiaas = CloudTemplate("myiaas", CloudInstructionGroup.empty)
 
-  val cloudtemplates = CloudTemplates(ec2, rackspace, openstack, hp, gce, myiaas)
+  val cloudtemplates = CloudTemplates(ec2, rackspace, openstack, hp, gce, profitbricks,myiaas)
 
   val toMap = Map[String, CloudTool]("chef" -> CloudTool("", "chef", "knife", cloudtemplates))
 
