@@ -395,4 +395,27 @@ package object models {
     def empty: CloudToolSettingResults = nel(emptyPC.head, emptyPC.tail)
   }
   
+  type SshKeyResults = NonEmptyList[Option[SshKeyResult]]
+
+  object SshKeyResults {
+    val emptyPC = List(Option.empty[SshKeyResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(prres: SshKeyResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.SshKeyResultsSerialization.{ writer => SshKeyResultsWriter }
+      toJSON(prres)(SshKeyResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: SshKeyResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: SshKeyResult): SshKeyResults = nels(m.some)
+    def empty: SshKeyResults = nel(emptyPC.head, emptyPC.tail)
+  }
+  
 }

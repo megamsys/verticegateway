@@ -67,5 +67,10 @@ GET    /v1/cloudtoolsettings            controllers.CloudToolSettings.list
 GET    /v1/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: String)
 POST   /v1/cloudtoolsettings/content    controllers.CloudToolSettings.post
 
+#SshKeys
+POST   /v1/sshkeys/content         controllers.SshKeys.post
+GET    /v1/sshkeys                 controllers.SshKeys.list
+GET    /v1/sshkeys/:pre_name       controllers.SshKeys.show(pre_name: String)
+
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)

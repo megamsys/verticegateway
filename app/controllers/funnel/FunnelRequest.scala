@@ -97,6 +97,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
    * A valid email exists, then send back a ValidationNel.success with FunneledRequest wrapped in Option.
    */
   def funneled: ValidationNel[Throwable, Option[FunneledRequest]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("FunnelRB:funneled", rawheader.toString))
     play.api.Logger.debug(("%-20s -->[%s]").format("FunnelRB:funneled", frOpt.getOrElse("Funneled Request is NONE! Bummer dude.").toString))
 
     frOpt match {

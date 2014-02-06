@@ -35,11 +35,11 @@ class NodesSpec extends Specification {
   NodesSpec is the implementation that calls the megam_play API server with the /nodes url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests APP  n EC2 with a valid userid and api key" ! PostApp.succeeds ^
+      //"Correctly do POST requests APP  n EC2 with a valid userid and api key" ! PostApp.succeeds ^
       //"Correctly do POST requests BOLT   EC2 with a valid userid and api key" ! PostBolt.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       //"Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-      //"Correctly do GET  (appsample1.megam.co) requests with an valid Node name" ! findByNameApp.succeeds ^
+      "Correctly do GET  (appsample1.megam.co) requests with an valid Node name" ! findByNameApp.succeeds ^
       //"Correctly do GET  (boltsample1.megam.co) requests with a valid Node name" ! findByNameBolt.succeeds ^
       //"Correctly do GET  (appfail1.megam.co) requests with an Invalid Node name" ! findByInvalidName.succeeds ^
   end
@@ -57,16 +57,15 @@ class NodesSpec extends Specification {
           new NodeComputeAccess("megam_hp", "ubuntu", " ~/.ssh/megam_hp.pem", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "", "region")),
         new NodeCloudToolService(new NodeCloudToolChef("knife", "hp server create -c", "java", "-N appsample.megam.co"))).json
 
-      val contentToEncode = "{\"node_name\":\"appsample.megam.co\",\"node_type\":\"APP\",\"noofinstances\":2,\"req_type\":\"CREATE\",\"command\":" +
+      val contentToEncode = "{\"node_name\":\"appsample.megam.co\",\"node_type\":\"APP\",\"noofinstances\":1,\"req_type\":\"CREATE\",\"command\":" +
         command + ",\"predefs\":{\"name\":\"rails\",\"scm\":\"scm\", \"war\":\"some.war\",\"db\":\"db\", \"queue\":\"queue\"}," +
         "\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}," +
         "\"boltdefns\":{\"username\":\"\",\"apikey\":\"\", \"store_name\":\"\",\"url\":\"\",\"prime\":\"\",\"timetokill\":\"\",\"metered\":\"\", \"logging\":\"\",\"runtime_exec\":\"\"},\"appreq\":{},\"boltreq\":{}}"
       Some(new String(contentToEncode))
 
     }
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
+    protected override def headersOpt: Option[Map[String, String]] = None    
+  private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
 
