@@ -60,7 +60,7 @@ package object funnel {
 
     def toTuple2(fres: FunnelResponses): List[Tuple2[String,String]] = {
       (fres.flatMap { fres_list: FunnelResponseList =>
-        (fres_list.map { fre => (fre.json_claz + "[" + fre.code + "]" ,fre.msg) }.list).some
+        (fres_list.map { fre => (fre.code.toString,fre.msg) }.list).some
       }).getOrElse(List(("000", "Done")))
     }
 
