@@ -168,7 +168,7 @@ object CloudTool {
     CloudInstruction("data", "instance set", "-N")))))
 
   val profitbricks = CloudTemplate("profitbricks", CloudInstructionGroup(List("server" -> CloudInstructions(
-    CloudInstruction("create", "server create ", "--name"),
+    CloudInstruction("create", "server create -c", "--name"),
     CloudInstruction("delete", "server delete `knife search node name:<node_name> -a megam.instanceid` -c -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
