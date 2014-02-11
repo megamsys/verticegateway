@@ -119,7 +119,13 @@
 
 			We've also provided information on how we use HMAC to create authorization headers for use when accessing Megam.
 		</p>
-	  <section id="auth">
+	  
+								
+								
+								
+		
+								
+	<section id="auth">
 			<div class="page-header">
 				<h1>Get API Key</h1>
 			</div>
@@ -146,7 +152,9 @@
 			</p>
 						
 </code>
-</pre>
+</pre>							
+								
+								
 								
 			
 
@@ -158,8 +166,12 @@
 					<h4 id="accounts_get">GET</h4>
 				
 			<p>
-				Request URL:
-			</p>
+					This part contains about get</p>
+				<p>
+					Request URL:
+				</p>
+			
+			
 			<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
 			<p>
 				Request Headers:
@@ -168,26 +180,31 @@
 				<code>
 					"X-Megam-DATE:"
 				</code>
-				2013-07-01 17:17"
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
 				<br>
 				</br>
 				<code>
 					"X-Megam-HMAC:"
 				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c"
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
 				<br>
 				</br>
 				<code>
 					"Content-Type:"
 				</code>
-				appilication/Json"
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
 				<br>
 				</br>
 				<code>
 					"Accept:"
 				</code>
-				"application/vnd.megam+json "
-				<br>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
 				</br>
 			</p>
 			<p>
@@ -275,7 +292,10 @@
 				
 				
 			<h4 id="accounts_post">POST</h4>
-			
+			<p>
+					This part contains about post
+				
+				</p>
 			<p>
 				Request URL:
 			</p>
@@ -283,30 +303,34 @@
 			<p>
 				Request Headers:
 			</p>
-			<p>
-				<code>
+			<code>
 					"X-Megam-DATE:"
 				</code>
-				2013-07-01 17:17"
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
 				<br>
 				</br>
 				<code>
 					"X-Megam-HMAC:"
 				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c"
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
 				<br>
 				</br>
 				<code>
 					"Content-Type:"
 				</code>
-				appilication/Json"
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
 				<br>
 				</br>
 				<code>
 					"Accept:"
 				</code>
-				"application/vnd.megam+json "
-				<br>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
 				</br>
 			</p>
 			<p>
@@ -361,7 +385,7 @@
 			</div>
 			<!-- TO-DO -->
 			<div class="tab-content">
-				<ul class="nav nav-tabs" id="#get">
+				<ul class="nav nav-tabs" id="#post">
 					<li>
 						<a href="#ruby" data-toggle="tab">Ruby</a>
 					</li>
@@ -401,10 +425,122 @@
 				<p>
 <pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
 			
-					
-				</p>
+					<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
 				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+				<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#post">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
 
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+				<section id="GET- v1/nodes/id">
+			<div class="tab-content">
+				
 				<h4 id="nodes_get_byname">GET- v1/nodes/id</h4>
 				<p>
 					This part contains about nodes
@@ -415,30 +551,34 @@
 			<p>
 				Request Headers:
 			</p>
-			<p>
-				<code>
+			<code>
 					"X-Megam-DATE:"
 				</code>
-				2013-07-01 17:17"
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
 				<br>
 				</br>
 				<code>
 					"X-Megam-HMAC:"
 				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c"
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
 				<br>
 				</br>
 				<code>
 					"Content-Type:"
 				</code>
-				appilication/Json"
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
 				<br>
 				</br>
 				<code>
 					"Accept:"
 				</code>
-				"application/vnd.megam+json "
-				<br>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
 				</br>
 			</p>
 			<p>
@@ -536,30 +676,159 @@
 			<p>
 				Request Headers:
 			</p>
-			<p>
-				<code>
+			<code>
 					"X-Megam-DATE:"
 				</code>
-				2013-07-01 17:17"
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
 				<br>
 				</br>
 				<code>
 					"X-Megam-HMAC:"
 				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c"
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
 				<br>
 				</br>
 				<code>
 					"Content-Type:"
 				</code>
-				appilication/Json"
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
 				<br>
 				</br>
 				<code>
 					"Accept:"
 				</code>
-				"application/vnd.megam+json "
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+		
+	
+		<section id="predefs">
+			<div class="tab-content">
+	
+			<h2>Predefs</h2>
+			<h4 id ="predefs_get">GET - v1/predefs</h4>
+
+	<p>
+					This part contains about nodes
+					<p>
+				Request URL:
+			</p><pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
 				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
 				</br>
 			</p>
 			<p>
@@ -642,179 +911,42 @@
 			</div>
 
 		</section>
-
-				
-
-		<section id="logs">
-			<div class="tab-content">
-				<h2>Logs</h2>
-				<h4 id="logs_get">GET - v1/logs</h4>
-				<p>
-					This part contains about Logs
-				<p>
-				Request URL:
-			</p>
-			<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
-			<p>
-				Request Headers:
-			</p>
-			<p>
-				<code>
-					"X-Megam-DATE:"
-				</code>
-				2013-07-01 17:17"
-				<br>
-				</br>
-				<code>
-					"X-Megam-HMAC:"
-				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c"
-				<br>
-				</br>
-				<code>
-					"Content-Type:"
-				</code>
-				appilication/Json"
-				<br>
-				</br>
-				<code>
-					"Accept:"
-				</code>
-				"application/vnd.megam+json "
-				<br>
-				</br>
-			</p>
-			<p>
-				Request Body:
-			</p>
-			<p>
-				<code>
-					-
-				</code>
-				(Nothing in body)
-			</p>
-			<p>
-				Response shown in Json:
-			</p>
-			<p class="json">
-				<pre><code>[
-  {
-    "id": "ACT346963130863058944",
-    "email": "your_registered_email",
-    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
-    "authority": "user"
-  }
-]</code>
-</pre>
-			</p>
-					<div class="panel-group" id="accordion">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
-					</div>
-					<div id="collapseOne" class="panel-collapse collapse in">
-						<div class="panel-body">
-							The following explains the HTTP error code and their remedy.
-						</div>
-						<!-- Table -->
-						<table class="table table-condensed">
-							<thead>
-								<tr>
-									<th><i class="icon-trash"></i>HTTP Codes</th>
-									<th><i class="icon-info-sign">JSON </i></a></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><span class="badge">401</span></td>
-									<td> stick the 401 json here. </td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<!-- TO-DO -->
-			<div class="tab-content">
-				<ul class="nav nav-tabs" id="#get">
-					<li>
-						<a href="#ruby" data-toggle="tab">Ruby</a>
-					</li>
-					<li>
-						<a href="#scala" data-toggle="tab">Scala</a>
-					</li>
-				</ul>
-
-				<div class="tab-pane" id="ruby">
-					<pre>
-		<code class="brush: ruby; toolbar: false; ">
-		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
-		:email => "........"})
-		</code>
-		</pre>
-				</div>
-				<div class="tab-pane active" id="scala">
-					<pre>
-		<code class="brush: scala; toolbar: false; ">
-		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
-		</code>
-		</pre>
-				</div>
-			</div>
-			</div>
-
-		</section>
-
-		
-		<section id="predefs">
-			<div class="page-header">
-				<h2>1. Predefs</h2>
-			</div>
-			<p class="lead">
-				Before you start using the Megam API, be sure to have an API KEY and Email
-				and registered. Register with our Hosted Megam Platform<a href="http://www.megam.co">www.megam.co</a>
-			</p>
-			<h4 id ="predefs_get">GET - v1/predefs</h4>
-
-			<p>
-				<pre><code class="brush: bash; toolbar: false; ">
-
-					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-            </code> </pre>
-			</p>
-
+<section>
 			<h4 id ="predefs_get_byname">GET - v1/predefs/:node_name</h4>
 <pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
 			<p>
 				Request Headers:
 			</p>
-			<p>
-				<code>
+			<code>
 					"X-Megam-DATE:"
 				</code>
-				2013-07-01 17:17"
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
 				<br>
 				</br>
 				<code>
 					"X-Megam-HMAC:"
 				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c"
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
 				<br>
 				</br>
 				<code>
 					"Content-Type:"
 				</code>
-				appilication/Json"
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
 				<br>
 				</br>
 				<code>
 					"Accept:"
 				</code>
-				"application/vnd.megam+json "
-				<br>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
 				</br>
-			</p>
-			<p>
+			</p>			<p>
 				Request Body:
 			</p>
 			<p>
@@ -897,45 +1029,49 @@
 
 		</section>
 		<section id="predefclouds">
-			<div class="page-header">
-				<h2>1. PredefClouds</h2>
-			</div>
-			<p class="lead">
-				Before you start using the Megam API, be sure to have an API KEY and Email
-				and registered. Register with our Hosted Megam Platform<a href="http://www.megam.co">www.megam.co</a>
-			</p>
-			<h4 id="predefclouds_get">GET</h4>
+			<div class="tab-content">
+	
+			<h2>Predefclouds</h2>
+			
+			<h4 id ="predefclouds get">GET - v1/predefclouds</h4>
+	
+			<p>
+					list the available request.
+				</p>
 			<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
 			<p>
 				Request Headers:
 			</p>
-			<p>
-				<code>
+			<code>
 					"X-Megam-DATE:"
 				</code>
-				2013-07-01 17:17"
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
 				<br>
 				</br>
 				<code>
 					"X-Megam-HMAC:"
 				</code>
-				060873b2afce74fd024bba428b0e2e00b661cc2c"
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
 				<br>
 				</br>
 				<code>
 					"Content-Type:"
 				</code>
-				appilication/Json"
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
 				<br>
 				</br>
 				<code>
 					"Accept:"
 				</code>
-				"application/vnd.megam+json "
-				<br>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
 				</br>
-			</p>
-			<p>
+			</p>			<p>
 				Request Body:
 			</p>
 			<p>
@@ -1019,23 +1155,2021 @@
 
 			
 
+	<section id="predefclouds/:context">
 			
-		<section id="uids">
-			<div class="page-header">
-				<h2>1. UIDS</h2>
-			</div>
-			<p class="lead">
-				Before you start using the Megam API, be sure to have an API KEY and Email
-				and registered. Register with our Hosted Megam Platform<a href="http://www.megam.co">www.megam.co</a>
-			</p>
-			<h4>GET</h4>
+			
+			<h4 id ="predefclouds/:context_get">GET - v1/predefclouds/:context</h4>			
 			<p>
-				<pre><code class="brush: bash; toolbar: false; ">
-
-					megam = Megam::API.new(:headers => {:api_key => API_KEY, :email => EMAIL})
-
-					</code> </pre>
+					list the available request.
+				</p>
+			<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			<p>
+				Request Headers:
 			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+
+			
+																																																																																																																																																																	
 		</section>
-	</div>
-</div>
+			
+		<section id="requests">
+			<div class="tab-content">
+				<h2>Requests</h2>
+				<h4 id="requests_get">GET -v1/requests</h4>
+				<p>
+					list the available request.
+				</p>
+				<p>
+					Request URL:
+				</p>
+				<p>
+<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			
+					<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+				<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOnepost" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+				<section id="GET- v1/requests/id">
+			<div class="tab-content">
+				
+
+				<h4 id="requests_get_byname">GET- v1/requests/id</h4>
+				<p>
+					This part contains about requests id
+				<p>
+					Request URL:
+				</p>
+				
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>	
+			
+			</div>
+			</section>
+							
+							
+							
+							
+		<section id="requests post">
+			<div class="tab-content">
+								<p>
+					<h4 id="requests_post">POST</h4>
+			<p>
+				post request for requests
+			<p>
+				Request URL:
+			</p><pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#post">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+		
+		
+		
+		
+		<section id="apprequests">
+		<div class="tab-content">
+
+		<h2>Apprequests</h2>
+			<div class="tab-content">
+				
+				<h4 id="apprequests_get">GET -v1/apprequests</h4>
+				<p>
+					list the available request.
+				</p>
+				<p>
+					Request URL:
+				</p>
+				<p>
+<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			
+					<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+				<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOnepost" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+				<section id="GET- v1/apprequests/id">
+			<div class="tab-content">
+				
+				<h4 id="apprequests_get_byname">GET- v1/apprequests/id</h4>
+				<p>
+					This part contains about requests id
+				<p>
+					Request URL:
+				</p>
+				
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>	
+			
+			</div>
+			</section>
+							
+							
+							
+							
+		<section id="apprequests post">
+			<div class="tab-content">
+				
+				<p>
+					<h4 id="apprequests_post">POST</h4>
+			<p>
+				post request for requests
+			<p>
+				Request URL:
+			</p><pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#post">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+		
+		
+		
+		<section id="appdefns">
+		<div class="tab-content">
+
+		<h2>Appdefns</h2>
+			<div class="tab-content">
+				
+				<h4 id="appdefns_get">GET -v1/appdefns</h4>
+				<p>
+					list the available request.
+				</p>
+				<p>
+					Request URL:
+				</p>
+				<p>
+<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			
+					<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+				<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOnepost" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+				<section id="GET- v1/appdefns/id">
+			<div class="tab-content">
+				
+				<h4 id="appdefns_get_byname">GET- v1/appdefns/id</h4>
+				<p>
+					This part contains about requests id
+				<p>
+					Request URL:
+				</p>
+				
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>	
+			
+			</div>
+			</section>
+							
+							
+							
+							
+		<section id="appdefns post">
+			<div class="tab-content">
+				
+				<p>
+					<h4 id="appdefns_post">POST</h4>
+			<p>
+				post request for requests
+			<p>
+				Request URL:
+			</p><pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#post">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+		
+		
+
+
+<section id="boltrequests">
+<div class="tab-content">
+
+<h2>Boltrequests</h2>
+			<div class="tab-content">
+				
+				<h4 id="boltrequests_get">GET -v1/boltrequests</h4>
+				<p>
+					list the available request.
+				</p>
+				<p>
+					Request URL:
+				</p>
+				<p>
+<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			
+					<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+				<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOnepost" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+				<section id="GET- v1/boltrequests/id">
+			<div class="tab-content">
+				
+				<h4 id="boltrequests_get_byname">GET- v1/boltrequests/id</h4>
+				<p>
+					This part contains about requests id
+				<p>
+					Request URL:
+				</p>
+				
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>	
+			
+			</div>
+			</section>
+							
+							
+							
+							
+		<section id="boltrequests post">
+			<div class="tab-content">
+				
+				<p>
+					<h4 id="boltrequests_post">POST</h4>
+			<p>
+				post request for requests
+			<p>
+				Request URL:
+			</p><pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#post">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+		
+		<section id="boltdefns">
+		<div class="tab-content">
+
+		<h2>Boltdefns</h2>
+			<div class="tab-content">
+				
+				<h4 id="boltdefns_get">GET -v1/boltdefns</h4>
+				<p>
+					list the available request.
+				</p>
+				<p>
+					Request URL:
+				</p>
+				<p>
+<pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			
+					<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+				<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOnepost" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+				<section id="GET- v1/boltdefns/id">
+			<div class="tab-content">
+			<h4 id="boltdefns_get_byname">GET- v1/boltdefns/id</h4>
+				<p>
+					This part contains about requests id
+				<p>
+					Request URL:
+				</p>
+				
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#get">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>	
+			
+			</div>
+			</section>
+							
+							
+							
+							
+		<section id="boltdefns post">
+			<div class="tab-content">
+				
+				<p>
+					<h4 id="boltdefns_post">POST</h4>
+			<p>
+				post request for requests
+			<p>
+				Request URL:
+			</p><pre><code class="html">POST https://api.megam.co/v1/auth</code></pre>
+			<p>
+				Request Headers:
+			</p>
+			<code>
+					"X-Megam-DATE:"
+				</code>
+								
+			<button type="button" class="btn btn-success">2013-07-01 17:17</button>
+				<br>
+				</br>
+				<code>
+					"X-Megam-HMAC:"
+				</code>
+				<button type="button" class="btn btn-danger">060873b2afce74fd024bba428b0e2e00b661cc2c</button>
+				
+				<br>
+				</br>
+				<code>
+					"Content-Type:"
+				</code>
+				<button type="button" class="btn btn-primary">appilication/Json</button>
+				
+				
+				<br>
+				</br>
+				<code>
+					"Accept:"
+				</code>
+				<button type="button" class="btn btn-primary">	"application/vnd.megam+json </button>
+				
+							<br>
+				</br>
+			</p>
+			<p>
+				Request Body:
+			</p>
+			<p>
+				<code>
+					-
+				</code>
+				(Nothing in body)
+			</p>
+			<p>
+				Response shown in Json:
+			</p>
+			<p class="json">
+				<pre><code>[
+  {
+    "id": "ACT346963130863058944",
+    "email": "your_registered_email",
+    "api_key": "IamAtlas{74}NobodyCanSeeME#07",
+    "authority": "user"
+  }
+]</code>
+</pre>
+			</p>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> Response (Error)</a></h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body">
+							The following explains the HTTP error code and their remedy.
+						</div>
+						<!-- Table -->
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th><i class="icon-trash"></i>HTTP Codes</th>
+									<th><i class="icon-info-sign">JSON </i></a></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="badge">401</span></td>
+									<td> stick the 401 json here. </td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- TO-DO -->
+			<div class="tab-content">
+				<ul class="nav nav-tabs" id="#post">
+					<li>
+						<a href="#ruby" data-toggle="tab">Ruby</a>
+					</li>
+					<li>
+						<a href="#scala" data-toggle="tab">Scala</a>
+					</li>
+				</ul>
+
+				<div class="tab-pane" id="ruby">
+					<pre>
+		<code class="brush: ruby; toolbar: false; ">
+		Megam::API megam = Megam::API.new(:headers => {:api_key => "IamAtlas{74}NobodyCanSeeME#07", 
+		:email => "........"})
+		</code>
+		</pre>
+				</div>
+				<div class="tab-pane active" id="scala">
+					<pre>
+		<code class="brush: scala; toolbar: false; ">
+		com.megam.api.API = new com.megam.api.API("test..com","IamAtlas{74}NobodyCanSeeME#07")
+		</code>
+		</pre>
+				</div>
+			</div>
+			</div>
+
+		</section>
+		
+		
+		

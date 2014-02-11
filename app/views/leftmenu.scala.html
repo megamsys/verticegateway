@@ -1,5 +1,5 @@
 <div class="api-toc ">
-	<a  href="http://www.gomegam.com" > <img src="@routes.Assets.at("images/logo-megam160x43.png")"/> </a>
+	<a  href="http://www.megam.co" > <img src="@routes.Assets.at("images/logo-megam160x43.png")"/> </a>
 	</br>
 	</br>
 	<div class="btn-group">
@@ -8,18 +8,19 @@
 		</button>
 		<ul class="dropdown-menu" role="menu">
 			<li>
-				<a href="http:\\www.gomegam.com\docs" target="_blank">Documentation</a>
+				<a href="http:\\docs.megam.co">docs.megam.co</a>
 			</li>
 			<li class="divider"></li>
 			<li>
-				<a href="http:\\support.megam.co" target="_blank">Support</a>
+				<a href="http:\\support.megam.co">support.megam.co</a>
 			</li>
 			<li>
-				<a href="https:\\www.megam.co" target="_blank">Try Megam</a>
+				<a href="https:\\www.megam.co">www.megam.co</a>
 			</li>
 		</ul>
 	</div>
 	<ul id="pagetoc">
+		
 		<li class="contentlevel contentlevel_1">
 			<a href="#accounts">Accounts</a>
 		</li>
@@ -38,7 +39,7 @@
 			<a href="#nodes_get">GET - v1/nodes</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/nodes/:name</a>
+			<a href="#nodes_get_byname">GET - v1/nodes/id</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
 			<a href="#nodes_post">POST</a>
@@ -50,93 +51,82 @@
 			<a href="#predefs_get">GET - v1/predefs</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#predefs_get_byname">GET - v1/predefs/:name</a>
+			<a href="#predefs_get_byname">GET - v1/predefs/:node_name</a>
 		</li>
 		<li class="contentlevel contentlevel_1">
 			<a href="#predefclouds">Predef Clouds</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#predefclouds_get">GET - v1/predefclouds</a>
+			<a href="#predefclouds">GET - v1/predefclouds</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#auth">GET - v1/predefclouds/:name</a>
+			<a href="#predefclouds/:context">GET - v1/predefclouds/:context</a>
 		</li>
 		<li class="contentlevel contentlevel_1">
-			<a href="#nodes">Requests</a>
+			<a href="#requests">Requests</a>
 		</li>
 
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get">GET - v1/requests</a>
+			<a href="#requests_get">GET - v1/requests</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/requests/:id</a>
+			<a href="#requests_get_byname">GET - v1/requests/id</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_post">POST</a>
+			<a href="#requests_post">POST</a>
 		</li>
 		<li class="contentlevel contentlevel_1">
-			<a href="#nodes">AppRequests</a>
+			<a href="#apprequests">AppRequests</a>
 		</li>
 
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get">GET - v1/apprequests</a>
+			<a href="#apprequests_get">GET - v1/apprequests</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/apprequests/:id</a>
+			<a href="#apprequests_get_byname">GET - v1/apprequests/id</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_post">POST</a>
+			<a href="#apprequests post">POST</a>
 		</li>
 
 		<li class="contentlevel contentlevel_1">
-			<a href="#nodes">AppDefns</a>
+			<a href="#appdefns">AppDefns</a>
 		</li>
 
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get">GET - v1/appdefns</a>
+			<a href="#appdefns_get">GET - v1/appdefns</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/appdefns/:id</a>
+			<a href="#appdefns_get_byname">GET - v1/appdefns/id</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_post">POST</a>
+			<a href="#appdefns_post">POST</a>
 		</li>
 		<li class="contentlevel contentlevel_1">
-			<a href="#nodes">BoltRequests</a>
+			<a href="#boltrequests">BoltRequests</a>
 		</li>
 
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get">GET - v1/boltrequests</a>
+			<a href="#boltrequests_get">GET - v1/boltrequests</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/boltrequests/:id</a>
+			<a href="#boltrequests_get_byname">GET - v1/boltrequests/id</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_post">POST</a>
+			<a href="#boltrequests_post">POST</a>
 		</li>
 		<li class="contentlevel contentlevel_1">
-			<a href="#nodes">BoltDefns</a>
+			<a href="#boltdefns">BoltDefns</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get">GET - v1/boltdefns</a>
+			<a href="#boltdefns_get">GET - v1/boltdefns</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/boltdefns/:id</a>
+			<a href="#boltdefns_get_byname">GET - v1/boltdefns/id</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_post">POST</a>
-		</li>		
-		<li class="contentlevel contentlevel_1">
-			<a href="#nodes">SSHKeys</a>
+			<a href="#boltdefns_post">POST</a>
 		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get">GET - v1/sshkeys</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/sshkeys/:id</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_post">POST</a>
-		</li>		
+		
 	</ul>
 </div>
