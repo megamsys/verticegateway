@@ -41,15 +41,15 @@ object PlatformAppPrimer {
   //populate the predefinitions of the platform supported by megam.
   def predefs = models.Predefs.create
 
-  //def sandbox_default = PredefCloudInput("sandbox_default",
-    //new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "t1.micro", ""),
-    //new PredefCloudAccess("megam_ec2", "cloudkeys/sandy@megamsandbox.com/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "", "ap-southeast-1")).json
+  def sandbox_ec2_default = PredefCloudInput("sandbox_default",
+    new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "t1.micro", ""),
+    new PredefCloudAccess("megam_ec2", "cloudkeys/sandy@megamsandbox.com/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "", "", "ap-southeast-1")).json
 
-  def sandbox_default = PredefCloudInput("sandbox_default",
+  def sandbox_google_default = PredefCloudInput("sandbox_default",
     new PredefCloudSpec("google", "", "debian-7-wheezy-v20131120", "f1-micro", ""),
     new PredefCloudAccess("", "cloudkeys/sandy@megamsandbox.com/id_rsa.pub", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/gdefault", "", "europe-west1-a", "")).json  
     
-  def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_default) }
+  def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_google_default) }
 
   //define the cloud tools used to manage the cloud platform. 
   def cloudtools = models.CloudTools.create
@@ -83,9 +83,8 @@ object PlatformAppPrimer {
             |%nLoaded values are ----->%n[%s]""".format(cts.toString).stripMargin, "Megam::CloudTools"))
     FunnelResponses(chainedComps)
   }
-
   //populate the default cloud tool settings  
-  def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo/.chef/knife.rb").json
+  def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo/.chef/knife.rb").json
 
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
