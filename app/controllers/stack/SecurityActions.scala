@@ -134,8 +134,7 @@ object GoofyCrypto {
     val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")     
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)   
-    val rawHmac = mac.doFinal(toEncode.getBytes())   
-    //val hmacAsByt = new String(Base64.encodeBase64(rawHmac))
+    val rawHmac = mac.doFinal(toEncode.getBytes())     
     val hmacAsByt = dumpByt(rawHmac.some)   
     hmacAsByt
   }
@@ -145,8 +144,7 @@ object GoofyCrypto {
       case Some(bytes) => bytes.map(byt => (("00" + (byt &
         0XFF).toHexString)).takeRight(2))
       case None => Array(0X00.toHexString)
-    })
-    Logger.debug(("%-20s -->[%s]").format("bytes:-------------->", b))
+    })   
     b.mkString("")
   }
 
