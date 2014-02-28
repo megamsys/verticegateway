@@ -46,11 +46,15 @@ case class MarketPlacePlan(price: String, description: String, plantype: String)
   val json = "\"price\":\"" + price + "\",\"description\":\"" + description + "\",\"plantype\":\"" + plantype + "\""
 }
 
-case class MarketPlaceInput(name: String, logo: String, catagory: String, pricetype: String, feature1: String, feature2: String, feature3: String, feature4: String, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String) {
-  val json = "{\"name\":\"" + name + "\",\"logo\":\"" + logo + "\",\"catagory\":\"" + catagory + "\",\"pricetype\":\"" + pricetype + "\",\"feature1\":\""+ feature1 + "\",\"feature2\":\"" + feature2 + "\",\"fetaure3\":\"" + feature3 + "\",\"fetaure4\":\"" + feature4 + "\",\"plan\":{" + plan.json + "},\"attach\":\"" + attach + "\",\"predefnode\":\"" + predefnode + "\",\"approved\":" + approved + "\"}"
+case class MarketPlaceFeatures(feature1: String, feature2: String, feature3: String, feature4: String) {
+  val json = "\"feature1\":\"" + feature1 + "\",\"feature2\":\"" + feature2 + "\",\"feature3\":\"" + feature3 + "\",\"feature4\":\"" + feature4 + "\""
 }
 
-case class MarketPlaceResult(id: String, name: String, logo: String, catagory: String, pricetype: String, feature1: String, feature2: String, feature3: String, feature4: String, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String, created_at: String) {
+case class MarketPlaceInput(name: String, logo: String, catagory: String, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String) {
+  val json = "{\"name\":\"" + name + "\",\"logo\":\"" + logo + "\",\"catagory\":\"" + catagory + "\",\"pricetype\":\"" + pricetype + "\",\"features\":{" + features.json + "},\"plan\":{" + plan.json + "},\"attach\":\"" + attach + "\",\"predefnode\":\"" + predefnode + "\",\"approved\":\"" + approved + "\"}"
+}
+
+case class MarketPlaceResult(id: String, name: String, logo: String, catagory: String, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -113,11 +117,11 @@ object MarketPlaces {
     for {
       pdc <- marketPlaceInput
       //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "pdc").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(pdc.name)
-      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, pdc.name, pdc.logo, pdc.catagory, pdc.pricetype, pdc.feature1, pdc.feature2, pdc.feature3, pdc.feature4, pdc.plan, pdc.attach, pdc.predefnode, pdc.approved, Time.now.toString).toJson(false)
+      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, pdc.name, pdc.logo, pdc.catagory, pdc.pricetype, pdc.features, pdc.plan, pdc.attach, pdc.predefnode, pdc.approved, Time.now.toString).toJson(false)
       new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -144,7 +148,6 @@ object MarketPlaces {
               (parse(gs.get.value).extract[MarketPlaceResult].some).successNel[Throwable];
             }
           }
-
         }
     }
   }

@@ -28,7 +28,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.SecurityActions._
-import models.{ MarketPlaceInput, MarketPlacePlan }
+import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures }
 
 class MarketPlaceSpec extends Specification {
   def is =
@@ -53,7 +53,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new MarketPlaceInput("drbd", "logo.png", "DR", "free", "feature1", "feature2", "feature3", "feature4", new MarketPlacePlan("30", "description", "free"), "attach", "predefnode", "approved").json
+      val contentToEncode = new MarketPlaceInput("drbd", "logo.png", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("30", "description", "free"), "attach", "predefnode", "approved").json
       Some(contentToEncode)
     }
 
@@ -76,7 +76,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-          val contentToEncode = new MarketPlaceInput("drbd", "logo.png", "DR", "free", "feature1", "feature2", "feature3", "feature4", new MarketPlacePlan("30", "description", "free"), "attach", "predefnode", "approved").json
+          val contentToEncode = new MarketPlaceInput("drbd", "logo.png", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("30", "description", "free"), "attach", "predefnode", "approved").json
       Some(contentToEncode)
     }
 
