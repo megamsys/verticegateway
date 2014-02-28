@@ -37,10 +37,10 @@ class MarketPlaceSpec extends Specification {
       MarketPlacesSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post0.succeeds ^
+      //"Correctly do POST requests" ! Post0.succeeds ^
       //"Correctly do POST requests" ! Post1.succeeds ^
       //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
      // "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
      // "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
@@ -107,7 +107,7 @@ class MarketPlaceSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "marketplaces/drbd"
+    protected override def urlSuffix: String = "marketplaces/megam_zarafa"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

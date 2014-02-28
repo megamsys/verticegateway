@@ -40,7 +40,7 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-/* name, logo, catagory, pricetype, attach, approved, feature-1,2,3,4, plan->{price, description, type}, predefnode */ 
+/* name, logo, catagory, pricetype, attach, approved, feature-1,2,3,4, plan->{price, description, type}, predefnode */
 
 case class MarketPlacePlan(price: String, description: String, plantype: String) {
   val json = "\"price\":\"" + price + "\",\"description\":\"" + description + "\",\"plantype\":\"" + plantype + "\""
@@ -52,6 +52,23 @@ case class MarketPlaceFeatures(feature1: String, feature2: String, feature3: Str
 
 case class MarketPlaceInput(name: String, logo: String, catagory: String, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String) {
   val json = "{\"name\":\"" + name + "\",\"logo\":\"" + logo + "\",\"catagory\":\"" + catagory + "\",\"pricetype\":\"" + pricetype + "\",\"features\":{" + features.json + "},\"plan\":{" + plan.json + "},\"attach\":\"" + attach + "\",\"predefnode\":\"" + predefnode + "\",\"approved\":\"" + approved + "\"}"
+}
+
+//init the default market place addons
+object MarketPlaceInput {
+
+  val toMap = Map[String, MarketPlaceInput](
+    "megam_drbd" -> MarketPlaceInput("megam_drbd", "drbd.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_openam" -> MarketPlaceInput("megam_openam", "openam.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_opendj" -> MarketPlaceInput("megam_opendj", "opendj.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_wordpress" -> MarketPlaceInput("megam_wordpress", "wordpress.logo", "BLOG", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_zarafa" -> MarketPlaceInput("megam_zarafa", "zarafa.logo", "FIREWALL", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_scmmanager" -> MarketPlaceInput("megam_scmmanager", "scmmanager.logo", "SCM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_owncloud" -> MarketPlaceInput("megam_owncloud", "owncloud.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_riak" -> MarketPlaceInput("megam_riak", "riak.logo", "DB", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"))
+
+  val toStream = toMap.keySet.toStream
+
 }
 
 case class MarketPlaceResult(id: String, name: String, logo: String, catagory: String, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String, created_at: String) {
@@ -71,7 +88,6 @@ case class MarketPlaceResult(id: String, name: String, logo: String, catagory: S
 }
 
 object MarketPlaceResult {
-  
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MarketPlaceResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -86,7 +102,6 @@ object MarketPlaceResult {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   
 }
 
 object MarketPlaces {
@@ -115,21 +130,41 @@ object MarketPlaces {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
-      pdc <- marketPlaceInput
+      mkp <- marketPlaceInput
       //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
-      val bvalue = Set(pdc.name)
-      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, pdc.name, pdc.logo, pdc.catagory, pdc.pricetype, pdc.features, pdc.plan, pdc.attach, pdc.predefnode, pdc.approved, Time.now.toString).toJson(false)
-      new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      val bvalue = Set(mkp.name)
+      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.logo, mkp.catagory, mkp.pricetype, mkp.features, mkp.plan, mkp.attach, mkp.predefnode, mkp.approved, Time.now.toString).toJson(false)
+      new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+    }
+  }
+
+  private def mkGunnySack_init(input: MarketPlaceInput): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug("models.MarketPlaces mkGunnySack: entry:\n" + input.json)
+    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatch {
+      parse(input.json).extract[MarketPlaceInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      mkp <- marketplaceInput
+      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+      //TO-DO: do we need a match for uir to filter the None case. confirm it during function testing.
+      play.api.Logger.debug("models.marketplaces mkGunnySack: yield:\n" + (uir.get._1 + uir.get._2))
+      val bvalue = Set(mkp.name)
+      val mkpJson = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.logo, mkp.catagory, mkp.pricetype, mkp.features, mkp.plan, mkp.attach, mkp.predefnode, mkp.approved, Time.now.toString).toJson(false)
+      new GunnySack(mkp.name, mkpJson, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
   /*
-   * create new Node with the 'name' of the node provide as input.
-   * A index name accountID will point to the "accounts" bucket
+   * create new market place item with the 'name' of the item provide as input.
+   * A index name marketplace name will point to the "marketplaces" bucket
    */
   def create(email: String, input: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaces", "create:Entry"))
@@ -150,6 +185,30 @@ object MarketPlaces {
           }
         }
     }
+  }
+
+  def marketplace_init: ValidationNel[Throwable, MarketPlaceResults] = {
+    play.api.Logger.debug("models.MarketPlaces create: entry")
+    (MarketPlaceInput.toMap.some map {
+      _.map { p =>
+        (mkGunnySack_init(p._2) leftMap { t: NonEmptyList[Throwable] => t
+        }).flatMap { gs: Option[GunnySack] =>
+          (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+            flatMap { maybeGS: Option[GunnySack] =>
+              maybeGS match {
+                case Some(thatGS) => MarketPlaceResults(parse(thatGS.value).extract[MarketPlaceResult]).successNel[Throwable]
+                case None => {
+                  play.api.Logger.warn(("%-20s -->[%s]").format("MarketPlaces.created success", "Scaliak returned => None. Thats OK."))
+                  MarketPlaceResults(MarketPlaceResult(new String(), p._2.name, p._2.logo, p._2.catagory, p._2.pricetype, p._2.features, p._2.plan, p._2.attach, p._2.predefnode, p._2.approved, new String())).successNel[Throwable]
+                }
+              }
+            }
+        }
+      }
+    } map {
+      _.fold((MarketPlaceResults.empty).successNel[Throwable])(_ +++ _) //fold or foldRight ? 
+    }).head //return the folded element in the head.  
+
   }
 
   def findByName(marketPlacesNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceResults] = {

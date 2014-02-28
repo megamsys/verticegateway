@@ -84,11 +84,11 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
       val featuresField = field[MarketPlaceFeatures](FeaturesKey)(json)(MarketPlaceFeaturesReader)      
       val planField = field[MarketPlacePlan](PlanKey)(json)(MarketPlacePlanReader)
       val attachField = field[String](AttachKey)(json)
-      val predefNodeField = field[String](PredefNodeKey)(json)
+      val predefnodeField = field[String](PredefNodeKey)(json)
       val approvedField = field[String](ApprovedKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| logoField |@| catagoryField |@| pricetypeField |@| featuresField |@| planField |@| attachField |@| predefNodeField |@| approvedField |@| createdAtField) {
+      (idField |@| nameField |@| logoField |@| catagoryField |@| pricetypeField |@| featuresField |@| planField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
         (id: String, name: String, logo: String, catagory: String, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String, created_at: String) =>
           new MarketPlaceResult(id, name, logo, catagory, pricetype, features, plan, attach, predefnode, approved, created_at)
       }

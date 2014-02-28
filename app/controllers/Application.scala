@@ -42,11 +42,11 @@ object Application extends Controller with APIAuthElement {
         case userdata => Authenticate.authenticate(userdata.email, userdata.apikey).isDefined
       }))
 
-  def validate(email: String, apikey: String) = {    
+  def validate(email: String, apikey: String) = {
     email match {
-      case "a@b.com" if apikey == "admin" =>        
+      case "a@b.com" if apikey == "admin" =>
         Some(UserData(email, apikey))
-      case "a@b.com" if apikey != "admin" =>        
+      case "a@b.com" if apikey != "admin" =>
         None
       case _ =>
         None
@@ -56,16 +56,15 @@ object Application extends Controller with APIAuthElement {
   /**
    * Login page.
    */
-  def login = Action { implicit request =>    
+  def login = Action { implicit request =>
     Ok(views.html.login(loginForm))
   }
 
-  
   /**
    * Make this role based (Admin),
    * based on a private key.
    */
-  def init = Action { implicit request =>    
+  def init = Action { implicit request =>
     PlatformAppPrimer.prep match {
       case Success(succ) => {
         val fu = List(("success" -> "Megam CMP is ready.")) ++ FunnelResponses.toTuple2(succ)
@@ -85,7 +84,7 @@ object Application extends Controller with APIAuthElement {
   def index = Action { implicit request =>
     Ok(views.html.index("Megam CMP. Lets kick the tyres."))
   }
-  
+
   /**
    * POST : Authenticate, verifies if the auth setup is OK.
    * Output: FunnelResponse as JSON with the msg.
@@ -101,12 +100,11 @@ object Application extends Controller with APIAuthElement {
   def loginauthenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
-      user => Redirect("/init")
-    )
+      user => Redirect("/init"))
   }
 
   def initaccount = Action { implicit request =>
-      PlatformAppPrimer.acc_prep match {
+    PlatformAppPrimer.acc_prep match {
       case Success(succ) => {
         val fu = List(("success" -> "Megam CMP : sandbox account is ready.")) ++ FunnelResponses.toTuple2(succ)
         Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
@@ -119,9 +117,9 @@ object Application extends Controller with APIAuthElement {
       }
     }
   }
-  
+
   def initcloudtoolsetting = Action { implicit request =>
-      PlatformAppPrimer.cts_prep match {
+    PlatformAppPrimer.cts_prep match {
       case Success(succ) => {
         val fu = List(("success" -> "Megam CMP :Cloud provisioner is ready.")) ++ FunnelResponses.toTuple2(succ)
         Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
@@ -134,5 +132,20 @@ object Application extends Controller with APIAuthElement {
       }
     }
   }
-  
+
+  def initmarketplaceaddons = Action { implicit request =>
+    PlatformAppPrimer.mkp_prep match {
+      case Success(succ) => {
+        val fu = List(("success" -> "Megam CMP :Default Market Place Addons is ready.")) ++ FunnelResponses.toTuple2(succ)
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
+      }
+      case Failure(err) => {
+        val rn: FunnelResponses = new HttpReturningError(err)
+        val rnjson = FunnelResponses.toJson(rn, false)
+        val fu = List(("error" -> "Duh Megam CMP :Default Market Place Addons couldn't be primed.")) ++ FunnelResponses.toTuple2(rn)
+        Redirect("/").flashing(fu: _*)
+      }
+    }
+  }
+
 }
