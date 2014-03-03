@@ -58,14 +58,14 @@ case class MarketPlaceInput(name: String, logo: String, catagory: String, pricet
 object MarketPlaceInput {
 
   val toMap = Map[String, MarketPlaceInput](
-    "megam_drbd" -> MarketPlaceInput("megam_drbd", "drbd.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_openam" -> MarketPlaceInput("megam_openam", "openam.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_opendj" -> MarketPlaceInput("megam_opendj", "opendj.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_wordpress" -> MarketPlaceInput("megam_wordpress", "wordpress.logo", "BLOG", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_zarafa" -> MarketPlaceInput("megam_zarafa", "zarafa.logo", "FIREWALL", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_scmmanager" -> MarketPlaceInput("megam_scmmanager", "scmmanager.logo", "SCM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_owncloud" -> MarketPlaceInput("megam_owncloud", "owncloud.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_riak" -> MarketPlaceInput("megam_riak", "riak.logo", "DB", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"))
+    "megam_drbd" -> MarketPlaceInput("DRBD", "drbd.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_openam" -> MarketPlaceInput("OpenAM", "openam.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_opendj" -> MarketPlaceInput("OpenDJ", "opendj.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_wordpress" -> MarketPlaceInput("WordPress", "wordpress.logo", "BLOG", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_zarafa" -> MarketPlaceInput("Zarafa", "zarafa.logo", "FIREWALL", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_scmmanager" -> MarketPlaceInput("SCMManager", "scmmanager.logo", "SCM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_owncloud" -> MarketPlaceInput("OwnCloud", "owncloud.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "megam_riak" -> MarketPlaceInput("Riak", "riak.logo", "DB", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"))
 
   val toStream = toMap.keySet.toStream
 

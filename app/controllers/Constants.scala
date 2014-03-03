@@ -25,4 +25,7 @@ object Constants {
   val UTF8Charset = Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
   val SANDBOX_EMAIL = "sandy@megamsandbox.com"
+  val SANDBOX_APIKEY = "IamAtlas{74}NobodyCanSeeME#07"
+  val DEMO_EMAIL = "dummy@megamsandbox.com"
+  val DEMO_APIKEY = "dummykeysandbox#megam"
 }

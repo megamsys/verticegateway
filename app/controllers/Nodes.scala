@@ -24,6 +24,7 @@ import play.api._
 import play.api.mvc._
 import play.api.mvc.SimpleResult
 import models._
+import controllers.Constants.DEMO_EMAIL
 import controllers.stack._
 import controllers.stack.APIAuthElement
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
@@ -55,20 +56,26 @@ object Nodes extends Controller with APIAuthElement {
               val chainedComps = (succ.list filter (nelwop => nelwop.isDefined) map { //filter None, as foldRight creates it.
                 nrOpt: Option[NodeProcessedResult] =>
                   (nrOpt.map { nr =>
-                    CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap { x =>
-                      play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", nr.key + " " + nr.req_id))
-                      FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
+                    //ugly hack to support a temporary dry run demo user. This may use useful for testing as well.
+                    if (email != DEMO_EMAIL)
+                      (CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap { x =>
+                        play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", nr.key + " " + nr.req_id))
+                        FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
             |Check back on the {:node_name=>'%s', :req_id=>'%s'}
             |The cloud is working for you. It will be ready shortly.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node").successNel[Throwable]
-                    } match {
-                      //this is only a temporary hack.
-                      case Success(succ_cpc) => succ_cpc
-                      case Failure(err) =>
-                        FunnelResponse(BAD_REQUEST, """Node initiation submission failed.   
+                      } match {
+                        //this is only a temporary hack.
+                        case Success(succ_cpc) => succ_cpc
+                        case Failure(err) =>
+                          FunnelResponse(BAD_REQUEST, """Node initiation submission failed.   
             |for 'node name':{%s} 'request_id':{%s}
             |Retry again, our queue servers isn't running or maxed""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
-                    }
+                      })
+                    else FunnelResponse(CREATED, """Node initiation dry run submitted successfully.   
+            |
+            |Dry launch of {:node_name=>'%s', :req_id=>'%s'}
+            |No actual launch in cloud. Signup for a new account to get started.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
                   })
               }).map { fr =>
                 {

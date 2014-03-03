@@ -46,8 +46,9 @@ import models._
 trait APIAuthElement extends StackableController {
 
   self: Controller =>
-
-  case object APIAccessedKey extends RequestAttributeKey[Option[String]]
+    
+  
+case object APIAccessedKey extends RequestAttributeKey[Option[String]]
 
   /**
    * If HMAC authentication is true, the req send in super class

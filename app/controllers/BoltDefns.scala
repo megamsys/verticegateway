@@ -24,6 +24,7 @@ import play.api._
 import play.api.mvc._
 import play.api.mvc.SimpleResult
 import models._
+import controllers.Constants.DEMO_EMAIL
 import controllers.stack._
 import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
@@ -33,13 +34,13 @@ import org.megam.common.amqp._
  * @author ram
  *
  */
-object BoltDefns extends Controller with APIAuthElement  {
-  
+object BoltDefns extends Controller with APIAuthElement {
+
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
-    def post = StackAction(parse.tolerantText) { implicit request =>
+  def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltDefns", "post:Entry"))
 
     (Validation.fromTryCatch[SimpleResult] {
@@ -54,20 +55,26 @@ object BoltDefns extends Controller with APIAuthElement  {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "Hah"))              
-              CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
-                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltDefns", "published successfully."))
-                Status(CREATED)(FunnelResponse(CREATED, """BoltDefns initiation instruction submitted successfully.
+              if (email != DEMO_EMAIL) {
+                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "Hah"))
+                CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltDefns", "published successfully."))
+                  Status(CREATED)(FunnelResponse(CREATED, """BoltDefns initiation instruction submitted successfully.
             |
             |The BoltDefns is working for you. It will be ready shortly.""", "Megam::BoltDefns").toJson(true)).successNel[Throwable]
-              } match {
-                //this is only a temporary hack.
-                case Success(succ_cpc) => succ_cpc
-                case Failure(err) =>
-                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """BoltDefns initiation submission failed.
+                } match {
+                  //this is only a temporary hack.
+                  case Success(succ_cpc) => succ_cpc
+                  case Failure(err) =>
+                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """BoltDefns initiation submission failed.
             |
             |Retry again, our queue servers are crowded""", "Megam::BoltDefns").toJson(true))
-              }
+                }
+              } else
+                Status(CREATED)(FunnelResponse(CREATED, """BoltDefns initiation dry run submitted successfully.   
+            |
+            |
+            |No actual launch in cloud. Signup for a new account to get started.""", "Megam::BoltDefns").toJson(true))
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -81,7 +88,7 @@ object BoltDefns extends Controller with APIAuthElement  {
       }
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
+
   /*
    * GET: findByNodeName: Show requests for a  node name per user(by email)
    * Email grabbed from header

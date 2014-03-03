@@ -29,6 +29,7 @@ import controllers.stack._
 import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
+import controllers.Constants._
 import org.megam.common.amqp._
 /**
  * @author ram
@@ -52,6 +53,7 @@ object AppDefns extends Controller with APIAuthElement  {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "request funneled."))
           models.AppDefns.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
+            if (email != DEMO_EMAIL) {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
@@ -70,6 +72,11 @@ object AppDefns extends Controller with APIAuthElement  {
             |
             |Retry again, our queue servers are crowded""", "Megam::AppDefns").toJson(true))
               }
+            } else 
+                Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation dry run submitted successfully.   
+            |
+            |
+            |No actual launch in cloud. Signup for a new account to get started.""","Megam::AppDefns").toJson(true))
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

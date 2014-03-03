@@ -122,8 +122,8 @@ object PredefClouds {
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
-      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.spec, pdc.access, "", "", Time.now.toString).toJson(false)
-      new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      val json = new PredefCloudResult(uir.get._1 + uir.get._2, pdc.name+uir.get._2, aor.get.id, pdc.spec, pdc.access, "", "", Time.now.toString).toJson(false)
+      new GunnySack(pdc.name+uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
