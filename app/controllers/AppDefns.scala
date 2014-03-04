@@ -35,13 +35,13 @@ import org.megam.common.amqp._
  * @author ram
  *
  */
-object AppDefns extends Controller with APIAuthElement  {
-  
+object AppDefns extends Controller with APIAuthElement {
+
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
-    def post = StackAction(parse.tolerantText) { implicit request =>
+  def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "post:Entry"))
 
     (Validation.fromTryCatch[SimpleResult] {
@@ -53,30 +53,31 @@ object AppDefns extends Controller with APIAuthElement  {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "request funneled."))
           models.AppDefns.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
-            if (email != DEMO_EMAIL) {
-              /*This isn't correct. Revisit, as the testing progresses.
-               We need to trap success/fialures.
-               */
-              val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "Hah"))    
-             
-              CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
-                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "published successfully."))
-                Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation instruction submitted successfully.
-            |
-            |The AppDefns is working for you. It will be ready shortly.""", "Megam::AppDefns").toJson(true)).successNel[Throwable]
-              } match {
-                //this is only a temporary hack.
-                case Success(succ_cpc) => succ_cpc
-                case Failure(err) =>
-                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """AppDefns initiation submission failed.
-            |
-            |Retry again, our queue servers are crowded""", "Megam::AppDefns").toJson(true))
-              }
-            } else 
+              if (email == DEMO_EMAIL) {
                 Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation dry run submitted successfully.   
             |
             |
-            |No actual launch in cloud. Signup for a new account to get started.""","Megam::AppDefns").toJson(true))
+            |No actual launch in cloud. Signup for a new account to get started.""", "Megam::AppDefns").toJson(true))
+              } else {
+                /*This isn't correct. Revisit, as the testing progresses.
+               We need to trap success/fialures.
+               */
+                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "Hah"))
+
+                CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "published successfully."))
+                  Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation instruction submitted successfully.
+            |
+            |The AppDefns is working for you. It will be ready shortly.""", "Megam::AppDefns").toJson(true)).successNel[Throwable]
+                } match {
+                  //this is only a temporary hack.
+                  case Success(succ_cpc) => succ_cpc
+                  case Failure(err) =>
+                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """AppDefns initiation submission failed.
+            |
+            |Retry again, our queue servers are crowded""", "Megam::AppDefns").toJson(true))
+                }
+              }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -90,7 +91,7 @@ object AppDefns extends Controller with APIAuthElement  {
       }
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
+
   /*
    * GET: findByNodeName: Show requests for a  node name per user(by email)
    * Email grabbed from header
@@ -123,8 +124,7 @@ object AppDefns extends Controller with APIAuthElement  {
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
   }
-  
-  
+
   /*
    * GET: findByAppDefnsName: Show the appdefns for a  node name per user(by email)
    * Email grabbed from header
@@ -132,7 +132,7 @@ object AppDefns extends Controller with APIAuthElement  {
    **/
   def show(nodeid: String, id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%-10s,%10s]").format("nodename", nodeid,id))
+    play.api.Logger.debug(("%-20s -->[%-10s,%10s]").format("nodename", nodeid, id))
 
     (Validation.fromTryCatch[SimpleResult] {
       reqFunneled match {

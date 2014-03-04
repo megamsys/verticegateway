@@ -57,7 +57,12 @@ object Nodes extends Controller with APIAuthElement {
                 nrOpt: Option[NodeProcessedResult] =>
                   (nrOpt.map { nr =>
                     //ugly hack to support a temporary dry run demo user. This may use useful for testing as well.
-                    if (email != DEMO_EMAIL)
+                    if (email == DEMO_EMAIL)
+                      FunnelResponse(CREATED, """Node initiation dry run submitted successfully.   
+            |
+            |Dry launch of {:node_name=>'%s', :req_id=>'%s'}
+            |No actual launch in cloud. Signup for a new account to get started.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
+                    else
                       (CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap { x =>
                         play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", nr.key + " " + nr.req_id))
                         FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
@@ -72,10 +77,6 @@ object Nodes extends Controller with APIAuthElement {
             |for 'node name':{%s} 'request_id':{%s}
             |Retry again, our queue servers isn't running or maxed""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
                       })
-                    else FunnelResponse(CREATED, """Node initiation dry run submitted successfully.   
-            |
-            |Dry launch of {:node_name=>'%s', :req_id=>'%s'}
-            |No actual launch in cloud. Signup for a new account to get started.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
                   })
               }).map { fr =>
                 {

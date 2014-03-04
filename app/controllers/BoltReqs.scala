@@ -56,7 +56,11 @@ object BoltReqs extends Controller with APIAuthElement {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              if (email != DEMO_EMAIL) {
+              if (email == DEMO_EMAIL) {
+                Status(CREATED)(FunnelResponse(CREATED, """BoltRequest initiation dryrun submitted successfully.
+            |
+            |No actual launch in cloud. Signup for a new account to get started.""", "Megam::BoltRequest").toJson(true))
+              } else {
                 val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
                 CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltRequests", "published successfully."))
@@ -71,10 +75,7 @@ object BoltReqs extends Controller with APIAuthElement {
             |
             |Retry again, our queue servers are crowded""", "Megam::BoltRequest").toJson(true))
                 }
-              } else
-                Status(CREATED)(FunnelResponse(CREATED, """BoltRequest initiation dryrun submitted successfully.
-            |
-            |No actual launch in cloud. Signup for a new account to get started.""", "Megam::BoltRequest").toJson(true))
+              }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
