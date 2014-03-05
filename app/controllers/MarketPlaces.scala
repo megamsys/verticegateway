@@ -92,7 +92,7 @@ object MarketPlaces extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaces", "request funneled."))
 
-          models.MarketPlaces.findByName(List(id).some) match {
+          models.MarketPlaces.findByName(Stream(id).some) match {
             case Success(succ) =>
               Ok(MarketPlaceResults.toJson(succ, true))
             case Failure(err) =>
@@ -121,10 +121,10 @@ object MarketPlaces extends Controller with APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaces", "request funneled."))
-          models.MarketPlaces.findByEmail(email) match {
-            case Success(succ) =>
+          models.MarketPlaces.listAll match {
+            case Success(succ) => {
               Ok(MarketPlaceResults.toJson(succ, true))
+            }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -136,6 +136,6 @@ object MarketPlaces extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
+  }  
 
 }
