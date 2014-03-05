@@ -27,6 +27,7 @@ import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.cache._
 import com.stackmob.scaliak._
 import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
 import com.basho.riak.client.http.util.{ Constants => RiakConstants }
@@ -58,14 +59,41 @@ case class MarketPlaceInput(name: String, logo: String, catagory: String, pricet
 object MarketPlaceInput {
 
   val toMap = Map[String, MarketPlaceInput](
-    "megam_drbd" -> MarketPlaceInput("DRBD", "drbd.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_openam" -> MarketPlaceInput("OpenAM", "openam.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_opendj" -> MarketPlaceInput("OpenDJ", "opendj.logo", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_wordpress" -> MarketPlaceInput("WordPress", "wordpress.logo", "BLOG", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_zarafa" -> MarketPlaceInput("Zarafa", "zarafa.logo", "FIREWALL", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_scmmanager" -> MarketPlaceInput("SCMManager", "scmmanager.logo", "SCM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_owncloud" -> MarketPlaceInput("OwnCloud", "owncloud.logo", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
-    "megam_riak" -> MarketPlaceInput("Riak", "riak.logo", "DB", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"))
+    "alfresco" -> MarketPlaceInput("alfresco", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/alfresco.png", "ECM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "diaspora" -> MarketPlaceInput("diaspora", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/diaspora.png", "Social", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "dokuwiki" -> MarketPlaceInput("dokuwiki", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/dokuwiki.png", "Wiki", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "drbd" -> MarketPlaceInput("drbd", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/drbd.png", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "dreamfactory" -> MarketPlaceInput("dreamfactory", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/dreamfactory.png", "Mobile Development", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "drupal" -> MarketPlaceInput("drupal", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/drupal.png", "CMS", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "elgg" -> MarketPlaceInput("elgg", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/elgg.png", "Social", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "firepad" -> MarketPlaceInput("firepad", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/firepad.png", "Cloud Editor", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "ghost" -> MarketPlaceInput("ghost", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/ghost.png", "Blog", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "gitlab" -> MarketPlaceInput("gitlab", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/gitlab.png", "Continuous Integration", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "hadoop" -> MarketPlaceInput("hadoop", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/hadoop.png", "Business Intelligence", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "jenkins" -> MarketPlaceInput("jenkins", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/jenkins.png", "Continuous Integration", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "joomla" -> MarketPlaceInput("joomla", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/joomla.png", "CMS", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "liferay" -> MarketPlaceInput("liferay", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/liferay.png", "Collaboration", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "magneto" -> MarketPlaceInput("magneto", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/magneto.png", "e-Commerce", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "mediawiki" -> MarketPlaceInput("mediawiki", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/mediawiki.png", "Wiki", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "openam" -> MarketPlaceInput("openam", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/openam.png", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "openatrium" -> MarketPlaceInput("openatrium", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/openatrium.png", "Project Management", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "opendj" -> MarketPlaceInput("opendj", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/opendj.png", "AM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "openerp" -> MarketPlaceInput("openerp", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/openerp.png", "ERP", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "openldap" -> MarketPlaceInput("openldap", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/openldap.png", "Directory Services", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "otrs" -> MarketPlaceInput("otrs", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/otrs.png", "HelpDesk", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "owncloud" -> MarketPlaceInput("owncloud", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/owncloud.png", "Media sharing", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "redmine" -> MarketPlaceInput("redmine", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/redmine.png", "Collaboration", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "reviewboard" -> MarketPlaceInput("reviewboard", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/reviewboard.png", "Collaboration", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "riak" -> MarketPlaceInput("riak", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/riak.png", "DB", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "scmmanager" -> MarketPlaceInput("scmmanager", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/scmmanager.png", "Development Platform", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "sugarcrm" -> MarketPlaceInput("sugarcrm", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/sugarcrm.png", "CRM", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "thinkup" -> MarketPlaceInput("thinkup", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/thinkup.png", "Social", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "trac" -> MarketPlaceInput("trac", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/trac.png", "Bug Tracking", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "twiki" -> MarketPlaceInput("twiki", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/twiki.png", "Wiki", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "wordpress" -> MarketPlaceInput("wordpress", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/wordpress.png", "CMS", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "xwiki" -> MarketPlaceInput("xwiki", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/xwiki.png", "Wiki", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved"),
+    "zarafa" -> MarketPlaceInput("zarafa", "https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/zarafa.png", "Firewall", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("50", "description", "free"), "attach", "predefnode", "approved")
+  )
 
   val toStream = toMap.keySet.toStream
 
@@ -211,7 +239,7 @@ object MarketPlaces {
 
   }
 
-  def findByName(marketPlacesNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceResults] = {
+  def findByName(marketPlacesNameList: Option[Stream[String]]): ValidationNel[Throwable, MarketPlaceResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaces", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("marketPlaceList", marketPlacesNameList))
     (marketPlacesNameList map {
@@ -240,31 +268,17 @@ object MarketPlaces {
 
   }
 
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
-   * the marketplaces are listed on the index (account.id) in bucket `Nodes`.
-   * Using a "marketplacename" as key, return a list of ValidationNel[List[NodeResult]] 
-   * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
-   */
-  def findByEmail(email: String): ValidationNel[Throwable, MarketPlaceResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaces", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, MarketPlaceResults]] {
-      (((for {
-        aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-      } yield {
-        val bindex = BinIndex.named("")
-        val bvalue = Set("")
-        new GunnySack("marketplace", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
-      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
-        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
-      } map { nm: List[String] =>
-        (if (!nm.isEmpty) findByName(nm.some) else
-          new ResourceItemNotFound(email, "marketplaces = nothing found.").failureNel[MarketPlaceResults])
-      }).disjunction).pure[IO]
-    }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(email, "marketplaces = nothing found.").failureNel[MarketPlaceResults])
+   def listAll: ValidationNel[Throwable, MarketPlaceResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlace", "listAll:Entry"))
+    findByName(MarketPlaceInput.toStream.some) //return the folded element in the head.  
   }
 
+   implicit val sedimentPredefResults = new Sedimenter[ValidationNel[Error, MarketPlaceResults]] {
+    def sediment(maybeASediment: ValidationNel[Error, MarketPlaceResults]): Boolean = {
+      val notSed = maybeASediment.isSuccess
+      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->MKP:sediment:", notSed))
+      notSed
+    }
+   }
+   
 }
