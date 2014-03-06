@@ -53,7 +53,7 @@ object AppDefns extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "request funneled."))
           models.AppDefns.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
-              if (email == DEMO_EMAIL) {
+              if (email .trim.equalsIgnoreCase(DEMO_EMAIL) ) {
                 Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation dry run submitted successfully.   
             |
             |

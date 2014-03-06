@@ -25,6 +25,7 @@ import play.api.mvc._
 import play.api.mvc.SimpleResult
 import models._
 import controllers.stack._
+import controllers.Constants.{ DEMO_EMAIL, DELETE_REQUEST }
 import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
@@ -33,13 +34,13 @@ import org.megam.common.amqp._
  * @author ram
  *
  */
-object Requests extends Controller with APIAuthElement  {
-  
+object Requests extends Controller with APIAuthElement {
+
   /*
    * parse.tolerantText to parse the RawBody 
    * get requested body and put into the riak bucket
    */
-    def post = StackAction(parse.tolerantText) { implicit request =>
+  def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "post:Entry"))
 
     (Validation.fromTryCatch[SimpleResult] {
@@ -51,22 +52,33 @@ object Requests extends Controller with APIAuthElement  {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Request", "request funneled."))
           models.Requests.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
-              /*This isn't correct. Revisit, as the testing progresses.
-               We need to trap success/fialures.
-               */
-              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Hah"))              
-              CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop.flatMap { x =>
-                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
-                Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
+              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Gah", "Hah"))
+
+              //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
+              if (email.trim.equalsIgnoreCase(DEMO_EMAIL))
+                Status(CREATED)(FunnelResponse(CREATED, """Request initiation dryrun submitted successfully.
             |
-            |The Request is working for you. It will be ready shortly.""", "Megam::Request").toJson(true)).successNel[Throwable]
-              } match {
-                //this is only a temporary hack.
-                case Success(succ_cpc) => succ_cpc
-                case Failure(err) =>
-                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
+            |Dry launch of {:node_name=>'%s', :req_type=>'%s'}
+            |No actual launch in cloud. Signup for a new account to get started.""".format(tuple_succ._3, tuple_succ._4).stripMargin, "Megam::Request").toJson(true))
+              else {
+                val pubres = for {
+                  csup <- CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop
+                } yield {
+                  if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) RiakStashPublish(tuple_succ._1, tuple_succ._3).dop else csup
+                } 
+                pubres flatMap { x =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
+                  Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
+            |
+            |Check on the node for further updates. It will be ready shortly.""", "Megam::Request").toJson(true)).successNel[Throwable]
+                } match {
+                  //this is only a temporary hack.
+                  case Success(succ_cpc) => succ_cpc
+                  case Failure(err) =>
+                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
             |
             |Retry again, our queue servers are crowded""", "Megam::Request").toJson(true))
+                }
               }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -81,7 +93,7 @@ object Requests extends Controller with APIAuthElement  {
       }
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
+
   /*
    * GET: findByNodeName: Show requests for a  node name per user(by email)
    * Email grabbed from header

@@ -154,15 +154,14 @@ sealed abstract class NodeStatusType(override val stringVal: String) extends Enu
 
 object NodeStatusType {
   object AM_HUNGRY extends NodeStatusType("AM_HUNGRY")
-  object REQ_CREATED_AT_SOURCE extends NodeStatusType("REQ_CREATED_AT_SOURCE")
-  object NODE_CREATED_AT_SOURCE extends NodeStatusType("NODE_CREATED_AT_SOURCE")
   object PUBLISHED extends NodeStatusType("PUBLISHED")
-  object STARTED extends NodeStatusType("STARTED")
-  object LAUNCH_SUCCESSFUL extends NodeStatusType("LAUNCH_SUCCESSFUL")
-  object LAUNCH_FAILED extends NodeStatusType("LAUNCH_FAILED")
+  object LAUNCHING extends NodeStatusType("LAUNCHING")
+  object RUNNING extends NodeStatusType("RUNNING")
+  object NOTRUNNING extends NodeStatusType("NOT RUNNING")
+  object DELETED extends NodeStatusType("DELETED")
 
-  implicit val NodeStatusTypeToReader = upperEnumReader(AM_HUNGRY, REQ_CREATED_AT_SOURCE, NODE_CREATED_AT_SOURCE,
-    PUBLISHED, STARTED, LAUNCH_SUCCESSFUL, LAUNCH_FAILED)
+  implicit val NodeStatusTypeToReader = upperEnumReader(AM_HUNGRY,  
+    PUBLISHED, LAUNCHING, RUNNING, NOTRUNNING,DELETED)
 }
 
 case class NodeCommand(systemprovider: NodeSystemProvider, compute: NodeCompute, cloudtool: NodeCloudToolService) {
@@ -375,10 +374,10 @@ object Nodes {
           play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", "request created."))
           val bvalue = Set(asuc.id)
           val jsonobj = if (nir.node_type == "APP") {
-            NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
+            NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.LAUNCHING,
               NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, abid._1, "", Time.now.toString())
           } else {
-            NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.REQ_CREATED_AT_SOURCE,
+            NodeResult((nuid._1 + nuid._2), nir.node_name, asuc.id, nir.node_type, NodeStatusType.LAUNCHING,
               NodeRequest(rres._1, nir.req_type, rres._2), nir.predefs, "", abid._1, Time.now.toString())
           }
 

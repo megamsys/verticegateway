@@ -53,7 +53,7 @@ object AppReqs extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppRequest", "request funneled."))
           models.AppRequests.create(clientAPIBody) match {
             case Success(succ) =>
-              if (email == DEMO_EMAIL) {
+              if (email.trim.equalsIgnoreCase(DEMO_EMAIL) ) {
                 Status(CREATED)(FunnelResponse(CREATED, """AppRequest initiation dryrun submitted successfully.
             |
             |No actual launch in cloud. Signup for a new account to get started.""", "Megam::AppRequest").toJson(true))

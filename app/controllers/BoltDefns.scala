@@ -55,7 +55,7 @@ object BoltDefns extends Controller with APIAuthElement {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              if (email == DEMO_EMAIL) {
+              if (email .trim.equalsIgnoreCase(DEMO_EMAIL) ) {
                 Status(CREATED)(FunnelResponse(CREATED, """BoltDefns initiation dry run submitted successfully.   
             |
             |

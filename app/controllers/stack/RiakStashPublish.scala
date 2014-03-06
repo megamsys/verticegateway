@@ -27,22 +27,21 @@ import org.megam.common.concurrent._
 import com.typesafe.config._
 import play.api.Logger
 import play.api.Play._
-
 /**
- * @author rajthilak
+ * @author ram
  *
  */
-object CloudStandUpPublish {
+object RiakStashPublish {
 
-  def apply = new CloudStandUpPublish(new String(), new String())
+  def apply = new RiakStashPublish(new String(), new String())
   
 }
 
-case class CloudStandUpPublish(name: String, messages: String) extends MessageContext {
+case class RiakStashPublish(name: String, messages: String) extends MessageContext {
 
   val cspURL = MConfig.amqpuri
-  val cspQueueName = MConfig.cloudstandup_queue 
-  val cspExchangeName = MConfig.cloudstandup_exchange 
+  val cspQueueName = MConfig.riakstash_queue 
+  val cspExchangeName = MConfig.riakstash_exchange 
 
   //create the RabbitMQ Client using url, exchange name and queue name
   val csp_client = new RabbitMQClient(cspURL, cspExchangeName, cspQueueName)

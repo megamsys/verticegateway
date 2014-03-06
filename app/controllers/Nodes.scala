@@ -57,7 +57,7 @@ object Nodes extends Controller with APIAuthElement {
                 nrOpt: Option[NodeProcessedResult] =>
                   (nrOpt.map { nr =>
                     //ugly hack to support a temporary dry run demo user. This may use useful for testing as well.
-                    if (email == DEMO_EMAIL)
+                    if (email .trim.equalsIgnoreCase(DEMO_EMAIL) )
                       FunnelResponse(CREATED, """Node initiation dry run submitted successfully.   
             |
             |Dry launch of {:node_name=>'%s', :req_id=>'%s'}

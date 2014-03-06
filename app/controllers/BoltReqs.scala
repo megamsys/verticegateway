@@ -56,7 +56,7 @@ object BoltReqs extends Controller with APIAuthElement {
               /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-              if (email == DEMO_EMAIL) {
+              if (email .trim.equalsIgnoreCase(DEMO_EMAIL) ) {
                 Status(CREATED)(FunnelResponse(CREATED, """BoltRequest initiation dryrun submitted successfully.
             |
             |No actual launch in cloud. Signup for a new account to get started.""", "Megam::BoltRequest").toJson(true))

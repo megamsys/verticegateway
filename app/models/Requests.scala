@@ -166,7 +166,7 @@ object Requests {
    * create new Request with the new 'Nodename' of the node provide as input.
    * A index name nodeID will point to the "nodes" bucket
    */
-  def createforNewNode(input: String): ValidationNel[Throwable, Option[Tuple3[String, NodeCommand, String]]] = {
+  def createforNewNode(input: String): ValidationNel[Throwable, Option[Tuple4[String, NodeCommand, String,String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -178,10 +178,10 @@ object Requests {
           val req_result = parse(gs.get.value).extract[RequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple3(thatGS.key, req_result.command, req_result.node_name).some.successNel[Throwable]
+            case Some(thatGS) => Tuple4(thatGS.key, req_result.command, req_result.node_name,req_result.req_type).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Request.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, req_result.command, req_result.node_name).some.successNel[Throwable]
+              (gs.get.key, req_result.command, req_result.node_name, req_result.req_type).some.successNel[Throwable]
             }
           }
         }
@@ -192,7 +192,7 @@ object Requests {
    * create new Request with the existing 'Nodename' of the nodename provide as input.
    * A index name nodeID will point to the "nodes" bucket
    */
-  def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple3[String, NodeCommand, String]]] = {
+  def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple4[String, NodeCommand, String,String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -204,10 +204,10 @@ object Requests {
           val req_result = parse(gs.get.value).extract[RequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple3(thatGS.key, req_result.command, req_result.node_name).some.successNel[Throwable]
+            case Some(thatGS) => Tuple4(thatGS.key, req_result.command, req_result.node_name,req_result.req_type).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Request.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, req_result.command, req_result.node_name).some.successNel[Throwable]
+              (gs.get.key, req_result.command, req_result.node_name,req_result.req_type).some.successNel[Throwable]
             }
           }
         }

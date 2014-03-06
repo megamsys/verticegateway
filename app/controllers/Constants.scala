@@ -28,4 +28,5 @@ object Constants {
   val SANDBOX_APIKEY = "IamAtlas{74}NobodyCanSeeME#07"
   val DEMO_EMAIL = "dummy@megamsandbox.com"
   val DEMO_APIKEY = "dummykeysandbox#megam"
+  val DELETE_REQUEST = "DELETE"
 }

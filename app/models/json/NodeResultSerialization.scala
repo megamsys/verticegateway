@@ -94,15 +94,13 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
         val noderes_fn = idField |@| nodenameField |@| accountField |@| nodetypeField |@| requestField |@| predefsField |@| appdefnsidField |@| boltdefnsidField |@| createdAtField
 
         val res: ValidationNel[Error, NodeResult] = statusType match {
-          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _, _, _))
-          case NodeStatusType.REQ_CREATED_AT_SOURCE  => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.REQ_CREATED_AT_SOURCE, _, _, _, _, _))
-          case NodeStatusType.NODE_CREATED_AT_SOURCE => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.NODE_CREATED_AT_SOURCE, _, _, _, _, _))
-          case NodeStatusType.PUBLISHED              => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.PUBLISHED, _, _, _, _, _))
-          case NodeStatusType.STARTED                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.STARTED, _, _, _, _, _))
-          case NodeStatusType.LAUNCH_SUCCESSFUL      => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCH_SUCCESSFUL, _, _, _, _, _))
-          case NodeStatusType.LAUNCH_FAILED          => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCH_FAILED, _, _, _, _, _))
-          case _ => UncategorizedError("request type",
-            "unsupported request type %s".format(statusType.stringVal),
+          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.AM_HUNGRY, _, _, _, _, _))
+          case NodeStatusType.LAUNCHING  					   => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCHING, _, _, _, _, _))
+          case NodeStatusType.RUNNING                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.RUNNING, _, _, _, _, _))
+          case NodeStatusType.NOTRUNNING             => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.NOTRUNNING, _, _, _, _, _))
+          case NodeStatusType.DELETED                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.DELETED, _, _, _, _, _))
+          case _ => UncategorizedError("status type",
+            "unsupported status type %s".format(statusType.stringVal),
             List()).failNel
         }
         res
