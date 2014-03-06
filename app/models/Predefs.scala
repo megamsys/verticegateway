@@ -69,6 +69,7 @@ object PredefInput {
     "redmine" -> PredefInput("", "redmine", "chef", "redmine", "", "#[start] redmine", ""),
     "liferay" -> PredefInput("", "liferay", "chef", "liferay", "", "#[start] liferay", ""),
     "sugercrm" -> PredefInput("", "sugercrm", "chef", "sugercrm", "", "#[start] sugercrm", "")
+    
   )
 
   val toStream = toMap.keySet.toStream
