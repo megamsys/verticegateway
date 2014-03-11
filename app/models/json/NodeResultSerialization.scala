@@ -95,7 +95,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
 
         val res: ValidationNel[Error, NodeResult] = statusType match {
           case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.AM_HUNGRY, _, _, _, _, _))
-          case NodeStatusType.LAUNCHING  					   => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCHING, _, _, _, _, _))
+          case NodeStatusType.LAUNCHING  			 => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCHING, _, _, _, _, _))
           case NodeStatusType.RUNNING                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.RUNNING, _, _, _, _, _))
           case NodeStatusType.NOTRUNNING             => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.NOTRUNNING, _, _, _, _, _))
           case NodeStatusType.DELETED                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.DELETED, _, _, _, _, _))

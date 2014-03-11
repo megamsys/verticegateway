@@ -47,6 +47,13 @@ case class NodeInput(node_name: String, node_type: String, noofinstances: Int, r
   val boltdefjson = "\"boltdefns\": " + boltdefns.json
 }
 
+case class NodeUpdateInput(node_name: String, accounts_id: String, status: String, appdefnsid: String, boltdefnsid: String, new_node_name: String)
+
+case class NodeUpdateResult(id: String, node_name: String, accounts_id: String, node_type: String, status: String, request: NodeRequest, predefs: NodePredefs, appdefnsid: String, boltdefnsid: String, created_at: String) {
+  val json = "{\"id\": \"" + id + "\",\"node_name\":\"" + node_name + "\",\"accounts_id\":\"" + accounts_id + "\",\"node_type\":\"" + node_type + "\",\"status\":\"" + status +
+    "\",\"request\":{" + request.toString + "} ,\"predefs\":{" + predefs.toString + "},\"appdefnsid\":\"" + appdefnsid + "\",\"boltdefnsid\":\"" + boltdefnsid + "\",\"created_at\":\"" + created_at + "\"}"
+}
+
 case class NodeResult(id: String, node_name: String, accounts_id: String, node_type: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String, boltdefnsid: String, created_at: String) {
   val json = "{\"id\": \"" + id + "\",\"node_name\":\"" + node_name + "\",\"accounts_id\":\"" + accounts_id + "\",\"node_type\":\"" + node_type + "\",\"status\":\"" + status.stringVal +
     "\",\"request\":{" + request.toString + "} ,\"predefs\":{" + predefs.toString + "},\"appdefnsid\":\"" + appdefnsid + "\",\"boltdefnsid\":\"" + boltdefnsid + "\",\"created_at\":\"" + created_at + "\"}"
@@ -66,13 +73,13 @@ case class NodeResult(id: String, node_name: String, accounts_id: String, node_t
 }
 
 object NodeResult {
-
-  //def apply(id: String, accounts_id: String, status: NodeStatusType, request: NodeRequest, predefs: NodePredefs, appdefnsid: String) = new NodeResult(new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
-  //new String(), new String(), new String, new String(), new String()), new String())
-
+  
   def apply = new NodeResult(new String(), new String(), new String(), new String(), NodeStatusType.AM_HUNGRY, new NodeRequest(), new NodePredefs(
-    new String(), new String(), new String, new String(), new String()), new String(), new String(), new String())
+    new String(), new String(), new String, new String(), new String()), new String(), new String(), new String())  
 
+  //def apply(id: String, node_name: String, accounts_id: String, node_type: String, status: String, request: NodeRequest, predefs: NodePredefs, appdefnsid: String, boltdefnsid: String, created_at: String) = new NodeResult(new String(), new String(), new String(), new String(), Nodes.statusType(status), new NodeRequest(), new NodePredefs(
+  //  new String(), new String(), new String, new String(), new String()), new String(), new String(), new String()) 
+  
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[NodeResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.NodeResultSerialization
@@ -159,10 +166,13 @@ object NodeStatusType {
   object RUNNING extends NodeStatusType("RUNNING")
   object NOTRUNNING extends NodeStatusType("NOT RUNNING")
   object DELETED extends NodeStatusType("DELETED")
+  object NONE extends NodeStatusType("NONE")
 
-  implicit val NodeStatusTypeToReader = upperEnumReader(AM_HUNGRY,  
-    PUBLISHED, LAUNCHING, RUNNING, NOTRUNNING,DELETED)
+  implicit val NodeStatusTypeToReader = upperEnumReader(AM_HUNGRY,
+    PUBLISHED, LAUNCHING, RUNNING, NOTRUNNING, DELETED, NONE)
 }
+
+
 
 case class NodeCommand(systemprovider: NodeSystemProvider, compute: NodeCompute, cloudtool: NodeCloudToolService) {
   val json = "{\"systemprovider\": " + systemprovider.json + "}, \"compute\": " + compute.json + "}},\"cloudtool\": {" + cloudtool.json + "\"}}}"
@@ -201,7 +211,7 @@ case class NodeComputeDetail(groups: String, image: String, flavor: String, tena
 }
 
 case class NodeComputeAccess(ssh_key: String, identity_file: String, ssh_user: String, vault_location: String, sshpub_location: String, zone: String, region: String) {
-  val json = "{\"ssh_key\": \"" + ssh_key + "\", " + "\"identity_file\": \"" + identity_file + "\", " + "\"ssh_user\": \"" + ssh_user + "\",\"vault_location\": \"" + vault_location + "\",\"sshpub_location\": \"" + sshpub_location + "\",\"zone\": \"" + zone + "\",\"region\": \"" + region + "\""                                
+  val json = "{\"ssh_key\": \"" + ssh_key + "\", " + "\"identity_file\": \"" + identity_file + "\", " + "\"ssh_user\": \"" + ssh_user + "\",\"vault_location\": \"" + vault_location + "\",\"sshpub_location\": \"" + sshpub_location + "\",\"zone\": \"" + zone + "\",\"region\": \"" + region + "\""
 }
 
 case class NodeCloudToolService(chef: NodeCloudToolChef) {
@@ -230,6 +240,18 @@ object Nodes {
   val newnode_metadataVal = "New Node Creation"
   val newnode_bindex = BinIndex.named("accountId")
 
+  def statusType(s: String): NodeStatusType =  {
+   s match {
+     case "LAUNCHING" => return  NodeStatusType.LAUNCHING
+     case "DELETED" => return NodeStatusType.DELETED
+     case "RUNNING" => return NodeStatusType.RUNNING
+     case "AM_HUNGRY" => return NodeStatusType.AM_HUNGRY
+     case "PUBLISHED" => return NodeStatusType.PUBLISHED
+     case "NONRUNNING" => return NodeStatusType.NOTRUNNING     
+     case _ => return NodeStatusType.NONE
+   }
+}
+  
   private def nodetypedecision(email: String, node_id: String, nir: NodeInput): ValidationNel[Throwable, Tuple2[String, String]] = {
     if (nir.node_type != "BOLT") {
       for {
@@ -284,17 +306,17 @@ object Nodes {
     res
   }
 
-  private def broadenNodes(inp: NodeInput): Option[List[NodeInput]] = {     
-      
-     val fn1 = inp.node_name.some map { fs1 => fs1.split('.').take(1).mkString }
-     val rn1 = inp.node_name.some map { fs2 => fs2.split('.').drop(1).mkString(".", ".", "") }
-      val sxname = NodeCloudToolChef(inp.command.cloudtool.chef.command, inp.command.cloudtool.chef.plugin, 
-       inp.command.cloudtool.chef.run_list, inp.command.cloudtool.chef.name).name.some map { fs2 => fs2.split(' ').take(1).mkString }
+  private def broadenNodes(inp: NodeInput): Option[List[NodeInput]] = {
+
+    val fn1 = inp.node_name.some map { fs1 => fs1.split('.').take(1).mkString }
+    val rn1 = inp.node_name.some map { fs2 => fs2.split('.').drop(1).mkString(".", ".", "") }
+    val sxname = NodeCloudToolChef(inp.command.cloudtool.chef.command, inp.command.cloudtool.chef.plugin,
+      inp.command.cloudtool.chef.run_list, inp.command.cloudtool.chef.name).name.some map { fs2 => fs2.split(' ').take(1).mkString }
 
     ((1 to inp.noofinstances).toList map { sufc: Int =>
       val cmdsxrn = ((fn1 |@| sufc.some |@| rn1).apply { _ + _ + _ })
-      val fnsxrn = ((sxname |@| fn1 |@| sufc.some |@| rn1).apply { _+" "+_ + _ + _ })           
-      
+      val fnsxrn = ((sxname |@| fn1 |@| sufc.some |@| rn1).apply { _ + " " + _ + _ + _ })
+
       //let us append the numerically sufixed node name to the cmd as well.
       val sxtool = (NodeCloudToolService(((inp.command.cloudtool.chef.command.some |@| inp.command.cloudtool.chef.plugin.some
         |@| inp.command.cloudtool.chef.run_list.some
@@ -337,14 +359,84 @@ object Nodes {
         }
       }
     }
+  }
 
-    /*
-    val reqPush: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
-      MessageObjects.Publish(Message)
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+  private def checkStatus(s: String): ValidationNel[Throwable, NodeStatusType] = { 
+    statusType(s).stringVal match {
+      case "NONE" => {       
+        Validation.failure[Throwable, NodeStatusType](new ResourceItemNotFound(s, "")).toValidationNel
+      }
+      case _ => {
+        Validation.success[Throwable, NodeStatusType](statusType(s)).toValidationNel
+      }
+    }
+  }
+  
+  private def updateGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
 
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeinp", nodeInput))
-  */
+    val nodeInput: ValidationNel[Throwable, NodeUpdateInput] = (Validation.fromTryCatch {
+      parse(input).extract[NodeUpdateInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure  
+  
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", nodeInput))
+    for {
+      nir <- nodeInput
+      sts <- (checkStatus(nir.status) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.Nodes.findByNodeName(List(nir.node_name).some) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {      
+      val onir = aor.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
+        (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.          
+          NodeResult(nelnor.get.id, nelnor.get.node_name, nelnor.get.accounts_id, nelnor.get.node_type, nelnor.get.status, nelnor.get.request, nelnor.get.predefs, nelnor.get.appdefnsid, nelnor.get.boltdefnsid, nelnor.get.created_at)
+        }).asInstanceOf[NodeResult]
+      }     
+      val bvalue = Set(valueChange(nir.accounts_id, onir(0).accounts_id))
+      val jsonobj = if (onir(0).node_type == "APP") {
+        NodeResult(onir(0).id, valueChange(onir(0).node_name, nir.new_node_name), valueChange(onir(0).accounts_id, nir.accounts_id), onir(0).node_type, valueChangeStatus(onir(0).status, sts),
+          onir(0).request, onir(0).predefs, valueChange(onir(0).appdefnsid, nir.appdefnsid), "", Time.now.toString())
+      } else {
+        NodeResult(onir(0).id, valueChange(onir(0).node_name, nir.new_node_name), valueChange(onir(0).accounts_id, nir.accounts_id), onir(0).node_type, valueChangeStatus(onir(0).status, sts),
+          onir(0).request, onir(0).predefs, "", valueChange(onir(0).boltdefnsid, nir.boltdefnsid), Time.now.toString())
+      }
+      play.api.Logger.debug(("%-20s -->[%s]").format("formatted node store", jsonobj.json))
+      val json = jsonobj.json
+      new GunnySack(valueChange(onir(0).node_name, nir.new_node_name), json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
+    }
+  }
+
+  def update(input: String): ValidationNel[Throwable, NodeProcessedResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Nodes", "update:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+    for {
+      gs <- (updateGunnySack(input) leftMap { err: NonEmptyList[Throwable] => err })
+      maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {      
+      val nrip = parse(gs.get.value).extract[NodeUpdateResult]     
+      maybeGS match {
+        case Some(thatGS) =>
+          nels(NodeProcessedResult(thatGS.key, nrip.node_type, nrip.request.req_id, nrip.request.req_type).some)
+        case None => {
+          play.api.Logger.warn(("%-20s -->[%s]").format("Node.updated successfully", "Scaliak returned => None. Thats OK."))
+          nels(NodeProcessedResult(nrip.id, nrip.node_type, nrip.request.req_id, nrip.request.req_type).some)
+        }
+      }
+    }
+  }
+
+  private def valueChange(old_value: String, new_value: String): String = {
+    if (new_value.length() > 0) {
+      return new_value
+    } else {
+      return old_value
+    }
+  }
+
+  private def valueChangeStatus(old_value: NodeStatusType, new_value: NodeStatusType): NodeStatusType = {
+    if (new_value.stringVal.length() > 0) {
+      return new_value
+    } else {
+      return old_value
+    }
   }
 
   /**
@@ -461,5 +553,7 @@ object Nodes {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Node", res))
     res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[NodeResults])
   }
+  
+ 
 
 }

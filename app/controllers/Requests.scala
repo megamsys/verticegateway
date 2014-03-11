@@ -61,11 +61,20 @@ object Requests extends Controller with APIAuthElement {
             |Dry launch of {:node_name=>'%s', :req_type=>'%s'}
             |No actual launch in cloud. Signup for a new account to get started.""".format(tuple_succ._3, tuple_succ._4).stripMargin, "Megam::Request").toJson(true))
               else {
-                val pubres = for {
-                  csup <- CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop
-                } yield {
-                  if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) RiakStashPublish(tuple_succ._1, tuple_succ._3).dop else csup
-                } 
+                //create delete method
+                val pubres = if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) {
+                   val update_json = "{\"node_name\":\"" + tuple_succ._3 + "\",\"accounts_id\":\"\",\"status\":\"DELETED\",\"appdefnsid\":\"\",\"boltdefnsid\":\"\",\"new_node_name\":\"\"}"
+                  for {
+                    uop <-  models.Nodes.update(update_json) 
+                    csup <- CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop                    
+                    rop <-  RiakStashPublish(tuple_succ._1, tuple_succ._3).dop
+                  } yield {} 
+                } else {
+                  for {                   
+                    csup <- CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop            
+                  } yield {} 
+                }
+                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.node.update", pubres))
                 pubres flatMap { x =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
                   Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.

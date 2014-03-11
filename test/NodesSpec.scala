@@ -39,9 +39,10 @@ class NodesSpec extends Specification {
       //"Correctly do POST requests BOLT   EC2 with a valid userid and api key" ! PostBolt.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       //"Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
-      "Correctly do GET  (appsample1.megam.co) requests with an valid Node name" ! findByNameApp.succeeds ^
+      //"Correctly do GET  (appsample1.megam.co) requests with an valid Node name" ! findByNameApp.succeeds ^
       //"Correctly do GET  (boltsample1.megam.co) requests with a valid Node name" ! findByNameBolt.succeeds ^
       //"Correctly do GET  (appfail1.megam.co) requests with an Invalid Node name" ! findByInvalidName.succeeds ^
+      "Correctly do UPDATE requests APP  n EC2 with a valid userid and api key" ! UpdateApp.succeeds ^
   end
 
   /**
@@ -174,6 +175,28 @@ class NodesSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
+  
+  case object UpdateApp extends Context {
+
+    protected override def urlSuffix: String = "nodes/update"
+
+    protected override def bodyToStick: Option[String] = {      
+
+      val contentToEncode = "{\"node_name\":\"change1.megam.co\",\"accounts_id\":\"\",\"status\":\"DELETED\",\"appdefnsid\":\"\",\"boltdefnsid\":\"\",\"new_node_name\":\"text-change1.megam.co\"}"
+      Some(new String(contentToEncode))
+
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None    
+  private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+
 
 
 }
