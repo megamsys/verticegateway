@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlaceFeatures }
+import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails }
 
 /**
  * @author rajthilak
@@ -37,8 +37,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NameKey = "name"
-  protected val LogoKey = "logo"
-  protected val CatagoryKey = "catagory"
+  protected val AppDetailsKey = "appdetails"  
   protected val PriceTypeKey = "pricetype"
   protected val FeaturesKey = "features" 
   protected val PlanKey = "plan"
@@ -51,14 +50,14 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
 
     import MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
     import MarketPlaceFeaturesSerialization.{ writer => MarketPlaceFeaturesWriter }
+    import MarketPlaceAppDetailsSerialization.{ writer => MarketPlaceAppDetailsWriter }
 
     override def write(h: MarketPlaceResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(LogoKey, toJSON(h.logo)) ::
-          JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::
-          JField(CatagoryKey, toJSON(h.catagory)) ::
+          JField(AppDetailsKey, toJSON(h.appdetails)(MarketPlaceAppDetailsWriter)) ::
+          JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::          
           JField(PriceTypeKey, toJSON(h.pricetype)) ::
           JField(FeaturesKey, toJSON(h.features)(MarketPlaceFeaturesWriter)) ::          
           JField(PlanKey, toJSON(h.plan)(MarketPlacePlanWriter)) ::
@@ -74,12 +73,12 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
 
     import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
     import MarketPlaceFeaturesSerialization.{ reader => MarketPlaceFeaturesReader }
+    import MarketPlaceAppDetailsSerialization.{ reader => MarketPlaceAppDetailsReader }
 
     override def read(json: JValue): Result[MarketPlaceResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
-      val logoField = field[String](LogoKey)(json)
-      val catagoryField = field[String](CatagoryKey)(json)
+      val appdetailsField = field[MarketPlaceAppDetails](AppDetailsKey)(json)(MarketPlaceAppDetailsReader)      
       val pricetypeField = field[String](PriceTypeKey)(json)
       val featuresField = field[MarketPlaceFeatures](FeaturesKey)(json)(MarketPlaceFeaturesReader)      
       val planField = field[MarketPlacePlan](PlanKey)(json)(MarketPlacePlanReader)
@@ -88,9 +87,9 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
       val approvedField = field[String](ApprovedKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| logoField |@| catagoryField |@| pricetypeField |@| featuresField |@| planField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
-        (id: String, name: String, logo: String, catagory: String, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String, created_at: String) =>
-          new MarketPlaceResult(id, name, logo, catagory, pricetype, features, plan, attach, predefnode, approved, created_at)
+      (idField |@| nameField |@| appdetailsField |@| pricetypeField |@| featuresField |@| planField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
+        (id: String, name: String, appdetails: MarketPlaceAppDetails, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, attach: String, predefnode: String, approved: String, created_at: String) =>
+          new MarketPlaceResult(id, name, appdetails, pricetype, features, plan, attach, predefnode, approved, created_at)
       }
     }
   }
