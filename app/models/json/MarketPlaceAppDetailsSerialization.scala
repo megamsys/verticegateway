@@ -39,7 +39,7 @@ object MarketPlaceAppDetailsSerialization extends SerializationBase[MarketPlaceA
   protected val LogoKey = "logo"
   protected val CategoryKey = "category"
   protected val VersionKey = "version"
-  protected val DescriptionKey = "description"
+  protected val DescriptionKey = "description" 
 
   override implicit val writer = new JSONW[MarketPlaceAppDetails] {
 
@@ -48,7 +48,7 @@ object MarketPlaceAppDetailsSerialization extends SerializationBase[MarketPlaceA
         JField(LogoKey, toJSON(h.logo)) ::
           JField(CategoryKey, toJSON(h.category)) ::
           JField(VersionKey, toJSON(h.version)) :: 
-          JField(DescriptionKey, toJSON(h.description)) :: 
+          JField(DescriptionKey, toJSON(h.description)) ::           
            Nil)
     }
   }
@@ -59,9 +59,9 @@ object MarketPlaceAppDetailsSerialization extends SerializationBase[MarketPlaceA
       val logoField = field[String](LogoKey)(json)
       val categoryField = field[String](CategoryKey)(json)    
       val versionField = field[String](VersionKey)(json)
-      val descriptionField = field[String](DescriptionKey)(json)
+      val descriptionField = field[String](DescriptionKey)(json)     
       
-      (logoField |@| categoryField |@| versionField |@| descriptionField) {
+      (logoField |@| categoryField |@| versionField |@| descriptionField ) {
         (logo: String, category: String, version: String, description: String) =>
           new MarketPlaceAppDetails(logo, category, version, description)
       }

@@ -28,7 +28,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.SecurityActions._
-import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures }
+import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails, MarketPlaceAppLinks }
 
 class MarketPlaceSpec extends Specification {
   def is =
@@ -53,7 +53,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new MarketPlaceInput("drbd", "logo.png", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("30", "description", "free"), "attach", "predefnode", "approved").json
+      val contentToEncode = new MarketPlaceInput("drbd", new MarketPlaceAppDetails("logo.png", "DR", "0", "description"), "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("30", "description", "free"), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "attach", "predefnode", "approved").json
       Some(contentToEncode)
     }
 
@@ -76,7 +76,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-          val contentToEncode = new MarketPlaceInput("drbd", "logo.png", "DR", "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("30", "description", "free"), "attach", "predefnode", "approved").json
+          val contentToEncode = new MarketPlaceInput("drbd", new MarketPlaceAppDetails("logo.png", "DR", "0", "description"), "free", new MarketPlaceFeatures("feature1", "feature2", "feature3", "feature4"), new MarketPlacePlan("30", "description", "free"), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "attach", "predefnode", "approved").json
       Some(contentToEncode)
     }
 
@@ -107,7 +107,7 @@ class MarketPlaceSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "marketplaces/megam_zarafa"
+    protected override def urlSuffix: String = "marketplaces/riak"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
