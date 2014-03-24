@@ -15,7 +15,13 @@
 */
 package models
 
+import scalaz._
+import scalaz.NonEmptyList._
+import scalaz.Validation._
+import scalaz.effect.IO
+import Scalaz._
 import org.megam.common.enumeration._
+import controllers.funnel.FunnelErrors._
 
 /**
  * @author ram
@@ -26,19 +32,43 @@ object Defns {
   sealed abstract class DefnType(override val stringVal: String) extends Enumeration
 
   object DefnType {
-    object APP_DEFN extends DefnType("APP")
-    object BOLT_DEFN extends DefnType("BOLT")
-    object WRENCH_DEFN extends DefnType("WRENCH")
+    object APP extends DefnType("APP")
+    object BOLT extends DefnType("BOLT")
+    object WRENCH extends DefnType("WRENCH")
+    object NONE extends DefnType("NONE")
 
-    implicit val DefnTypToReader = upperEnumReader(APP_DEFN, BOLT_DEFN, WRENCH_DEFN)
+    implicit val DefnTypToReader = upperEnumReader(APP, BOLT, WRENCH,NONE)
   }
-
-  def create(node_defn_type: DefnType) = {
-    node_defn_type match {
-      case DefnType.APP_DEFN  => //return app defn
-      case DefnType.BOLT_DEFN => //return bolt defn
-      case _    => //return a VNEL(invalid node_type    
+  
+  def defnType(s: String):DefnType = {
+    s match {
+      case "APP" => return DefnType.APP
+      case "BOLT" => return DefnType.BOLT
+      case "WRENCH" => return DefnType.WRENCH
+      case _ => return DefnType.NONE
     }
   }
 
-}
+  def create(email: String, node_id: String, nir: NodeInput): ValidationNel[Throwable, Tuple2[String, String]] = {
+    val inpdefn_type: DefnType = defnType(nir.node_type.trim.toUpperCase) 
+    inpdefn_type match {
+      case DefnType.APP => //return app defn        
+        for {
+          adef <- (AppDefns.createforNewNode("{\"node_id\":\"" + node_id + "\",\"node_name\":\"" + nir.node_name + "\"," + nir.appdefjson + "}") leftMap { t: NonEmptyList[Throwable] => t })
+        } yield {
+          val adf = adef.getOrElse(throw new ServiceUnavailableError("[" + email + ":" + nir.node_name + "]", "App Definitions create failed (or) not found. Retry again."))
+          Tuple2(adf._1, nir.node_type)
+        }
+      case DefnType.BOLT => //return bolt defn
+        for {
+          bdef <- (BoltDefns.createforNewNode("{\"node_id\":\"" + node_id + "\",\"node_name\":\"" + nir.node_name + "\"," + nir.boltdefjson + "}") leftMap { t: NonEmptyList[Throwable] => t })
+        } yield {
+          val bdf = bdef.getOrElse(throw new ServiceUnavailableError("[" + email + ":" + nir.node_name + "]", "Bolt Definitions create failed (or) not found. Retry again."))
+          Tuple2(bdf._1, nir.node_type)
+        }
+      case _ => Validation.failure[Throwable,Tuple2[String,String]](new ResourceItemNotFound(inpdefn_type.stringVal, "supported [APP, BOLT]")).toValidationNel    
+    }
+  }
+
+} 
+

@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeProcessedResult}
+import models.{ NodeProcessedResult }
 import models.NodeStatusType._
 import org.megam.common.enumeration._
 
@@ -37,36 +37,36 @@ import org.megam.common.enumeration._
  */
 class NodeProcessedResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[NodeProcessedResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val NodeKKey = "key"  
-    protected val NodeTypeKey = "node_type"
-      protected val ReqIdKey = "req_id"
-  protected val ReqTypeKey = "req_type"  
-    
-  override implicit val writer = new JSONW[NodeProcessedResult] {  
-    
-    
+  protected val NodeKKey = "key"
+  protected val NodeTypeKey = "node_type"
+  protected val ReqIdKey = "req_id"
+  protected val ReqTypeKey = "req_type"
+  protected val StatusKey = "status"
+
+  override implicit val writer = new JSONW[NodeProcessedResult] {
+
     override def write(h: NodeProcessedResult): JValue = {
       JObject(
-        JField(NodeKKey, toJSON(h.key)) ::          
+        JField(NodeKKey, toJSON(h.key)) ::
           JField(NodeTypeKey, toJSON(h.node_type)) ::
           JField(JSONClazKey, toJSON("Megam::NodeProcessed")) ::
           JField(ReqTypeKey, toJSON(h.req_type)) ::
-              JField(ReqIdKey, toJSON(h.req_id)) :: Nil)
+          JField(ReqIdKey, toJSON(h.req_id)) :: JField(StatusKey, toJSON(h.status)) :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeProcessedResult] {    
-    
-    
-    override def read(json: JValue): Result[NodeProcessedResult] = {
-     val keyField = field[String](NodeKKey)(json)
-      val nodeTypeField = field[String](NodeTypeKey)(json)      
-      val reqtypeField = field[String](ReqTypeKey)(json)    
-      val reqidField = field[String](ReqIdKey)(json) 
+  override implicit val reader = new JSONR[NodeProcessedResult] {
 
-      (keyField |@| nodeTypeField |@| reqidField |@| reqtypeField ) {
-        (id: String, node_type: String, req_id: String, req_type: String) =>
-          new NodeProcessedResult(id, node_type, req_id, req_type)
+    override def read(json: JValue): Result[NodeProcessedResult] = {
+      val keyField = field[String](NodeKKey)(json)
+      val nodeTypeField = field[String](NodeTypeKey)(json)
+      val reqtypeField = field[String](ReqTypeKey)(json)
+      val reqidField = field[String](ReqIdKey)(json)
+      val statusField = field[String](StatusKey)(json)
+
+      (keyField |@| nodeTypeField |@| reqidField |@| reqtypeField |@| statusField) {
+        (id: String, node_type: String, req_id: String, req_type: String, status: String) =>
+          new NodeProcessedResult(id, node_type, req_id, req_type, status)
       }
     }
   }

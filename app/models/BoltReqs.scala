@@ -118,8 +118,7 @@ object BoltRequests {
     } yield {     
       val tuple_node = aor.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
         (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-          //Tuple2(nelnor.get.id, nelnor.get.boltdefnsid)
-          Tuple2(nelnor.get.id, "BDF392564165849382912")
+          Tuple2(nelnor.get.id, nelnor.get.boltdefnsid)
         }).asInstanceOf[Tuple2[String, String]]
       }      
       val bvalue = Set(tuple_node(0)._1)

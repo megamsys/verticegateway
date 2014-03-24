@@ -32,7 +32,6 @@ import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
-
 import controllers.stack.stack._
 import controllers.funnel._
 import controllers.funnel.FunnelErrors._
@@ -102,7 +101,7 @@ object SecurityActions {
             .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Error]).left[Option[String]].pure[IO]
         }
       }
-    } yield found).run.map(_.validation).unsafePerformIO()    
+    } yield found).run.map(_.validation).unsafePerformIO()
   }
 }
 
@@ -131,11 +130,11 @@ object GoofyCrypto {
     val HMACSHA1 = "HmacSHA1"
     Logger.debug(("%-20s -->[%-20s,%s]").format("HMAC: ENTRY", secret, toEncode))
 
-    val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")     
+    val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
     val mac = Mac.getInstance(HMACSHA1)
-    mac.init(signingKey)   
-    val rawHmac = mac.doFinal(toEncode.getBytes())     
-    val hmacAsByt = dumpByt(rawHmac.some)   
+    mac.init(signingKey)
+    val rawHmac = mac.doFinal(toEncode.getBytes())
+    val hmacAsByt = dumpByt(rawHmac.some)
     hmacAsByt
   }
 
@@ -144,7 +143,7 @@ object GoofyCrypto {
       case Some(bytes) => bytes.map(byt => (("00" + (byt &
         0XFF).toHexString)).takeRight(2))
       case None => Array(0X00.toHexString)
-    })   
+    })
     b.mkString("")
   }
 

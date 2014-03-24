@@ -156,7 +156,7 @@ object AppDefns {
             case Some(thatGS) => ((Map[String,String](("Id" -> thatGS.key))), adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("AppDefns.created success", "Scaliak returned => None. Thats OK."))
-              ((Map[String,String](("Id" -> gs.get.key), ("Action" -> DefnType.APP_DEFN.toString), ("Args" -> List().toString))), adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
+              ((Map[String,String](("Id" -> gs.get.key), ("Action" -> DefnType.APP.toString), ("Args" -> List().toString))), adf_result.node_name, adf_result.appdefns).some.successNel[Throwable]
             }
           }
         }

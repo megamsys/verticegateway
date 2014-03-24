@@ -34,6 +34,8 @@ object MConfig {
   val cloudstandup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.exchange").get       
   val riakstash_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.riakstash.queue").get
   val riakstash_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.riakstash.exchange").get     
+  val postlaunched_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.postlaunched.queue").get
+  val postlaunched_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.postlaunched.exchange").get     
   val cloudper_node_queue_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.queue.prefix").get
   val cloudper_node_exchage_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.exchange.prefix").get
   val cloudrecipe_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudrecipe.queue").get

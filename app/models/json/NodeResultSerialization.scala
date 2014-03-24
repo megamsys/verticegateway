@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeResult, NodePredefs, NodeRequest, NodeStatusType, NodeAppDefns}
+import models.{ NodeResult, NodePredefs, NodeRequest, NodeStatusType, NodeAppDefns }
 import models.NodeStatusType._
 import org.megam.common.enumeration._
 
@@ -38,36 +38,36 @@ import org.megam.common.enumeration._
 class NodeResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[NodeResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
-    protected val NodeNameKey = "node_name"
+  protected val NodeNameKey = "node_name"
   protected val AccountsIDKey = "accounts_id"
   protected val NodeTypeKey = "node_type"
   protected val StatusKey = "status"
   protected val RequestKey = "request"
   protected val PredefsKey = "predefs"
-  protected val AppDefnsIdKey = "appdefnsid" 
-    protected val BoltDefnsIdKey = "boltdefnsid"
-    protected val CreatedAtKey ="created_at"
-    
+  protected val AppDefnsIdKey = "appdefnsid"
+  protected val BoltDefnsIdKey = "boltdefnsid"
+  protected val CreatedAtKey = "created_at"
+
   override implicit val writer = new JSONW[NodeResult] {
 
     import NodeRequestSerialization.{ writer => NodeRequestWriter }
     import NodePredefsSerialization.{ writer => NodePredefsWriter }
     import NodeStatusTypeSerialization.{ writer => NodeStatusTypeWriter }
     import NodeAppDefnsSerialization.{ writer => NodeAppDefnsWriter }
-    
+
     override def write(h: NodeResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-        JField(NodeNameKey, toJSON(h.node_name)) ::
+          JField(NodeNameKey, toJSON(h.node_name)) ::
           JField(AccountsIDKey, toJSON(h.accounts_id)) ::
           JField(NodeTypeKey, toJSON(h.node_type)) ::
           JField(JSONClazKey, toJSON("Megam::Node")) ::
           JField(StatusKey, toJSON(h.status)(NodeStatusTypeWriter)) ::
           JField(RequestKey, toJSON(h.request)(NodeRequestWriter)) ::
-          JField(PredefsKey, toJSON(h.predefs)(NodePredefsWriter)) :: 
-          JField(AppDefnsIdKey, toJSON(h.appdefnsid)) :: 
-          JField(BoltDefnsIdKey, toJSON(h.boltdefnsid)) :: 
-           JField(CreatedAtKey, toJSON(h.created_at))   :: Nil)
+          JField(PredefsKey, toJSON(h.predefs)(NodePredefsWriter)) ::
+          JField(AppDefnsIdKey, toJSON(h.appdefnsid)) ::
+          JField(BoltDefnsIdKey, toJSON(h.boltdefnsid)) ::
+          JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
 
@@ -77,7 +77,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
     import NodePredefsSerialization.{ reader => NodePredefsReader }
     import NodeStatusTypeSerialization.{ reader => NodeStatusTypeReader }
     import NodeAppDefnsSerialization.{ reader => NodeAppDefnsReader }
-    
+
     override def read(json: JValue): Result[NodeResult] = {
       val statusField = field[NodeStatusType](StatusKey)(json)(NodeStatusTypeReader)
 
@@ -88,17 +88,18 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
         val nodetypeField = field[String](NodeTypeKey)(json)
         val requestField = field[NodeRequest](RequestKey)(json)(NodeRequestReader)
         val predefsField = field[NodePredefs](PredefsKey)(json)(NodePredefsReader)
-        val appdefnsidField = field[String](AppDefnsIdKey)(json) 
+        val appdefnsidField = field[String](AppDefnsIdKey)(json)
         val boltdefnsidField = field[String](BoltDefnsIdKey)(json)
         val createdAtField = field[String](CreatedAtKey)(json)
         val noderes_fn = idField |@| nodenameField |@| accountField |@| nodetypeField |@| requestField |@| predefsField |@| appdefnsidField |@| boltdefnsidField |@| createdAtField
 
         val res: ValidationNel[Error, NodeResult] = statusType match {
-          case NodeStatusType.AM_HUNGRY              => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.AM_HUNGRY, _, _, _, _, _))
-          case NodeStatusType.LAUNCHING  			 => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCHING, _, _, _, _, _))
-          case NodeStatusType.RUNNING                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.RUNNING, _, _, _, _, _))
-          case NodeStatusType.NOTRUNNING             => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.NOTRUNNING, _, _, _, _, _))
-          case NodeStatusType.DELETED                => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.DELETED, _, _, _, _, _))
+          case NodeStatusType.NONE => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.NONE, _, _, _, _, _))
+          case NodeStatusType.AM_HUNGRY => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.AM_HUNGRY, _, _, _, _, _))
+          case NodeStatusType.LAUNCHING => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.LAUNCHING, _, _, _, _, _))
+          case NodeStatusType.RUNNING => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.RUNNING, _, _, _, _, _))
+          case NodeStatusType.NOTRUNNING => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.NOTRUNNING, _, _, _, _, _))
+          case NodeStatusType.DELETED => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.DELETED, _, _, _, _, _))
           case _ => UncategorizedError("status type",
             "unsupported status type %s".format(statusType.stringVal),
             List()).failNel

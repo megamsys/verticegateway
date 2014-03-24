@@ -41,16 +41,15 @@ object CloudToolPublish {
 
 case class CloudToolPublish(vl: String, repo: String) extends MessageContext {
 
-  val ctpURL = MConfig.amqpuri
-  val ctpQueueName = MConfig.cloudrecipe_queue
-  val ctpExchangeName = MConfig.cloudrecipe_exchange
-
-  //create the RabbitMQ Client using url, exchange name and queue name
-  val ctp_client = new RabbitMQClient(ctpURL, ctpExchangeName, ctpQueueName)
+  def queueName = cloudFarm + "_" + MConfig.cloudrecipe_queue
+  def exchangeName = cloudFarm + "_" + MConfig.cloudrecipe_exchange
+  
   val message =  "{\"vault_loc\":\"" + vl + "\", \"repo_path\":\"" + repo + "\"}"
+  
   val ctp_pubMsg = Messages("message" -> message)
-  play.api.Logger.debug("%-20s -->[%s]".format("Publish", ctp_pubMsg))
-  def dop(): ValidationNel[Throwable, AMQPResponse] = execute(ctp_client.publish(ctp_pubMsg, MConfig.routing_key))
+  
+  play.api.Logger.debug("%-20s -->[%s]".format("Publish:"+queueName, ctp_pubMsg))
+  def dop(): ValidationNel[Throwable, AMQPResponse] = execute(rmqClient.publish(ctp_pubMsg, MConfig.routing_key))
 }
   
 

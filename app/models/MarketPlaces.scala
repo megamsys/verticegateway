@@ -49,7 +49,7 @@ case class MarketPlacePlan(price: String, description: String, plantype: String)
 
 //lets make sure that we have atleast 2 features.
 case class MarketPlaceFeatures(feature1: String, feature2: String, feature3: String = null, feature4: String = null) {
-  val json = "\"feature1\":\"" + feature1 +  "\",\"feature2\":\"" + feature2 + "\",\"feature3\":\"" + feature3 +  "\",\"feature4\":\"" + feature4 + "\""
+  val json = "\"feature1\":\"" + feature1 + "\",\"feature2\":\"" + feature2 + "\",\"feature3\":\"" + feature3 + "\",\"feature4\":\"" + feature4 + "\""
 }
 
 case class MarketPlaceAppDetails(logo: String, category: String, version: String, description: String) {
@@ -76,7 +76,7 @@ object MarketPlaceInput {
     "Drupal" -> MarketPlaceInput("Drupal", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/drupal.png", "CMS", "0", ""), "free", new MarketPlaceFeatures("", "", "", ""), new MarketPlacePlan("0", "Create 1 drupal app", "free"), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false"),
     "Elgg" -> MarketPlaceInput("Elgg", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/elgg.png", "Social", "0", ""), "free", new MarketPlaceFeatures("", "", "", ""), new MarketPlacePlan("0", "Create 1 elgg app", "free"), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false"),
     "Firepad" -> MarketPlaceInput("Firepad", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/firepad.png", "DevelopmentPlatform", "0", ""), "free", new MarketPlaceFeatures("", "", "", ""), new MarketPlacePlan("0", "Create 1 firepad app", "free"), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false"),
-    "Ghost" -> MarketPlaceInput("Ghost", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/ghost.png", "Blog", "0.4.1", "Ghost is an Open Source application which allows you to write and publish your own blog, giving you the tools to make it easy and even fun to do."), "free", new MarketPlaceFeatures("Ghost has an incredibly simple concept for writing. You write in Markdown on the left, and you see an immediate preview of exactly what your post will look like in rendered HTML on the right", "The Ghost Open Marketplace contains a large directory of themes, apps, and resources which have been created for Ghost.", "Drag and drop the widgets to create your own custom dashboard, with the most important information first.",""), new MarketPlacePlan("0", "create 1 ghost app", "free"), new MarketPlaceAppLinks("https://ghost.org/forum/", "#", "https://ghost.org/", "https://ghost.org/features/", "https://ghost.org/about/", "http://en.wikipedia.org/wiki/Ghost_(blogging_platform)", "https://github.com/tryghost/Ghost"), "false", "predefnode", "true"),
+    "Ghost" -> MarketPlaceInput("Ghost", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/ghost.png", "Blog", "0.4.1", "Ghost is an Open Source application which allows you to write and publish your own blog, giving you the tools to make it easy and even fun to do."), "free", new MarketPlaceFeatures("Ghost has an incredibly simple concept for writing. You write in Markdown on the left, and you see an immediate preview of exactly what your post will look like in rendered HTML on the right", "The Ghost Open Marketplace contains a large directory of themes, apps, and resources which have been created for Ghost.", "Drag and drop the widgets to create your own custom dashboard, with the most important information first.", ""), new MarketPlacePlan("0", "create 1 ghost app", "free"), new MarketPlaceAppLinks("https://ghost.org/forum/", "#", "https://ghost.org/", "https://ghost.org/features/", "https://ghost.org/about/", "http://en.wikipedia.org/wiki/Ghost_(blogging_platform)", "https://github.com/tryghost/Ghost"), "false", "predefnode", "true"),
     "Gitlab" -> MarketPlaceInput("Gitlab", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/gitlab.png", "DevelopmentPlatform", "0", ""), "free", new MarketPlaceFeatures("", "", "", ""), new MarketPlacePlan("0", "Create 1 gitlab app", "free"), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false"),
     "Hadoop" -> MarketPlaceInput("Hadoop", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/hadoop.png", "BusinessIntelligence", "0", ""), "free", new MarketPlaceFeatures("", "", "", ""), new MarketPlacePlan("0", "Create 1 hadoop app", "free"), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false"),
     "Jenkins" -> MarketPlaceInput("Jenkins", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/jenkins.png", "DevelopmentPlatform", "1.554", "<h5><dfn>Jenkins CI is the leading open-source continuous integration server. Built with Java, it provides atleast 800+ plugins to support building and testing virtually any project."), "free", new MarketPlaceFeatures("Jenkins can be configured entirely from its friendly web GUI with extensive on-the-fly error checks and inline help. There's no need to tweak XML manually anymore, although if you'd like to do so, you can do that.", "Jenkins gives you clean readable URLs for most of its pages, including some permalinks like 'latest build' / 'latest successful build'.", "JUnit test reports can be tabulated, summarized, and displayed with history information.", "Jenkins can keep track of which build produced which jars, and which build is using which version of jars, and so on."), new MarketPlacePlan("0", "Use 1 continous integration engine", "free"), new MarketPlaceAppLinks("https://groups.google.com/forum/#!forum/jenkinsci-users", "#", "http://jenkins-ci.org/", "http://jenkins-ci.org/node", "http://jenkins-ci.org/node", "https://wiki.jenkins-ci.org/display/JENKINS/Home", "https://github.com/jenkinsci/jenkins"), "false", "predefnode", "true"),
@@ -252,24 +252,29 @@ object MarketPlaces {
     play.api.Logger.debug(("%-20s -->[%s]").format("marketPlaceList", marketPlacesNameList))
     (marketPlacesNameList map {
       _.map { marketplacesName =>
-        play.api.Logger.debug("models.MarketPlaceName findByName: marketplaces:" + marketplacesName)
-        (riak.fetch(marketplacesName) leftMap { t: NonEmptyList[Throwable] =>
-          new ServiceUnavailableError(marketplacesName, (t.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-          xso match {
-            case Some(xs) => {
-              (Validation.fromTryCatch {
-                parse(xs.value).extract[MarketPlaceResult]
-              } leftMap { t: Throwable =>
-                new ResourceItemNotFound(marketplacesName, t.getMessage)
-              }).toValidationNel.flatMap { j: MarketPlaceResult =>
-                Validation.success[Throwable, MarketPlaceResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+        InMemory[ValidationNel[Throwable, MarketPlaceResults]]({
+          cname: String =>
+            {
+              play.api.Logger.debug("models.MarketPlaceName findByName: marketplaces:" + marketplacesName)
+              (riak.fetch(marketplacesName) leftMap { t: NonEmptyList[Throwable] =>
+                new ServiceUnavailableError(marketplacesName, (t.list.map(m => m.getMessage)).mkString("\n"))
+              }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+                xso match {
+                  case Some(xs) => {
+                    (Validation.fromTryCatch {
+                      parse(xs.value).extract[MarketPlaceResult]
+                    } leftMap { t: Throwable =>
+                      new ResourceItemNotFound(marketplacesName, t.getMessage)
+                    }).toValidationNel.flatMap { j: MarketPlaceResult =>
+                      Validation.success[Throwable, MarketPlaceResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                    }
+                  }
+                  case None => Validation.failure[Throwable, MarketPlaceResults](new ResourceItemNotFound(marketplacesName, "")).toValidationNel
+                }
               }
             }
-            case None => Validation.failure[Throwable, MarketPlaceResults](new ResourceItemNotFound(marketplacesName, "")).toValidationNel
-          }
-        }
-      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+        }).get(marketplacesName).eval(InMemoryCache[ValidationNel[Throwable, MarketPlaceResults]]())
+      }
     } map {
       _.foldRight((MarketPlaceResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
@@ -280,9 +285,11 @@ object MarketPlaces {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlace", "listAll:Entry"))
     findByName(MarketPlaceInput.toStream.some) //return the folded element in the head.  
   }
+  
+  
 
-  implicit val sedimentPredefResults = new Sedimenter[ValidationNel[Error, MarketPlaceResults]] {
-    def sediment(maybeASediment: ValidationNel[Error, MarketPlaceResults]): Boolean = {
+  implicit val sedimentMarketPlacesResults = new Sedimenter[ValidationNel[Throwable, MarketPlaceResults]] {
+    def sediment(maybeASediment: ValidationNel[Throwable, MarketPlaceResults]): Boolean = {
       val notSed = maybeASediment.isSuccess
       play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->MKP:sediment:", notSed))
       notSed

@@ -57,18 +57,18 @@ object Nodes extends Controller with APIAuthElement {
                 nrOpt: Option[NodeProcessedResult] =>
                   (nrOpt.map { nr =>
                     //ugly hack to support a temporary dry run demo user. This may use useful for testing as well.
-                    if (email .trim.equalsIgnoreCase(DEMO_EMAIL) )
+                    if (email.trim.equalsIgnoreCase(DEMO_EMAIL))
                       FunnelResponse(CREATED, """Node initiation dry run submitted successfully.   
             |
-            |Dry launch of {:node_name=>'%s', :req_id=>'%s'}
-            |No actual launch in cloud. Signup for a new account to get started.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
+            |Dry-run launch of {:node_name=>'%s', :req_id=>'%s'}
+            |No actual launch happens in cloud.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
                     else
                       (CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap { x =>
                         play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Node", "published successfully.", nr.key + " " + nr.req_id))
                         FunnelResponse(CREATED, """Node initiation instruction submitted successfully.
             |
             |Check back on the {:node_name=>'%s', :req_id=>'%s'}
-            |The cloud is working for you. It will be ready shortly.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node").successNel[Throwable]
+            |Megam is cranking the cloud for you. It will be ready shortly.""".format(nr.key, nr.req_id).stripMargin, "Megam::Node").successNel[Throwable]
                       } match {
                         //this is only a temporary hack.
                         case Success(succ_cpc) => succ_cpc
@@ -87,7 +87,6 @@ object Nodes extends Controller with APIAuthElement {
               }
               Status(CREATED)(FunnelResponses.toJson(FunnelResponses(chainedComps), true))
             }
-
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -162,15 +161,51 @@ object Nodes extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
-    def update = StackAction(parse.tolerantText) { implicit request =>
+
+  def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatch[SimpleResult] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.Nodes.update(clientAPIBody) match {
-            case Success(succ) => Ok(NodeProcessedResults.toJson(succ, true))
+            case Success(succ) => {
+              val chainedComps = (succ.list filter (nelwop => nelwop.isDefined) map { //filter None, as foldRight creates it.
+                nrOpt: Option[NodeProcessedResult] =>
+                  (nrOpt.map { nr =>
+
+                    if (!email.trim.equalsIgnoreCase(DEMO_EMAIL)) {
+                      PostLaunchedPublish(nr.key, nr.toPublishMap).dop flatMap { x =>
+                        play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Nodes", "post launch published successfully."))
+                       FunnelResponse(CREATED, """Node post launch instruction submitted successfully.
+            |
+            |Check on the node for further updates. It will be ready shortly.""", "Megam::Node").successNel[Throwable]
+                      } match {
+                        //this is only a temporary hack.
+                        case Success(succ_cpc) => succ_cpc
+                        case Failure(err) =>
+                          FunnelResponse(BAD_REQUEST, """Node postlaunch submission failed.
+            |
+            |Retry again, our queue servers are crowded""", "Megam::Node")
+                      }
+                    } else {
+                     FunnelResponse(CREATED, """Node post launch dry-run submitted successfully.   
+            |
+            |Dry-run post launch of {:node_name=>'%s'}
+            |No actual post launch happens in cloud.""".format(nr.key).stripMargin, "Megam::Node")
+                    }
+                  })
+              }).map { fr => //ok. the above code iterates the chainedComps (NodeProcessedResults and make various FunnelReponse). 
+                //The below map goes over that FunnelResponse list and does a getOrElse. 
+                {
+                  fr.getOrElse(FunnelResponse(BAD_REQUEST, """Node initiation submission failed.
+            |for 'node name':{%s} 'request_id':{%s}
+            |Retry again, our cloud api servers barfed""".format("", "").stripMargin, "Megam::Node"))
+                }
+              }
+              Status(CREATED)(FunnelResponses.toJson(FunnelResponses(chainedComps), true))
+            }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -184,5 +219,4 @@ object Nodes extends Controller with APIAuthElement {
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  
 }

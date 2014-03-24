@@ -41,7 +41,17 @@ import play.api.Play._
 trait MessageContext {
 
   play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Entry"))
-  play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ"))
+
+  //by default everybody belongs to megam cloud farm
+  //this will be a list, as any body can belong to multiple cloud farms.
+  def cloudFarm: String = MConfig.cloudper_node_queue_prefix
+  def queueName: String
+  def exchangeName: String
+
+  def rmqClient = {
+    play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ" + MConfig.amqpuri))
+    new RabbitMQClient(MConfig.amqpuri, exchangeName, queueName)
+  }
 
   protected def execute(ampq_request: AMQPRequest, duration: Duration = org.megam.common.concurrent.duration) = {
     import org.megam.common.concurrent.SequentialExecutionContext
@@ -49,4 +59,3 @@ trait MessageContext {
     responseFuture.block(duration)
   }
 }
-

@@ -34,18 +34,16 @@ import play.api.Play._
 object RiakStashPublish {
 
   def apply = new RiakStashPublish(new String(), new String())
-  
+
 }
 
 case class RiakStashPublish(name: String, messages: String) extends MessageContext {
 
-  val cspURL = MConfig.amqpuri
-  val cspQueueName = MConfig.riakstash_queue 
-  val cspExchangeName = MConfig.riakstash_exchange 
+  def queueName = cloudFarm + "_" + MConfig.riakstash_queue
+  def exchangeName = cloudFarm + "_" + MConfig.riakstash_exchange
 
-  //create the RabbitMQ Client using url, exchange name and queue name
-  val csp_client = new RabbitMQClient(cspURL, cspExchangeName, cspQueueName)
   val csp_pubMsg = Messages("id" -> messages)
-  play.api.Logger.debug("%-20s -->[%s]".format("Publish:"+cspQueueName, csp_pubMsg))
-  def dop(): ValidationNel[Throwable, AMQPResponse] = execute(csp_client.publish(csp_pubMsg, MConfig.routing_key))
+
+  play.api.Logger.debug("%-20s -->[%s]".format("Publish:" + queueName, csp_pubMsg))
+  def dop(): ValidationNel[Throwable, AMQPResponse] = execute(rmqClient.publish(csp_pubMsg, MConfig.routing_key))
 }

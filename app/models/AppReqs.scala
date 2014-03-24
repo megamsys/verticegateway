@@ -145,11 +145,9 @@ object AppRequests {
           val req_result = parse(gs.get.value).extract[AppRequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("AppRequest.created successfully", "input", input))
           maybeGS match {
-           // case Some(thatGS) => Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.req_type), ("Args" -> List().toString)), req_result.node_name).some.successNel[Throwable]
             case Some(thatGS) => Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.req_type), ("Args" -> "Nah")), req_result.node_name).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("AppRequest.created success", "Scaliak returned => None. Thats OK."))
-             // Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.req_type), ("Args" -> List().toString)), req_result.node_name).some.successNel[Throwable]
               Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.req_type), ("Args" -> "Nah")), req_result.node_name).some.successNel[Throwable]
             }
           }

@@ -18,7 +18,6 @@ package controllers.stack
 import scalaz._
 import Scalaz._
 import scala.concurrent._
-import scala.collection.immutable.Map
 import scala.concurrent.duration.Duration
 import org.megam.common._
 import org.megam.common.amqp._
@@ -30,23 +29,22 @@ import play.api.Logger
 import play.api.Play._
 
 /**
- * @author rajthilak
+ * @author ram
  *
  */
+object PostLaunchedPublish {
 
-object CloudPerNodePublish {
-  def apply = new CloudPerNodePublish(new String(), Map.empty[String, String])
+  def apply = new PostLaunchedPublish(new String(), Map.empty[String, String])
+  
 }
 
-case class CloudPerNodePublish(name: String, messages: Map[String,String]) extends MessageContext {  
-  
-  def queueName = cloudFarm + "_" + name + "_queue"
-  def exchangeName = cloudFarm + "_" + name + "_exchange"
+case class PostLaunchedPublish(name: String, messages: Map[String,String]) extends MessageContext {
 
+  def queueName = cloudFarm + "_" + MConfig.postlaunched_queue
+  def exchangeName = cloudFarm + "_" + MConfig.postlaunched_exchange
+ 
   val cnp_pubMsg = Messages(messages.toList)
-  
-  play.api.Logger.debug("%-20s -->[%s]".format("Publish:"+ queueName, cnp_pubMsg))
-  
+
+  play.api.Logger.debug("%-20s -->[%s]".format("Publish:"+queueName, cnp_pubMsg))
   def dop(): ValidationNel[Throwable, AMQPResponse] = execute(rmqClient.publish(cnp_pubMsg, MConfig.routing_key))
 }
-
