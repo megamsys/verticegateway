@@ -175,7 +175,7 @@ object CloudTool {
 
   val gce = CloudTemplate("google", CloudInstructionGroup(List("server" -> CloudInstructions(
     CloudInstruction("create", "server create <node_name> -f -c", "-N"),
-    CloudInstruction("delete", "server delete <node_name> -c -P -y", "-N"),
+    CloudInstruction("delete", "server delete <node_name> -f -c -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
 
