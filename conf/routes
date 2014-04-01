@@ -79,5 +79,9 @@ POST   /v1/marketplaces/content         controllers.MarketPlaces.post
 GET    /v1/marketplaces                 controllers.MarketPlaces.list
 GET    /v1/marketplaces/:id       controllers.MarketPlaces.show(id: String)
 
+#MarketPlaceAddons
+POST   /v1/marketplaceaddons/content         controllers.MarketPlaceAddons.post
+GET    /v1/marketplaceaddons/:id             controllers.MarketPlaceAddons.show(id: String)
+
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)

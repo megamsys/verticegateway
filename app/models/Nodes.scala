@@ -284,7 +284,7 @@ object Nodes {
       parse(input).extract[NodeInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeInput", nodeInput))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeInput------------------------------------>", nodeInput))
 
     val res = (for {
       nir <- nodeInput

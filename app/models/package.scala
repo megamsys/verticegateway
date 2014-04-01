@@ -441,4 +441,53 @@ package object models {
     def empty: MarketPlaceResults = nel(emptyPC.head, emptyPC.tail)
   }
   
+  
+  type MarketPlaceAddonsResults = NonEmptyList[Option[MarketPlaceAddonsResult]]
+
+  object MarketPlaceAddonsResults {
+    val emptyRR = List(Option.empty[MarketPlaceAddonsResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: MarketPlaceAddonsResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.MarketPlaceAddonsResultsSerialization.{ writer => MarketPlaceAddonsResultsWriter }
+      toJSON(nres)(MarketPlaceAddonsResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: MarketPlaceAddonsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[MarketPlaceAddonsResult]) = nels(m)
+    def apply(m: MarketPlaceAddonsResult): MarketPlaceAddonsResults = MarketPlaceAddonsResults(m.some)
+    def empty: MarketPlaceAddonsResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
+  type MarketPlaceAddonsConfigurationResults = NonEmptyList[Option[MarketPlaceAddonsConfigurationResult]]
+
+  object MarketPlaceAddonsConfigurationResults {
+    val emptyRR = List(Option.empty[MarketPlaceAddonsConfigurationResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: MarketPlaceAddonsConfigurationResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.MarketPlaceAddonsConfigurationResultsSerialization.{ writer => MarketPlaceAddonsConfigurationResultsWriter }
+      toJSON(nres)(MarketPlaceAddonsConfigurationResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: MarketPlaceAddonsConfigurationResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[MarketPlaceAddonsConfigurationResult]) = nels(m)
+    def apply(m: MarketPlaceAddonsConfigurationResult): MarketPlaceAddonsConfigurationResults = MarketPlaceAddonsConfigurationResults(m.some)
+    def empty: MarketPlaceAddonsConfigurationResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
 }
