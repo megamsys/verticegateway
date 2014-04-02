@@ -137,18 +137,18 @@ object MarketPlaceAddons {
           maybeGS match {
             case Some(thatGS) => {
               if (req_input.config.disaster.tohosts.equals("")) {
-                Tuple3(Map[String, String](("Id" -> gs.get.key)), req_result.node_name, null).some.successNel[Throwable]
+                Tuple3(Map[String, String](("Id" -> req_result.config_id)), req_result.node_name, null).some.successNel[Throwable]
               } else {
-                Tuple3(Map[String, String](("Id" -> gs.get.key)), req_result.node_name, req_input.config.disaster.tohosts).some.successNel[Throwable]
+                Tuple3(Map[String, String](("Id" -> req_result.config_id)), req_result.node_name, req_input.config.disaster.tohosts).some.successNel[Throwable]
               }
             }
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("MarketPlaceAddons.created success", "Scaliak returned => None. Thats OK."))
               //(parse(gs.get.value).extract[MarketPlaceAddonsResult].some).successNel[Throwable];
               if (req_input.config.disaster.tohosts.equals("")) {
-                Tuple3(Map[String, String](("Id" -> gs.get.key)), req_result.node_name, null).some.successNel[Throwable]
+                Tuple3(Map[String, String](("Id" -> req_result.config_id)), req_result.node_name, null).some.successNel[Throwable]
               } else {
-                Tuple3(Map[String, String](("Id" -> gs.get.key)), req_result.node_name, req_input.config.disaster.tohosts).some.successNel[Throwable]
+                Tuple3(Map[String, String](("Id" -> req_result.config_id)), req_result.node_name, req_input.config.disaster.tohosts).some.successNel[Throwable]
               }
             }
           }
