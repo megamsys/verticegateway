@@ -5,7 +5,7 @@ object ApplicationBuild extends Build {
 
   val appName = "megam_play"
 
-  val appVersion = "0.1.0"
+  val appVersion = "0.3.0"
 
   val organization = "Megam Systems"
 
@@ -13,7 +13,7 @@ object ApplicationBuild extends Build {
 
   val startYear = Some(2013)
 
-  val description = "RESTful API server for the megam platform. Uses Riak and Memcache"
+  val description = "RESTful API server for the megam platform. Uses Riak, Snowflake(UID), Memcache"
 
   /**
    *   if you use groupID %% artifactID % revision instead of groupID % artifactID % revision
@@ -22,7 +22,7 @@ object ApplicationBuild extends Build {
    */
 
   val play2AuthVersion = "0.11.0"
-  val megamVersion = "0.1.0-SNAPSHOT"
+  val megamVersion = "0.3.0"
 
   val appDependencies = Seq(
     javaCore, cache, javaEbean,
