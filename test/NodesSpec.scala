@@ -35,14 +35,14 @@ class NodesSpec extends Specification {
   NodesSpec is the implementation that calls the megam_play API server with the /nodes url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests APP  n EC2 with a valid userid and api key" ! PostApp.succeeds ^
+      "Correctly do POST requests APP  n EC2 with a valid userid and api key" ! PostApp.succeeds ^
       //"Correctly do POST requests BOLT   EC2 with a valid userid and api key" ! PostBolt.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       //"Correctly do GET  (emai)requests with a valid userid and api key" ! findByEmail.succeeds ^
       //"Correctly do GET  (appsample1.megam.co) requests with an valid Node name" ! findByNameApp.succeeds ^
       //"Correctly do GET  (boltsample1.megam.co) requests with a valid Node name" ! findByNameBolt.succeeds ^
       //"Correctly do GET  (appfail1.megam.co) requests with an Invalid Node name" ! findByInvalidName.succeeds ^
-      "Correctly do UPDATE requests APP  n EC2 with a valid userid and api key" ! UpdateApp.succeeds ^
+      //"Correctly do UPDATE requests APP  n EC2 with a valid userid and api key" ! UpdateApp.succeeds ^
   end
 
   /**
