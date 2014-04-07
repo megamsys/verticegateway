@@ -178,12 +178,18 @@ object CloudTool {
     CloudInstruction("delete", "server delete <node_name> -f -c -P -y", "-N"),
     CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
     CloudInstruction("data", "instance set", "-N")))))
+    
+  val gogrid = CloudTemplate("gogrid", CloudInstructionGroup(List("server" -> CloudInstructions(
+    CloudInstruction("create", "server create -c", "-N"),
+    CloudInstruction("delete", "server delete <node_name> -c -P -y", "-N"),
+    CloudInstruction("list", "server list", "")), "instance" -> CloudInstructions(
+    CloudInstruction("data", "instance set", "-N")))))  
 
   val rackspace = CloudTemplate("rackspace", CloudInstructionGroup.empty)
   val openstack = CloudTemplate("openstack", CloudInstructionGroup.empty)
   val myiaas = CloudTemplate("myiaas", CloudInstructionGroup.empty)
 
-  val cloudtemplates = CloudTemplates(ec2, rackspace, openstack, hp, gce, profitbricks,myiaas)
+  val cloudtemplates = CloudTemplates(ec2, rackspace, openstack, hp, gce, profitbricks,myiaas, gogrid)
 
   val toMap = Map[String, CloudTool]("chef" -> CloudTool("", "chef", "knife", cloudtemplates))
 
