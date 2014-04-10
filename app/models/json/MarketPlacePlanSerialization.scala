@@ -34,8 +34,39 @@ import models.{ MarketPlacePlan }
  *
  */
 
-object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
 
+object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
+  protected val PriceKey = "price"
+  protected val DescriptionKey = "description"
+  protected val PlanTypeKey = "plantype"  
+
+  override implicit val writer = new JSONW[MarketPlacePlan] {
+
+    override def write(h: MarketPlacePlan): JValue = {
+      JObject(
+        JField(PriceKey, toJSON(h.price)) ::
+          JField(DescriptionKey, toJSON(h.description)) ::
+          JField(PlanTypeKey, toJSON(h.plantype)) :: 
+           Nil)
+    }
+  }
+
+  override implicit val reader = new JSONR[MarketPlacePlan] {
+
+    override def read(json: JValue): Result[MarketPlacePlan] = {
+      val priceField = field[String](PriceKey)(json)
+      val descriptionField = field[String](DescriptionKey)(json)
+      val plantypeField = field[String](PlanTypeKey)(json)      
+
+      (priceField |@| descriptionField |@| plantypeField ) {
+        (price: String, description: String, plantype: String) =>
+          new MarketPlacePlan(price, description, plantype)
+      }
+    }
+  }
+}
+
+class MarketPlacePlanSerialization(charset: Charset = UTF8Charset) extends SerializationBase[MarketPlacePlan] {
   protected val PriceKey = "price"
   protected val DescriptionKey = "description"
   protected val PlanTypeKey = "plantype"  

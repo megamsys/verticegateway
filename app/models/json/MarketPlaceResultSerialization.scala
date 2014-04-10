@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails, MarketPlaceAppLinks }
+import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails, MarketPlaceAppLinks, MarketPlacePlans }
 
 /**
  * @author rajthilak
@@ -48,8 +48,8 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[MarketPlaceResult] {
-
     import MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
+    import MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
     import MarketPlaceFeaturesSerialization.{ writer => MarketPlaceFeaturesWriter }
     import MarketPlaceAppDetailsSerialization.{ writer => MarketPlaceAppDetailsWriter }
     import MarketPlaceAppLinksSerialization.{ writer => MarketPlaceAppLinksWriter }
@@ -62,7 +62,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
           JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::          
           JField(PriceTypeKey, toJSON(h.pricetype)) ::
           JField(FeaturesKey, toJSON(h.features)(MarketPlaceFeaturesWriter)) ::          
-          JField(PlanKey, toJSON(h.plan)(MarketPlacePlanWriter)) ::
+          JField(PlanKey, toJSON(h.plan)(MarketPlacePlansWriter)) ::
           JField(AppLinksKey, toJSON(h.applinks)(MarketPlaceAppLinksWriter)) ::
           JField(AttachKey, toJSON(h.attach)) ::
           JField(PredefNodeKey, toJSON(h.predefnode)) ::
@@ -73,8 +73,8 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   }
 
   override implicit val reader = new JSONR[MarketPlaceResult] {
-
-    import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
+     import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
+    import MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
     import MarketPlaceFeaturesSerialization.{ reader => MarketPlaceFeaturesReader }
     import MarketPlaceAppDetailsSerialization.{ reader => MarketPlaceAppDetailsReader }
     import MarketPlaceAppLinksSerialization.{ reader => MarketPlaceAppLinksReader }
@@ -85,7 +85,8 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
       val appdetailsField = field[MarketPlaceAppDetails](AppDetailsKey)(json)(MarketPlaceAppDetailsReader)      
       val pricetypeField = field[String](PriceTypeKey)(json)
       val featuresField = field[MarketPlaceFeatures](FeaturesKey)(json)(MarketPlaceFeaturesReader)      
-      val planField = field[MarketPlacePlan](PlanKey)(json)(MarketPlacePlanReader)
+      val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
+      //val planField = field[List[MarketPlacePlan]](PlanKey)(json)(MarketPlacePlanReader)
       val applinksField = field[MarketPlaceAppLinks](AppLinksKey)(json)(MarketPlaceAppLinksReader)
       val attachField = field[String](AttachKey)(json)
       val predefnodeField = field[String](PredefNodeKey)(json)
@@ -93,7 +94,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
       val createdAtField = field[String](CreatedAtKey)(json)
 
       (idField |@| nameField |@| appdetailsField |@| pricetypeField |@| featuresField |@| planField |@| applinksField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
-        (id: String, name: String, appdetails: MarketPlaceAppDetails, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlan, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) =>
+        (id: String, name: String, appdetails: MarketPlaceAppDetails, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) =>
           new MarketPlaceResult(id, name, appdetails, pricetype, features, plan, applinks, attach, predefnode, approved, created_at)
       }
     }

@@ -32,9 +32,9 @@ class AppRequestSpec extends Specification {
   AppRequestSpec is the implementation that calls the megam_play API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
       //"Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
-      "Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
+      //"Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
       end
 
   /**
@@ -45,7 +45,7 @@ class AppRequestSpec extends Specification {
     protected override def urlSuffix: String = "appreqs/content"
 
     protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"req_type\":\"NSTART\",\"node_name\":\"appsample1.megam.co\",\"appdefns_id\":\"ADF403893265813733376\",\"lc_apply\":\"lc_apply\",\"lc_additional\":\"lc_additional\",\"lc_when\":\"lc_when\"}"                                 
+      val contentToEncode = "{\"req_type\":\"start\",\"node_name\":\"lobotomies1.megam.co\",\"appdefns_id\":\"ACT451686882514829312\",\"lc_apply\":\"start tomcat\",\"lc_additional\":\"lc_additional\",\"lc_when\":\"lc_when\"}"                                 
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

@@ -34,13 +34,13 @@ import models.{ MarketPlaceAddonsConfigMonitoring }
  */
 object MarketPlaceAddonsConfigMonitoringSerialization  extends SerializationBase[MarketPlaceAddonsConfigMonitoring] {
   protected val AgentKey = "agent"  
-  protected val NoneKey = ""
+  protected val Recipe  = "recipe"
   override implicit val writer = new JSONW[MarketPlaceAddonsConfigMonitoring] {
 
     override def write(h: MarketPlaceAddonsConfigMonitoring): JValue = {
       JObject(
         JField(AgentKey, toJSON(h.agent)) ::
-        JField(NoneKey, toJSON("")) ::
+        JField(Recipe, toJSON(h.recipe)) ::
            Nil)
     }
   }
@@ -49,10 +49,10 @@ object MarketPlaceAddonsConfigMonitoringSerialization  extends SerializationBase
 
     override def read(json: JValue): Result[MarketPlaceAddonsConfigMonitoring] = {
       val agentField = field[String](AgentKey)(json)
-      val noneField = field[String](NoneKey)(json)
-      (agentField |@| noneField) {
-        (agent: String, none: String) =>
-          new MarketPlaceAddonsConfigMonitoring(agent)
+      val recipeField = field[String](Recipe)(json)
+      (agentField |@| recipeField) {
+        (agent: String, recipe: String) =>
+          new MarketPlaceAddonsConfigMonitoring(agent, recipe)
       }
     }
   }
