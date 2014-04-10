@@ -34,14 +34,16 @@ import models.{ MarketPlaceAddonsConfigLoadBalancing }
  */
 object MarketPlaceAddonsConfigLoadBalancingSerialization  extends SerializationBase[MarketPlaceAddonsConfigLoadBalancing] {
   protected val HaproxyHostKey = "haproxyhost"
-  protected val LoadBalanceHostKey = "loadbalancehost"  
+  protected val LoadBalanceHostKey = "loadbalancehost" 
+  protected val Recipe  = "recipe" 
 
   override implicit val writer = new JSONW[MarketPlaceAddonsConfigLoadBalancing] {
 
     override def write(h: MarketPlaceAddonsConfigLoadBalancing): JValue = {
       JObject(
         JField(HaproxyHostKey, toJSON(h.haproxyhost)) ::
-          JField(LoadBalanceHostKey, toJSON(h.loadbalancehost)) ::         
+          JField(LoadBalanceHostKey, toJSON(h.loadbalancehost)) :: 
+          JField(Recipe, toJSON(h.recipe)) ::        
            Nil)
     }
   }
@@ -50,11 +52,12 @@ object MarketPlaceAddonsConfigLoadBalancingSerialization  extends SerializationB
 
     override def read(json: JValue): Result[MarketPlaceAddonsConfigLoadBalancing] = {
       val haproxyhostField = field[String](HaproxyHostKey)(json)
-      val loadBalanceHostField = field[String](LoadBalanceHostKey)(json)      
+      val loadBalanceHostField = field[String](LoadBalanceHostKey)(json) 
+      val recipeField = field[String](Recipe)(json)     
 
-      (haproxyhostField |@| loadBalanceHostField ) {
-        (haproxyhost: String, loadbalancehost: String) =>
-          new MarketPlaceAddonsConfigLoadBalancing(haproxyhost, loadbalancehost)
+      (haproxyhostField |@| loadBalanceHostField |@| recipeField) {
+        (haproxyhost: String, loadbalancehost: String, recipe: String) =>
+          new MarketPlaceAddonsConfigLoadBalancing(haproxyhost, loadbalancehost, recipe)
       }
     }
   }

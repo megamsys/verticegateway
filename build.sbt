@@ -24,7 +24,7 @@ scalacOptions := Seq(
   	"-language:implicitConversions",
   	"-Ydead-code")
   	
-incOptions := incOptions.value.withNameHashing(true)
+//incOptions := incOptions.value.withNameHashing(true)
 
 com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 

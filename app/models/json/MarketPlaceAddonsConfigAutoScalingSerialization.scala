@@ -36,6 +36,7 @@ object MarketPlaceAddonsConfigAutoScalingSerialization  extends SerializationBas
   protected val CPUThresholdKey = "cputhreshold"
   protected val MemoryThresholdKey = "memorythreshold"  
   protected val NoofInstances = "noofinstances"
+  protected val Recipe  = "recipe"
 
   override implicit val writer = new JSONW[MarketPlaceAddonsConfigAutoScaling] {
 
@@ -44,6 +45,7 @@ object MarketPlaceAddonsConfigAutoScalingSerialization  extends SerializationBas
         JField(CPUThresholdKey, toJSON(h.cputhreshold)) ::
           JField(MemoryThresholdKey, toJSON(h.memorythreshold)) ::
           JField(NoofInstances, toJSON(h.noofinstances)) ::
+          JField(Recipe, toJSON(h.recipe)) ::
            Nil)
     }
   }
@@ -54,10 +56,11 @@ object MarketPlaceAddonsConfigAutoScalingSerialization  extends SerializationBas
       val cpuThresholdField = field[String](CPUThresholdKey)(json)
       val memoryThresholdField = field[String](MemoryThresholdKey)(json)      
       val noofInstancesField = field[String](NoofInstances)(json)
+      val recipeField = field[String](Recipe)(json)
       
-      (cpuThresholdField |@| memoryThresholdField |@| noofInstancesField ) {
-        (cputhreshold: String, memorythreshold: String, noofinstances) =>
-          new MarketPlaceAddonsConfigAutoScaling(cputhreshold, memorythreshold, noofinstances)
+      (cpuThresholdField |@| memoryThresholdField |@| noofInstancesField |@| recipeField ) {
+        (cputhreshold: String, memorythreshold: String, noofinstances, recipe: String) =>
+          new MarketPlaceAddonsConfigAutoScaling(cputhreshold, memorythreshold, noofinstances, recipe)
       }
     }
   }

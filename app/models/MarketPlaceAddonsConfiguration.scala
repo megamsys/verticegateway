@@ -45,20 +45,20 @@ case class MarketPlaceAddonsConfig(disaster: MarketPlaceAddonsConfigDisaster, lo
    val json = "{\"disaster\":" + disaster.json + ",\"loadbalancing\":" + loadbalancing.json + ",\"autoscaling\":" + autoscaling.json + ",\"monitoring\":" + monitoring.json + "}"
 }
 
-case class MarketPlaceAddonsConfigDisaster(locations: String, fromhost: String, tohosts: String) {
-  val json =  "{\"locations\":\"" + locations + "\",\"fromhost\":\"" + fromhost + "\",\"tohosts\":\"" + tohosts + "\"}"
+case class MarketPlaceAddonsConfigDisaster(locations: String, fromhost: String, tohosts: String, recipe: String) {
+  val json =  "{\"locations\":\"" + locations + "\",\"fromhost\":\"" + fromhost + "\",\"tohosts\":\"" + tohosts + "\",\"recipe\":\"" + recipe + "\"}"
 }
 
-case class MarketPlaceAddonsConfigLoadBalancing(haproxyhost: String, loadbalancehost: String) {
-  val json =  "{\"haproxyhost\":\"" + haproxyhost + "\",\"loadbalancehost\":\"" + loadbalancehost + "\"}"
+case class MarketPlaceAddonsConfigLoadBalancing(haproxyhost: String, loadbalancehost: String, recipe: String) {
+  val json =  "{\"haproxyhost\":\"" + haproxyhost + "\",\"loadbalancehost\":\"" + loadbalancehost + "\",\"recipe\":\"" + recipe + "\"}"
 }
 
-case class MarketPlaceAddonsConfigAutoScaling(cputhreshold: String, memorythreshold: String, noofinstances: String) {
-  val json =  "{\"cputhreshold\":\"" + cputhreshold + "\",\"memorythreshold\":\"" + memorythreshold + "\",\"noofinstances\":\"" + noofinstances + "\"}"
+case class MarketPlaceAddonsConfigAutoScaling(cputhreshold: String, memorythreshold: String, noofinstances: String, recipe: String) {
+  val json =  "{\"cputhreshold\":\"" + cputhreshold + "\",\"memorythreshold\":\"" + memorythreshold + "\",\"noofinstances\":\"" + noofinstances + "\",\"recipe\":\"" + recipe + "\"}"
 }
 
-case class MarketPlaceAddonsConfigMonitoring(agent: String) {
-  val json =  "{\"agent\":\"" + agent + "\"}"
+case class MarketPlaceAddonsConfigMonitoring(agent: String, recipe: String) {
+  val json =  "{\"agent\":\"" + agent + "\",\"recipe\":\"" + recipe + "\"}"
 }
 
 case class MarketPlaceAddonsConfigurationInput(node_id: String, node_name: String, config: MarketPlaceAddonsConfig) {

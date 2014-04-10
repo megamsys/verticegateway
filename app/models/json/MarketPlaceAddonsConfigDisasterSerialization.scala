@@ -29,13 +29,14 @@ import controllers.Constants._
 import controllers.funnel.SerializationBase
 import models.{ MarketPlaceAddonsConfigDisaster}
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 object MarketPlaceAddonsConfigDisasterSerialization  extends SerializationBase[MarketPlaceAddonsConfigDisaster] {
   protected val LocationsKey = "locations"
   protected val FromHostKey = "fromhost"
   protected val ToHostsKey = "tohosts"  
+  protected val Recipe  = "recipe"
 
   override implicit val writer = new JSONW[MarketPlaceAddonsConfigDisaster] {
 
@@ -44,6 +45,7 @@ object MarketPlaceAddonsConfigDisasterSerialization  extends SerializationBase[M
         JField(LocationsKey, toJSON(h.locations)) ::
           JField(FromHostKey, toJSON(h.fromhost)) ::
           JField(ToHostsKey, toJSON(h.tohosts))  ::
+          JField(Recipe, toJSON(h.recipe)) ::
            Nil)
     }
   }
@@ -53,11 +55,12 @@ object MarketPlaceAddonsConfigDisasterSerialization  extends SerializationBase[M
     override def read(json: JValue): Result[MarketPlaceAddonsConfigDisaster] = {
       val locationsField = field[String](LocationsKey)(json)
       val fromHostField = field[String](FromHostKey)(json)
-      val toHostsField = field[String](ToHostsKey)(json)      
+      val toHostsField = field[String](ToHostsKey)(json) 
+       val recipeField = field[String](Recipe)(json)     
 
-      (locationsField |@| fromHostField |@| toHostsField ) {
-        (locations: String, fromhost: String, tohosts: String) =>
-          new MarketPlaceAddonsConfigDisaster(locations, fromhost, tohosts)
+      (locationsField |@| fromHostField |@| toHostsField |@| recipeField) {
+        (locations: String, fromhost: String, tohosts: String, recipe: String) =>
+          new MarketPlaceAddonsConfigDisaster(locations, fromhost, tohosts, recipe)
       }
     }
   }

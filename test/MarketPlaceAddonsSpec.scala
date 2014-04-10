@@ -49,8 +49,8 @@ class MarketPlaceAddonsSpec extends Specification {
     protected override def urlSuffix: String = "marketplaceaddons/content"
 
     protected override def bodyToStick: Option[String] = {
-      val config = new MarketPlaceAddonsConfig(new MarketPlaceAddonsConfigDisaster("locations", "lobotomies1.megam.co", "appsample2.megam.co;appsample3.megam.co"), new MarketPlaceAddonsConfigLoadBalancing("", ""),
-                                               new MarketPlaceAddonsConfigAutoScaling("", "", ""), new MarketPlaceAddonsConfigMonitoring("op5"))
+      val config = new MarketPlaceAddonsConfig(new MarketPlaceAddonsConfigDisaster("locations", "sample1.megam.co", "appsample2.megam.co;appsample3.megam.co", "recipe[megam_drbd]"), new MarketPlaceAddonsConfigLoadBalancing("", "", ""),
+                                               new MarketPlaceAddonsConfigAutoScaling("", "", "", ""), new MarketPlaceAddonsConfigMonitoring("op5", ""))
       val contentToEncode = "{\"node_id\":\"NOD451721484906266624\",\"node_name\":\"lobotomies1.megam.co\",\"marketplace_id\":\"tyutyujyt\",\"config\":" + config.json + "}"
       Some(new String(contentToEncode))
     }

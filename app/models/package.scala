@@ -490,4 +490,35 @@ package object models {
     def empty: MarketPlaceAddonsConfigurationResults = nel(emptyRR.head, emptyRR.tail)
   }
   
+  type MarketPlacePlans = NonEmptyList[MarketPlacePlan]
+  //type MarketPlacePlans = NonEmptyList[String]
+  //type MarketPlacePlans = List[String]
+  
+  
+  object MarketPlacePlans {
+    val emptyRR = List(MarketPlacePlan.empty)
+    //val emptyRR = nels(none)
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: MarketPlacePlans): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
+      toJSON(nres)(MarketPlacePlansWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: MarketPlacePlans, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+    //def apply(m: MarketPlacePlan): MarketPlacePlans = nels(m)
+    //def apply(n: List[MarketPlacePlan]): MarketPlacePlans = MarketPlacePlans(n)
+    def apply(n: NonEmptyList[MarketPlacePlan]): MarketPlacePlans = n
+    def empty: MarketPlacePlans = nel(emptyRR.head, emptyRR.tail)
+    //def apply(n: NonEmptyList[MarketPlacePlan]): MarketPlacePlanss = n.map(x => x.toJson(true))
+    //def apply(n: List[MarketPlacePlan]): MarketPlacePlans = n.map(x => x.toJson(true))
+    //def empty: MarketPlacePlans = nel("", List[String]())
+    //def empty: MarketPlacePlans = List[String]()
+  }
+  
 }
