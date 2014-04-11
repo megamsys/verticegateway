@@ -30,7 +30,6 @@ import controllers.Constants._
  */
 package object models {
 
-    
   type NodeResults = NonEmptyList[Option[NodeResult]]
 
   object NodeResults {
@@ -53,7 +52,7 @@ package object models {
     def apply(m: NodeResult): NodeResults = NodeResults(m.some)
     def empty: NodeResults = nel(emptyNR.head, emptyNR.tail)
   }
-  
+
   type NodeProcessedResults = NonEmptyList[Option[NodeProcessedResult]]
 
   object NodeProcessedResults {
@@ -76,7 +75,7 @@ package object models {
     def apply(m: NodeProcessedResult): NodeProcessedResults = NodeProcessedResults(m.some)
     def empty: NodeProcessedResults = nel(emptyNR.head, emptyNR.tail)
   }
-  
+
   type PredefResults = NonEmptyList[Option[PredefResult]]
 
   object PredefResults {
@@ -152,7 +151,7 @@ package object models {
 
   object CloudToolResults {
     val emptyCT = List(Option.empty[CloudTool])
-	  
+
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(cdres: CloudToolResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -207,6 +206,7 @@ package object models {
     }
 
     def fromJson(json: String): Result[CloudInstructions] = (Validation.fromTryCatch {
+       play.api.Logger.debug(("%-20s -->[%s]").format("cigfromjson",  json))
       parse(json)
     } leftMap { t: Throwable =>
       UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -299,7 +299,7 @@ package object models {
     def apply(m: AppDefnsResult): AppDefnsResults = AppDefnsResults(m.some)
     def empty: AppDefnsResults = nel(emptyRR.head, emptyRR.tail)
   }
-  
+
   type AppRequestResults = NonEmptyList[Option[AppRequestResult]]
 
   object AppRequestResults {
@@ -323,7 +323,7 @@ package object models {
     def apply(m: AppRequestResult): AppRequestResults = AppRequestResults(m.some)
     def empty: AppRequestResults = nel(emptyRR.head, emptyRR.tail)
   }
-  
+
   type BoltDefnsResults = NonEmptyList[Option[BoltDefnsResult]]
 
   object BoltDefnsResults {
@@ -347,7 +347,7 @@ package object models {
     def apply(m: BoltDefnsResult): BoltDefnsResults = BoltDefnsResults(m.some)
     def empty: BoltDefnsResults = nel(emptyRR.head, emptyRR.tail)
   }
-  
+
   type BoltRequestResults = NonEmptyList[Option[BoltRequestResult]]
 
   object BoltRequestResults {
@@ -371,7 +371,7 @@ package object models {
     def apply(m: BoltRequestResult): BoltRequestResults = BoltRequestResults(m.some)
     def empty: BoltRequestResults = nel(emptyRR.head, emptyRR.tail)
   }
-  
+
   type CloudToolSettingResults = NonEmptyList[Option[CloudToolSettingResult]]
 
   object CloudToolSettingResults {
@@ -394,7 +394,7 @@ package object models {
     def apply(m: CloudToolSettingResult): CloudToolSettingResults = nels(m.some)
     def empty: CloudToolSettingResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
+
   type SshKeyResults = NonEmptyList[Option[SshKeyResult]]
 
   object SshKeyResults {
@@ -417,7 +417,7 @@ package object models {
     def apply(m: SshKeyResult): SshKeyResults = nels(m.some)
     def empty: SshKeyResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
+
   type MarketPlaceResults = NonEmptyList[Option[MarketPlaceResult]]
 
   object MarketPlaceResults {
@@ -440,8 +440,7 @@ package object models {
     def apply(m: MarketPlaceResult): MarketPlaceResults = nels(m.some)
     def empty: MarketPlaceResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
-  
+
   type MarketPlaceAddonsResults = NonEmptyList[Option[MarketPlaceAddonsResult]]
 
   object MarketPlaceAddonsResults {
@@ -465,7 +464,7 @@ package object models {
     def apply(m: MarketPlaceAddonsResult): MarketPlaceAddonsResults = MarketPlaceAddonsResults(m.some)
     def empty: MarketPlaceAddonsResults = nel(emptyRR.head, emptyRR.tail)
   }
-  
+
   type MarketPlaceAddonsConfigurationResults = NonEmptyList[Option[MarketPlaceAddonsConfigurationResult]]
 
   object MarketPlaceAddonsConfigurationResults {
@@ -489,36 +488,34 @@ package object models {
     def apply(m: MarketPlaceAddonsConfigurationResult): MarketPlaceAddonsConfigurationResults = MarketPlaceAddonsConfigurationResults(m.some)
     def empty: MarketPlaceAddonsConfigurationResults = nel(emptyRR.head, emptyRR.tail)
   }
-  
-  type MarketPlacePlans = NonEmptyList[MarketPlacePlan]
-  //type MarketPlacePlans = NonEmptyList[String]
-  //type MarketPlacePlans = List[String]
-  
-  
+
+  type MarketPlacePlans = List[MarketPlacePlan]
+
   object MarketPlacePlans {
     val emptyRR = List(MarketPlacePlan.empty)
-    //val emptyRR = nels(none)
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: MarketPlacePlans): JValue = {
+
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
       import models.json.MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
       toJSON(nres)(MarketPlacePlansWriter)
     }
 
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MarketPlacePlans] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
+      fromJSON(jValue)(MarketPlacePlansReader)
+    }
+
     def toJson(nres: MarketPlacePlans, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(nres)))
     } else {
       compactRender(toJValue(nres))
     }
-    //def apply(m: MarketPlacePlan): MarketPlacePlans = nels(m)
-    //def apply(n: List[MarketPlacePlan]): MarketPlacePlans = MarketPlacePlans(n)
-    def apply(n: NonEmptyList[MarketPlacePlan]): MarketPlacePlans = n
-    def empty: MarketPlacePlans = nel(emptyRR.head, emptyRR.tail)
-    //def apply(n: NonEmptyList[MarketPlacePlan]): MarketPlacePlanss = n.map(x => x.toJson(true))
-    //def apply(n: List[MarketPlacePlan]): MarketPlacePlans = n.map(x => x.toJson(true))
-    //def empty: MarketPlacePlans = nel("", List[String]())
-    //def empty: MarketPlacePlans = List[String]()
+    
+    def apply(plansList: List[MarketPlacePlan]): MarketPlacePlans = plansList
+
+    def empty: List[MarketPlacePlan] = emptyRR
+
   }
-  
+
 }

@@ -38,9 +38,8 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val IdKey = "id"
   protected val NameKey = "name"
   protected val AppDetailsKey = "appdetails"  
-  protected val PriceTypeKey = "pricetype"
   protected val FeaturesKey = "features" 
-  protected val PlanKey = "plan"
+  protected val PlanKey = "plans"
   protected val AppLinksKey = "applinks"
   protected val AttachKey = "attach"
   protected val PredefNodeKey = "predefnode"
@@ -60,9 +59,8 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
           JField(NameKey, toJSON(h.name)) ::
           JField(AppDetailsKey, toJSON(h.appdetails)(MarketPlaceAppDetailsWriter)) ::
           JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::          
-          JField(PriceTypeKey, toJSON(h.pricetype)) ::
           JField(FeaturesKey, toJSON(h.features)(MarketPlaceFeaturesWriter)) ::          
-          JField(PlanKey, toJSON(h.plan)(MarketPlacePlansWriter)) ::
+          JField(PlanKey, toJSON(h.plans)(MarketPlacePlansWriter)) ::
           JField(AppLinksKey, toJSON(h.applinks)(MarketPlaceAppLinksWriter)) ::
           JField(AttachKey, toJSON(h.attach)) ::
           JField(PredefNodeKey, toJSON(h.predefnode)) ::
@@ -83,19 +81,17 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
       val appdetailsField = field[MarketPlaceAppDetails](AppDetailsKey)(json)(MarketPlaceAppDetailsReader)      
-      val pricetypeField = field[String](PriceTypeKey)(json)
       val featuresField = field[MarketPlaceFeatures](FeaturesKey)(json)(MarketPlaceFeaturesReader)      
       val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
-      //val planField = field[List[MarketPlacePlan]](PlanKey)(json)(MarketPlacePlanReader)
       val applinksField = field[MarketPlaceAppLinks](AppLinksKey)(json)(MarketPlaceAppLinksReader)
       val attachField = field[String](AttachKey)(json)
       val predefnodeField = field[String](PredefNodeKey)(json)
       val approvedField = field[String](ApprovedKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| appdetailsField |@| pricetypeField |@| featuresField |@| planField |@| applinksField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
-        (id: String, name: String, appdetails: MarketPlaceAppDetails, pricetype: String, features: MarketPlaceFeatures, plan: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) =>
-          new MarketPlaceResult(id, name, appdetails, pricetype, features, plan, applinks, attach, predefnode, approved, created_at)
+      (idField |@| nameField |@| appdetailsField |@| featuresField |@| planField |@| applinksField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
+        (id: String, name: String, appdetails: MarketPlaceAppDetails, features: MarketPlaceFeatures, plan: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) =>
+          new MarketPlaceResult(id, name, appdetails, features, plan, applinks, attach, predefnode, approved, created_at)
       }
     }
   }

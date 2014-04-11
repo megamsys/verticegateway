@@ -45,7 +45,7 @@ object PlatformAppPrimer {
   def predefs = models.Predefs.create
 
   //populate the marketplace addons
-  def marketplace_addons = models.MarketPlaces.marketplace_init
+  def marketplace_addons = models.MarketPlaces.createMany(MarketPlaceInput.toMap)
 
   def sandbox_ec2_default = PredefCloudInput("clouddefault",
     new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "t1.micro", ""),
@@ -116,7 +116,7 @@ object PlatformAppPrimer {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Market Place addons created successfully. Cache gets loaded upon first fetch. 
             |
-            |%nLoaded values are ----->%n[%s]""".format(mkp.toString).stripMargin, "Megam::MarketPlaces"))
+            |%nLoaded results are ----->%n[%s]""".format(mkp.length + " addons primed.").stripMargin, "Megam::MarketPlaces"))
     FunnelResponses(chainedComps)
   }
 
