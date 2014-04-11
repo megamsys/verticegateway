@@ -39,6 +39,10 @@ object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
   protected val PriceKey = "price"
   protected val DescriptionKey = "description"
   protected val PlanTypeKey = "plantype"  
+  protected val VersionKey = "version"  
+  protected val SourceKey = "source"  
+  
+  
 
   override implicit val writer = new JSONW[MarketPlacePlan] {
 
@@ -47,7 +51,9 @@ object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
         JField(PriceKey, toJSON(h.price)) ::
           JField(DescriptionKey, toJSON(h.description)) ::
           JField(PlanTypeKey, toJSON(h.plantype)) :: 
-           Nil)
+          JField(VersionKey, toJSON(h.version)) :: 
+          JField(SourceKey, toJSON(h.source)) ::
+          Nil)
     }
   }
 
@@ -57,41 +63,12 @@ object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
       val priceField = field[String](PriceKey)(json)
       val descriptionField = field[String](DescriptionKey)(json)
       val plantypeField = field[String](PlanTypeKey)(json)      
+      val versionField = field[String](VersionKey)(json)      
+      val sourceField = field[String](SourceKey)(json)      
 
-      (priceField |@| descriptionField |@| plantypeField ) {
-        (price: String, description: String, plantype: String) =>
-          new MarketPlacePlan(price, description, plantype)
-      }
-    }
-  }
-}
-
-class MarketPlacePlanSerialization(charset: Charset = UTF8Charset) extends SerializationBase[MarketPlacePlan] {
-  protected val PriceKey = "price"
-  protected val DescriptionKey = "description"
-  protected val PlanTypeKey = "plantype"  
-
-  override implicit val writer = new JSONW[MarketPlacePlan] {
-
-    override def write(h: MarketPlacePlan): JValue = {
-      JObject(
-        JField(PriceKey, toJSON(h.price)) ::
-          JField(DescriptionKey, toJSON(h.description)) ::
-          JField(PlanTypeKey, toJSON(h.plantype)) :: 
-           Nil)
-    }
-  }
-
-  override implicit val reader = new JSONR[MarketPlacePlan] {
-
-    override def read(json: JValue): Result[MarketPlacePlan] = {
-      val priceField = field[String](PriceKey)(json)
-      val descriptionField = field[String](DescriptionKey)(json)
-      val plantypeField = field[String](PlanTypeKey)(json)      
-
-      (priceField |@| descriptionField |@| plantypeField ) {
-        (price: String, description: String, plantype: String) =>
-          new MarketPlacePlan(price, description, plantype)
+      (priceField |@| descriptionField |@| plantypeField |@| versionField |@| sourceField ) {
+        (price: String, description: String, plantype: String, version: String, source: String) =>
+          new MarketPlacePlan(price, description, plantype, version, source)
       }
     }
   }

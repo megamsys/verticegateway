@@ -24,7 +24,7 @@ scalacOptions := Seq(
   	"-language:implicitConversions",
   	"-Ydead-code")
   	
-//incOptions := incOptions.value.withNameHashing(true)
+incOptions := incOptions.value.withNameHashing(true)
 
 com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
 
@@ -43,7 +43,7 @@ debianPackageDependencies in Debian ++= Seq("curl", "java2-runtime", "bash (>= 2
 
 debianPackageRecommends in Debian += "riak"
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.1.0")),"0.1/debs/megamplay.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.3.0")),"0.3/debs/megamplay.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 

@@ -28,54 +28,32 @@ import java.nio.charset.Charset
  *
  */
 object MarketPlacePlansSerialization extends SerializationBase[MarketPlacePlans] {
- 
+
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "results"
+  protected val ResultsKey = "plans"
 
   implicit override val writer = new JSONW[MarketPlacePlans] {
     override def write(h: MarketPlacePlans): JValue = {
-     val nrsList: NonEmptyList[JValue] = h.map {
-      //val nrsList: List[String] = h.map {
-        //nrOpt: Option[MarketPlacePlan] =>
-          //(nrOpt.map { nr: MarketPlacePlan => nr.toJValue }).getOrElse(JNothing)
-        nrOpt: MarketPlacePlan =>   nrOpt.toJValue
-       // nrOpt: String => nrOpt
-      }
-     //JObject(JField(ResultsKey, JArray(nrsList.list)) :: Nil)
-     JArray(nrsList.list)
-     // JObject(JField(JSONClazKey, JString("Megam::MarketPlacePlanCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      val nrsList: Option[List[JValue]] = h.map {
+        nrOpt: MarketPlacePlan => nrOpt.toJValue
+      }.some
+      
+      JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }
-  /* Read - JArray(List[NodeResult]) which translates to :
-        JArray(List(
-          JObject(
-            List(
-              JField(name,JInt(code)),
-              JField(value,JString(msg))
-              .....
-            )
-          )
-        )
-      )
-      PredefResult already has an implicit reader, hence use it.
-       */
+
   implicit override val reader = new JSONR[MarketPlacePlans] {
     override def read(json: JValue): Result[MarketPlacePlans] = {
-      play.api.Logger.debug(("%-20s -->[%s]").format("----------------------->", json))
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
             MarketPlacePlan.fromJValue(jValue) match {
-              //case Success(nr)   => nels(nr)
-             // case Failure(fail) => nels(MarketPlacePlan.empty)
-              case Success(nr)   => List(nr)
+              case Success(nr) => List(nr)
               case Failure(fail) => List[MarketPlacePlan]()
             }
-          } map { x: MarketPlacePlan => x }
-                  
-          //this is screwy. Making the MarketPlacePlans as Option[NonEmptylist[MarketPlacePlan]] will solve it.
-         val nrs: MarketPlacePlans = list.toNel.getOrElse(MarketPlacePlans.empty)
-          //val nrs: MarketPlacePlans = MarketPlacePlans(list)
+          }.some
+
+          val nrs: MarketPlacePlans = MarketPlacePlans(list.getOrElse(MarketPlacePlans.empty))
           nrs.successNel[Error]
         }
         case j => UnexpectedJSONError(j, classOf[JArray]).failNel[MarketPlacePlans]
