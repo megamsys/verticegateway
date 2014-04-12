@@ -41,7 +41,7 @@ object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
   protected val PlanTypeKey = "plantype"  
   protected val VersionKey = "version"  
   protected val SourceKey = "source"  
-  
+  protected val OsKey = "os"  
   
 
   override implicit val writer = new JSONW[MarketPlacePlan] {
@@ -53,6 +53,7 @@ object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
           JField(PlanTypeKey, toJSON(h.plantype)) :: 
           JField(VersionKey, toJSON(h.version)) :: 
           JField(SourceKey, toJSON(h.source)) ::
+          JField(OsKey, toJSON(h.os)) ::
           Nil)
     }
   }
@@ -64,11 +65,12 @@ object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
       val descriptionField = field[String](DescriptionKey)(json)
       val plantypeField = field[String](PlanTypeKey)(json)      
       val versionField = field[String](VersionKey)(json)      
-      val sourceField = field[String](SourceKey)(json)      
+      val sourceField = field[String](SourceKey)(json)   
+      val osField = field[String](OsKey)(json)
 
-      (priceField |@| descriptionField |@| plantypeField |@| versionField |@| sourceField ) {
-        (price: String, description: String, plantype: String, version: String, source: String) =>
-          new MarketPlacePlan(price, description, plantype, version, source)
+      (priceField |@| descriptionField |@| plantypeField |@| versionField |@| sourceField |@| osField) {
+        (price: String, description: String, plantype: String, version: String, source: String, os: String) =>
+          new MarketPlacePlan(price, description, plantype, version, source, os)
       }
     }
   }
