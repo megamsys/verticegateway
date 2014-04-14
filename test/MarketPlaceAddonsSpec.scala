@@ -52,6 +52,7 @@ class MarketPlaceAddonsSpec extends Specification {
       val config = new MarketPlaceAddonsConfig(new MarketPlaceAddonsConfigDisaster("locations", "sample1.megam.co", "appsample2.megam.co;appsample3.megam.co", "recipe[megam_drbd]"), new MarketPlaceAddonsConfigLoadBalancing("", "", ""),
                                                new MarketPlaceAddonsConfigAutoScaling("", "", "", ""), new MarketPlaceAddonsConfigMonitoring("op5", ""))
       val contentToEncode = "{\"node_id\":\"NOD451721484906266624\",\"node_name\":\"lobotomies1.megam.co\",\"marketplace_id\":\"tyutyujyt\",\"config\":" + config.json + "}"
+      
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
