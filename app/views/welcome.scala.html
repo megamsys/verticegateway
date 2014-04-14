@@ -1,29 +1,7 @@
 @(message: String, style: String = "Scala", playhome: String ="http://www.playframework.org")(implicit flash: play.api.mvc.Flash) <!-- Indicates a dangerous or potentially negative action -->
 
 <div class="api-doc">
-	<div class="mddoc margin-top-large">
-		<div class="row">
-			<div class="col-lg-1">
-				<span class="glyphicon glyphicon-hand-right"> </span>
-			</div>
-			<div class="col-lg-8">
-				<div class="alert alert-warning">
-					<button type="button" class="close" data-dismiss="alert">
-						&times;
-					</button>
-					<strong>Administrators :</strong>
-					&nbsp;
-					<code>
-						&nbsp;<b>Quick Init</b>
-					</code>&nbsp;
-					to prime your platform.
-				</div>
-			</div>
-			<div class="col-lg-3">				
-				<a href="@routes.Application.login" class="btn btn-danger btn-block"> <span class="glyphicon glyphicon-flash">Quick Init </span> </a>
-			</div>
-		</div>		
-		
+	<div class="mddoc margin-top-large">			
 		@flash.get("success").map { suc=>
 		<div class="alert alert-success">
 			<button type="button" class="close" data-dismiss="alert">

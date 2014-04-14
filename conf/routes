@@ -4,12 +4,10 @@
 
 # Home page
 GET    /                                controllers.Application.index
-GET    /init                            controllers.Application.init
-GET    /login                           controllers.Application.login
+GET    /utru                            controllers.Application.initaccount
+GET    /login	                        controllers.Application.login
 POST   /session                         controllers.Application.loginauthenticate
-GET    /initaccount                     controllers.Application.initaccount
-GET    /initcloudtoolsetting            controllers.Application.initcloudtoolsetting
-GET    /initmarketplaceaddons           controllers.Application.initmarketplaceaddons
+GET    /init                            controllers.Application.init
 
 # Authentication - HMAC
 POST   /v1/auth                         controllers.Application.authenticate

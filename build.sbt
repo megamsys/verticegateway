@@ -39,7 +39,7 @@ packageSummary := "Cloud Gateway - Megam Cloud."
 
 packageDescription in Debian:= "(REST based) Cloud Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
 
-debianPackageDependencies in Debian ++= Seq("curl", "java2-runtime", "bash (>= 2.05a-11)")
+debianPackageDependencies in Debian ++= Seq("curl", "bash (>= 2.05a-11)")
 
 debianPackageRecommends in Debian += "riak"
 

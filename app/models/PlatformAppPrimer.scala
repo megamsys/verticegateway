@@ -77,18 +77,21 @@ object PlatformAppPrimer {
     ccd <- clone_predefcloud(SANDBOX_EMAIL)
     cdsd <- clone_predefcloud(DEMO_EMAIL)
     cts <- cloudtools
+    cts_preped <- cts_prep
+    mkp_preped <- mkp_prep
   } yield {
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Predefs created successfully. Cache gets loaded upon first fetch. 
+      FunnelResponse(CREATED, """Predefs created successfully. 
             |
-            |%nLoaded values are ----->%n[%s]""".format(lpd.toString).stripMargin, "Megam::Predef"),
+            |%nLoaded values are ----->%n[%s]""".format(lpd.length).stripMargin, "Megam::Predef"),
       FunnelResponse(CREATED, """Predefs cloud created successfully(%s,%s).
             |
-            |You can use the the 'predefs cloud name':{%s}.""".format(SANDBOX_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"),      
+            |You can use the the 'predefs cloud name':{%s}.""".format(SANDBOX_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"),
       FunnelResponse(CREATED, """Cloud tools created successfully. Cache gets loaded upon first fetch. 
             |
-            |%nLoaded values are ----->%n[%s]""".format(cts.toString).stripMargin, "Megam::CloudTools"))
-    FunnelResponses(chainedComps)
+            |%nLoaded values are ----->%n[%s]""".format(cts.length).stripMargin, "Megam::CloudTools"))
+    FunnelResponses(chainedComps ++ cts_preped.get.list ++ mkp_preped.get.list)
+    
   }
   //populate the default cloud tool settings  
   def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo/.chef/knife.rb").json
@@ -104,7 +107,7 @@ object PlatformAppPrimer {
       FunnelResponse(CREATED, """CloudToolSettings created successfully(%s,%s).
             |
             |You can use the the 'cloud tool setting name':{%s}.""".format(SANDBOX_EMAIL, DEMO_EMAIL, cts.getOrElse("none")), "Megam::CloudToolSetting"),
-    FunnelResponse(CREATED, """CloudToolSettings inilization published successfully.
+      FunnelResponse(CREATED, """CloudToolSettings inilization published successfully.
             |
             |You can use the the 'CloudToolSetting.""", "Megam::CloudToolSetting"))
     FunnelResponses(chainedComps)
