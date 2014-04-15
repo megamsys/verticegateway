@@ -16,9 +16,9 @@
 				<strong>Administrators :</strong>
 				&nbsp;
 				<code>
-					&nbsp;<b>Setup</b>
+					&nbsp;<b>Step 1, 2 ,3, 4</b>
 				</code>&nbsp;
-				Megam
+				to prime your Cloud App Platform.
 			</div>
 		</div>
 		<div class="col-lg-3"></div>
@@ -26,71 +26,85 @@
 	<div class="row">
 		<div class="col-lg-3"></div>
 		<div class="col-lg-7">
-			<div id="loginbox">
-				<form id="loginform" class="form-vertical" action="index.html">
-					<p>
-						Enter username and password to continue.
-					</p>
-					<div class="input-group input-sm">
-						<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i> </span>
-						<input type="email" name="email" class="form-control" placeholder="Email" id="email" value="@form("email").value">
-					</div>
 
-					<div class="input-group">
-						<span class="input-group-addon"> <i class="glyphicon glyphicon-lock"></i></span>
-						<input type="text" name="apikey" class="form-control" id="apikey" placeholder="ApiKey">
+			<div class="widget-box collapsible">
+				<div class="widget-title">
+					<a  href="#collapseOne" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 1 : Initialize a Sandbox Account</h3> </a>
+				</div>
+				<div class="collapse" id="collapseOne">
+					<div class="widget-content">
+						<a href="@routes.Application.initaccount" class="btn btn-primary btn-lg active btn-block"> Create Sandbox Account</a>
 					</div>
-					<div class="form-actions clearfix">
-						<input type="submit" class="btn btn-lg btn-primary btn-default" id="initsubmit" value="Initialize Megam" disabled ="true"  data-disable_with =  "Please wait..." />
-					</div>
-
-					<div class="footer-login">
-						<div class="pull-right text">
-							Read more
-							<code>
-								<a href="http://gomegam.com/docs" target="_blank">from docs</a>
-							</code>
-						</div>
-						<div class="pull-left text">
-							Contact
-							<code>
-								<a href="http://support.megam.co" target="_blank">support</a>
-							</code>
-						</div>
-					</div>
-				</form>
+				</div>
 			</div>
+
+			<div class="widget-box collapsible">
+				<div class="widget-title">
+					<a href="#collapseTwo" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 2: Intialize Cloud Setting</h3> </a>
+
+				</div>
+				<div class="collapse" id="collapseTwo">
+					<div class="widget-content">
+						<div id="loginbox">
+							<form id="loginform" class="form-vertical" action="index.html">
+								<p>
+									Enter email and apikey to continue.
+								</p>
+								<div class="input-group input-sm">
+									<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i> </span>
+									<input type="email" name="email" class="form-control" placeholder="Email" id="email" value="@form("email").value">
+								</div>
+
+								<div class="input-group">
+									<span class="input-group-addon"> <i class="glyphicon glyphicon-lock"></i></span>
+									<input type="text" name="apikey" class="form-control" id="apikey" placeholder="ApiKey">
+								</div>
+								<div class="form-actions clearfix">
+									<div class="pull-right">
+										<a href="https://www.megam.co/forgot_password" class="flip-link to-recover grey" target="_blank"> Lost API Key?</a>
+									</div>
+									<input type="submit" class="btn btn-block btn-primary btn-default" value="Yup. Init Me" />
+								</div>
+								<div class="footer-login">
+									<div class="pull-left text">
+										Hint : Enter
+										<code>
+											[sandbox(email,passsword)]
+										</code>
+									</div>
+								</div>
+							</form>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="widget-box collapsible">
+				<div class="widget-title">
+					<a  href="#collapseThree" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 3: Intialize Cloud Provisioner</h3> </a>
+				</div>
+				<div class="collapse" id="collapseThree">
+					<div class="widget-content">
+						<a href="@routes.Application.initcloudtoolsetting" class="btn btn-primary btn-lg active btn-block"> Create Cloud Recipe</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="widget-box collapsible">
+				<div class="widget-title">
+					<a  href="#collapseFour" data-toggle="collapse"> <span class="icon"><i class="icon-magnet"></i></span><h3>Step 4: Intialize Market Place Addons</h3> </a>
+				</div>
+				<div class="collapse" id="collapseFour">
+					<div class="widget-content">
+						<a href="@routes.Application.initmarketplaceaddons" class="btn btn-primary btn-lg active btn-block"> Create Market Place Addons</a>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</div>
 </div>
+</div>
 }
 }
-
-<script type="text/javascript">
-	jQuery(document).ready(function() {
-		$('#initsubmit').attr('disabled', true);
-
-		$("#email").change(function() {
-			if ($('#email').val() && $('#apikey').val()) {
-				$('#initsubmit').attr('disabled', false);
-			} else {
-				$('#initsubmit').attr('disabled', false);
-			}
-		});
-
-		$("#apikey").change(function() {
-			if ($('#email').val() && $('#apikey').val()) {
-				$('#initsubmit').attr('disabled', false);
-			} else {
-				$('#initsubmit').attr('disabled', true);
-			}
-		});
-
-		$("#initsubmit").click(function() {
-			if ($('#email').val() && $('#apikey').val()) {
-			} else {
-			}
-		});
-	}); 
-</script>
 

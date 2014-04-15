@@ -55,7 +55,7 @@ object Application extends Controller with APIAuthElement {
     PlatformAppPrimer.acc_prep match {
       case Success(succ) => {
         val fu = List(("success" -> "Megam CMP : sandbox account is ready.")) ++ FunnelResponses.toTuple2(succ)
-        Redirect("/login").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
       }
       case Failure(err) => {
         val rn: FunnelResponses = new HttpReturningError(err)
@@ -100,7 +100,8 @@ object Application extends Controller with APIAuthElement {
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
       user => Redirect("/init"))
-  }
+      //user => Ok(views.html.initialize(loginForm, "Megam CMP. Lets kick the tyres.")))
+  }  
   
   /**
    * Make this role based (Admin),
@@ -122,4 +123,35 @@ object Application extends Controller with APIAuthElement {
     }
 
   }
+  
+   def initcloudtoolsetting = Action { implicit request =>
+    PlatformAppPrimer.cts_prep match {
+      case Success(succ) => {
+        val fu = List(("success" -> "Megam CMP :Cloud provisioner is ready.")) ++ FunnelResponses.toTuple2(succ)
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
+      }
+      case Failure(err) => {
+        val rn: FunnelResponses = new HttpReturningError(err)
+        val rnjson = FunnelResponses.toJson(rn, false)
+        val fu = List(("error" -> "Duh Megam CMP :Cloud provisioner couldn't be primed.")) ++ FunnelResponses.toTuple2(rn)
+        Redirect("/").flashing(fu: _*)
+      }
+    }
+  }
+
+  def initmarketplaceaddons = Action { implicit request =>
+    PlatformAppPrimer.mkp_prep match {
+      case Success(succ) => {
+        val fu = List(("success" -> "Megam CMP :Default Market Place Addons is ready.")) ++ FunnelResponses.toTuple2(succ)
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
+      }
+      case Failure(err) => {
+        val rn: FunnelResponses = new HttpReturningError(err)
+        val rnjson = FunnelResponses.toJson(rn, false)
+        val fu = List(("error" -> "Duh Megam CMP :Default Market Place Addons couldn't be primed.")) ++ FunnelResponses.toTuple2(rn)
+        Redirect("/").flashing(fu: _*)
+      }
+    }
+  }
+  
 }
