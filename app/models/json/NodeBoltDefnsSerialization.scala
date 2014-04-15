@@ -44,7 +44,7 @@ object NodeBoltDefnsSerialization extends SerializationBase[NodeBoltDefns] {
   protected val BoltMeteredKey = "metered"  
   protected val BoltLoggingKey = "logging"
   protected val BoltRuntimeExecKey ="runtime_exec"
-  
+  protected val AppEnvShKey ="env_sh"
 
   override implicit val writer = new JSONW[NodeBoltDefns] {   
 
@@ -58,7 +58,8 @@ object NodeBoltDefnsSerialization extends SerializationBase[NodeBoltDefns] {
           JField(BoltTimetoKillKey, toJSON(h.timetokill)) ::
           JField(BoltMeteredKey, toJSON(h.metered)) ::          
           JField(BoltLoggingKey, toJSON(h.logging))    ::
-          JField(BoltRuntimeExecKey, toJSON(h.runtime_exec))  ::Nil)
+          JField(BoltRuntimeExecKey, toJSON(h.runtime_exec))  ::
+          JField(AppEnvShKey, toJSON(h.env_sh)) ::Nil)
     }
   }
 
@@ -74,10 +75,11 @@ object NodeBoltDefnsSerialization extends SerializationBase[NodeBoltDefns] {
       val meterField = field[String](BoltMeteredKey)(json)
       val loggingField = field[String](BoltLoggingKey)(json)
       val runtimeexecField = field[String](BoltRuntimeExecKey)(json)
+      val envshField = field[String](AppEnvShKey)(json)
     
-      ( usernameField |@| apikeyField |@| storenameField |@| urlField |@| primeField |@| timetokillField |@| meterField |@| loggingField |@| runtimeexecField ) {
-        (username: String, apikey: String, storename: String, url: String, prime: String, timetokill: String, metered: String, logging: String, runtimeexec: String) =>
-          new NodeBoltDefns(username, apikey, storename, url, prime, timetokill, metered, logging, runtimeexec)
+      ( usernameField |@| apikeyField |@| storenameField |@| urlField |@| primeField |@| timetokillField |@| meterField |@| loggingField |@| runtimeexecField |@| envshField) {
+        (username: String, apikey: String, storename: String, url: String, prime: String, timetokill: String, metered: String, logging: String, runtimeexec: String, env_sh: String) =>
+          new NodeBoltDefns(username, apikey, storename, url, prime, timetokill, metered, logging, runtimeexec, env_sh)
       }
     }
   }
