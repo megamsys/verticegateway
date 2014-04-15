@@ -144,12 +144,12 @@ case class NodePredefs(name: String, scm: String, war: String, db: String, queue
   override def toString = "\"name\":\"" + name + "\",\"scm\":\"" + scm + "\",\"war\":\"" + war + "\",\"db\":\"" + db + "\",\"queue\":\"" + queue + "\""
 }
 
-case class NodeAppDefns(timetokill: String, metered: String, logging: String, runtime_exec: String) {
-  val json = "{\"timetokill\":\"" + timetokill + "\",\"metered\":\"" + metered + "\",\"logging\":\"" + logging + "\",\"runtime_exec\":\"" + runtime_exec + "\"}"
+case class NodeAppDefns(timetokill: String, metered: String, logging: String, runtime_exec: String, env_sh: String) {
+  val json = "{\"timetokill\":\"" + timetokill + "\",\"metered\":\"" + metered + "\",\"logging\":\"" + logging + "\",\"runtime_exec\":\"" + runtime_exec + "\",\"env_sh\":\"" + env_sh + "\"}"
 }
 
-case class NodeBoltDefns(username: String, apikey: String, store_name: String, url: String, prime: String, timetokill: String, metered: String, logging: String, runtime_exec: String) {
-  val json = "{\"username\":\"" + username + "\",\"apikey\":\"" + apikey + "\",\"store_name\":\"" + store_name + "\",\"url\":\"" + url + "\",\"prime\":\"" + prime + "\",\"timetokill\":\"" + timetokill + "\",\"metered\":\"" + metered + "\",\"logging\":\"" + logging + "\",\"runtime_exec\":\"" + runtime_exec + "\"}"
+case class NodeBoltDefns(username: String, apikey: String, store_name: String, url: String, prime: String, timetokill: String, metered: String, logging: String, runtime_exec: String, env_sh: String) {
+  val json = "{\"username\":\"" + username + "\",\"apikey\":\"" + apikey + "\",\"store_name\":\"" + store_name + "\",\"url\":\"" + url + "\",\"prime\":\"" + prime + "\",\"timetokill\":\"" + timetokill + "\",\"metered\":\"" + metered + "\",\"logging\":\"" + logging + "\",\"runtime_exec\":\"" + runtime_exec + "\",\"env_sh\":\"" + env_sh + "\"}"
 
 }
 

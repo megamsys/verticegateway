@@ -39,6 +39,7 @@ object NodeAppDefnsSerialization extends SerializationBase[NodeAppDefns] {
   protected val AppMeteredKey = "metered"  
   protected val AppLoggingKey = "logging"
   protected val AppRuntimeExecKey ="runtime_exec"
+  protected val AppEnvShKey ="env_sh"
   
 
   override implicit val writer = new JSONW[NodeAppDefns] {   
@@ -48,7 +49,8 @@ object NodeAppDefnsSerialization extends SerializationBase[NodeAppDefns] {
         JField(AppTimetoKillKey, toJSON(h.timetokill)) ::
           JField(AppMeteredKey, toJSON(h.metered)) ::          
           JField(AppLoggingKey, toJSON(h.logging))    ::
-          JField(AppRuntimeExecKey, toJSON(h.runtime_exec))  ::Nil)
+          JField(AppRuntimeExecKey, toJSON(h.runtime_exec))  ::
+          JField(AppEnvShKey, toJSON(h.env_sh)) ::Nil)
     }
   }
 
@@ -59,10 +61,11 @@ object NodeAppDefnsSerialization extends SerializationBase[NodeAppDefns] {
       val meterField = field[String](AppMeteredKey)(json)
       val loggingField = field[String](AppLoggingKey)(json)
       val runtimeexecField = field[String](AppRuntimeExecKey)(json)
+      val envshField = field[String](AppEnvShKey)(json)
     
-      ( timetokillField |@| meterField |@| loggingField |@| runtimeexecField ) {
-        (timetokill: String, metered: String, logging: String, runtimeexec: String) =>
-          new NodeAppDefns(timetokill, metered, logging, runtimeexec)
+      ( timetokillField |@| meterField |@| loggingField |@| runtimeexecField |@| envshField) {
+        (timetokill: String, metered: String, logging: String, runtimeexec: String, env_sh: String) =>
+          new NodeAppDefns(timetokill, metered, logging, runtimeexec, env_sh)
       }
     }
   }

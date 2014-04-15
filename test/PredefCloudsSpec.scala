@@ -22,6 +22,7 @@ package test
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
+import controllers.Constants._
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
@@ -53,8 +54,9 @@ class PredefCloudsSpec extends Specification {
     protected override def urlSuffix: String = "predefclouds/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new PredefCloudInput("ec2_rails", new PredefCloudSpec("ec2", "megam", "ami-d783cd85", "m1.small", ""),
-        new PredefCloudAccess("megam_ec2", "~/.ssh/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "~/.ssh/megam_ec2.pem", "", "region")).json
+      val contentToEncode = new PredefCloudInput("clouddefault",
+    new PredefCloudSpec("google", "", "debian-7-wheezy-v20131120", "f1-micro", ""),
+    new PredefCloudAccess("", "cloudkeys/" + SANDBOX_EMAIL + "/id_rsa.pub", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + SANDBOX_EMAIL + "/gdefault", "", "europe-west1-a", "")).json
       Some(contentToEncode)
     }
 

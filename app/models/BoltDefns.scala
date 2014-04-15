@@ -60,7 +60,7 @@ case class BoltDefnsResult(id: String, node_id: String, node_name: String, boltd
 
 object BoltDefnsResult {
 
-  def apply = new BoltDefnsResult(new String(), new String(), new String(), new NodeBoltDefns(new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String()), new String())
+  def apply = new BoltDefnsResult(new String(), new String(), new String(), new NodeBoltDefns(new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String()), new String())
 
   //def apply(timetokill: String): AppDefnsResult = AppDefnsResult(timetokill, new String(), new String(), new String())
 
@@ -88,6 +88,11 @@ case class BoltDefnsInputforExistNode(node_name: String, boltdefns: NodeBoltDefn
   play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns:json", boltdefns.json))
   val json = "\",\"node_name\":\"" + node_name + "\",\"boltdefns\":" + boltdefns.json
 }
+
+case class BoltDefnsUpdateInput(boltdefn_id: String, node_name: String, runtime_exec: String, env_sh: String) {
+  val json = "{\"boltdefn_id\": \"" + boltdefn_id + "\",\"node_name\": \"" + node_name + "\",\"runtime_exec\":\"" + runtime_exec + "\",\"env_sh\":\"" + env_sh + "\"}"
+}
+
 
 object BoltDefns {
 
@@ -323,6 +328,60 @@ object BoltDefns {
     }.run.map(_.validation).unsafePerformIO
     play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns", res))
     res.getOrElse(new ResourceItemNotFound(email, "definitions = nothing found.").failureNel[BoltDefnsResults])
+  }
+  
+  private def updateGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    val defnInput: ValidationNel[Throwable, BoltDefnsUpdateInput] = (Validation.fromTryCatch {
+      parse(input).extract[BoltDefnsUpdateInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure  
+
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns", defnInput))
+    for {
+      nir <- defnInput
+      aor <- (models.BoltDefns.findByReqName(List(nir.boltdefn_id).some) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val onir = aor.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[BoltDefnsResult] =>
+        (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.          
+          BoltDefnsResult(nelnor.get.id, nelnor.get.node_id, nelnor.get.node_name, nelnor.get.boltdefns, nelnor.get.created_at)
+        }).asInstanceOf[BoltDefnsResult]
+      }
+      val bvalue = Set(onir(0).node_id)
+      val jsonobj = BoltDefnsResult(onir(0).id, onir(0).node_id, onir(0).node_name, valueChange(onir(0).boltdefns, nir.env_sh), Time.now.toString())
+
+      play.api.Logger.debug(("%-20s -->[%s]").format("formatted node store", jsonobj.json))
+      val json = jsonobj.json
+      new GunnySack(onir(0).id, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
+    }
+  }
+
+  def update(input: String): ValidationNel[Throwable, Option[(Map[String, String], String, NodeBoltDefns)]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns", "update:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+     import models.Defns._
+    (updateGunnySack(input) leftMap { err: NonEmptyList[Throwable] =>
+      err
+    }).flatMap { gs: Option[GunnySack] =>
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+        flatMap { maybeGS: Option[GunnySack] =>
+          val adf_result = parse(gs.get.value).extract[BoltDefnsResult]
+          play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("BoltDefns.created successfully", "input", input))
+          maybeGS match {
+            case Some(thatGS) => ((Map[String, String](("Id" -> thatGS.key))), adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
+            case None => {
+              play.api.Logger.warn(("%-20s -->[%s]").format("BoltDefns.updated success", "Scaliak returned => None. Thats OK."))
+              ((Map[String, String](("Id" -> gs.get.key), ("Action" -> DefnType.APP.toString), ("Args" -> List().toString))), adf_result.node_name, adf_result.boltdefns).some.successNel[Throwable]
+            }
+          }
+        }
+    }
+
+  }
+
+  private def valueChange(boltdefns: NodeBoltDefns, env_sh: String): NodeBoltDefns = {
+
+    //val appdefns = parse(old_value).extract[NodeAppDefns]
+    new NodeBoltDefns(boltdefns.username, boltdefns.apikey, boltdefns.store_name, boltdefns.url, boltdefns.prime, boltdefns.timetokill, boltdefns.metered, boltdefns.logging, boltdefns.runtime_exec, env_sh)      
   }
 
 }

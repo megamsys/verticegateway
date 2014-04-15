@@ -35,10 +35,11 @@ class AppDefnsSpec extends Specification {
   AppDefnsSpec is the implementation that calls the megam_play API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST appdefns with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do GET  (node name)appdefns with a invalid Node name" ! findByInvalidName.succeeds ^
-      "Correctly do GET  (node name)appdefns with a valid node name" ! findByNodeName.succeeds ^
-      "Correctly do GET  (node name)appdefns with a valid appdefn name" ! findByDefnsId.succeeds ^
+     //"Correctly do POST appdefns with a valid userid and api key" ! Post.succeeds ^
+      //"Correctly do GET  (node name)appdefns with a invalid Node name" ! findByInvalidName.succeeds ^
+      //"Correctly do GET  (node name)appdefns with a valid node name" ! findByNodeName.succeeds ^
+      //"Correctly do GET  (node name)appdefns with a valid appdefn name" ! findByDefnsId.succeeds ^
+      "Correctly do POST appdefns with a valid userid and api key" ! Update.succeeds ^
   end
 
   /**
@@ -49,7 +50,7 @@ class AppDefnsSpec extends Specification {
     protected override def urlSuffix: String = "appdefns/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"node_name\":\"todaysample1.megam.co\",\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}}"
+      val contentToEncode = "{\"node_name\":\"appsample1.megam.co\",\"appdefns\":{\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\",\"env_sh\":\"env_sh\"}}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -100,6 +101,27 @@ class AppDefnsSpec extends Specification {
     def succeeds = {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+  
+  case object Update extends Context {
+
+    protected override def urlSuffix: String = "appdefns/update"
+
+    protected override def bodyToStick: Option[String] = {      
+
+      val contentToEncode = "{\"appdefn_id\":\"ADF456016953832636416\",\"node_name\":\"appsample1.megam.co\",\"runtime_exec\":\"\",\"env_sh\":\"dfghdfgfdkgj\"}"
+      Some(new String(contentToEncode))
+
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None    
+  private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
 

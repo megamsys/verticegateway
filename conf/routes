@@ -51,6 +51,7 @@ GET    /v1/appdefns                     controllers.AppDefns.list()
 GET    /v1/appdefns/:nodeid/:id	        controllers.AppDefns.show(nodeid: String, id: String)
 GET    /v1/appdefns/:nodeid             controllers.AppDefns.shown(nodeid: String)
 POST   /v1/appdefns/content             controllers.AppDefns.post
+POST   /v1/appdefns/update                 controllers.AppDefns.update
 
 # AppRequests for Nodes                          
 GET    /v1/appreqs/:nodeid              controllers.AppReqs.show(nodeid: String)
@@ -59,6 +60,7 @@ POST   /v1/appreqs/content              controllers.AppReqs.post
 # BoltDefns for Nodes                          
 GET    /v1/boltdefns/:nodeid            controllers.BoltDefns.show(nodeid: String)
 POST   /v1/boltdefns/content            controllers.BoltDefns.post
+POST   /v1/boltdefns/update                 controllers.BoltDefns.update
 
 # BoltRequests for Nodes                          
 GET    /v1/boltreqs/:nodeid             controllers.BoltReqs.show(nodeid: String)
