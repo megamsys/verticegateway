@@ -53,7 +53,7 @@ object AppDefns extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "request funneled."))
           models.AppDefns.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
-              if (email .trim.equalsIgnoreCase(DEMO_EMAIL) ) {
+              if (email.trim.equalsIgnoreCase(DEMO_EMAIL) ) {
                 Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation dry run submitted successfully.   
             |
             |
@@ -183,5 +183,58 @@ object AppDefns extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
+  
+  
+  def update = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "update:Entry"))
+
+    (Validation.fromTryCatch[SimpleResult] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("AppDefns wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "request funneled."))
+          models.AppDefns.update(clientAPIBody) match {
+            case Success(succ) =>
+              if (email.trim.equalsIgnoreCase(DEMO_EMAIL) ) {
+                Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation dry run submitted successfully.   
+            |
+            |
+            |No actual update in cloud. Signup for a new account to get started.""", "Megam::AppDefns").toJson(true))
+              } else {
+                /*This isn't correct. Revisit, as the testing progresses.
+               We need to trap success/fialures.
+               */
+                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "Hah"))
+
+                CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "published successfully."))
+                  Status(CREATED)(FunnelResponse(CREATED, """AppDefns initiation instruction submitted successfully.
+            |
+            |The AppDefns is working for you. It will be ready shortly.""", "Megam::AppDefns").toJson(true)).successNel[Throwable]
+                } match {
+                  //this is only a temporary hack.
+                  case Success(succ_cpc) => succ_cpc
+                  case Failure(err) =>
+                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """AppDefns initiation submission failed.
+            |
+            |Retry again, our queue servers are crowded""", "Megam::AppDefns").toJson(true))
+                }
+              }
+            case Failure(err) => {
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+            }
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
+
 
 }

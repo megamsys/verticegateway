@@ -35,9 +35,10 @@ class BoltDefnsSpec extends Specification {
   BoltDefnsSpec is the implementation that calls the megam_play API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST Boltdefns with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do GET  (node name)Boltdefns with a invalid Node name" ! findByInvalidName.succeeds ^
-      "Correctly do GET  (node name)Boltdefns with a valid node name" ! findByName.succeeds ^
+      //"Correctly do POST Boltdefns with a valid userid and api key" ! Post.succeeds ^
+      //"Correctly do GET  (node name)Boltdefns with a invalid Node name" ! findByInvalidName.succeeds ^
+      //"Correctly do GET  (node name)Boltdefns with a valid node name" ! findByName.succeeds ^
+      "Correctly do POST Boltdefns with a valid userid and api key" ! Update.succeeds ^
       end
 
   /**
@@ -48,7 +49,7 @@ class BoltDefnsSpec extends Specification {
     protected override def urlSuffix: String = "boltdefns/content"
 
     protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"node_name\":\"todaysample1.megam.co\",\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\"}}"      
+      val contentToEncode = "{\"node_name\":\"appsample1.megam.co\",\"boltdefns\":{\"username\":\"rr\",\"apikey\":\"dfgythgf\", \"store_name\":\"dbname\",\"url\":\"url\",\"prime\":\"prime\",\"timetokill\":\"timetokill\",\"metered\":\"metered\", \"logging\":\"logging\",\"runtime_exec\":\"runtime_exec\",\"env_sh\":\"env_sh\"}}"      
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -85,6 +86,27 @@ class BoltDefnsSpec extends Specification {
     def succeeds = {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+  
+  case object Update extends Context {
+
+    protected override def urlSuffix: String = "boltdefns/update"
+
+    protected override def bodyToStick: Option[String] = {      
+
+      val contentToEncode = "{\"boltdefn_id\":\"BDF456048363326930944\",\"node_name\":\"appsample1.megam.co\",\"runtime_exec\":\"\",\"env_sh\":\"dfghdfgfdkgj\"}"
+      Some(new String(contentToEncode))
+
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None    
+  private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
 
