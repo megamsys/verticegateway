@@ -43,7 +43,7 @@ debianPackageDependencies in Debian ++= Seq("curl", "bash (>= 2.05a-11)")
 
 debianPackageRecommends in Debian += "riak"
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.3.0")),"0.3/debs/megamplay.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.4.0")),"0.3/debs/megamplay.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 
