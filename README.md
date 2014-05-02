@@ -6,7 +6,7 @@ mean when a customer is onboarded an api_key is generated an stored in a secure 
 
 [![Build Status](https://travis-ci.org/indykish/megam_play.png)](https://travis-ci.org/indykish/megam_play)
 
-Launching soon. For early access [register at:](http://www.megam.co)
+Launching soon.  For early access [register at:](http://www.megam.co)
  
 
 ### Resources
