@@ -22,7 +22,7 @@ import controllers.stack._
 import models._
 import play.api._
 import play.api.mvc._
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import scalaz._
 import Scalaz._
 import scalaz.Validation._

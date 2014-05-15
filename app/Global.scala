@@ -36,12 +36,12 @@ object Global extends GlobalSettings {
     play.api.Logger.info("Megam Play %s App - going down. Stateless folks - you don't care.".format("0.1"))
   }
 
-  override def onError(request: RequestHeader, ex: Throwable) : Future[play.api.mvc.SimpleResult] = {
+  override def onError(request: RequestHeader, ex: Throwable) : Future[play.api.mvc.Result] = {
     Future.successful(InternalServerError(
       views.html.errorPage(ex)))
   }
 
-  override def onHandlerNotFound(request: RequestHeader): Future[play.api.mvc.SimpleResult] = {
+  override def onHandlerNotFound(request: RequestHeader): Future[play.api.mvc.Result] = {
    Future.successful(NotFound(
       views.html.errorPage(new Throwable(NOT_FOUND + ":" + request.path + " NOT_FOUND"))))
   }

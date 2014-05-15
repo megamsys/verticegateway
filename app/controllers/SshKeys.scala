@@ -22,7 +22,7 @@ import scalaz.NonEmptyList._
 import scalaz.Validation._
 import play.api._
 import play.api.mvc._
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import models._
 import controllers.stack._
 import controllers.stack.APIAuthElement
