@@ -17,16 +17,17 @@ package controllers
 
 import scalaz._
 import Scalaz._
-import play.api._
-import play.api.mvc._
 import models._
 import controllers.funnel.FunnelErrors._
 import controllers.stack.APIAuthElement
 import controllers.stack._
+import controllers.funnel.FunnelResponse
+
 import org.megam.common.amqp._
 import scalaz.Validation._
+import play.api._
+import play.api.mvc._
 import play.api.mvc.Result
-import controllers.funnel.FunnelResponse
 
 /**
  * @author rajthilak
@@ -68,7 +69,7 @@ object Predefs extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Predefs", "list:Entry"))
 
-    (Validation.fromTryCatch[SimpleResult] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -87,7 +88,7 @@ object Predefs extends Controller with APIAuthElement {
           Status(rn.code)(rn.toJson(true))
         }
       }
-    }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
   }
 

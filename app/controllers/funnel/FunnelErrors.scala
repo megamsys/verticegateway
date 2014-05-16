@@ -18,11 +18,11 @@ package controllers.funnel
 import scalaz._
 import scalaz.NonEmptyList
 import Scalaz._
-import play.api.http.Status._
 import java.io.{ StringWriter, PrintWriter }
 import org.megam.common.jsonscalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
+import play.api.http.Status._
 
 /**
  * @author ram

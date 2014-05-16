@@ -1,11 +1,14 @@
 import sbt._
-import play.Project._
+import Keys._
+import play.Play.autoImport._
+import PlayKeys._
+
 
 object ApplicationBuild extends Build {
 
   val appName = "megam_play"
 
-  val appVersion = "0.4.0"
+  val appVersion = "0.5.0"
 
   val organization = "Megam Systems"
 
@@ -13,7 +16,7 @@ object ApplicationBuild extends Build {
 
   val startYear = Some(2014)
 
-  val description = "RESTful API server for the megam platform. Uses Riak, Snowflake(UID), Memcache"
+  val description = "Megam Gateway :REST API server for the megam platform using Riak, Snowflake(UID), Memcache"
 
   /**
    *   if you use groupID %% artifactID % revision instead of groupID % artifactID % revision
@@ -21,8 +24,8 @@ object ApplicationBuild extends Build {
    *   to the artifact name.
    */
 
-  val play2AuthVersion = "0.11.0"
-  val megamVersion = "0.4.0"
+  val play2AuthVersion = "0.12.0-SNAPSHOT"
+  val megamVersion = "0.5.0"
 
   val appDependencies = Seq(
     javaCore, cache, javaEbean,
@@ -35,7 +38,9 @@ object ApplicationBuild extends Build {
     "jp.t2v" %% "play2-auth-test" % play2AuthVersion % "test",
     "com.stackmob" %% "newman" % "1.3.5" % "test")
 
-  val main = play.Project(appName, appVersion, appDependencies).settings(
+  val root = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
+    version := appVersion,
+    libraryDependencies ++= appDependencies,  
     sbt.Keys.resolvers += "Sonatype Snapshots" at Opts.resolver.sonatypeSnapshots.root,
     sbt.Keys.resolvers += "Sonatype Releases" at Opts.resolver.sonatypeStaging.root,
     sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",

@@ -20,9 +20,6 @@ import Scalaz._
 import scalaz.NonEmptyList._
 
 import scalaz.Validation._
-import play.api._
-import play.api.mvc._
-import play.api.mvc.SimpleResult
 import models._
 import controllers.Constants.DEMO_EMAIL
 import controllers.stack._
@@ -30,7 +27,9 @@ import controllers.stack.APIAuthElement
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import controllers.funnel.FunnelErrors._
 import org.megam.common.amqp._
-
+import play.api._
+import play.api.mvc._
+import play.api.mvc.Result
 /**
  * @author ram
  *
@@ -44,7 +43,7 @@ object Nodes extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "post:Entry"))
 
-    (Validation.fromTryCatch[SimpleResult] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -98,7 +97,7 @@ object Nodes extends Controller with APIAuthElement {
           Status(rn.code)(rn.toJson(true))
         }
       }
-    }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
   /*
@@ -110,7 +109,7 @@ object Nodes extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatch[SimpleResult] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           play.api.Logger.debug(("%-20s -->[%s]").format("-------------------->", succ))
@@ -132,7 +131,7 @@ object Nodes extends Controller with APIAuthElement {
           Status(rn.code)(rn.toJson(true))
         }
       }
-    }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
   }
 
@@ -142,7 +141,7 @@ object Nodes extends Controller with APIAuthElement {
    * Output: JSON (NodeResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[SimpleResult] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -159,11 +158,11 @@ object Nodes extends Controller with APIAuthElement {
           Status(rn.code)(rn.toJson(true))
         }
       }
-    }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
   def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[SimpleResult] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -216,7 +215,7 @@ object Nodes extends Controller with APIAuthElement {
           Status(rn.code)(rn.toJson(true))
         }
       }
-    }).fold(succ = { a: SimpleResult => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
 }

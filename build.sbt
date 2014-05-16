@@ -4,6 +4,9 @@ import com.typesafe.sbt.packager.debian.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPackageMapping
 import S3._
 
+import play.Play.autoImport._
+import PlayKeys._
+
 s3Settings
 
 scalaVersion := "2.10.4"
@@ -35,7 +38,7 @@ com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.pa
     
 maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
 
-packageSummary := "Cloud Gateway - Megam Cloud." 
+packageSummary := "Cloud Gateway for Megam." 
 
 packageDescription in Debian:= "(REST based) Cloud Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
 
@@ -43,7 +46,7 @@ debianPackageDependencies in Debian ++= Seq("curl", "bash (>= 2.05a-11)")
 
 debianPackageRecommends in Debian += "riak"
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.4.0")),"0.3/debs/megamplay.deb"))
+mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.5.0")),"0.5/debs/megamplay.deb"))
 
 host in upload := "megampub.s3.amazonaws.com"
 
