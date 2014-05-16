@@ -4,6 +4,9 @@ import com.typesafe.sbt.packager.debian.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPackageMapping
 import S3._
 
+import play.Play.autoImport._
+import PlayKeys._
+
 s3Settings
 
 scalaVersion := "2.10.4"

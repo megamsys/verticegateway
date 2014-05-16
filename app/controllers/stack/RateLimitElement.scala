@@ -20,7 +20,7 @@ import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, Sta
 import models._
 import play.api._
 import play.api.mvc._
-import play.api.mvc.{ SimpleResult, Controller }
+import play.api.mvc.{ Result, Controller }
 
 /**
  * @author rajthilak
@@ -38,7 +38,7 @@ trait RateLimitElement extends StackableController {
 
   case object RateLimitKey extends RequestAttributeKey[String]
 
-  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[SimpleResult]): Future[SimpleResult] = {
+  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[Result]): Future[Result] = {
     /*
     * How do we do that ? If the api_cursor_bucket for an user is < X calls then proceed, or dump out 
     * a result as we did in APIAuthElement 
