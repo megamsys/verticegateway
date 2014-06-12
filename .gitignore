@@ -4,7 +4,9 @@
 # except for .gitignore
 !.gitignore
 !.project
-
+!*.py
+!*.pyc
+!*.pyo
 !*.sql
 
 # Ignore Play! working directory #
@@ -23,4 +25,4 @@ test-result
 server.pid
 *.iml
 *.eml
-/bin
+

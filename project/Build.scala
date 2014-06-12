@@ -6,7 +6,7 @@ import PlayKeys._
 
 object ApplicationBuild extends Build {
 
-  val appName = "megam_play"
+  val appName = "megamgateway"
 
   val appVersion = "0.5.0"
 
@@ -24,7 +24,7 @@ object ApplicationBuild extends Build {
    *   to the artifact name.
    */
 
-  val play2AuthVersion = "0.12.0-SNAPSHOT"
+  val play2AuthVersion = "0.12.0"
   val megamVersion = "0.5.0"
 
   val appDependencies = Seq(
