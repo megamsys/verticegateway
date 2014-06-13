@@ -1,13 +1,14 @@
 import sbt._
 import Process._
-import com.typesafe.sbt.packager.debian.Keys._
-import com.typesafe.sbt.packager.linux.LinuxPackageMapping
-import S3._
+import com.typesafe.sbt.SbtNativePackager._
+import com.typesafe.sbt.packager.archetypes.ServerLoader
+import NativePackagerHelper._
+import NativePackagerKeys._
+
+import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart}
 
 import play.Play.autoImport._
 import PlayKeys._
-
-s3Settings
 
 scalaVersion := "2.10.4"
 
@@ -26,30 +27,32 @@ scalacOptions := Seq(
   	"-language:postfixOps",
   	"-language:implicitConversions",
   	"-Ydead-code")
-  	
+
 incOptions := incOptions.value.withNameHashing(true)
 
-com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
+packageArchetype.java_server
 
 com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbt.Keys.version) apply { (v, sv) =>
       val nums = (v split "[^\\d]")
       "%s" format (sv)
     }
-    
-maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
 
-packageSummary := "Cloud Gateway for Megam." 
+maintainer in Linux := "Rajthilak <rajthilak@megam.co.in>"
 
-packageDescription in Debian:= "(REST based) Cloud Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
+packageSummary in Linux := "REST based API server - Gateway for Megam."
 
-debianPackageDependencies in Debian ++= Seq("curl", "bash (>= 2.05a-11)")
+packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
+
+daemonUser in Linux := "megam" // user which will execute the application
+
+daemonGroup in Linux := "megam"    // group which will execute the application
+
+debianPackageDependencies in Debian ++= Seq("curl (>= 7.29)", "python-thrift (>= 0.8.0)", "openjdk-7-jre-headless (>= 7u51)", "bash (>= 4.2)")
 
 debianPackageRecommends in Debian += "riak"
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.5.0")),"0.5/debs/megamplay.deb"))
+serverLoading in Debian := Upstart
 
-host in upload := "megampub.s3.amazonaws.com"
+rpmVendor := "Megam Systems"
 
-credentials += Credentials(Path.userHome / "software" / "aws" / "keys" / "sbt_s3_keys")
-
-S3.progress in S3.upload := true
+mappings in Universal ++= directory("bin")
