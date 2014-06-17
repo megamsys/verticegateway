@@ -1,0 +1,8 @@
+rm /etc/nginx/private/megamgateway.crt
+rm /etc/nginx/certs/megamgateway_pub.crt
+
+rm /etc/nginx/sites-available/megamgateway
+rm /etc/nginx/sites-enabled/megamgateway
+
+rm ./conf/megamgateway_pub.crt
+rm ./conf/megamgateway.key
