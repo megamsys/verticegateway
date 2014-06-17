@@ -7,8 +7,6 @@ import NativePackagerKeys._
 
 import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart}
 
-import play.Play.autoImport._
-import PlayKeys._
 
 scalaVersion := "2.10.4"
 
@@ -30,7 +28,7 @@ scalacOptions := Seq(
 
 incOptions := incOptions.value.withNameHashing(true)
 
-packageArchetype.java_server
+//packageArchetype.java_server
 
 com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbt.Keys.version) apply { (v, sv) =>
       val nums = (v split "[^\\d]")
@@ -47,7 +45,7 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl (>= 7.29)", "python-thrift (>= 0.8.0)", "openjdk-7-jre-headless (>= 7u51)", "bash (>= 4.2)")
+debianPackageDependencies in Debian ++= Seq("curl", "nginx", "megamsnowflake", "openjdk-7-jre-headless", "bash")
 
 debianPackageRecommends in Debian += "riak"
 

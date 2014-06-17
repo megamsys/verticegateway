@@ -26,8 +26,8 @@ chdir /usr/share/megamgateway
 # changes to the user and group before running the job's process
 setuid megam
 
-# Start the process
+
+# start the megamgateway
 script
-  exec ./bin/pysnowflake.py --host localhost --port 7609 0 1
   exec ./bin/megamgateway
 end script
