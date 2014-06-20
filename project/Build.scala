@@ -11,19 +11,14 @@ object ApplicationBuild extends Build {
 
   val organization = "Megam Systems"
 
-  val homepage = Some(url("https://www.megam.co"))
+  val homepage = Some(url("http://www.gomegam.com"))
 
   val startYear = Some(2014)
 
   val description = "Megam Gateway :REST API server for the megam platform using Riak, Snowflake(UID), Memcache"
 
-  /**
-   *   if you use groupID %% artifactID % revision instead of groupID % artifactID % revision
-   *   (the difference is the double %% after the groupID), sbt will add your project’s Scala version
-   *   to the artifact name.
-   */
-
   val play2AuthVersion = "0.12.0"
+  
   val megamVersion = "0.5.0"
 
   val appDependencies = Seq(
@@ -38,8 +33,6 @@ object ApplicationBuild extends Build {
     "com.stackmob" %% "newman" % "1.3.5" % "test"
     //"org.webjars" % "bootstrap" % "3.1.1"
     )
-
-
 
   val root = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
     version := appVersion,
