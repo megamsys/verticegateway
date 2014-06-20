@@ -2,12 +2,12 @@ cat <<EOF >/etc/nginx/sites-available/megamgateway
 # HTTPS server
 server {
 listen 80;
-rewrite ^ https://localhost$request_uri? permanent;
+rewrite ^ https://gate.mypaas.io$request_uri? permanent;
 }
 
 server {
 listen 443;
-server_name api.megam.co;
+server_name gate.mypaas.io;
 
 # play public assets
 root html;
@@ -56,7 +56,7 @@ Private
 
 Megam Gateway APIServer
 Development
-megamgateway.co
+gate.mypaas.io
 
 EOF
 
@@ -67,3 +67,5 @@ ln -s /etc/nginx/sites-available/megamgateway /etc/nginx/sites-enabled/megamgate
 
 initctl reload-configuration
 service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
+
+sed -i "127.0.0.1 gate.mypaas.io   megamgateway" /etc/hosts

@@ -21,7 +21,7 @@ respawn
 respawn limit 0 60
 
 # set the working directory of the job processes
-chdir /usr/share/megamgateway
+chdir /usr/share/megam/megamgateway
 
 # changes to the user and group before running the job's process
 setuid megam

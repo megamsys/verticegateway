@@ -28,7 +28,11 @@ scalacOptions := Seq(
 
 incOptions := incOptions.value.withNameHashing(true)
 
-//packageArchetype.java_server
+name := "megamgateway"
+
+defaultLinuxInstallLocation := "/usr/share/megam/"
+
+defaultLinuxLogsLocation := "/var/log/megam"
 
 com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbt.Keys.version) apply { (v, sv) =>
       val nums = (v split "[^\\d]")
@@ -54,3 +58,12 @@ serverLoading in Debian := Upstart
 rpmVendor := "Megam Systems"
 
 mappings in Universal ++= directory("bin")
+
+name := "megamgateway"
+
+
+
+// === /var/run/app pid folder ===
+  linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
+      packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
+		}
