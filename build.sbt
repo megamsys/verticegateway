@@ -57,13 +57,10 @@ serverLoading in Debian := Upstart
 
 rpmVendor := "Megam Systems"
 
-mappings in Universal ++= directory("bin")
-
-name := "megamgateway"
-
+//mappings in Universal ++= directory("bin")
 
 
 // === /var/run/app pid folder ===
   linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
       packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
-		}
+	}

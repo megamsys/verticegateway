@@ -14,13 +14,14 @@
 
 # Setting -X directly (-J is stripped)
 # -J-X
--J-Xmx1024
+-J-Xmx512m
+-J-Xmx1024m
 
 # Add additional jvm parameters
 # -Dkey=val
 
 # For play applications you may set
--Dpidfile.path=/var/run/${{app_name}}/play.pid
+-Dpidfile.path=/var/run/megam/${{app_name}}/${{app_name}}.pid
 
 # Turn on JVM debugging, open at the given port
 # -jvm-debug <port>
