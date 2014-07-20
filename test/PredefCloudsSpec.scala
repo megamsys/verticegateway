@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class PredefCloudsSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = new PredefCloudInput("clouddefault",
     new PredefCloudSpec("google", "", "debian-7-wheezy-v20131120", "f1-micro", ""),
-    new PredefCloudAccess("", "cloudkeys/" + SANDBOX_EMAIL + "/id_rsa.pub", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + SANDBOX_EMAIL + "/gdefault", "", "europe-west1-a", "")).json
+    new PredefCloudAccess("", "cloudkeys/" + MEGAM_ADMIN_EMAIL + "/id_rsa.pub", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + MEGAM_ADMIN_EMAIL + "/gdefault", "", "europe-west1-a", "")).json
       Some(contentToEncode)
     }
 
