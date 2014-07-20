@@ -21,7 +21,7 @@ import scalaz.NonEmptyList._
 import scalaz.Validation._
 import scalaz.effect.IO
 import scalaz.EitherT._
-import com.twitter.util.Time
+import org.megam.util.Time
 import Scalaz._
 import controllers.stack._
 import controllers.Constants._

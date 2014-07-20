@@ -7,6 +7,7 @@ import NativePackagerKeys._
 
 import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart}
 
+net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 scalaVersion := "2.10.4"
 
@@ -57,10 +58,18 @@ serverLoading in Debian := Upstart
 
 rpmVendor := "Megam Systems"
 
-//mappings in Universal ++= directory("bin")
-
-
-// === /var/run/app pid folder ===
-  linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
+linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
       packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
-	}
+}
+
+// name in Docker := "megamgateway"
+
+// version in Docker <<= sbt.Keys.version
+
+// dockerBaseImage := "dockerfile/java"
+
+// dockerRepository := Some("indykish")
+
+// dockerExposedPorts in Docker := Seq(9000, 9443)
+
+// dockerExposedVolumes in Docker := Seq("/opt/docker/logs")

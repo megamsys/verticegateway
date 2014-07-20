@@ -18,20 +18,25 @@ object ApplicationBuild extends Build {
   val description = "Megam Gateway :REST API server for the megam platform using Riak, Snowflake(UID), Memcache"
 
   val play2AuthVersion = "0.12.0"
-  
-  val megamVersion = "0.5.0"
+
+  val megamVersion = "0.5.1"
 
   val appDependencies = Seq(
     javaCore, cache, javaEbean,
-    "com.twitter.service" % "snowflake" % "1.0.2" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.1/jars/snowflake.jar", //don't move this below.
     "com.github.indykish" % "megam_common_2.10" % megamVersion excludeAll (
       ExclusionRule("commons-logging", "commons-logging"),
+      ExclusionRule("org.slf4j", "slf4j-api"),
+      ExclusionRule("org.slf4j", "slf4j-simple"),
+      ExclusionRule("org.slf4j", "slf4j-nop"),
       ExclusionRule("org.slf4j", "slf4j-jdk14")),
     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
     "jp.t2v" %% "play2-auth-test" % play2AuthVersion % "test",
-    "com.stackmob" %% "newman" % "1.3.5" % "test"
-    //"org.webjars" % "bootstrap" % "3.1.1"
+    "com.stackmob" %% "newman" % "1.3.5" % "test",
+    "org.webjars" %% "webjars-play" % "2.3.0",
+    "org.webjars" % "webjars-locator" % "0.16",
+    "com.typesafe" %% "webdriver" % "1.0.0",
+    "org.yaml" % "snakeyaml" % "1.13" //"org.webjars" % "bootstrap" % "3.1.1"
     )
 
   val root = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
@@ -46,6 +51,5 @@ object ApplicationBuild extends Build {
     sbt.Keys.resolvers += "Spray repo" at "http://repo.spray.io", //spray client used in newman.
     sbt.Keys.resolvers += "Spy Repository" at "http://files.couchbase.com/maven2" // required to resolve `spymemcached`, the plugin's dependency.
     )
-
 
 }

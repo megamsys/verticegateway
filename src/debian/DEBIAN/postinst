@@ -20,7 +20,7 @@ if [ "$1" = "configure" ]; then
     if [ ! -f $MEGAMAUTH ]; then
         MEGAM_PASSWORD=`apg -m 12 -M cNl -n 1`
         if [ -n "${MEGAM_PASSWORD}" ]; then
-            echo "${MEGAM_USER}:${MEGAM_PASSWORD}" > $MEGAMAUTH
+            echo "${MEGAM_USER}@mypaas.io:${MEGAM_PASSWORD}" > $MEGAMAUTH
             chown $MEGAM_USER:$MEGAM_GROUP $MEGAMAUTH
             chmod 600 $MEGAMAUTH
         fi

@@ -517,5 +517,6 @@ package object models {
     def empty: List[MarketPlacePlan] = emptyRR
 
   }
-
+  
+  
 }
