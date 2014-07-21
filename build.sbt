@@ -7,8 +7,6 @@ import NativePackagerKeys._
 
 import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart}
 
-net.virtualvoid.sbt.graph.Plugin.graphSettings
-
 scalaVersion := "2.10.4"
 
 scalacOptions := Seq(
@@ -62,14 +60,14 @@ linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Li
       packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
 }
 
-// name in Docker := "megamgateway"
+name in Docker := "megamgateway"
 
-// version in Docker <<= sbt.Keys.version
+version in Docker <<= sbt.Keys.version
 
-// dockerBaseImage := "dockerfile/java"
+dockerBaseImage := "dockerfile/java"
 
-// dockerRepository := Some("indykish")
+dockerRepository := Some("indykish")
 
-// dockerExposedPorts in Docker := Seq(9000, 9443)
+dockerExposedPorts in Docker := Seq(9000, 9443)
 
-// dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
+dockerExposedVolumes in Docker := Seq("/opt/docker/logs")

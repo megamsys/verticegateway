@@ -23,25 +23,18 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     javaCore, cache, javaEbean,
-    "com.github.indykish" % "megam_common_2.10" % megamVersion excludeAll (
-      ExclusionRule("commons-logging", "commons-logging"),
-      ExclusionRule("org.slf4j", "slf4j-api"),
-      ExclusionRule("org.slf4j", "slf4j-simple"),
-      ExclusionRule("org.slf4j", "slf4j-nop"),
-      ExclusionRule("org.slf4j", "slf4j-jdk14")),
+    "com.github.indykish" % "megam_common_2.10" % megamVersion,
     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
     "jp.t2v" %% "play2-auth-test" % play2AuthVersion % "test",
     "com.stackmob" %% "newman" % "1.3.5" % "test",
-    "org.webjars" %% "webjars-play" % "2.3.0",
-    "org.webjars" % "webjars-locator" % "0.16",
     "com.typesafe" %% "webdriver" % "1.0.0",
     "org.yaml" % "snakeyaml" % "1.13" //"org.webjars" % "bootstrap" % "3.1.1"
     )
 
   val root = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= appDependencies,
+    libraryDependencies ++= appDependencies,    
     sbt.Keys.resolvers += "Sonatype Snapshots" at Opts.resolver.sonatypeSnapshots.root,
     sbt.Keys.resolvers += "Sonatype Releases" at Opts.resolver.sonatypeStaging.root,
     sbt.Keys.resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",

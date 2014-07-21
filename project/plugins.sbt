@@ -16,19 +16,18 @@ resolvers += "Typesafe snapshots" at "http://repo.typesafe.com/typesafe/snapshot
 
 resolvers += "Sonatype Releases"  at "https://oss.sonatype.org/content/repositories/releases"
 
- resolvers += "JBoss repository" at "https://repository.jboss.org/nexus/content/repositories/"
+resolvers += "JBoss repository" at "https://repository.jboss.org/nexus/content/repositories/"
 
- resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.2-RC2")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.2")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.2-RC2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.2")
 
-addSbtPlugin("com.typesafe.sbt" %% "sbt-webdriver" % "1.0.0")
-
-addSbtPlugin("com.typesafe.sbt" %% "sbt-web" % "1.0.0")
-
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
-
-
+libraryDependencies ++= Seq(
+    "org.slf4j" % "slf4j-api"       % "1.7.7" force(),
+    "org.slf4j" % "slf4j-nop"       % "1.7.7" force(),
+    "org.slf4j" % "slf4j-jdk14"     % "1.7.7" force(),
+    "org.slf4j" % "jcl-over-slf4j"  % "1.7.7" force()
+)
