@@ -20,6 +20,9 @@
 # Add additional jvm parameters
 # -Dkey=val
 
+# Change the location of playconfiguration file.
+-Dconfig.file=/usr/share/megam/${{app_name}}/conf/application-production.conf 
+
 # For play applications you may set
 -Dpidfile.path=/var/run/megam/${{app_name}}/${{app_name}}.pid
 

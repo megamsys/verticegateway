@@ -23,16 +23,16 @@ import play.api.http.Status._
 import play.api.http.HeaderNames._
 import play.api.mvc._
 import play.api.mvc.Results._
-import play.filters.gzip.{GzipFilter}
+import play.filters.gzip.{ GzipFilter }
 import scala.concurrent.Future
 
 /**
  * We do bunch of things in Global, a gzip response is sent back to the client when the
  * header has "Content-length" > 5000
- object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) =>
+ */
+/* object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) =>
   response.headers.get(CONTENT_LENGTH).exists(_.toInt > 5000))) with GlobalSettings {
 */
-
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
