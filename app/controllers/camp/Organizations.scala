@@ -13,40 +13,40 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package controllers.camp
+package app.controllers.camp
 
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
 
 import scalaz.Validation._
-import models.tosca._
+import models._
 import controllers.stack._
 import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
+import org.megam.common.amqp._
 import play.api._
 import play.api.mvc._
 import play.api.mvc.Result
 
 /**
- * @author rajthilak
+ * @author ram
  *
  */
-
 /*
  * 
- * If HMAC authentication is true then post or list the CSAR will be stored
+ * If HMAC authentication is true then post or list the market places are executed
  *  
  */
-object CSARs extends Controller with APIAuthElement {
+object Organizations extends Controller with APIAuthElement {
 
   /*
    * Create or update a new MarketPlace by email/json input. 
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "post:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "post:Entry"))
 
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
@@ -54,13 +54,13 @@ object CSARs extends Controller with APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "request funneled."))
-          models.tosca.CSARs.create(email, clientAPIBody) match {
+          play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "request funneled."))
+          models.MarketPlaces.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """csar created successfully.
+                FunnelResponse(CREATED, """Market Places created successfully.
             |
-            |You can use the the 'csar name':{%s}.""".format(succ.getOrElse("none")), "Megam::CSAR").toJson(true))
+            |You can use the the 'market place name':{%s}.""".format(succ.getOrElse("none")), "Megam::MarketPlace").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -76,13 +76,12 @@ object CSARs extends Controller with APIAuthElement {
   }
 
   /*
-   * GET: findByName: Show a particular csar  by name 
+   * GET: findByName: Show a particular market place by name 
    * Email provided in the URI.
-   * Output: This is a special case, we need to return the yaml stored inside riak.
-   * and in case of error, a json needs to be sent back.
+   * Output: JSON (MarketPlaceResult)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
     (Validation.fromTryCatch[Result] {
@@ -90,11 +89,11 @@ object CSARs extends Controller with APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "request funneled."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "request funneled."))
 
-          models.tosca.CSARs.findByName(List(id).some) match {
+          models.MarketPlaces.findByName(Stream(id).some) match {
             case Success(succ) =>
-              Ok(CSARResults.toJson(succ, true))
+              Ok(MarketPlaceResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -109,21 +108,21 @@ object CSARs extends Controller with APIAuthElement {
   }
 
   /**
-   * GET: findbyEmail: List all the csars per email
+   * GET: findbyEmail: List all the market place names per email
    * Email grabbed from header.
    * Output: JSON (MarketPlacesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "list:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "list:Entry"))
 
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.tosca.CSARs.findByEmail(email) match {
+          models.MarketPlaces.listAll match {
             case Success(succ) => {
-              Ok(CSARResults.toJson(succ, true))
+              Ok(MarketPlaceResults.toJson(succ, true))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -136,7 +135,6 @@ object CSARs extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }  
-  
+  }
 
 }
