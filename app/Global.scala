@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,31 +18,38 @@
  *
  */
 
-
 import play.api._
 import play.api.http.Status._
+import play.api.http.HeaderNames._
 import play.api.mvc._
 import play.api.mvc.Results._
+import play.filters.gzip.{GzipFilter}
 import scala.concurrent.Future
 
+/**
+ * We do bunch of things in Global, a gzip response is sent back to the client when the
+ * header has "Content-length" > 5000
+ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) =>
+  response.headers.get(CONTENT_LENGTH).exists(_.toInt > 5000))) with GlobalSettings {
+*/
 
-object Global extends GlobalSettings {
+object Global with GlobalSettings {
 
   override def onStart(app: Application) {
-    play.api.Logger.info("Megam Play %s App - started".format("0.1"))
+    play.api.Logger.info("megamgateway - started")
   }
 
   override def onStop(app: Application) {
-    play.api.Logger.info("Megam Play %s App - going down. Stateless folks - you don't care.".format("0.1"))
+    play.api.Logger.info("megamgateway - going down.")
   }
 
-  override def onError(request: RequestHeader, ex: Throwable) : Future[play.api.mvc.Result] = {
+  override def onError(request: RequestHeader, ex: Throwable): Future[play.api.mvc.Result] = {
     Future.successful(InternalServerError(
       views.html.errorPage(ex)))
   }
 
   override def onHandlerNotFound(request: RequestHeader): Future[play.api.mvc.Result] = {
-   Future.successful(NotFound(
+    Future.successful(NotFound(
       views.html.errorPage(new Throwable(NOT_FOUND + ":" + request.path + " NOT_FOUND"))))
   }
 }

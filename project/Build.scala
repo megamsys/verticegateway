@@ -22,14 +22,13 @@ object ApplicationBuild extends Build {
   val megamVersion = "0.5.1"
 
   val appDependencies = Seq(
-    javaCore, cache, javaEbean,
+    javaCore, cache, javaEbean, filters,
     "com.github.indykish" % "megam_common_2.10" % megamVersion,
     "com.github.mumoshu" %% "play2-memcached" % "0.3.0.2",
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
     "jp.t2v" %% "play2-auth-test" % play2AuthVersion % "test",
     "com.stackmob" %% "newman" % "1.3.5" % "test",
-    "com.typesafe" %% "webdriver" % "1.0.0",
-    "org.yaml" % "snakeyaml" % "1.13" //"org.webjars" % "bootstrap" % "3.1.1"
+    "org.yaml" % "snakeyaml" % "1.13" 
     )
 
   val root = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
