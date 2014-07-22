@@ -33,7 +33,7 @@ import scala.concurrent.Future
   response.headers.get(CONTENT_LENGTH).exists(_.toInt > 5000))) with GlobalSettings {
 */
 
-object Global with GlobalSettings {
+object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     play.api.Logger.info("megamgateway - started")
