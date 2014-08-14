@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ import com.stackmob.newman.dsl._
 import controllers.stack.SecurityActions._
 import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails, MarketPlaceAppLinks, MarketPlacePlans }
 
-class MarketPlaceSpec extends Specification {
+class CSARsSpec extends Specification {
   def is =
-    "MarketPlaceSpec".title ^ end ^
+    "CSARsSpec".title ^ end ^
       """
       MarketPlacesSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^

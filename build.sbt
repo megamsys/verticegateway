@@ -1,10 +1,11 @@
 import sbt._
 import Process._
-import com.typesafe.sbt.packager.debian.Keys._
-import com.typesafe.sbt.packager.linux.LinuxPackageMapping
-import S3._
+import com.typesafe.sbt.SbtNativePackager._
+import com.typesafe.sbt.packager.archetypes.ServerLoader
+import NativePackagerHelper._
+import NativePackagerKeys._
 
-s3Settings
+import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart}
 
 scalaVersion := "2.10.4"
 
@@ -23,30 +24,50 @@ scalacOptions := Seq(
   	"-language:postfixOps",
   	"-language:implicitConversions",
   	"-Ydead-code")
-  	
+
 incOptions := incOptions.value.withNameHashing(true)
 
-com.typesafe.sbt.packager.debian.Keys.name in Debian := "megamplay"
+name := "megamgateway"
+
+defaultLinuxInstallLocation := "/usr/share/megam/"
+
+defaultLinuxLogsLocation := "/var/log/megam"
 
 com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbt.Keys.version) apply { (v, sv) =>
       val nums = (v split "[^\\d]")
       "%s" format (sv)
     }
-    
-maintainer in Debian:= "Rajthilak <rajthilak@megam.co.in>"
 
-packageSummary := "Cloud Gateway - Megam Cloud." 
+maintainer in Linux := "Rajthilak <rajthilak@megam.co.in>"
 
-packageDescription in Debian:= "(REST based) Cloud Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
+packageSummary in Linux := "REST based API server - Gateway for Megam."
 
-debianPackageDependencies in Debian ++= Seq("curl", "bash (>= 2.05a-11)")
+packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
+
+daemonUser in Linux := "megam" // user which will execute the application
+
+daemonGroup in Linux := "megam"    // group which will execute the application
+
+debianPackageDependencies in Debian ++= Seq("curl", "nginx", "megamsnowflake", "apg","openjdk-7-jre-headless", "bash")
 
 debianPackageRecommends in Debian += "riak"
 
-mappings in upload := Seq((new java.io.File(("%s-%s.deb") format("target/megamplay", "0.3.0")),"0.3/debs/megamplay.deb"))
+serverLoading in Debian := Upstart
 
-host in upload := "megampub.s3.amazonaws.com"
+rpmVendor := "Megam Systems"
 
-credentials += Credentials(Path.userHome / "software" / "aws" / "keys" / "sbt_s3_keys")
+linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
+      packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
+}
 
-S3.progress in S3.upload := true
+name in Docker := "megamgateway"
+
+version in Docker <<= sbt.Keys.version
+
+dockerBaseImage := "dockerfile/java"
+
+dockerRepository := Some("indykish")
+
+dockerExposedPorts in Docker := Seq(9000, 9443)
+
+dockerExposedVolumes in Docker := Seq("/opt/docker/logs")

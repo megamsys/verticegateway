@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ object PlatformAppPrimer {
 
   //on board a sandbox account during start of the play server.
   def sandboxAcct = models.Accounts.create(
-    AccountInput(SANDBOX_EMAIL, SANDBOX_APIKEY, "normal").json)
+    AccountInput(MEGAM_ADMIN_EMAIL, MEGAM_ADMIN_APIKEY, "normal").json)
 
   def sandboxDummyAcct = models.Accounts.create(
     AccountInput(DEMO_EMAIL, DEMO_APIKEY, "demo").json)
@@ -49,11 +49,11 @@ object PlatformAppPrimer {
 
   def sandbox_ec2_default = PredefCloudInput("clouddefault",
     new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "t1.micro", ""),
-    new PredefCloudAccess("megam_ec2", "cloudkeys/" + SANDBOX_EMAIL + "/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + SANDBOX_EMAIL + "/default", "", "", "ap-southeast-1")).json
+    new PredefCloudAccess("megam_ec2", "cloudkeys/" + MEGAM_ADMIN_EMAIL + "/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + MEGAM_ADMIN_EMAIL + "/default", "", "", "ap-southeast-1")).json
 
   def sandbox_google_default = PredefCloudInput("clouddefault",
     new PredefCloudSpec("google", "", "debian-7-wheezy-v20131120", "f1-micro", ""),
-    new PredefCloudAccess("", "cloudkeys/" + SANDBOX_EMAIL + "/id_rsa.pub", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + SANDBOX_EMAIL + "/gdefault", "", "europe-west1-a", "")).json
+    new PredefCloudAccess("", "cloudkeys/" + MEGAM_ADMIN_EMAIL + "/id_rsa.pub", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + MEGAM_ADMIN_EMAIL + "/gdefault", "", "europe-west1-a", "")).json
 
   def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_google_default) }
 
@@ -74,7 +74,7 @@ object PlatformAppPrimer {
 
   def prep: ValidationNel[Throwable, FunnelResponses] = for {
     lpd <- predefs
-    ccd <- clone_predefcloud(SANDBOX_EMAIL)
+    ccd <- clone_predefcloud(MEGAM_ADMIN_EMAIL)
     cdsd <- clone_predefcloud(DEMO_EMAIL)
     cts <- cloudtools
   } yield {
@@ -84,7 +84,7 @@ object PlatformAppPrimer {
 								|%nLoaded values are ----->%n[%s]""".format(lpd.toString).stripMargin, "Megam::Predef"),
       FunnelResponse(CREATED, """Predefs cloud created successfully(%s,%s).
 								|
-								|You can use the the 'predefs cloud name':{%s}.""".format(SANDBOX_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"),
+								|You can use the the 'predefs cloud name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"),
       FunnelResponse(CREATED, """Cloud tools created successfully. Cache gets loaded upon first fetch.
 								|
 								|%nLoaded values are ----->%n[%s]""".format(cts.toString).stripMargin, "Megam::CloudTools"))
@@ -97,14 +97,14 @@ object PlatformAppPrimer {
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
   def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    cts <- clone_cloudtoolsettings(SANDBOX_EMAIL)
+    cts <- clone_cloudtoolsettings(MEGAM_ADMIN_EMAIL)
     ctds <- clone_cloudtoolsettings(DEMO_EMAIL)
-    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/" + SANDBOX_EMAIL + "/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
+    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/" + MEGAM_ADMIN_EMAIL + "/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """CloudToolSettings created successfully(%s,%s).
             |
-            |You can use the the 'cloud tool setting name':{%s}.""".format(SANDBOX_EMAIL, DEMO_EMAIL, cts.getOrElse("none")), "Megam::CloudToolSetting"),
+            |You can use the the 'cloud tool setting name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cts.getOrElse("none")), "Megam::CloudToolSetting"),
       FunnelResponse(CREATED, """CloudToolSettings inilization published successfully.
             |
             |You can use the the 'CloudToolSetting.""", "Megam::CloudToolSetting"))

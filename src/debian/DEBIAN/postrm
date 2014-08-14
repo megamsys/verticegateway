@@ -1,0 +1,19 @@
+if [ "$1" = "remove" ]; then
+    # Remove logs
+    rm -rf /var/log/megam/megamgateway/*
+fi
+
+if [ "$1" = "purge" ]; then
+    # purge stats overrides
+    # stats overrides could already be removed by root
+    dpkg-statoverride --remove /var/log/megam || true
+    dpkg-statoverride --remove /var/lib/megam/.megam_auth || true
+fi
+
+[ -f /etc/nginx/private/megamgateway.key ] && rm /etc/nginx/private/megamgateway.key
+[ -f /etc/nginx/certs/megamgateway_pub.crt ] && rm /etc/nginx/certs/megamgateway_pub.crt
+[ -f /etc/nginx/sites-available/megamgateway ] && rm /etc/nginx/sites-available/megamgateway
+
+
+[ -f /var/lib/megam/megamgateway_pub.crt ] && rm /var/lib/megam/megamgateway_pub.crt
+[ -f /var/lib/megam/megamgateway.key ] && rm /var/lib/megam/megamgateway.key

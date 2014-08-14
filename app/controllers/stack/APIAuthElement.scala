@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -21,18 +21,17 @@ import Scalaz._
 import scalaz.Validation._
 import scala.concurrent.Future
 
-import play.api._
-import play.api.Logger
-import play.api.mvc._
-import play.api.mvc.SimpleResult
-import play.api.libs.iteratee.Enumerator
-
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
 import controllers.stack.stack._
 import controllers.funnel._
 import controllers.funnel.FunnelErrors._
 import models._
+import play.api._
+import play.api.Logger
+import play.api.mvc._
+import play.api.mvc.Result
+import play.api.libs.iteratee.Enumerator
 
 /**
  * @author rajthilak
@@ -54,7 +53,7 @@ case object APIAccessedKey extends RequestAttributeKey[Option[String]]
    * If HMAC authentication is true, the req send in super class
    * otherwise send out a json formatted error
    */
-  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[SimpleResult]): Future[SimpleResult] = {
+  override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[Result]): Future[Result] = {
     play.api.Logger.debug("<M>>>------------------------------------->")
     play.api.Logger.debug("%-20s -->[%s]".format("APIAuthElement:", "Entry"))
 
@@ -63,7 +62,7 @@ case object APIAccessedKey extends RequestAttributeKey[Option[String]]
       case Failure(err) => {
         val g = Action { implicit request =>
           val rn: FunnelResponse = new HttpReturningError(err) //implicitly loaded.
-          SimpleResult(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
+          Result(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
             body = Enumerator(rn.toJson(true).getBytes(UTF8Charset) ))
          }
         val origReq = req.asInstanceOf[Request[AnyContent]]

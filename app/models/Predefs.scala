@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import scalaz.EitherT._
 import Scalaz._
 import models._
 import models.cache._
-import com.twitter.util.Time
+import org.megam.util.Time
 import controllers.funnel.FunnelErrors._
 import controllers.stack._
 import controllers.Constants._

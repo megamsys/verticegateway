@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
 import scalaz.EitherT._
 import scalaz.Validation._
-import com.twitter.util.Time
+import org.megam.util.Time
 import net.liftweb.json._
 import java.nio.charset.Charset
 import com.stackmob.scaliak._

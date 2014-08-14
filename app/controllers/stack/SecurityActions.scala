@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -22,10 +22,6 @@ import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.NonEmptyList._
 
-import play.api.mvc._
-import play.api.http.Status._
-import play.api.Logger
-
 import java.security.MessageDigest
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
@@ -38,6 +34,9 @@ import controllers.funnel.FunnelErrors._
 import models.Accounts
 import models.AccountResult
 
+import play.api.mvc._
+import play.api.http.Status._
+import play.api.Logger
 /**
  * @author rajthilak
  *

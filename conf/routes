@@ -85,5 +85,10 @@ GET    /v1/marketplaces/:id       controllers.MarketPlaces.show(id: String)
 POST   /v1/marketplaceaddons/content         controllers.MarketPlaceAddons.post
 GET    /v1/marketplaceaddons/:id             controllers.MarketPlaceAddons.show(id: String)
 
+#CSARs
+POST   /v1/csars/content         controllers.camp.CSARs.post
+GET    /v1/csars                 controllers.camp.CSARs.list
+GET    /v1/csars/:id 		     controllers.camp.CSARs.show(id: String)
+
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)
