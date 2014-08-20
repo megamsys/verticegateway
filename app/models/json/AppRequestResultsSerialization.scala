@@ -56,7 +56,7 @@ object AppRequestResultsSerialization extends SerializationBase[AppRequestResult
           val nrs: AppRequestResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AppRequestResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AppRequestResults]
       }
     }
   }

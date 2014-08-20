@@ -16,8 +16,12 @@
 package models.json
 
 import scalaz._
-import scalaz.NonEmptyList._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import controllers.funnel.SerializationBase
@@ -68,7 +72,7 @@ object AppDefnsResultsSerialization extends SerializationBase[AppDefnsResults] {
           val nrs: AppDefnsResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AppDefnsResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AppDefnsResults]
       }
     }
   }

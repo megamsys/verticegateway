@@ -16,20 +16,21 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
-import Scalaz._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 import org.megam.util.Time
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid._
 import net.liftweb.json._
@@ -73,7 +74,7 @@ object BoltRequestResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[BoltRequestResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[BoltRequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -91,8 +92,8 @@ object BoltRequests {
 
   val metadataKey = "BoltRequest"
   val newnode_metadataVal = "New BoltRequest Creation"
-  val newnode_bindex = BinIndex.named("nodesId")
-  val boltdefns_bindex = BinIndex.named("boltdefnsId")
+  val newnode_bindex = "nodesId"
+  val boltdefns_bindex = "boltdefnsId"
   
   /**
    * A private method which chains computation to make GunnySack for existing node when provided with an input json, Option[node_name].
@@ -106,7 +107,7 @@ object BoltRequests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, BoltRequestInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, BoltRequestInput] = (Validation.fromTryCatchThrowable[models.BoltRequestInput,Throwable] {
       parse(input).extract[BoltRequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -170,7 +171,7 @@ object BoltRequests {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.BoltRequestResult, Throwable] {
                 parse(xs.value).extract[BoltRequestResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(reqName, t.getMessage)
@@ -205,7 +206,7 @@ object BoltRequests {
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
           (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-            val bindex = BinIndex.named("")
+            val bindex = ""
             val bvalue = Set("")
             val metadataVal = "Nodes-name"
             play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltRequest", nelnor))

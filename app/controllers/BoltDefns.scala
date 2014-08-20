@@ -17,9 +17,11 @@ package controllers
 
 import scalaz._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-
-import scalaz.Validation._
 import models._
 import controllers.Constants.DEMO_EMAIL
 import controllers.stack._
@@ -43,7 +45,7 @@ object BoltDefns extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltDefns", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("BoltDefns wasn't funneled. Verify the header."))
@@ -99,7 +101,7 @@ object BoltDefns extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltDefns", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("BoltDefns wasn't funneled. Verify the header."))
@@ -129,7 +131,7 @@ object BoltDefns extends Controller with APIAuthElement {
    * Output: JSON (BoltDefnsResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("BoltDefns wasn't funneled. Verify the header."))
@@ -152,7 +154,7 @@ object BoltDefns extends Controller with APIAuthElement {
   def update = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltDefns", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("BoltDefns wasn't funneled. Verify the header."))

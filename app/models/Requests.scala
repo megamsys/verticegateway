@@ -16,20 +16,21 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
-import Scalaz._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 import org.megam.util.Time
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid._
 import net.liftweb.json._
@@ -77,7 +78,7 @@ object RequestResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[RequestResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[RequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -95,7 +96,7 @@ object Requests {
 
   val metadataKey = "Request"
   val newnode_metadataVal = "New Request Creation"
-  val newnode_bindex = BinIndex.named("nodeId")
+  val newnode_bindex = "nodeId"
 
   /**
    * A private method which chains computation to make GunnySack for new nodewhen provided with an input json, Option[node_name].
@@ -109,7 +110,7 @@ object Requests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, RequestInputNewNode] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, RequestInputNewNode] = (Validation.fromTryCatchThrowable[models.RequestInputNewNode, Throwable] {
       parse(input).extract[RequestInputNewNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -140,7 +141,7 @@ object Requests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, RequestInputExistNode] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, RequestInputExistNode] = (Validation.fromTryCatchThrowable[models.RequestInputExistNode,Throwable] {
       parse(input).extract[RequestInputExistNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -229,7 +230,7 @@ object Requests {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.RequestResult, Throwable] {
                 parse(xs.value).extract[RequestResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(reqName, t.getMessage)
@@ -264,7 +265,7 @@ object Requests {
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
           (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-            val bindex = BinIndex.named("")
+            val bindex = ""
             val bvalue = Set("")
             val metadataVal = "Nodes-name"
             play.api.Logger.debug(("%-20s -->[%s]").format("models.Request1", nelnor))
@@ -303,7 +304,7 @@ object Requests {
         //this is ugly, since what we receive from Nodes always contains one None. We need to filter
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
-          val bindex = BinIndex.named("")
+          val bindex = ""
           val bvalue = Set("")
           val metadataVal = "Nodes-name"
           play.api.Logger.debug(("%-20s -->[%s]").format("models.Request1", nelnor))

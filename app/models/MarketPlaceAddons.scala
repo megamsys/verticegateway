@@ -16,20 +16,21 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -70,7 +71,7 @@ object MarketPlaceAddonsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceAddonsResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[MarketPlaceAddonsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -86,7 +87,7 @@ object MarketPlaceAddons {
 
   val metadataKey = "marketplaceaddons"
   val metadataVal = "MarketPlaceAddons Creation"
-  val bindex = BinIndex.named("marketplaceaddons")
+  val bindex = "marketplaceaddons"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -99,7 +100,7 @@ object MarketPlaceAddons {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val addonInput: ValidationNel[Throwable, MarketPlaceAddonsInput] = (Validation.fromTryCatch {
+    val addonInput: ValidationNel[Throwable, MarketPlaceAddonsInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceAddonsInput, Throwable] {
       parse(input).extract[MarketPlaceAddonsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     play.api.Logger.debug(("%-20s -->[%s]").format("json-------->", addonInput))
@@ -201,7 +202,7 @@ object MarketPlaceAddons {
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
           (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-            val bindex = BinIndex.named("")
+            val bindex = ""
             val bvalue = Set("")
             val metadataVal = "Nodes-name"
             play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", nelnor))
@@ -240,7 +241,7 @@ object MarketPlaceAddons {
         //this is ugly, since what we receive from Nodes always contains one None. We need to filter
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
-          val bindex = BinIndex.named("")
+          val bindex = ""
           val bvalue = Set("")
           val metadataVal = "Nodes-name"
           play.api.Logger.debug(("%-20s -->[%s]").format("models.Definition", nelnor))

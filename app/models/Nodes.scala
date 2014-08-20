@@ -16,12 +16,13 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
-import Scalaz._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import controllers.stack._
 import controllers.Constants._
@@ -29,8 +30,8 @@ import controllers.funnel.FunnelErrors._
 import org.megam.common.enumeration._
 import models._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid._
 import net.liftweb.json._
@@ -87,7 +88,7 @@ object NodeResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[NodeResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[NodeResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -127,7 +128,7 @@ object NodeProcessedResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[NodeProcessedResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[NodeProcessedResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -240,7 +241,7 @@ object Nodes {
 
   val metadataKey = "Node"
   val newnode_metadataVal = "New Node Creation"
-  val newnode_bindex = BinIndex.named("accountId")
+  val newnode_bindex = "accountId"
 
   def statusType(s: String): NodeStatusType = {
     s match {
@@ -264,7 +265,7 @@ object Nodes {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch {
+    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatchThrowable[models.NodeInput, Throwable] {
       parse(input).extract[NodeInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -357,7 +358,7 @@ object Nodes {
   }
 
   private def updateGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val nodeInput: ValidationNel[Throwable, NodeUpdateInput] = (Validation.fromTryCatch {
+    val nodeInput: ValidationNel[Throwable, NodeUpdateInput] = (Validation.fromTryCatchThrowable[models.NodeUpdateInput, Throwable] {
       parse(input).extract[NodeUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure  
 
@@ -521,7 +522,7 @@ object Nodes {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = BinIndex.named("")
+        val bindex = ""
         val bvalue = Set("")
         val metadataVal = "Nodes-name"
         new GunnySack("accountId", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,

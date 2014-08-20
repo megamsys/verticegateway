@@ -16,20 +16,21 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -70,7 +71,7 @@ object CloudToolSettingResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CloudToolSettingResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[CloudToolSettingResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -86,7 +87,7 @@ object CloudToolSettings {
 
   val metadataKey = "CloudToolSetting"
   val metadataVal = "CloudToolSetting Creation"
-  val bindex = BinIndex.named("CloudToolSetting")
+  val bindex = "CloudToolSetting"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -99,7 +100,7 @@ object CloudToolSettings {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val CloudToolSettingInput: ValidationNel[Throwable, CloudToolSettingInput] = (Validation.fromTryCatch {
+    val CloudToolSettingInput: ValidationNel[Throwable, CloudToolSettingInput] = (Validation.fromTryCatchThrowable[models.CloudToolSettingInput,Throwable] {
       parse(input).extract[CloudToolSettingInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -155,7 +156,7 @@ object CloudToolSettings {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.CloudToolSettingResult,Throwable] {
                 parse(xs.value).extract[CloudToolSettingResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(CloudToolSettingName, t.getMessage)
@@ -186,7 +187,7 @@ object CloudToolSettings {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = BinIndex.named("")
+        val bindex = ""
         val bvalue = Set("")
         new GunnySack("CloudToolSetting", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some

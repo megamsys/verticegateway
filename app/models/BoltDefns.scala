@@ -18,16 +18,17 @@ package models
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
 import scalaz.EitherT._
-import scalaz.Validation._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import net.liftweb.json._
 import java.nio.charset.Charset
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import models.cache._
@@ -35,6 +36,8 @@ import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import controllers.stack.MConfig
+import scala.collection.immutable.Map
+
 /**
  * @author rajthilak
  * authority
@@ -71,7 +74,7 @@ object BoltDefnsResult {
     fromJSON(jValue)(acctser.reader)
   }
 
-  def fromJson(json: String): Result[BoltDefnsResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[BoltDefnsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -102,7 +105,7 @@ object BoltDefns {
 
   val metadataKey = "BoltDefns"
   val newnode_metadataVal = "Bolt Definition Creation"
-  val newnode_bindex = BinIndex.named("nodeId")
+  val newnode_bindex = "nodeId"
 
   /**
    * A private method which chains computation to make GunnySack for existing node when provided with an input json, Option[node_name].
@@ -116,7 +119,7 @@ object BoltDefns {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, BoltDefnsInputforExistNode] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, BoltDefnsInputforExistNode] = (Validation.fromTryCatchThrowable[models.BoltDefnsInputforExistNode, Throwable] {
       parse(input).extract[BoltDefnsInputforExistNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -177,7 +180,7 @@ object BoltDefns {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, BoltDefnsInputforNewNode] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, BoltDefnsInputforNewNode] = (Validation.fromTryCatchThrowable[models.BoltDefnsInputforNewNode, Throwable] {
       parse(input).extract[BoltDefnsInputforNewNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -236,7 +239,7 @@ object BoltDefns {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.BoltDefnsResult,Throwable] {
                 parse(xs.value).extract[BoltDefnsResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(defName, t.getMessage)
@@ -271,7 +274,7 @@ object BoltDefns {
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
           (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-            val bindex = BinIndex.named("")
+            val bindex = ""
             val bvalue = Set("")
             val metadataVal = "Nodes-name"
             play.api.Logger.debug(("%-20s -->[%s]").format("models.BoltDefns", nelnor))
@@ -310,7 +313,7 @@ object BoltDefns {
         //this is ugly, since what we receive from Nodes always contains one None. We need to filter
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
-          val bindex = BinIndex.named("")
+          val bindex = ""
           val bvalue = Set("")
           val metadataVal = "Nodes-name"
           play.api.Logger.debug(("%-20s -->[%s]").format("models.Definition", nelnor))
@@ -331,7 +334,7 @@ object BoltDefns {
   }
   
   private def updateGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val defnInput: ValidationNel[Throwable, BoltDefnsUpdateInput] = (Validation.fromTryCatch {
+    val defnInput: ValidationNel[Throwable, BoltDefnsUpdateInput] = (Validation.fromTryCatchThrowable[models.BoltDefnsUpdateInput,Throwable] {
       parse(input).extract[BoltDefnsUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure  
 

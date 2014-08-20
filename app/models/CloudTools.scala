@@ -15,24 +15,25 @@
 */
 package models
 
+import scalaz._
+import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import controllers.funnel.FunnelErrors._
 import controllers.stack._
 import controllers.Constants._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import java.nio.charset.Charset
 import models._
 import models.cache._
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
-import scalaz._
-import scalaz.effect.IO
-import scalaz.syntax.SemigroupOps
-import scalaz.EitherT._
-import scalaz.NonEmptyList._
-import scalaz.Validation._
-import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 
@@ -73,7 +74,7 @@ object CloudTemplate {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[CloudTemplate] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[CloudTemplate] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -109,7 +110,7 @@ object CloudInstruction {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[CloudInstruction] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[CloudInstruction] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -149,7 +150,7 @@ object CloudTool {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CloudTool] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[CloudTool] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -210,7 +211,7 @@ object CloudTools {
 
   val metadataKey = "CloudTool"
   val metadataVal = "CloudTools Creation"
-  val bindex = BinIndex.named("cloudToolName")
+  val bindex = "cloudToolName"
   /**
    * to
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -219,7 +220,7 @@ object CloudTools {
    */
   private def mkGunnySack(input: CloudTool): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug("models.CloudTools mkGunnySack: entry:\n" + input.json)
-    val cloudDeployerInput: ValidationNel[Throwable, CloudTool] = (Validation.fromTryCatch {
+    val cloudDeployerInput: ValidationNel[Throwable, CloudTool] = (Validation.fromTryCatchThrowable[models.CloudTool,Throwable] {
       parse(input.json).extract[CloudTool]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
     for {
@@ -287,7 +288,7 @@ object CloudTools {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch {
+                    (Validation.fromTryCatchThrowable[models.CloudTool,Throwable] {
                       parse(xs.value).extract[CloudTool]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(cname, t.getMessage)

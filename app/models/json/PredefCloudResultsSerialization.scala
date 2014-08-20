@@ -69,7 +69,7 @@ object PredefCloudResultsSerialization extends SerializationBase[PredefCloudResu
           val nrs: PredefCloudResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[PredefCloudResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[PredefCloudResults]
       }
     }
   }

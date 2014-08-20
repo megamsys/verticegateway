@@ -69,7 +69,7 @@ object SshKeyResultsSerialization extends SerializationBase[SshKeyResults] {
           val nrs: SshKeyResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[SshKeyResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[SshKeyResults]
       }
     }
   }

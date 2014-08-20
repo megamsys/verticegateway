@@ -17,9 +17,11 @@ package controllers
 
 import scalaz._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-
-import scalaz.Validation._
 import models._
 import controllers.stack._
 import controllers.stack.APIAuthElement
@@ -48,7 +50,7 @@ object SshKeys extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.SshKeys", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -84,7 +86,7 @@ object SshKeys extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.SshKeys", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -115,7 +117,7 @@ object SshKeys extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.SshKeys", "list:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

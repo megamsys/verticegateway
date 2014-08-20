@@ -56,7 +56,7 @@ object MarketPlaceAddonsResultsSerialization extends SerializationBase[MarketPla
           val nrs: MarketPlaceAddonsResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[MarketPlaceAddonsResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[MarketPlaceAddonsResults]
       }
     }
   }

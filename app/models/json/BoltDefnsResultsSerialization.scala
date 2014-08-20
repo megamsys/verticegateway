@@ -68,7 +68,7 @@ object BoltDefnsResultsSerialization extends SerializationBase[BoltDefnsResults]
           val nrs: BoltDefnsResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[BoltDefnsResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[BoltDefnsResults]
       }
     }
   }

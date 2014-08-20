@@ -16,9 +16,12 @@
 package models
 
 import scalaz._
-import scalaz.Validation._
 import Scalaz._
-
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import play.api.http.Status._
 import controllers.stack._
@@ -117,7 +120,7 @@ object PlatformAppPrimer {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Market Place addons created successfully. Cache gets loaded upon first fetch. 
             |
-            |%nLoaded results are ----->%n[%s]""".format(mkp.length + " addons primed.").stripMargin, "Megam::MarketPlaces"))
+            |%nLoaded results are ----->%n[%s]""".format(mkp.list.size + " addons primed.").stripMargin, "Megam::MarketPlaces"))
     FunnelResponses(chainedComps)
   }
 

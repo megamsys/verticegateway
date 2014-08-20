@@ -15,13 +15,13 @@
 */
 package models.json
 
+
 import scalaz._
-import scalaz.NonEmptyList._
-import scalaz.Validation
-import scalaz.Validation._
 import Scalaz._
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
@@ -30,6 +30,8 @@ import controllers.funnel.SerializationBase
 import models.{ NodeResult, NodePredefs, NodeRequest, NodeStatusType, NodeAppDefns }
 import models.NodeStatusType._
 import org.megam.common.enumeration._
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
 
 /**
  * @author ram
@@ -48,7 +50,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
   protected val BoltDefnsIdKey = "boltdefnsid"
   protected val CreatedAtKey = "created_at"
 
-  override implicit val writer = new JSONW[NodeResult] {
+   implicit override val writer = new JSONW[NodeResult] {
 
     import NodeRequestSerialization.{ writer => NodeRequestWriter }
     import NodePredefsSerialization.{ writer => NodePredefsWriter }
@@ -71,7 +73,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
     }
   }
 
-  override implicit val reader = new JSONR[NodeResult] {
+  implicit override val reader = new JSONR[NodeResult] {
 
     import NodeRequestSerialization.{ reader => NodeRequestReader }
     import NodePredefsSerialization.{ reader => NodePredefsReader }
@@ -81,7 +83,7 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
     override def read(json: JValue): Result[NodeResult] = {
       val statusField = field[NodeStatusType](StatusKey)(json)(NodeStatusTypeReader)
 
-      statusField.flatMap { statusType: NodeStatusType =>
+      (statusField.flatMap { statusType: NodeStatusType =>
         val idField = field[String](IdKey)(json)
         val nodenameField = field[String](NodeNameKey)(json)
         val accountField = field[String](AccountsIDKey)(json)
@@ -102,11 +104,11 @@ class NodeResultSerialization(charset: Charset = UTF8Charset) extends Serializat
           case NodeStatusType.DELETED => noderes_fn(NodeResult(_, _, _, _, NodeStatusType.DELETED, _, _, _, _, _))
           case _ => UncategorizedError("status type",
             "unsupported status type %s".format(statusType.stringVal),
-            List()).failNel
+            List()).failureNel
         }
         res
 
-      }
+      }) 
     }
   }
 }

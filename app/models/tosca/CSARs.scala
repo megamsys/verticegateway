@@ -17,12 +17,13 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.effect.IO
-import scalaz.Validation._
-import scalaz.EitherT._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import controllers.stack._
 import controllers.Constants._
@@ -30,8 +31,8 @@ import controllers.funnel.FunnelErrors._
 import models._
 import models.cache._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -69,7 +70,7 @@ object CSARResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -85,7 +86,7 @@ object CSARs {
 
   val metadataKey = "CSAR"
   val metadataVal = "CSARs Creation"
-  val bindex = BinIndex.named("csar")
+  val bindex = "csar"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -150,7 +151,7 @@ object CSARs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch {
+                    (Validation.fromTryCatchThrowable[models.tosca.CSARResult, Throwable] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)
@@ -184,7 +185,7 @@ object CSARs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch {
+                    (Validation.fromTryCatchThrowable[models.tosca.CSARResult,Throwable] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)
@@ -217,7 +218,7 @@ object CSARs {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = BinIndex.named("")
+        val bindex = ""
         val bvalue = Set("")
         new GunnySack("csar", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some

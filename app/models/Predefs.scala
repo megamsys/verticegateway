@@ -16,12 +16,13 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
-import Scalaz._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import models._
 import models.cache._
 import org.megam.util.Time
@@ -29,8 +30,8 @@ import controllers.funnel.FunnelErrors._
 import controllers.stack._
 import controllers.Constants._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -105,7 +106,7 @@ object PredefResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[PredefResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[PredefResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -122,7 +123,7 @@ object Predefs {
 
   val metadataKey = "Predef"
   val metadataVal = "Predefs Creation"
-  val bindex = BinIndex.named("predefName")
+  val bindex = "predefName"
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -130,7 +131,7 @@ object Predefs {
    */
   private def mkGunnySack(input: PredefInput): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug("models.Predefs mkGunnySack: entry:\n" + input.json)
-    val predefInput: ValidationNel[Throwable, PredefInput] = (Validation.fromTryCatch {
+    val predefInput: ValidationNel[Throwable, PredefInput] = (Validation.fromTryCatchThrowable[models.PredefInput,Throwable] {
       parse(input.json).extract[PredefInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
 
@@ -199,7 +200,7 @@ object Predefs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch {
+                    (Validation.fromTryCatchThrowable[models.PredefResult,Throwable] {
                       parse(xs.value).extract[PredefResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(cname, t.getMessage)

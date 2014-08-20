@@ -16,10 +16,12 @@
 package models.json
 
 import scalaz._
-import scalaz.NonEmptyList._
-import scalaz.Validation
-import scalaz.Validation._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.Date
