@@ -53,7 +53,7 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "nginx", "megamsnowflake", "apg","openjdk-7-jre-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("curl", "nginx", "megamcommon", "megamsnowflake", "apg","openjdk-7-jre-headless", "bash")
 
 debianPackageRecommends in Debian += "riak"
 
