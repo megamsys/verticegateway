@@ -29,6 +29,7 @@ import org.megam.common.amqp._
 import play.api._
 import play.api.mvc._
 import play.api.mvc.Result
+import models.tosca._
 
 /**
  * @author ram
@@ -42,7 +43,7 @@ import play.api.mvc.Result
 object Organizations extends Controller with APIAuthElement {
 
   /*
-   * Create or update a new MarketPlace by email/json input. 
+   * Create or update a new Organization by email/json input. 
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
@@ -55,10 +56,10 @@ object Organizations extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "request funneled."))
-          models.MarketPlaces.create(email, clientAPIBody) match {
+          models.tosca.Organizations.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Market Places created successfully.
+                FunnelResponse(CREATED, """Organizations created successfully.
             |
             |You can use the the 'market place name':{%s}.""".format(succ.getOrElse("none")), "Megam::MarketPlace").toJson(true))
             case Failure(err) =>
@@ -76,7 +77,7 @@ object Organizations extends Controller with APIAuthElement {
   }
 
   /*
-   * GET: findByName: Show a particular market place by name 
+   * GET: findByName: Show a particular Organization by name 
    * Email provided in the URI.
    * Output: JSON (MarketPlaceResult)
    **/
@@ -91,7 +92,7 @@ object Organizations extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "request funneled."))
 
-          models.MarketPlaces.findByName(Stream(id).some) match {
+          models.Organizations.findByName(Stream(id).some) match {
             case Success(succ) =>
               Ok(MarketPlaceResults.toJson(succ, true))
             case Failure(err) =>

@@ -13,7 +13,7 @@ GET    /initmarketplaceaddons           controllers.Application.initmarketplacea
 
 # Authentication - HMAC
 POST   /v1/auth                         controllers.Application.authenticate
-#POST    /staleauth                 controllers.Application.staleauth
+#POST    /staleauth                     controllers.Application.staleauth
 POST   /v1/accounts/content             controllers.Accounts.post
 GET    /v1/accounts/:id                 controllers.Accounts.show(id: String)
 # Nodes
