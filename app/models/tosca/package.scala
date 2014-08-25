@@ -64,5 +64,116 @@ package object tosca {
     def empty: CSARResults = nel(emptyPC.head, emptyPC.tail)
   }
 
+  type AssembliesResults = NonEmptyList[Option[AssembliesResult]]
+
+  object AssembliesResults {
+    val emptyRR = List(Option.empty[AssembliesResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: AssembliesResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.AssembliesResultsSerialization.{ writer => AssembliesResultsWriter }
+      toJSON(nres)(AssembliesResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: AssembliesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[AssembliesResult]) = nels(m)
+    def apply(m: AssembliesResult): AssembliesResults = AssembliesResults(m.some)
+    def empty: AssembliesResults = nel(emptyRR.head, emptyRR.tail)
+  }
+  
+   type AssembliesList = List[Assembly]
+
+  object AssembliesList {
+    val emptyRR = List(Assembly.empty)
+    def toJValue(nres: AssembliesList): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.AssembliesListSerialization.{ writer => AssembliesListWriter }
+      toJSON(nres)(AssembliesListWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AssembliesList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.AssembliesListSerialization.{ reader => AssembliesListReader }
+      fromJSON(jValue)(AssembliesListReader)
+    }
+
+    def toJson(nres: AssembliesList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+    
+    def apply(plansList: List[Assembly]): AssembliesList = plansList
+
+    def empty: List[Assembly] = emptyRR
+
+  }
+   
+    type Components = List[Component]
+
+  object Components {
+    val emptyRR = List(Component.empty)
+    def toJValue(nres: Components): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.ComponentsSerialization.{ writer => ComponentsWriter }
+      toJSON(nres)(ComponentsWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Components] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.ComponentsSerialization.{ reader => ComponentsReader }
+      fromJSON(jValue)(ComponentsReader)
+    }
+
+    def toJson(nres: Components, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+    
+    def apply(plansList: List[Component]): Components = plansList
+
+    def empty: List[Component] = emptyRR
+
+  }
+   
+ /*  type AssembliesResultList = List[String]
+
+  object AssembliesResultList {
+    val emptyRR = List(String.empty)
+    def toJValue(nres: AssembliesResultList): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.AssembliesResultListSerialization.{ writer => AssembliesResultListWriter }
+      toJSON(nres)(AssembliesResultListWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AssembliesResultList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.AssembliesResultListSerialization.{ reader => AssembliesResultListReader }
+      fromJSON(jValue)(AssembliesResultListReader)
+    }
+
+    def toJson(nres: AssembliesResultList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+    
+    def apply(plansList: List[String]): AssembliesResultList = plansList
+
+    def empty: List[String] = emptyRR
+
+  }*/
+  
 
 }
