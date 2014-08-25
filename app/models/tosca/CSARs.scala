@@ -30,6 +30,7 @@ import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 import models.cache._
+import models.riak._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
@@ -38,6 +39,8 @@ import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+
+
 
 /**
  * @author rajthilak
@@ -81,7 +84,7 @@ object CSARResult {
 object CSARs {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "csars")
+  private val riak = GWRiak( "csars")
   implicit def CSARsSemigroup: Semigroup[CSARResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "CSAR"
@@ -130,7 +133,7 @@ object CSARs {
             case Some(thatGS) => (parse(thatGS.value).extract[CSARResult].some).successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("CSAR.created success", "Scaliak returned => None. Thats OK."))
-              (parse(gs.get.value).extract[CSARResult].some).successNel[Throwable];
+              (parse(gs.get.value).extract[CSARResult].some).successNel[Throwable]
             }
           }
         }

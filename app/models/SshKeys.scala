@@ -29,6 +29,7 @@ import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.riak._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
@@ -37,6 +38,7 @@ import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+
 
 /**
  * @author rajthilak
@@ -86,7 +88,7 @@ object SshKeyResult {
 object SshKeys {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "sshkeys")
+  private val riak = GWRiak("sshkeys")
   implicit def SshKeyResultsSemigroup: Semigroup[SshKeyResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "SshKey"

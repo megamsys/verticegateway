@@ -32,11 +32,14 @@ import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import models.cache._
+import models.riak._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import controllers.stack.MConfig
 import scala.collection.immutable.Map
+
+
 
 /**
  * @author rajthilak
@@ -101,7 +104,7 @@ object BoltDefns {
 
   implicit val formats = DefaultFormats
 
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "boltdefns")
+  private val riak = GWRiak( "boltdefns")
 
   val metadataKey = "BoltDefns"
   val newnode_metadataVal = "Bolt Definition Creation"

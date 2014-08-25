@@ -32,9 +32,12 @@ import java.nio.charset.Charset
 import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import models.cache._
+import models.riak._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.stack.MConfig
+
+
 /**
  * @author rajthilak
  * authority
@@ -84,7 +87,7 @@ object Accounts {
 
   implicit val formats = DefaultFormats
 
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "accounts")
+  private val riak = GWRiak( "accounts")
   /**
    * Parse the input body when you start, if its ok, then we process it.
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.

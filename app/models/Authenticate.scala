@@ -15,6 +15,7 @@ import scalaz.Validation._
 import Scalaz._
 
 case class UserData(email: String, apikey: String)
+
 object Authenticate {
 
   def authenticate(email: String, apikey: String): Option[UserData] = {

@@ -30,6 +30,7 @@ import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import models._
+import models.riak._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
@@ -41,6 +42,8 @@ import java.nio.charset.Charset
 import scala.collection.JavaConversions._
 import models.cache._
 import org.yaml.snakeyaml.Yaml
+
+
 
 /**
  * @author rajthilak
@@ -67,7 +70,7 @@ case class CSARLinkResult(id: String, desc: String)
 object CSARLinks {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "csarlinks")
+  private val riak = GWRiak( "csarlinks")
   implicit def CSARsSemigroup: Semigroup[CSARLinkResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "csarlinkkey"

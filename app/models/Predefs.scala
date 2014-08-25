@@ -25,6 +25,7 @@ import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import models._
 import models.cache._
+import models.riak._
 import org.megam.util.Time
 import controllers.funnel.FunnelErrors._
 import controllers.stack._
@@ -37,6 +38,8 @@ import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import java.nio.charset.Charset
+
+
 
 /**
  * @author rajthilak
@@ -119,7 +122,7 @@ object Predefs {
   implicit val formats = DefaultFormats
   implicit def PredefResultsSemigroup: Semigroup[PredefResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "predefs")
+  private val riak = GWRiak( "predefs")
 
   val metadataKey = "Predef"
   val metadataVal = "Predefs Creation"

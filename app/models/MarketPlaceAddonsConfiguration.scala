@@ -28,6 +28,7 @@ import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.riak._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
@@ -36,6 +37,9 @@ import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+
+
+
 
 /**
  * @author rajthilak
@@ -102,7 +106,7 @@ object MarketPlaceAddonsConfigurationResult {
 object MarketPlaceAddonsConfiguration {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "addonconfigs")
+  private val riak = GWRiak( "addonconfigs")
   implicit def MarketPlaceAddonsConfigurationResultsSemigroup: Semigroup[MarketPlaceAddonsConfigurationResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "marketplaceaddonsconfig"

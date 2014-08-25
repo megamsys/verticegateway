@@ -31,11 +31,14 @@ import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, Lo
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import java.nio.charset.Charset
 import models._
+import models.riak._
 import models.cache._
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
+
+
 
 /**
  * @author ram
@@ -207,7 +210,7 @@ object CloudTools {
   implicit val formats = DefaultFormats
   implicit def CloudToolResultsSemigroup: Semigroup[CloudToolResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "cloudtools")
+  private val riak = GWRiak( "cloudtools")
 
   val metadataKey = "CloudTool"
   val metadataVal = "CloudTools Creation"

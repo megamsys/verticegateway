@@ -29,6 +29,7 @@ import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import org.megam.common.enumeration._
 import models._
+import models.riak._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
@@ -37,6 +38,8 @@ import org.megam.common.uid._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import java.nio.charset.Charset
+
+
 
 /**
  * @author ram
@@ -237,7 +240,7 @@ object Nodes {
   implicit def NodeResultsSemigroup: Semigroup[NodeResults] = Semigroup.instance((f1, f2) => f1.append(f2))
   implicit def NodeProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
 
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "nodes")
+  private val riak = GWRiak( "nodes")
 
   val metadataKey = "Node"
   val newnode_metadataVal = "New Node Creation"
