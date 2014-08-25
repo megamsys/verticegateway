@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.stack._
@@ -47,7 +47,7 @@ object AppDefns extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "post:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("AppDefns wasn't funneled. Verify the header."))
@@ -104,7 +104,7 @@ object AppDefns extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("AppDefns wasn't funneled. Verify the header."))
@@ -137,7 +137,7 @@ object AppDefns extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%-10s,%10s]").format("nodename", nodeid, id))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("AppDefns wasn't funneled. Verify the header."))
@@ -167,7 +167,7 @@ object AppDefns extends Controller with APIAuthElement {
    * Output: JSON (AppDefnsResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("AppDefns wasn't funneled. Verify the header."))
@@ -191,7 +191,7 @@ object AppDefns extends Controller with APIAuthElement {
   def update = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppDefns", "update:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("AppDefns wasn't funneled. Verify the header."))

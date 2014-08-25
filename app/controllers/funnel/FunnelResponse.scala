@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -65,7 +65,7 @@ object FunnelResponse {
     fromJSON(jValue)(funser.reader)
   }
 
-  def fromJson(json: String): Result[FunnelResponse] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+  def fromJson(json: String): Result[FunnelResponse] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())

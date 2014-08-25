@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import controllers.stack._
@@ -77,7 +77,7 @@ object AppRequestResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[AppRequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[AppRequestResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -110,7 +110,7 @@ object AppRequests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, AppRequestInput] = (Validation.fromTryCatchThrowable[models.AppRequestInput,Throwable] {
+    val ripNel: ValidationNel[Throwable, AppRequestInput] = (Validation.fromTryCatch[models.AppRequestInput] {
       parse(input).extract[AppRequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -174,7 +174,7 @@ object AppRequests {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.AppRequestResult,Throwable] {
+              (Validation.fromTryCatch[models.AppRequestResult] {
                 parse(xs.value).extract[AppRequestResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(reqName, t.getMessage)

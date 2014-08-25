@@ -50,7 +50,7 @@ object Organizations extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "post:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -86,7 +86,7 @@ object Organizations extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -117,7 +117,7 @@ object Organizations extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "list:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

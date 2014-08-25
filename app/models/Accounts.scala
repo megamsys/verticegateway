@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.scaliak._
 import org.megam.common.riak.{ GSRiak, GunnySack }
@@ -73,7 +73,7 @@ object AccountResult {
     fromJSON(jValue)(acctser.reader)
   }
 
-  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -96,7 +96,7 @@ object Accounts {
   def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("input json", input))
-    (Validation.fromTryCatchThrowable[models.AccountInput,Throwable] {
+    (Validation.fromTryCatch[models.AccountInput] {
       parse(input).extract[AccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage)
     }).toValidationNel.flatMap { m: AccountInput =>
@@ -140,7 +140,7 @@ object Accounts {
           }).toValidationNel.flatMap { xso: Option[GunnySack] =>
             xso match {
               case Some(xs) => {
-                (Validation.fromTryCatchThrowable[models.AccountResult,Throwable] {
+                (Validation.fromTryCatch[models.AccountResult] {
                   parse(xs.value).extract[AccountResult]
                 } leftMap { t: Throwable =>
                   new ResourceItemNotFound(email, t.getMessage)

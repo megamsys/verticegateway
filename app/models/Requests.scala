@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import controllers.stack._
@@ -81,7 +81,7 @@ object RequestResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[RequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[RequestResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -113,7 +113,7 @@ object Requests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, RequestInputNewNode] = (Validation.fromTryCatchThrowable[models.RequestInputNewNode, Throwable] {
+    val ripNel: ValidationNel[Throwable, RequestInputNewNode] = (Validation.fromTryCatch[models.RequestInputNewNode] {
       parse(input).extract[RequestInputNewNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -144,7 +144,7 @@ object Requests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, RequestInputExistNode] = (Validation.fromTryCatchThrowable[models.RequestInputExistNode,Throwable] {
+    val ripNel: ValidationNel[Throwable, RequestInputExistNode] = (Validation.fromTryCatch[models.RequestInputExistNode] {
       parse(input).extract[RequestInputExistNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -233,7 +233,7 @@ object Requests {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.RequestResult, Throwable] {
+              (Validation.fromTryCatch[models.RequestResult] {
                 parse(xs.value).extract[RequestResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(reqName, t.getMessage)

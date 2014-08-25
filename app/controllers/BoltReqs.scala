@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.Constants.DEMO_EMAIL
@@ -46,7 +46,7 @@ object BoltReqs extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltReqs", "post:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Bolt Request wasn't funneled. Verify the header."))
@@ -101,7 +101,7 @@ object BoltReqs extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.BoltRequests", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("BoltRequest wasn't funneled. Verify the header."))
@@ -131,7 +131,7 @@ object BoltReqs extends Controller with APIAuthElement {
    * Output: JSON (NodeResult)
    */
   /* def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import controllers.funnel.FunnelErrors._
@@ -77,7 +77,7 @@ object CloudTemplate {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[CloudTemplate] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+  def fromJson(json: String): Result[CloudTemplate] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -113,7 +113,7 @@ object CloudInstruction {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[CloudInstruction] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+  def fromJson(json: String): Result[CloudInstruction] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -153,7 +153,7 @@ object CloudTool {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CloudTool] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[CloudTool] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -223,7 +223,7 @@ object CloudTools {
    */
   private def mkGunnySack(input: CloudTool): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug("models.CloudTools mkGunnySack: entry:\n" + input.json)
-    val cloudDeployerInput: ValidationNel[Throwable, CloudTool] = (Validation.fromTryCatchThrowable[models.CloudTool,Throwable] {
+    val cloudDeployerInput: ValidationNel[Throwable, CloudTool] = (Validation.fromTryCatch[models.CloudTool] {
       parse(input.json).extract[CloudTool]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
     for {
@@ -291,7 +291,7 @@ object CloudTools {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.CloudTool,Throwable] {
+                    (Validation.fromTryCatch[models.CloudTool] {
                       parse(xs.value).extract[CloudTool]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(cname, t.getMessage)

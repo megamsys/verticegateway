@@ -20,13 +20,17 @@
  */
 package test
 
+import scalaz._
+import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+//import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import com.stackmob.newman._
 import com.stackmob.newman.response._
 import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
 import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
-import scalaz._
-import scalaz.NonEmptyList._
-import Scalaz._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.security.MessageDigest
 import javax.crypto.spec.SecretKeySpec
@@ -37,7 +41,6 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman.dsl._
 import scala.concurrent.Await
 import scala.concurrent.duration._
-
 import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -49,7 +52,7 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
+    X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
@@ -129,7 +132,7 @@ trait Context extends BaseContext {
   play.api.Logger.debug("%-20s -->[%s]".format("RESP SEND", urlSuffix))
 
   //lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
-   lazy val url = new URL("https://api.megam.co/v1/" + urlSuffix)
+  lazy val url = new URL("https://api.megam.co/v1/" + urlSuffix)
   play.api.Logger.debug("%-20s -->[%s]".format("MYURL", url))
   play.api.Logger.debug("%-20s -->[%s]".format("MYBODY", bodyToStick))
 

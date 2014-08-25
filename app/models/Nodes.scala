@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -91,7 +91,7 @@ object NodeResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[NodeResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+  def fromJson(json: String): Result[NodeResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -131,7 +131,7 @@ object NodeProcessedResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[NodeProcessedResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[NodeProcessedResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -268,7 +268,7 @@ object Nodes {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatchThrowable[models.NodeInput, Throwable] {
+    val nodeInput: ValidationNel[Throwable, NodeInput] = (Validation.fromTryCatch[models.NodeInput] {
       parse(input).extract[NodeInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -361,7 +361,7 @@ object Nodes {
   }
 
   private def updateGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val nodeInput: ValidationNel[Throwable, NodeUpdateInput] = (Validation.fromTryCatchThrowable[models.NodeUpdateInput, Throwable] {
+    val nodeInput: ValidationNel[Throwable, NodeUpdateInput] = (Validation.fromTryCatch[models.NodeUpdateInput] {
       parse(input).extract[NodeUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure  
 

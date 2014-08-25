@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -73,7 +73,7 @@ object MarketPlacePlan {
     fromJSON(jValue)(MarketPlacePlanReader)
   }
 
-  def fromJson(json: String): Result[MarketPlacePlan] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[MarketPlacePlan] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -203,7 +203,7 @@ object MarketPlaceResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+  def fromJson(json: String): Result[MarketPlaceResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -233,7 +233,7 @@ object MarketPlaces {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val marketPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput, Throwable] {
+    val marketPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatch[models.MarketPlaceInput] {
       parse(input).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -252,7 +252,7 @@ object MarketPlaces {
 
   private def mkGunnySack_init(input: MarketPlaceInput): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug("models.MarketPlaces mkGunnySack_init: entry--------------------:\n" + input.json)
-    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput,Throwable] {
+    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatch[models.MarketPlaceInput] {
       parse(input.json).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
     play.api.Logger.debug("models.MarketPlaces mkGunnySack: entry--------------------:\n" + marketplaceInput)
@@ -336,7 +336,7 @@ object MarketPlaces {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.MarketPlaceResult,Throwable] {
+                    (Validation.fromTryCatch[models.MarketPlaceResult] {
                       parse(xs.value).extract[MarketPlaceResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(marketplacesName, t.getMessage)

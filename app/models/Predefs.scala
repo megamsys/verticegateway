@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import models._
@@ -109,7 +109,7 @@ object PredefResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[PredefResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[PredefResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -134,7 +134,7 @@ object Predefs {
    */
   private def mkGunnySack(input: PredefInput): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug("models.Predefs mkGunnySack: entry:\n" + input.json)
-    val predefInput: ValidationNel[Throwable, PredefInput] = (Validation.fromTryCatchThrowable[models.PredefInput,Throwable] {
+    val predefInput: ValidationNel[Throwable, PredefInput] = (Validation.fromTryCatch[models.PredefInput] {
       parse(input.json).extract[PredefInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
 
@@ -203,7 +203,7 @@ object Predefs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.PredefResult,Throwable] {
+                    (Validation.fromTryCatch[models.PredefResult] {
                       parse(xs.value).extract[PredefResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(cname, t.getMessage)
