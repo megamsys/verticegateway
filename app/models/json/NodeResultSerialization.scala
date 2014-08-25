@@ -20,7 +20,7 @@ import scalaz._
 import Scalaz._
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import java.util.Date
 import java.nio.charset.Charset

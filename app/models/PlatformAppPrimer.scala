@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import play.api.http.Status._
@@ -97,7 +97,7 @@ object PlatformAppPrimer {
       }
 
   //populate the default cloud tool settings  
-  def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo/.chef/knife.rb").json
+  def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip", "cloudrecipes/megam@mypaas.io/default_chef/chef-repo/.chef/knife.rb").json
 
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 

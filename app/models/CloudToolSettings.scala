@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -74,7 +74,7 @@ object CloudToolSettingResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CloudToolSettingResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[CloudToolSettingResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -103,7 +103,7 @@ object CloudToolSettings {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val CloudToolSettingInput: ValidationNel[Throwable, CloudToolSettingInput] = (Validation.fromTryCatchThrowable[models.CloudToolSettingInput,Throwable] {
+    val CloudToolSettingInput: ValidationNel[Throwable, CloudToolSettingInput] = (Validation.fromTryCatch[models.CloudToolSettingInput] {
       parse(input).extract[CloudToolSettingInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -159,7 +159,7 @@ object CloudToolSettings {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.CloudToolSettingResult,Throwable] {
+              (Validation.fromTryCatch[models.CloudToolSettingResult] {
                 parse(xs.value).extract[CloudToolSettingResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(CloudToolSettingName, t.getMessage)

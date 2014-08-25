@@ -29,7 +29,9 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.SecurityActions._
-
+import scalaz._
+import Scalaz._
+import scalaz.NonEmptyList._
 /**
  * @author rajthilak
  *
@@ -82,7 +84,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -106,7 +108,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"sandy@megamsandbox.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -121,7 +123,7 @@ class AccountsSpec extends Specification {
     }
   }
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/sandy@megamsandbox.com"
+    protected override def urlSuffix: String = "accounts/megam@mypaas.io"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -133,12 +135,12 @@ class AccountsSpec extends Specification {
     }
   }
   case object GetInvalidApi extends Context {
-    protected override def urlSuffix: String = "accounts/sandy@megamsandbox.com"
+    protected override def urlSuffix: String = "accounts/megam@mypaas.io"
 
     // protected def headersOpt: Option[Map[String, String]] = None
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
+      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
       X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)

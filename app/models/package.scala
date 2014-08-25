@@ -18,7 +18,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models.json._
 
@@ -208,7 +208,7 @@ package object models {
       fromJSON(jValue)(preser.reader)
     }
 
-    def fromJson(json: String): Result[CloudInstructions] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+    def fromJson(json: String): Result[CloudInstructions] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
        play.api.Logger.debug(("%-20s -->[%s]").format("cigfromjson",  json))
       parse(json)
     } leftMap { t: Throwable =>
@@ -247,7 +247,7 @@ package object models {
       fromJSON(jValue)(preser.reader)
     }
 
-    def fromJson(json: String): Result[CloudInstructionGroup] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+    def fromJson(json: String): Result[CloudInstructionGroup] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
       parse(json)
     } leftMap { t: Throwable =>
       UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())

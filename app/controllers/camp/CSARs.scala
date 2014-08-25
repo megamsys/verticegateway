@@ -48,7 +48,7 @@ object CSARs extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "post:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -85,7 +85,7 @@ object CSARs extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -116,7 +116,7 @@ object CSARs extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "list:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

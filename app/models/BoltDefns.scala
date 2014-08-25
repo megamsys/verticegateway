@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -77,7 +77,7 @@ object BoltDefnsResult {
     fromJSON(jValue)(acctser.reader)
   }
 
-  def fromJson(json: String): Result[BoltDefnsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+  def fromJson(json: String): Result[BoltDefnsResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -122,7 +122,7 @@ object BoltDefns {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, BoltDefnsInputforExistNode] = (Validation.fromTryCatchThrowable[models.BoltDefnsInputforExistNode, Throwable] {
+    val ripNel: ValidationNel[Throwable, BoltDefnsInputforExistNode] = (Validation.fromTryCatch[models.BoltDefnsInputforExistNode] {
       parse(input).extract[BoltDefnsInputforExistNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -183,7 +183,7 @@ object BoltDefns {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, BoltDefnsInputforNewNode] = (Validation.fromTryCatchThrowable[models.BoltDefnsInputforNewNode, Throwable] {
+    val ripNel: ValidationNel[Throwable, BoltDefnsInputforNewNode] = (Validation.fromTryCatch[models.BoltDefnsInputforNewNode] {
       parse(input).extract[BoltDefnsInputforNewNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -242,7 +242,7 @@ object BoltDefns {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.BoltDefnsResult,Throwable] {
+              (Validation.fromTryCatch[models.BoltDefnsResult] {
                 parse(xs.value).extract[BoltDefnsResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(defName, t.getMessage)
@@ -337,7 +337,7 @@ object BoltDefns {
   }
   
   private def updateGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val defnInput: ValidationNel[Throwable, BoltDefnsUpdateInput] = (Validation.fromTryCatchThrowable[models.BoltDefnsUpdateInput,Throwable] {
+    val defnInput: ValidationNel[Throwable, BoltDefnsUpdateInput] = (Validation.fromTryCatch[models.BoltDefnsUpdateInput] {
       parse(input).extract[BoltDefnsUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure  
 

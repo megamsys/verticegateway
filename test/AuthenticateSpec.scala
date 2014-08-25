@@ -53,7 +53,7 @@ class AuthenticateSpec extends Specification {
   case object Post extends Context {
 
     protected override def urlSuffix: String = "auth"
-    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
     protected def headersOpt: Option[Map[String, String]] = None
 
     private val post = POST(url)(httpClient)
@@ -85,7 +85,7 @@ class AuthenticateSpec extends Specification {
 
   case object PostMalformedHeader extends Context {
     protected override def urlSuffix: String = "auth"
-    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
+    protected override def bodyToStick: Option[String] = Some(new String("{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"))
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
       X_Megam_EMAIL -> "sandy555@megaamsandbox.com", X_Megam_APIKEY -> "IamAtllidkfas{74}NobodyCanSeeME#07",

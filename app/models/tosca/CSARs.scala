@@ -21,7 +21,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -73,7 +73,7 @@ object CSARResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -154,7 +154,7 @@ object CSARs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.tosca.CSARResult, Throwable] {
+                    (Validation.fromTryCatch[models.tosca.CSARResult] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)
@@ -188,7 +188,7 @@ object CSARs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.tosca.CSARResult,Throwable] {
+                    (Validation.fromTryCatch[models.tosca.CSARResult] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)
