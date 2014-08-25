@@ -72,7 +72,7 @@ object CloudTemplatesSerialization extends SerializationBase[CloudTemplates] {
           nrs.successNel[Error]
         }
         case j => {
-          UnexpectedJSONError(j, classOf[JArray]).failNel[CloudTemplates]
+          UnexpectedJSONError(j, classOf[JArray]).failureNel[CloudTemplates]
         }
       }
     }

@@ -56,7 +56,7 @@ object MarketPlacePlansSerialization extends SerializationBase[MarketPlacePlans]
           val nrs: MarketPlacePlans = MarketPlacePlans(list.getOrElse(MarketPlacePlans.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[MarketPlacePlans]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[MarketPlacePlans]
       }
     }
   }

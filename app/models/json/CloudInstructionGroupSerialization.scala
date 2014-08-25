@@ -71,7 +71,7 @@ class CloudInstructionGroupSerialization(charset: Charset = UTF8Charset) extends
           val nrs: CloudInstructionGroup = list.toMap
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CloudInstructionGroup]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[CloudInstructionGroup]
       }
     }
   }

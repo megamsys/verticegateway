@@ -28,12 +28,10 @@ import scala.concurrent.Future
 
 /**
  * We do bunch of things in Global, a gzip response is sent back to the client when the
- * header has "Content-length" > 5000
+ * header has "Content-length" > 5000bytes
  */
-/* object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) =>
+object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) =>
   response.headers.get(CONTENT_LENGTH).exists(_.toInt > 5000))) with GlobalSettings {
-*/
-object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     play.api.Logger.info("megamgateway - started")

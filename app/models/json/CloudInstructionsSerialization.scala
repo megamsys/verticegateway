@@ -68,7 +68,7 @@ class CloudInstructionsSerialization(charset: Charset = UTF8Charset)  extends Se
           val nrs: CloudInstructions = list.some.getOrElse(CloudInstructions.empty)
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CloudInstructions]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[CloudInstructions]
       }
     }
   }

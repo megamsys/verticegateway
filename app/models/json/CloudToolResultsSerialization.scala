@@ -68,7 +68,7 @@ object CloudToolResultsSerialization extends SerializationBase[CloudToolResults]
           val nrs: CloudToolResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CloudToolResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[CloudToolResults]
       }
     }
   }

@@ -16,25 +16,29 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
-import Scalaz._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.riak._
 import org.megam.util.Time
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import java.nio.charset.Charset
+
+
 
 /**
  * @author ram
@@ -73,7 +77,7 @@ object AppRequestResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[AppRequestResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[AppRequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -87,12 +91,12 @@ object AppRequests {
 
   implicit def AppRequestResultsSemigroup: Semigroup[AppRequestResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "appreqs")
+  private val riak = GWRiak( "appreqs")
 
   val metadataKey = "AppRequest"
   val newnode_metadataVal = "New AppRequest Creation"
-  val newnode_bindex = BinIndex.named("nodesId")
-  val appdefns_bindex = BinIndex.named("appdefnsId")
+  val newnode_bindex = "nodesId"
+  val appdefns_bindex = "appdefnsId"
   
   /**
    * A private method which chains computation to make GunnySack for existing node when provided with an input json, Option[node_name].
@@ -106,7 +110,7 @@ object AppRequests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, AppRequestInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, AppRequestInput] = (Validation.fromTryCatchThrowable[models.AppRequestInput,Throwable] {
       parse(input).extract[AppRequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -170,7 +174,7 @@ object AppRequests {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.AppRequestResult,Throwable] {
                 parse(xs.value).extract[AppRequestResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(reqName, t.getMessage)
@@ -205,7 +209,7 @@ object AppRequests {
         //that. This is justa  hack for now. It calls for much more elegant soln.
         (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
           (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-            val bindex = BinIndex.named("")
+            val bindex = ""
             val bvalue = Set("")
             val metadataVal = "Nodes-name"
             play.api.Logger.debug(("%-20s -->[%s]").format("models.AppRequest", nelnor))

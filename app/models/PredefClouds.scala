@@ -16,25 +16,30 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+
+
 
 /**
  * @author rajthilak
@@ -80,7 +85,7 @@ object PredefCloudResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[PredefCloudResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[PredefCloudResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -92,12 +97,12 @@ object PredefCloudResult {
 object PredefClouds {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "predefclouds")
+  private val riak = GWRiak( "predefclouds")
   implicit def PredefCloudResultsSemigroup: Semigroup[PredefCloudResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "Predefcloud"
   val metadataVal = "Predefs Creation"
-  val bindex = BinIndex.named("predefcloud")
+  val bindex = "predefcloud"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -110,7 +115,7 @@ object PredefClouds {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val predefCloudInput: ValidationNel[Throwable, PredefCloudInput] = (Validation.fromTryCatch {
+    val predefCloudInput: ValidationNel[Throwable, PredefCloudInput] = (Validation.fromTryCatchThrowable[models.PredefCloudInput, Throwable] {
       parse(input).extract[PredefCloudInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -165,7 +170,7 @@ object PredefClouds {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.PredefCloudResult, Throwable] {
                 parse(xs.value).extract[PredefCloudResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(predefcloudsName, t.getMessage)
@@ -196,7 +201,7 @@ object PredefClouds {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = BinIndex.named("")
+        val bindex = ""
         val bvalue = Set("")
         new GunnySack("predefcloud", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some

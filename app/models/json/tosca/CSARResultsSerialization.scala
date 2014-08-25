@@ -57,7 +57,7 @@ object CSARResultsSerialization extends SerializationBase[CSARResults] {
           val nrs: CSARResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CSARResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[CSARResults]
       }
     }
   }
