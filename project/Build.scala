@@ -19,7 +19,7 @@ object ApplicationBuild extends Build {
 
   val play2AuthVersion = "0.12.0"
 
-  val megamVersion = "0.5.2"
+  val megamVersion = "0.5.3"
 
 
   val appDependencies = Seq(
@@ -30,6 +30,7 @@ object ApplicationBuild extends Build {
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
     "jp.t2v" %% "play2-auth-test" % play2AuthVersion % "test",
     "com.stackmob" %% "newman" % "1.3.5" % "test",
+    "org.specs2" %% "specs2" % "2.3.13" % "test",  
     "org.yaml" % "snakeyaml" % "1.13"
     )
 

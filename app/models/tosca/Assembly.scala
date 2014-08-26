@@ -17,12 +17,13 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.effect.IO
-import scalaz.Validation._
-import scalaz.EitherT._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import controllers.stack._
 import controllers.Constants._
@@ -30,8 +31,9 @@ import controllers.funnel.FunnelErrors._
 import models.tosca._
 import models.cache._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import models.riak._
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -126,7 +128,7 @@ object Component {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Component] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[Component] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -162,7 +164,7 @@ object AssemblyResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[AssemblyResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[AssemblyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -201,7 +203,7 @@ object Assembly {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Assembly] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[Assembly] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -209,12 +211,12 @@ object Assembly {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "assembly")
+  private val riak = GWRiak( "assembly")
  // implicit def CSARsSemigroup: Semigroup[CSARResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "ASSEMBLY"
   val metadataVal = "Assembly Creation"
-  val bindex = BinIndex.named("assembly")
+  val bindex = "assembly"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -227,7 +229,7 @@ object Assembly {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, Assembly] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, Assembly] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
       parse(input).extract[Assembly]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     
@@ -283,7 +285,7 @@ object Assembly {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch {
+                    (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)
@@ -317,7 +319,7 @@ object Assembly {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch {
+                    (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)

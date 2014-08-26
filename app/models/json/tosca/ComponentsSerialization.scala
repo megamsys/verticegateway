@@ -57,7 +57,7 @@ object ComponentsSerialization extends SerializationBase[Components] {
           val nrs: Components = Components(list.getOrElse(Components.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[Components]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[Components]
       }
     }
   }

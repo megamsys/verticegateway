@@ -57,7 +57,7 @@ object AssembliesListSerialization extends SerializationBase[AssembliesList] {
           val nrs: AssembliesList = AssembliesList(list.getOrElse(AssembliesList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AssembliesList]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssembliesList]
       }
     }
   }
