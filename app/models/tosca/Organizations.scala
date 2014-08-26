@@ -64,7 +64,37 @@ object OrganizationsResult {
 }
 
 object Organizations {
+  implicit val formats = DefaultFormats
+  private def riak: GSRiak = GSRiak(MConfig.riakurl, "organizations")
+  
+   val metadataKey = "Organizations"
+  val metadataVal = "Organizations Creation"
+  val bindex = BinIndex.named("organization")
+  
+  
+  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
+    val organizationsInput: ValidationNel[Throwable, OrganizationsInput] = (Validation.fromTryCatch {
+      parse(input).extract[OrganizationsInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      mkp <- organizationsInput
+      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+      //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
+      val bvalue = Set(mkp.name)
+      val json = new OrganizationsResult(uir.get._1 + uir.get._2, mkp.name, mkp.appdetails, mkp.features, mkp.plans, mkp.applinks, mkp.attach, mkp.predefnode, mkp.approved, Time.now.toString).toJson(false)
+      new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+    }
+  }
+  
+  
   def create(email: String, input: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))

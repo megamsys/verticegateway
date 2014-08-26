@@ -32,7 +32,7 @@ import play.api.mvc.Result
 import models.tosca._
 
 /**
- * @author ram
+ * @author ram 
  *
  */
 /*
@@ -61,7 +61,7 @@ object Organizations extends Controller with APIAuthElement {
               Status(CREATED)(
                 FunnelResponse(CREATED, """Organizations created successfully.
             |
-            |You can use the the 'market place name':{%s}.""".format(succ.getOrElse("none")), "Megam::MarketPlace").toJson(true))
+            |You can use the the 'Organizations name':{%s}.""".format(succ.getOrElse("none")), "Megam::Organizations").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -81,7 +81,7 @@ object Organizations extends Controller with APIAuthElement {
    * Email provided in the URI.
    * Output: JSON (MarketPlaceResult)
    **/
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+  /* def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
@@ -92,9 +92,9 @@ object Organizations extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "request funneled."))
 
-          models.Organizations.findByName(Stream(id).some) match {
+          models.tosca.Organizations.findByName(Stream(id).some) match {
             case Success(succ) =>
-              Ok(MarketPlaceResults.toJson(succ, true))
+              Ok(OrganizationsResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -121,9 +121,9 @@ object Organizations extends Controller with APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.MarketPlaces.listAll match {
+          models.tosca.Organizations.listAll match {
             case Success(succ) => {
-              Ok(MarketPlaceResults.toJson(succ, true))
+              Ok(OrganizationsResults.toJson(succ, true))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -137,5 +137,5 @@ object Organizations extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-
+*/
 }
