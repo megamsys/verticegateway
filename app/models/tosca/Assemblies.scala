@@ -29,10 +29,11 @@ import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models.tosca._
 import models._
+import models.riak._
 import models.cache._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -43,7 +44,10 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList, inputs: AssembliesInputs)
+case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList, inputs: AssembliesInputs) {
+  val json = "{\"name\":\"" + name + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + inputs.json + "}"
+}
+
 
 case class AssembliesInputs(id: String, assemblies_type: String, label: String) {
   val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" +  assemblies_type + "\",\"label\" : \"" + label +"\"}"  
@@ -87,12 +91,12 @@ object AssembliesResult {
 object Assemblies {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "assemblies")
+  private val riak = GWRiak( "assemblies")
  // implicit def CSARsSemigroup: Semigroup[CSARResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "ASSEMBLIES"
   val metadataVal = "Assemblies Creation"
-  val bindex = BinIndex.named("assemblies")
+  val bindex = "assemblies"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.

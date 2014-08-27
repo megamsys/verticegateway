@@ -111,7 +111,7 @@ package object tosca {
       compactRender(toJValue(nres))
     }
     
-    def apply(plansList: List[Assembly]): AssembliesList = plansList
+    def apply(plansList: List[Assembly]): AssembliesList = { println(plansList); plansList }
 
     def empty: List[Assembly] = emptyRR
 
