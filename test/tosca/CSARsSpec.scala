@@ -43,8 +43,8 @@ class CSARsSpec extends Specification {
     """ ^ end ^
       "The Client Should" ^
    //  "Correctly do POST requests" ! Post.succeeds ^
-   //  "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
-     "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+     "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+   //  "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
    //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
 

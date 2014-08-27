@@ -131,7 +131,7 @@ object CSARLinks {
   }
 
   def findByName(csarLinksNameList: Option[List[String]]): ValidationNel[Throwable, CSARLinkResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("CSARLinksList", csarLinksNameList))
 
     (csarLinksNameList map {

@@ -95,10 +95,10 @@ object CSARs extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "request funneled."))
 
-          models.tosca.CSARs.findByName(List(id).some) match {
+          models.tosca.CSARs.findLinksByName(List(id).some) match {
             case Success(succ) =>
               Result(header = ResponseHeader(play.api.http.Status.OK, Map(CONTENT_TYPE -> APPLICATION_GZIP)),
-                body = play.api.libs.iteratee.Enumerator(CSARResults.toJson(succ, true).getBytes))
+                body = play.api.libs.iteratee.Enumerator((succ.head map (_.desc)).getOrElse("").getBytes))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
