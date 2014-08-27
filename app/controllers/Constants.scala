@@ -30,6 +30,7 @@ object Constants {
 
   val UTF8Charset = Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
+  val APPLICATION_GZIP = "gzip"
 
   /**
    * The MEGAM_HOME variable is setup during the installation of megamgateway in MEGAM_HOME/.megam_auth

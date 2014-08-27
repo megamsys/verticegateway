@@ -34,9 +34,9 @@ import com.stackmob.newman.dsl._
 import controllers.stack.SecurityActions._
 import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails, MarketPlaceAppLinks, MarketPlacePlans }
 
-class CSARsSpec extends Specification {
+class MarketPlaceSpec extends Specification {
   def is =
-    "CSARsSpec".title ^ end ^
+    "MarketPlacesSpec".title ^ end ^
       """
       MarketPlacesSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^

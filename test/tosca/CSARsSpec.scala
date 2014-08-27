@@ -42,10 +42,10 @@ class CSARsSpec extends Specification {
       CSARsSpec is the implementation that calls the megam_play API server with the /csars url to create csars
     """ ^ end ^
       "The Client Should" ^
-     "Correctly do POST requests" ! Post.succeeds ^
-     "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
-      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-   //   "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+   //  "Correctly do POST requests" ! Post.succeeds ^
+   //  "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+     "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+   //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
 
   //post the headers and their body for specifing url
@@ -85,7 +85,7 @@ class CSARsSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "csars/CSR1101224642959511552"
+    protected override def urlSuffix: String = "csars/CSR1116033323106435072"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
