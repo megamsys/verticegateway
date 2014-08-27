@@ -18,6 +18,9 @@ package controllers
 import java.nio.charset.Charset
 import play.api.Logger
 import scala.util.{Try}
+import play.api.http.HeaderNames._
+import controllers.stack.HeaderConstants._
+
 
 /**
  * @author ram
@@ -30,8 +33,11 @@ object Constants {
 
   val UTF8Charset = Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
-  val APPLICATION_GZIP = "gzip"
-
+  
+  lazy val WithGzipHeader: Map[String,String] = Map(CONTENT_TYPE -> application_gzip)
+  
+  lazy val WithGzipHoleHeader: Map[String,String] = WithGzipHeader //:: (X_MEGAM_OTTAI -> X_MEGAM_OTTAI)
+  
   /**
    * The MEGAM_HOME variable is setup during the installation of megamgateway in MEGAM_HOME/.megam_auth
    */

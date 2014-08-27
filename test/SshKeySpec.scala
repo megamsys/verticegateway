@@ -27,7 +27,7 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import controllers.stack.SecurityActions._
+import controllers.stack.HeaderConstants._
 import models.{ SshKeyInput }
 
 class SshKeysSpec extends Specification {

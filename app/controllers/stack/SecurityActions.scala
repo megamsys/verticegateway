@@ -44,16 +44,7 @@ import play.api.Logger
 
 object SecurityActions {
 
-  val X_Megam_EMAIL = "X-Megam-EMAIL"
-  val X_Megam_APIKEY = "X-Megam-APIKEY"
-  val X_Megam_DATE = "X-Megam-DATE"
-  val X_Megam_HMAC = "X-Megam-HMAC"
-
-  val Content_Type = "Content-Type"
-  val application_json = "application/json"
-  val Accept = "Accept"
-  val application_vnd_megam_json = "application/vnd.megam+json"
-
+ 
   def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[Throwable, Option[String]] = {
     Logger.debug(("%-20s -->[%s]").format("SecurityActions", "Authenticated:Entry"))
     req.funneled match {
