@@ -29,9 +29,10 @@ import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models.tosca._
 import models.cache._
+import models.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -100,8 +101,8 @@ object ComponentOperations {
 //case class Component(name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: ExResource, artifacts: Artifacts, related_components: String, operations: ComponentOperations) {
 case class Component(name: String, tosca_type: String, requirements: String, inputs: ComponentInputs, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations) {
   val json = "{\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"requirements\":\"" + requirements +
-    "\",\"inputs\":" + inputs + ",\"external_management_resource\":\"" + external_management_resource + "\",\"artifacts\":" + artifacts + 
-    ",\"related_components\":\"" + related_components + "\",\"operations\":" + operations +"}"
+    "\",\"inputs\":" + inputs.json + ",\"external_management_resource\":\"" + external_management_resource + "\",\"artifacts\":" + artifacts.json + 
+    ",\"related_components\":\"" + related_components + "\",\"operations\":" + operations.json +"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -171,7 +172,7 @@ object AssemblyResult {
 }
 
 case class Assembly(name: String, components: models.tosca.Components, policies: String, inputs: String, operations: String) {
-  val json = "{\"name\":\"" + name + "\",\"components\":" + components + ",\"policies\":\"" + policies +
+  val json = "{\"name\":\"" + name + "\",\"components\":" + Components.toJson(components, true) + ",\"policies\":\"" + policies +
     "\",\"inputs\":\"" + inputs + "\",\"operations\":\"" + operations + "\"}"
 
   def toJValue: JValue = {
@@ -209,12 +210,12 @@ object Assembly {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "assembly")
+  private val riak = GWRiak( "assembly")
  // implicit def CSARsSemigroup: Semigroup[CSARResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "ASSEMBLY"
   val metadataVal = "Assembly Creation"
-  val bindex = BinIndex.named("assembly")
+  val bindex = "assembly"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
