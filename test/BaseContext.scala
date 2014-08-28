@@ -44,10 +44,13 @@ import scala.concurrent.duration._
 import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
-import controllers.stack.SecurityActions._
+import controllers.stack.HeaderConstants._
 import controllers.stack.GoofyCrypto._
 
 trait BaseContext {
+
+  val X_Megam_EMAIL = "X-Megam-EMAIL"
+  val X_Megam_APIKEY = "X-Megam-APIKEY"
 
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
@@ -131,8 +134,7 @@ trait Context extends BaseContext {
   play.api.Logger.debug("<---------------------------------------->")
   play.api.Logger.debug("%-20s -->[%s]".format("RESP SEND", urlSuffix))
 
-  //lazy val url = new URL("http://localhost:9000/v1/" + urlSuffix)
-  lazy val url = new URL("https://api.megam.co/v1/" + urlSuffix)
+  lazy val url = new URL("https://api.megam.co/v2/" + urlSuffix)
   play.api.Logger.debug("%-20s -->[%s]".format("MYURL", url))
   play.api.Logger.debug("%-20s -->[%s]".format("MYBODY", bodyToStick))
 

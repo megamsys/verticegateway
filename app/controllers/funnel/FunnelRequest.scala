@@ -26,7 +26,7 @@ import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, Sta
 
 import controllers.funnel._
 import controllers.funnel.FunnelErrors._
-import controllers.stack.SecurityActions._
+import controllers.stack.HeaderConstants._
 import controllers.stack.GoofyCrypto._
 
 /**

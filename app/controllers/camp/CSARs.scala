@@ -97,7 +97,7 @@ object CSARs extends Controller with APIAuthElement {
 
           models.tosca.CSARs.findLinksByName(List(id).some) match {
             case Success(succ) =>
-              Result(header = ResponseHeader(play.api.http.Status.OK, Map(CONTENT_TYPE -> APPLICATION_GZIP)),
+              Result(header = ResponseHeader(play.api.http.Status.OK, WithGzipHoleHeader),
                 body = play.api.libs.iteratee.Enumerator((succ.head map (_.desc)).getOrElse("").getBytes))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
