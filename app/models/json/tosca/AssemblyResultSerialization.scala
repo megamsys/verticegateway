@@ -53,7 +53,8 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
         JField(IdKey, toJSON(h.id)) ::
         JField(JSONClazKey, toJSON("Megam::Assembly")) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(ComponentsKey, toJSON(h.components)(ComponentsWriter)) ::
+          //JField(ComponentsKey, toJSON(h.components)(ComponentsWriter)) ::
+          JField(ComponentsKey, toJSON(h.components)) ::
           JField(PoliciesKey, toJSON(h.policies)) ::
           JField(InputsKey, toJSON(h.inputs)) ::
           JField(OperationsKey, toJSON(h.operations)) ::
@@ -68,14 +69,16 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
     override def read(json: JValue): Result[AssemblyResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
-      val componentsField = field[Components](ComponentsKey)(json)(ComponentsReader)
+      //val componentsField = field[Components](ComponentsKey)(json)(ComponentsReader)
+      val componentsField = field[String](ComponentsKey)(json)
       val policiesField = field[String](PoliciesKey)(json)
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
       (idField |@| nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| createdAtField) {
-        (id: String, name: String, components: Components, policies: String, inputs: String, operations: String, created_at: String) =>
+        //(id: String, name: String, components: Components, policies: String, inputs: String, operations: String, created_at: String) =>
+          (id: String, name: String, components: String, policies: String, inputs: String, operations: String, created_at: String) =>
           new AssemblyResult(id, name, components, policies, inputs, operations, created_at)
       }
     }

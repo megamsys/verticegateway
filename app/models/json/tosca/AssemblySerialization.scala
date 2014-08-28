@@ -35,7 +35,7 @@ import models.tosca.{ Assembly, Components }
  */
 class AssemblySerialization(charset: Charset = UTF8Charset) extends SerializationBase[Assembly] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+//  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val NameKey = "name"
   protected val ComponentsKey = "components"
   protected val PoliciesKey = "policies"
@@ -48,9 +48,10 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
  
     override def write(h: Assembly): JValue = {
       JObject(
-        JField(JSONClazKey, toJSON("Megam::Assembly")) ::
+   //     JField(JSONClazKey, toJSON("Megam::Assembly")) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(ComponentsKey, toJSON(h.components)(ComponentsWriter)) ::
+          //JField(ComponentsKey, toJSON(h.components)(ComponentsWriter)) ::
+          JField(ComponentsKey, toJSON(h.components)) ::
           JField(PoliciesKey, toJSON(h.policies)) ::
           JField(InputsKey, toJSON(h.inputs)) ::
           JField(OperationsKey, toJSON(h.operations)) :: Nil)
@@ -63,13 +64,15 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
 
     override def read(json: JValue): Result[Assembly] = {
       val nameField = field[String](NameKey)(json)
-      val componentsField = field[Components](ComponentsKey)(json)(ComponentsReader)
+//      val componentsField = field[Components](ComponentsKey)(json)(ComponentsReader)
+      val componentsField = field[String](ComponentsKey)(json)
       val policiesField = field[String](PoliciesKey)(json)
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
 
       (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField) {
-        (name: String, components: Components, policies: String, inputs: String, operations: String) =>
+        //(name: String, components: Components, policies: String, inputs: String, operations: String) =>
+          (name: String, components: String, policies: String, inputs: String, operations: String) =>
           new Assembly(name, components, policies, inputs, operations)
       }
     }

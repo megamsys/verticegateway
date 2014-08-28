@@ -34,41 +34,28 @@ object AssembliesResultsSerialization extends SerializationBase[AssembliesResult
   implicit override val writer = new JSONW[AssembliesResults] {
     override def write(h: AssembliesResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[AssembliesResult] =>
-          (nrOpt.map { nr: AssembliesResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[AssemblyResult] =>         
+            (nrOpt.map { nr: AssemblyResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey, JString("Megam::AssembliesCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 
-  /* Read - JArray(List[RequestResult]) which translates to :
-        JArray(List(
-          JObject(
-            List(
-              JField(name,JInt(code)),
-              JField(value,JString(msg))
-              .....
-            )
-          )
-        )
-      )
-      RequestResult already has an implicit reader, hence use it.
-       */
+ 
   implicit override val reader = new JSONR[AssembliesResults] {
     override def read(json: JValue): Result[AssembliesResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            AssembliesResult.fromJValue(jValue) match {
+            AssemblyResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[AssembliesResult]()
+              case Failure(fail) => List[AssemblyResult]()
             }
-          } map { x: AssembliesResult => x.some }
-          //this is screwy. Making the RequestResults as Option[NonEmptylist[RequestResult]] will solve it.
+          } map { x: AssemblyResult => x.some }
           val nrs: AssembliesResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AssembliesResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssembliesResults]
       }
     }
   }

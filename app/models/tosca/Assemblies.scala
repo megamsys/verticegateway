@@ -116,11 +116,13 @@ object Assemblies {
     for {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) 
+      aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
       val json = new AssembliesResult(uir.get._1 + uir.get._2, rip.name, rip.assemblies, rip.inputs, Time.now.toString).toJson(false)
-
+      println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+      println(aem)
     //  val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + rip.name + "\",\"assemblies\":" + rip.assemblies + ",\"inputs\":" + rip.inputs.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some   
@@ -151,109 +153,6 @@ object Assemblies {
           }
         }
     }
-  }
-  
-  /*def findLinksByName(csarslinksNameList: Option[List[String]]): ValidationNel[Throwable, CSARLinkResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findLinksByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("csarlinksList", csarslinksNameList))
-    (csarslinksNameList map {
-      _.map { csarslinksName =>
-        InMemory[ValidationNel[Throwable, CSARResults]]({
-          cname: String =>
-            {
-              play.api.Logger.debug("tosca.CSARs findLinksByName: csars:" + csarslinksName)
-              (findByName(csarsName) leftMap { t: NonEmptyList[Throwable] =>
-                new ServiceUnavailableError(csarsName, (t.list.map(m => m.getMessage)).mkString("\n"))
-              }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-                xso match {
-                  case Some(xs) => {
-                    (Validation.fromTryCatch {
-                      parse(xs.value).extract[CSARResult]
-                    } leftMap { t: Throwable =>
-                      new ResourceItemNotFound(csarsName, t.getMessage)
-                    }).toValidationNel.flatMap { j: CSARResult =>
-                      Validation.success[Throwable, CSARResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-                      //go after CSRLinknde
-                    }
-                  }
-                  case None => Validation.failure[Throwable, CSARResults](new ResourceItemNotFound(csarsName, "")).toValidationNel
-                }
-              }
-            }
-        }).get(csarsName).eval(InMemoryCache[ValidationNel[Throwable, CSARResults]]())
-      }
-    } map {
-      _.foldRight((CSARResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
-*/
-/*
-  def findByName(csarsNameList: Option[List[String]]): ValidationNel[Throwable, CSARResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("csarList", csarsNameList))
-    (csarsNameList map {
-      _.map { csarsName =>
-        InMemory[ValidationNel[Throwable, CSARResults]]({
-          cname: String =>
-            {
-              play.api.Logger.debug("tosca.CSARs findByName: csars:" + csarsName)
-              (riak.fetch(csarsName) leftMap { t: NonEmptyList[Throwable] =>
-                new ServiceUnavailableError(csarsName, (t.list.map(m => m.getMessage)).mkString("\n"))
-              }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-                xso match {
-                  case Some(xs) => {
-                    (Validation.fromTryCatch {
-                      parse(xs.value).extract[CSARResult]
-                    } leftMap { t: Throwable =>
-                      new ResourceItemNotFound(csarsName, t.getMessage)
-                    }).toValidationNel.flatMap { j: CSARResult =>
-                      Validation.success[Throwable, CSARResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
-                    }
-                  }
-                  case None => Validation.failure[Throwable, CSARResults](new ResourceItemNotFound(csarsName, "")).toValidationNel
-                }
-              }
-            }
-        }).get(csarsName).eval(InMemoryCache[ValidationNel[Throwable, CSARResults]]())
-      }
-    } map {
-      _.foldRight((CSARResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
-
-  }
-
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
-   * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]] 
-   * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
-   */
-  def findByEmail(email: String): ValidationNel[Throwable, CSARResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findByEmail:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, CSARResults]] {
-      (((for {
-        aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-      } yield {
-        val bindex = BinIndex.named("")
-        val bvalue = Set("")
-        new GunnySack("csar", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
-      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
-        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
-      } map { nm: List[String] =>
-        (if (!nm.isEmpty) findByName(nm.some) else
-          new ResourceItemNotFound(email, "CSAR = nothing found.").failureNel[CSARResults])
-      }).disjunction).pure[IO]
-    }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(email, "CSAR = nothing found.").failureNel[CSARResults])
-  }
-
-  implicit val sedimentCSARsResults = new Sedimenter[ValidationNel[Throwable, CSARResults]] {
-    def sediment(maybeASediment: ValidationNel[Throwable, CSARResults]): Boolean = {
-      val notSed = maybeASediment.isSuccess
-      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->CSR:sediment:", notSed))
-      notSed
-    }
-  }
-*/
+  }  
+ 
 }
