@@ -35,7 +35,7 @@ import models.tosca.{ Component, ComponentRequirements, Artifacts, ComponentInpu
  */
 class ComponentSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Component] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  //protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val NameKey = "name"
   protected val ToscaTypeKey = "tosca_type"
   protected val RequirementsKey = "requirements"
@@ -55,7 +55,7 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
     
     override def write(h: Component): JValue = {
       JObject(
-        JField(JSONClazKey, toJSON("Megam::Component")) ::
+   //     JField(JSONClazKey, toJSON("Megam::Component")) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(ToscaTypeKey, toJSON(h.tosca_type)) ::
      //     JField(RequirementsKey, toJSON(h.requirements)(ComponentRequirementsWriter)) ::
