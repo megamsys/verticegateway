@@ -1,5 +1,5 @@
 /* 
-** Copyright [2012-2013] [Megam Systems]
+** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -13,12 +13,86 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package models.json.tosca
+package models.json
+
+import scalaz._
+import scalaz.NonEmptyList._
+import scalaz.Validation
+import scalaz.Validation._
+import Scalaz._
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.util.Date
+import java.nio.charset.Charset
+import controllers.funnel.FunnelErrors._
+import controllers.Constants._
+import controllers.funnel.SerializationBase
+import models.tosca.{ OrganizationsResult }
 
 /**
  * @author morpheyesh
  *
  */
-object OrganizationsResultSerializations {
+class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[MarketPlaceResult] {
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val IdKey = "id"
+  protected val NameKey = "name"
+  protected val AppDetailsKey = "appdetails"  
+  protected val FeaturesKey = "features" 
+  protected val PlanKey = "plans"
+  protected val AppLinksKey = "applinks"
+  protected val AttachKey = "attach"
+  protected val PredefNodeKey = "predefnode"
+  protected val ApprovedKey = "approved"    
+  protected val CreatedAtKey ="created_at"
 
+  override implicit val writer = new JSONW[MarketPlaceResult] {
+    import MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
+    import MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
+    import MarketPlaceFeaturesSerialization.{ writer => MarketPlaceFeaturesWriter }
+    import MarketPlaceAppDetailsSerialization.{ writer => MarketPlaceAppDetailsWriter }
+    import MarketPlaceAppLinksSerialization.{ writer => MarketPlaceAppLinksWriter }
+
+    override def write(h: MarketPlaceResult): JValue = {
+      JObject(
+        JField(IdKey, toJSON(h.id)) ::
+          JField(NameKey, toJSON(h.name)) ::
+          JField(AppDetailsKey, toJSON(h.appdetails)(MarketPlaceAppDetailsWriter)) ::
+          JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::          
+          JField(FeaturesKey, toJSON(h.features)(MarketPlaceFeaturesWriter)) ::          
+          JField(PlanKey, toJSON(h.plans)(MarketPlacePlansWriter)) ::
+          JField(AppLinksKey, toJSON(h.applinks)(MarketPlaceAppLinksWriter)) ::
+          JField(AttachKey, toJSON(h.attach)) ::
+          JField(PredefNodeKey, toJSON(h.predefnode)) ::
+          JField(ApprovedKey, toJSON(h.approved)) ::
+          JField(CreatedAtKey, toJSON(h.created_at))   ::          
+           Nil)
+    }
+  }
+
+  override implicit val reader = new JSONR[MarketPlaceResult] {
+     import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
+    import MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
+    import MarketPlaceFeaturesSerialization.{ reader => MarketPlaceFeaturesReader }
+    import MarketPlaceAppDetailsSerialization.{ reader => MarketPlaceAppDetailsReader }
+    import MarketPlaceAppLinksSerialization.{ reader => MarketPlaceAppLinksReader }
+
+    override def read(json: JValue): Result[MarketPlaceResult] = {
+      val idField = field[String](IdKey)(json)
+      val nameField = field[String](NameKey)(json)
+      val appdetailsField = field[MarketPlaceAppDetails](AppDetailsKey)(json)(MarketPlaceAppDetailsReader)      
+      val featuresField = field[MarketPlaceFeatures](FeaturesKey)(json)(MarketPlaceFeaturesReader)      
+      val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
+      val applinksField = field[MarketPlaceAppLinks](AppLinksKey)(json)(MarketPlaceAppLinksReader)
+      val attachField = field[String](AttachKey)(json)
+      val predefnodeField = field[String](PredefNodeKey)(json)
+      val approvedField = field[String](ApprovedKey)(json)
+      val createdAtField = field[String](CreatedAtKey)(json)
+
+      (idField |@| nameField |@| appdetailsField |@| featuresField |@| planField |@| applinksField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
+        (id: String, name: String, appdetails: MarketPlaceAppDetails, features: MarketPlaceFeatures, plan: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) =>
+          new MarketPlaceResult(id, name, appdetails, features, plan, applinks, attach, predefnode, approved, created_at)
+      }
+    }
+  }
 }

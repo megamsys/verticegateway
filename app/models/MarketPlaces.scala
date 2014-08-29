@@ -220,7 +220,7 @@ object MarketPlaces {
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
+   * parses the json, and converts it to marketplaceinput, if there is an error during parsing, a MalformedBodyError is sent back.
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
@@ -279,7 +279,7 @@ object MarketPlaces {
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).//riak storage 
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[MarketPlaceResult].some).successNel[Throwable]
