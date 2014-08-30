@@ -46,11 +46,20 @@ import java.nio.charset.Charset
  *
  */
 
-case class OrganizationsResult(id: String, name: String, appdetails: MarketPlaceAppDetails, features: MarketPlaceFeatures, plans: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) {
+class OrganizationsInput(name: String) {
+   val json = "{\"name\":\"" + name + "\"}"
+ }
+
+object OrganizationsInput(name: String) {
+  
+  
+}
+
+case class OrganizationsResult(id: String, name: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.MarketPlaceResultSerialization
+    import models.json.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
     toJSON(this)(preser.writer)
   }
@@ -113,13 +122,14 @@ object Organizations {
     } yield {
       //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(mkp.name)
-      val json = new OrganizationsResult(uir.get._1 + uir.get._2, mkp.name, mkp.appdetails, mkp.features, mkp.plans, mkp.applinks, mkp.attach, mkp.predefnode, mkp.approved, Time.now.toString).toJson(false)
+      val json = new OrganizationsResult(uir.get._1 + uir.get._2, mkp.name, Time.now.toString).toJson(false)
       new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
-  private def mkGunnySack_init(input: MarketPlaceInput): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug("models.MarketPlaces mkGunnySack_init: entry--------------------:\n" + input.json)
+  /*
+  private def mkGunnySack_init(input: OrganizationsInput): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug("models.Organizations mkGunnySack_init: entry--------------------:\n" + input.json)
     val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatch {
       parse(input.json).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
@@ -138,7 +148,7 @@ object Organizations {
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
-  
+  */
     /*
    * create new organization item with the 'name' of the item provide as input.
    * A index name organization name will point to the "organization bucket" bucket.
