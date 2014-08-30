@@ -76,3 +76,6 @@ dockerRepository := Some("indykish")
 dockerExposedPorts in Docker := Seq(9000, 9443)
 
 dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
+
+
+
