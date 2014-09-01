@@ -24,6 +24,7 @@ import scalaz.Validation._
 import scalaz.EitherT._
 import Scalaz._
 import org.megam.util.Time
+import scala.collection.mutable.ListBuffer
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
@@ -32,7 +33,7 @@ import models._
 import models.riak._
 import models.cache._
 import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
@@ -48,12 +49,11 @@ case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList
   val json = "{\"name\":\"" + name + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + inputs.json + "}"
 }
 
-
 case class AssembliesInputs(id: String, assemblies_type: String, label: String) {
-  val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" +  assemblies_type + "\",\"label\" : \"" + label +"\"}"  
+  val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\"}"
 }
 
-case class AssembliesResult(id: String, name: String, assemblies: models.tosca.AssembliesList, inputs: AssembliesInputs, created_at: String) {
+case class AssembliesResult(id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -71,8 +71,6 @@ case class AssembliesResult(id: String, name: String, assemblies: models.tosca.A
 
 object AssembliesResult {
 
- // def apply = new AssembliesResult(new String(), new String(), new String(), new AssembliesInputs(new String(), new String(), new String()), new String())             
-  
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AssembliesResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.tosca.AssembliesResultSerialization
@@ -91,8 +89,7 @@ object AssembliesResult {
 object Assemblies {
 
   implicit val formats = DefaultFormats
-  private val riak = GWRiak( "assemblies")
- // implicit def CSARsSemigroup: Semigroup[CSARResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  private val riak = GWRiak("assemblies")
 
   val metadataKey = "ASSEMBLIES"
   val metadataVal = "Assemblies Creation"
@@ -112,20 +109,24 @@ object Assemblies {
     val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatch {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    
+
     for {
       rip <- ripNel
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) 
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
-      val json = new AssembliesResult(uir.get._1 + uir.get._2, rip.name, rip.assemblies, rip.inputs, Time.now.toString).toJson(false)
-      println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-      println(aem)
-    //  val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + rip.name + "\",\"assemblies\":" + rip.assemblies + ",\"inputs\":" + rip.inputs.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
+      var assembly_links = new ListBuffer[String]()
+      for (assembly <- aem) {
+        assembly match {
+          case Some(value) => assembly_links += value.id
+          case None        => assembly_links += ""
+        }
+      }
+      val json = new AssembliesResult(uir.get._1 + uir.get._2, rip.name, assembly_links.toList, rip.inputs, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some   
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
@@ -153,6 +154,6 @@ object Assemblies {
           }
         }
     }
-  }  
- 
+  }
+
 }

@@ -28,13 +28,13 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object ComponentsSerialization extends SerializationBase[Components] {
+object ComponentsListSerialization extends SerializationBase[ComponentsList] {
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "plans"
+  protected val ResultsKey = "components"
 
-  implicit override val writer = new JSONW[Components] {
-    override def write(h: Components): JValue = {
+  implicit override val writer = new JSONW[ComponentsList] {
+    override def write(h: ComponentsList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: Component => nrOpt.toJValue
       }.some
@@ -43,8 +43,8 @@ object ComponentsSerialization extends SerializationBase[Components] {
     }
   }
 
-  implicit override val reader = new JSONR[Components] {
-    override def read(json: JValue): Result[Components] = {
+  implicit override val reader = new JSONR[ComponentsList] {
+    override def read(json: JValue): Result[ComponentsList] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
@@ -54,10 +54,10 @@ object ComponentsSerialization extends SerializationBase[Components] {
             }
           }.some
 
-          val nrs: Components = Components(list.getOrElse(Components.empty))
+          val nrs: ComponentsList = ComponentsList(list.getOrElse(ComponentsList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[Components]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[ComponentsList]
       }
     }
   }

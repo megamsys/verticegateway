@@ -49,25 +49,78 @@ class AssembliesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
-   //   val components1 = Components(List(new Component("component_java", "tosca.web.java", "requirements", new ComponentInputs("8dc70ddc.7238f", "385", "103", "9c8281e6.637d8"), "url", new Artifacts("tosca type", "", "requirement_type"), "relatedcomponents", new ComponentOperations("", "")), new Component("component_play", "tosca.web.play", "requirements", new ComponentInputs("bac8df1e.45372", "385", "217", "9c8281e6.637d8"), "url", new Artifacts("tosca type", "", "requirement_type"), "relatedcomponents", new ComponentOperations("", ""))))
-   //   val components2 = Components(List(new Component("component_ruby", "tosca.web.ruby", "requirements", new ComponentInputs("57444c17.a8bbb4", "216", "162", "9c8281e6.637d8"), "url", new Artifacts("tosca type", "", "requirement_type"), "relatedcomponents", new ComponentOperations("", ""))))
-   //   val assembly = new Assembly("app_java", components1, "policies", "", "")
-   //   println(assembly.json)
-    //  val assembl = List(new Assembly("app_java", components1, "policies", "", ""), new Assembly("app_ruby", components2, "policies", "", ""))
-   //   val assemblies = AssembliesList(List(new Assembly("app_java", components1, "policies", "", ""), new Assembly("app_ruby", components2, "policies", "", "")))
-    //  val contentToEncode = AssembliesInput("Sheet 2", assemblies, inputs).json
-    //  println("*******************")
-     //  println(contentToEncode)
-      //val contentToEncode = "{\"name\":\"Sheet 2\",\"assemblies\":"+ AssembliesList.(assemblies,true) + ",\"inputs\": " + inputs + "}"
-      val contentToEncode = "{\"name\":\"Sheet 2\", \"assemblies\":[{ " + 
+     val contentToEncode = "{\"name\":\"Sheet 2\", \"assemblies\":[{ " + 
   " \"name\":\"app_java\"," +
-  "\"components\":\"components\"," +
+  "\"components\":[{" +
+    "\"name\":\"component_java\"," +
+    "\"tosca_type\":\"tosca.web.java\"," +
+    "\"requirements\":\"requirements\"," +
+    "\"inputs\":{" +
+      "\"id\":\"8dc70ddc.7238f\"," +
+      "\"x\":\"385\"," +
+     "\"y\":\"103\"," +
+      "\"z\":\"9c8281e6.637d8\"" +
+    "}," +
+    "\"external_management_resource\":\"url\"," +
+    "\"artifacts\":{" +
+      "\"artifact_type\":\"tosca type\"," +
+      "\"content\":\"\"," +
+      "\"requirements\":\"requirement_type\"" +
+    "}," +
+    "\"related_components\":\"relatedcomponents\"," +
+    "\"operations\":{" +
+      "\"operation_type\":\"\"," +
+      "\"target_resource\":\"\"" +
+    "}" +
+  "},{" +
+    "\"name\":\"component_play\"," +
+    "\"tosca_type\":\"tosca.web.play\"," +
+    "\"requirements\":\"requirements\"," +
+    "\"inputs\":{" +
+      "\"id\":\"bac8df1e.45372\"," +
+      "\"x\":\"385\"," +
+      "\"y\":\"217\"," +
+      "\"z\":\"9c8281e6.637d8\"" +
+    "}," +
+    "\"external_management_resource\":\"url\"," +
+    "\"artifacts\":{" +
+      "\"artifact_type\":\"tosca type\"," +
+      "\"content\":\"\"," +
+      "\"requirements\":\"requirement_type\"" +
+    "}," +
+    "\"related_components\":\"relatedcomponents\"," +
+    "\"operations\":{" +
+      "\"operation_type\":\"\"," +
+      "\"target_resource\":\"\"" +
+    "}" +
+  "}]," +
   "\"policies\":\"policies\"," +
   "\"inputs\":\"\"," +
   "\"operations\":\"\"" +
 "},{" +
   "\"name\":\"app_ruby\"," +
-  "\"components\":\"components\"," +
+  "\"components\":[{" +
+    "\"name\":\"component_ruby\"," +
+    "\"tosca_type\":\"tosca.web.ruby\"," +
+    "\"requirements\":\"requirements\"," +
+    "\"inputs\":{" +
+      "\"id\":\"57444c17.a8bbb4\"," +
+      "\"x\":\"216\"," +
+      "\"y\":\"162\"," +
+      "\"z\":\"9c8281e6.637d8\"" +
+    "}," +
+    "\"external_management_resource\":\"url\"," +
+    "\"artifacts\":{" +
+      "\"artifact_type\":\"tosca type\"," +
+      "\"content\":\"\"," +
+      "\"requirements\":\"requirement_type\"" +
+    "}," +
+    "\"related_components\":\"relatedcomponents\"," +
+    "\"operations\":{" +
+      "\"operation_type\":\"\"," +
+      "\"target_resource\":\"\"" +
+    "}" +
+  "}]," +
   "\"policies\":\"policies\"," +
   "\"inputs\":\"\"," +
   "\"operations\":\"\"" +
