@@ -27,10 +27,10 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Assembly, Components }
+import models.tosca.{ Assembly, ComponentsList }
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 class AssemblySerialization(charset: Charset = UTF8Charset) extends SerializationBase[Assembly] {
@@ -44,14 +44,14 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
     
   override implicit val writer = new JSONW[Assembly] {
     
- import ComponentsSerialization.{ writer => ComponentsWriter }
+ import ComponentsListSerialization.{ writer => ComponentsListWriter }
  
     override def write(h: Assembly): JValue = {
       JObject(
    //     JField(JSONClazKey, toJSON("Megam::Assembly")) ::
           JField(NameKey, toJSON(h.name)) ::
-          //JField(ComponentsKey, toJSON(h.components)(ComponentsWriter)) ::
-          JField(ComponentsKey, toJSON(h.components)) ::
+          JField(ComponentsKey, toJSON(h.components)(ComponentsListWriter)) ::
+         // JField(ComponentsKey, toJSON(h.components)) ::
           JField(PoliciesKey, toJSON(h.policies)) ::
           JField(InputsKey, toJSON(h.inputs)) ::
           JField(OperationsKey, toJSON(h.operations)) :: Nil)
@@ -60,19 +60,19 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
 
   override implicit val reader = new JSONR[Assembly] {
     
-     import ComponentsSerialization.{ reader => ComponentsReader }
+     import ComponentsListSerialization.{ reader => ComponentsListReader }
 
     override def read(json: JValue): Result[Assembly] = {
       val nameField = field[String](NameKey)(json)
-//      val componentsField = field[Components](ComponentsKey)(json)(ComponentsReader)
-      val componentsField = field[String](ComponentsKey)(json)
+      val componentsField = field[ComponentsList](ComponentsKey)(json)(ComponentsListReader)
+    //  val componentsField = field[String](ComponentsKey)(json)
       val policiesField = field[String](PoliciesKey)(json)
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
 
       (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField) {
         //(name: String, components: Components, policies: String, inputs: String, operations: String) =>
-          (name: String, components: String, policies: String, inputs: String, operations: String) =>
+          (name: String, components: ComponentsList, policies: String, inputs: String, operations: String) =>
           new Assembly(name, components, policies, inputs, operations)
       }
     }
