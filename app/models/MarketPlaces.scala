@@ -31,15 +31,13 @@ import models._
 import models.riak._
 import models.cache._
 import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-
-
 
 /**
  * @author rajthilak
@@ -214,7 +212,7 @@ object MarketPlaceResult {
 object MarketPlaces {
 
   implicit val formats = DefaultFormats
-  private val riak = GWRiak( "marketplaces")
+  private val riak = GWRiak("marketplaces")
   implicit def MarketPlacesSemigroup: Semigroup[MarketPlaceResults] = Semigroup.instance((f1, f2) => f1.append(f2))
   //implicit def MarketPlacePlansSemigroup: Semigroup[MarketPlacePlans] = Semigroup.instance((f3, f4) => f3.append(f4))
 
@@ -283,7 +281,7 @@ object MarketPlaces {
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).//riak storage 
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }). //riak storage 
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[MarketPlaceResult].some).successNel[Throwable]
