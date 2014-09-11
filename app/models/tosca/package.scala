@@ -21,6 +21,7 @@ import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
 import models.json.tosca._
 
+
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -169,6 +170,29 @@ package object tosca {
     def apply(m: Option[ComponentResult]) = nels(m)
     def apply(m: ComponentResult): ComponentsResults = ComponentsResults(m.some)
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
+  }
+
+  type OrganizationsResults = NonEmptyList[Option[OrganizationsResult]]
+
+  object OrganizationsResults {
+    val emptyPC = List(Option.empty[OrganizationsResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(prres: OrganizationsResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.OrganizationsResultsSerialization.{ writer => OrganizationsResultsWriter }
+      toJSON(prres)(OrganizationsResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: OrganizationsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: OrganizationsResult): OrganizationsResults = nels(m.some)
+    def empty: OrganizationsResults = nel(emptyPC.head, emptyPC.tail)
   }
 
 }
