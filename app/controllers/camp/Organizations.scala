@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package app.controllers.camp
+package controllers.camp
 
 import scalaz._
 import Scalaz._

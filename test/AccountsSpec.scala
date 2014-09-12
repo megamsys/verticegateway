@@ -44,9 +44,9 @@ class AccountsSpec extends Specification {
   AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
       //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
       //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
