@@ -52,7 +52,7 @@ case class OrganizationsResult(id: String, name: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.OrganizationsResultSerialization
+    import models.json.tosca.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
     toJSON(this)(preser.writer) //where does this JSON from? 
   }
@@ -68,7 +68,7 @@ object OrganizationsResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OrganizationsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.OrganizationsResultSerialization
+    import models.json.tosca.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
     fromJSON(jValue)(preser.reader)
   }

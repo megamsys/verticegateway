@@ -37,7 +37,7 @@ import models.tosca._
  */
 /*
  * 
- * If HMAC authentication is true then post or list the market places are executed
+ * If HMAC authentication is true then post or list the organizations are executed
  *  
  */
 object Organizations extends Controller with APIAuthElement {
@@ -79,7 +79,7 @@ object Organizations extends Controller with APIAuthElement {
   /*
    * GET: findByName: Show a particular Organization by name 
    * Email provided in the URI.
-   * Output: JSON (MarketPlaceResult)
+   * Output: JSON (OrganizationsResult)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "show:Entry"))

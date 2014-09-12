@@ -98,6 +98,6 @@ GET    /assets/*file                    controllers.Assets.at(path="/public", fi
 
 
 #Organizations
+POST    /v2/organizations/content           controllers.camp.Organizations.post
+GET     /v2/organizations/:id               controllers.camp.Organizations.show(id: String)
 
-POST /v2/organizations/content     controllers.camp.Organizations.post
-GET  /v2/organizations/:id         controllers.camp.Organizations.show(id: String)

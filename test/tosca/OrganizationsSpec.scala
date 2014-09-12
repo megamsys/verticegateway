@@ -53,7 +53,7 @@ class OrganizationsSpec extends Specification {
       //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       
-      //"Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
       
       
       end
@@ -69,7 +69,7 @@ class OrganizationsSpec extends Specification {
     protected override def urlSuffix: String = "organizations/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"name\":\"FAKEORG\" }"
+      val contentToEncode = "{\"name\":\"FAKEORG1\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
