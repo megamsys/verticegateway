@@ -12,14 +12,13 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
+* */
+
 
 package test.tosca
 
 
-import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
@@ -29,26 +28,143 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.HeaderConstants._
+import scalaz._
+import Scalaz._
+import scalaz.NonEmptyList._
+import test.Context
+
+
 
 /**
  * @author morpheyesh
  *
  */
+ 
+ 
+
 class OrganizationsSpec extends Specification {
   def is =
     "OrganizationsSpec".title ^ end ^
       """
-      ORganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
+      OrganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests" ! Post0.succeeds ^
-      //"Correctly do POST requests" ! Post1.succeeds ^
-      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
-      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-     // "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      //"Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
+      //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-     // "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-     // "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      
+      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+      
+      
       end
 
-*/
+
+ /**
+   * Change the body content in method bodyToStick
+   */
+      
+      
+  case object Post extends Context {
+
+    protected override def urlSuffix: String = "organizations/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"name\":\"FAKEORG1\" }"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+  //Success
+  
+  
+      
+  /**
+   * test case for invalidUrl
+   */
+
+  
+  
+  case object PostInvalidUrl extends Context {
+
+    protected override def urlSuffix: String = "organizations/contentinvalidurl"
+
+    protected override def bodyToStick: Option[String] = {
+       val contentToEncode = "{\"name\":\"FAKEORG\"}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
+ 
+  }
+  //Success
+  
+  
+ /**
+   * test case for invalidBody
+   */
+
+  
+  case object PostInvalidBody extends Context {
+
+    protected override def urlSuffix: String = "organizations/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"name1\":\"FAKEORG\"}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
+    }
+  }
+  
+  
+  /*
+   * Testing 'GET' request.
+   * 
+   * 
+   */
+  
+  
+  case object Get extends Context {
+    protected override def urlSuffix: String = "organizations/FAKEORG"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+  //Success
+  
+  
+ 
+} 
+  
+
