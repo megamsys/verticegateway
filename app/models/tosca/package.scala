@@ -67,10 +67,33 @@ package object tosca {
 
   type ComponentsList = List[Component]
 
-  type AssembliesResults = NonEmptyList[Option[AssemblyResult]]
+  type AssembliesLists = NonEmptyList[Option[AssemblyResult]]
+
+  object AssembliesLists {
+    val emptyNR = List(Option.empty[AssemblyResult])
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: AssembliesLists): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.AssembliesListsSerialization.{ writer => AssembliesListsWriter }
+      toJSON(nres)(AssembliesListsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: AssembliesLists, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[AssemblyResult]) = nels(m)
+    def apply(m: AssemblyResult): AssembliesLists = AssembliesLists(m.some)
+    def empty: AssembliesLists = nel(emptyNR.head, emptyNR.tail)
+  }
+
+  type AssembliesResults = NonEmptyList[Option[AssembliesResult]]
 
   object AssembliesResults {
-    val emptyNR = List(Option.empty[AssemblyResult])
+    val emptyNR = List(Option.empty[AssembliesResult])
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: AssembliesResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -85,11 +108,11 @@ package object tosca {
       compactRender(toJValue(nres))
     }
 
-    def apply(m: Option[AssemblyResult]) = nels(m)
-    def apply(m: AssemblyResult): AssembliesResults = AssembliesResults(m.some)
+    def apply(m: Option[AssembliesResult]) = nels(m)
+    def apply(m: AssembliesResult): AssembliesResults = AssembliesResults(m.some)
     def empty: AssembliesResults = nel(emptyNR.head, emptyNR.tail)
   }
-
+  
   type AssemblyLinks = List[String]
 
   object AssemblyLinks {
@@ -119,6 +142,29 @@ package object tosca {
 
   }
 
+  type AssemblyResults = NonEmptyList[Option[AssemblyResult]]
+
+  object AssemblyResults {
+    val emptyNR = List(Option.empty[AssemblyResult])
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: AssemblyResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.AssemblyResultsSerialization.{ writer => AssemblyResultsWriter }
+      toJSON(nres)(AssemblyResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: AssemblyResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: Option[AssemblyResult]) = nels(m)
+    def apply(m: AssemblyResult): AssemblyResults = AssemblyResults(m.some)
+    def empty: AssemblyResults = nel(emptyNR.head, emptyNR.tail)
+  }
+  
   type ComponentLinks = List[String]
 
   object ComponentLinks {
@@ -169,6 +215,35 @@ package object tosca {
     def apply(m: Option[ComponentResult]) = nels(m)
     def apply(m: ComponentResult): ComponentsResults = ComponentsResults(m.some)
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
+  }
+  
+  type ComponentDesignInputsWires = List[String]
+
+  object ComponentDesignInputsWires {
+    val emptyRR = List("")
+    def toJValue(nres: ComponentDesignInputsWires): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.ComponentDesignInputsWiresSerialization.{ writer => ComponentDesignInputsWiresWriter }
+      toJSON(nres)(ComponentDesignInputsWiresWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentLinks] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.ComponentDesignInputsWiresSerialization.{ reader => ComponentDesignInputsWiresReader }
+      fromJSON(jValue)(ComponentDesignInputsWiresReader)
+    }
+
+    def toJson(nres: ComponentLinks, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(plansList: List[String]): ComponentDesignInputsWires = plansList
+
+    def empty: List[String] = emptyRR
+
   }
 
 }

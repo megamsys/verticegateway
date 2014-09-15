@@ -92,6 +92,12 @@ GET    /v2/csars/:id 		     controllers.camp.CSARs.show(id: String)
 
 #Assemblies
 POST   /v2/assemblies/content     controllers.camp.Assemblies.post
+GET    /v2/assemblies/:id         controllers.camp.Assemblies.show(id: String)
+GET    /v2/assembly/:id           controllers.camp.Assembly.show(id: String)
+GET    /v2/components/:id         controllers.camp.Components.show(id: String)
+
+#organizations
+POST   /v2/organizations/content   controllers.camp.Organizations.post
 
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)

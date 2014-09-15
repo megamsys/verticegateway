@@ -109,7 +109,7 @@ object GoofyCrypto {
     val digest = MessageDigest.getInstance(MD5)
     digest.update(content.getOrElse(new String()).getBytes)
     val md5b = new String(Base64.encodeBase64(digest.digest()))
-    Logger.debug(("%-20s -->[%s]").format("MD5 OUTPUT", md5b))
+    Logger.debug(("%-20s -->[%s]").format("MD5 OUTPUT==============================>", md5b))
     md5b.some
   }
 
@@ -125,6 +125,7 @@ object GoofyCrypto {
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
     val hmacAsByt = dumpByt(rawHmac.some)
+    Logger.debug(("%-20s -->[%s]").format("HMAC OUTPUT===========================>", hmacAsByt))
     hmacAsByt
   }
 

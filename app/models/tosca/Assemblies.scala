@@ -155,5 +155,36 @@ object Assemblies {
         }
     }
   }
+  
+   def findByNodeName(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Assemblies", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", assembliesID))
+    (assembliesID map {
+      _.map { asm_id =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("Assemblies ID", asm_id))
+        (riak.fetch(asm_id) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
+              (AssembliesResult.fromJson(xs.value) leftMap
+                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
+                  JSONParsingError(t)
+                }).toValidationNel.flatMap { j: AssembliesResult =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
+                  Validation.success[Throwable, AssembliesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                }
+            }
+            case None => {
+              Validation.failure[Throwable, AssembliesResults](new ResourceItemNotFound(asm_id, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((AssembliesResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
+  }
 
 }

@@ -38,6 +38,7 @@ class AssembliesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^     
       "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds ^
+     // "Correctly do GET  requests with an valid Assemblies ID" ! findByIDApp.succeeds ^
   end
 
   /**
@@ -54,12 +55,28 @@ class AssembliesSpec extends Specification {
   "\"components\":[{" +
     "\"name\":\"component_java\"," +
     "\"tosca_type\":\"tosca.web.java\"," +
-    "\"requirements\":\"requirements\"," +
-    "\"inputs\":{" +
-      "\"id\":\"8dc70ddc.7238f\"," +
-      "\"x\":\"385\"," +
-     "\"y\":\"103\"," +
-      "\"z\":\"9c8281e6.637d8\"" +
+    "\"requirements\":{" +
+       "\"host\":\"cloud_setting_name\"," +
+       "\"dummy\":\"\"" +
+    "}," +   
+    "\"inputs\":{" +      
+      "\"domain\":\"megam.co\"," +
+      "\"port\":\"\"," +
+      "\"username\":\"\"," +
+      "\"password\":\"\"," +      
+      "\"version\":\"\"," +
+      "\"source\":\"\"," +
+      "\"design_inputs\":{" +
+             "\"id\":\"8dc70ddc.7238f\"," +
+             "\"x\":\"385\"," +
+             "\"y\":\"103\"," +
+             "\"z\":\"9c8281e6.637d8\"," +
+             "\"wires\":[\"\", \"\"]" +
+          "}," +   
+      "\"service_inputs\":{" +
+             "\"dbname\":\"\"," +
+             "\"dbpassword\":\"\"" +
+          "}" +           
     "}," +
     "\"external_management_resource\":\"url\"," +
     "\"artifacts\":{" +
@@ -75,12 +92,28 @@ class AssembliesSpec extends Specification {
   "},{" +
     "\"name\":\"component_play\"," +
     "\"tosca_type\":\"tosca.web.play\"," +
-    "\"requirements\":\"requirements\"," +
+    "\"requirements\":{" +
+      "\"host\":\"cloud_setting_name\"," +
+       "\"dummy\":\"\"" +
+    "}," +  
     "\"inputs\":{" +
-      "\"id\":\"bac8df1e.45372\"," +
-      "\"x\":\"385\"," +
-      "\"y\":\"217\"," +
-      "\"z\":\"9c8281e6.637d8\"" +
+      "\"domain\":\"megam.co\"," +
+      "\"port\":\"\"," +
+      "\"username\":\"\"," +
+      "\"password\":\"\"," +      
+      "\"version\":\"\"," +
+      "\"source\":\"\"," +
+      "\"design_inputs\":{" +
+             "\"id\":\"bac8df1e.45372\"," +
+             "\"x\":\"385\"," +
+             "\"y\":\"217\"," +
+             "\"z\":\"9c8281e6.637d8\"," +
+             "\"wires\":[\"\", \"\"]" +
+          "}," +   
+      "\"service_inputs\":{" +
+             "\"dbname\":\"\"," +
+             "\"dbpassword\":\"\"" +
+          "}" +      
     "}," +
     "\"external_management_resource\":\"url\"," +
     "\"artifacts\":{" +
@@ -102,12 +135,28 @@ class AssembliesSpec extends Specification {
   "\"components\":[{" +
     "\"name\":\"component_ruby\"," +
     "\"tosca_type\":\"tosca.web.ruby\"," +
-    "\"requirements\":\"requirements\"," +
+    "\"requirements\":{" +
+    "\"host\":\"cloud_setting_name\"," +
+       "\"dummy\":\"\"" +
+    "}," +  
     "\"inputs\":{" +
-      "\"id\":\"57444c17.a8bbb4\"," +
-      "\"x\":\"216\"," +
-      "\"y\":\"162\"," +
-      "\"z\":\"9c8281e6.637d8\"" +
+     "\"domain\":\"megam.co\"," +
+      "\"port\":\"\"," +
+      "\"username\":\"\"," +
+      "\"password\":\"\"," +      
+      "\"version\":\"\"," +
+      "\"source\":\"\"," +
+      "\"design_inputs\":{" +
+             "\"id\":\"57444c17.a8bbb4\"," +
+             "\"x\":\"216\"," +
+             "\"y\":\"162\"," +
+             "\"z\":\"9c8281e6.637d8\"," +
+             "\"wires\":[\"\", \"\"]" +
+          "}," +   
+      "\"service_inputs\":{" +
+             "\"dbname\":\"\"," +
+             "\"dbpassword\":\"\"" +
+          "}" +        
     "}," +
     "\"external_management_resource\":\"url\"," +
     "\"artifacts\":{" +
@@ -137,6 +186,19 @@ class AssembliesSpec extends Specification {
     def succeeds: SpecsResult = {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+  
+  case object findByIDApp extends Context {
+    protected override def urlSuffix: String = "assemblies/AMS508915982803140608"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
   

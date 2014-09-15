@@ -30,7 +30,7 @@ import java.nio.charset.Charset
  *
  */
 object ComponentLinksSerialization extends SerializationBase[ComponentLinks] {
-
+  implicit val formats = DefaultFormats
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "components"
 
@@ -50,7 +50,7 @@ object ComponentLinksSerialization extends SerializationBase[ComponentLinks] {
       json match {
         case JArray(jObjectList) => {
          jObjectList.foreach { jValue: JValue =>
-            list += jValue.toString
+            list += jValue.extract[String]
           }.some
 
           val nrs: ComponentLinks = list.toList
