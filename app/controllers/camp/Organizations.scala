@@ -32,17 +32,15 @@ import play.api.mvc.Result
 import models.tosca._
 
 /**
- * @author ram 
+ * @author ram
  *
  */
 /*
  * 
- * If HMAC authentication is true then post or list the market places are executed
+ * If HMAC authentication is true then post or list the organizations are executed
  *  
  */
 object Organizations extends Controller with APIAuthElement {
-
-  
 
   /*
    * Create or update a new Organization by email/json input. 
@@ -81,9 +79,9 @@ object Organizations extends Controller with APIAuthElement {
   /*
    * GET: findByName: Show a particular Organization by name 
    * Email provided in the URI.
-   * Output: JSON (MarketPlaceResult)
+   * Output: JSON (OrganizationsResult)
    **/
-  /* def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
@@ -94,7 +92,7 @@ object Organizations extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "request funneled."))
 
-          models.tosca.Organizations.findByName(Stream(id).some) match {
+          models.tosca.Organizations.findByName(List(id).some) match {
             case Success(succ) =>
               Ok(OrganizationsResults.toJson(succ, true))
             case Failure(err) =>
@@ -109,7 +107,7 @@ object Organizations extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-
+  /*
   /**
    * GET: findbyEmail: List all the market place names per email
    * Email grabbed from header.

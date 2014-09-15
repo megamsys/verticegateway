@@ -101,3 +101,9 @@ POST   /v2/organizations/content   controllers.camp.Organizations.post
 
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)
+
+
+#Organizations
+POST    /v2/organizations/content           controllers.camp.Organizations.post
+GET     /v2/organizations/:id               controllers.camp.Organizations.show(id: String)
+

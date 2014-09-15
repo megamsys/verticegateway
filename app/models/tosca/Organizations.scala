@@ -27,7 +27,7 @@ import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models._
+import models.tosca._
 import models.cache._
 import models.riak._
 import com.stackmob.scaliak._
@@ -52,9 +52,9 @@ case class OrganizationsResult(id: String, name: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.OrganizationsResultSerialization
+    import models.json.tosca.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
-    toJSON(this)(preser.writer)
+    toJSON(this)(preser.writer) //where does this JSON from? 
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -68,7 +68,7 @@ object OrganizationsResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OrganizationsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.OrganizationsResultSerialization
+    import models.json.tosca.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
     fromJSON(jValue)(preser.reader)
   }
@@ -85,6 +85,11 @@ object Organizations {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("organizations")
 
+  implicit def OrganizationsResultsSemigroup: Semigroup[OrganizationsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  //implicit def OrganizationsProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
+
+  
+  
   val metadataKey = "Organizations"
   val metadataVal = "Organizations Creation"
   val bindex = "organization"
@@ -105,16 +110,16 @@ object Organizations {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
-      mkp <- organizationsInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      org <- organizationsInput
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "org").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bvalue = Set(mkp.name)
-      val json = new OrganizationsResult(uir.get._1 + uir.get._2, mkp.name, Time.now.toString).toJson(false)
-      new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      val bvalue = Set(org.name)
+      val json = new OrganizationsResult(uir.get._1 + uir.get._2, org.name, Time.now.toString).toJson(false)
+      new GunnySack(org.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
- 
+
   /*
    * create new organization item with the 'name' of the item provide as input.
    * A index name organization name will point to the "organization bucket" bucket.
@@ -139,6 +144,37 @@ object Organizations {
           }
         }
     }
+  }
+
+  def findByName(organizationsList: Option[List[String]]): ValidationNel[Throwable, OrganizationsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findByName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", organizationsList))
+    (organizationsList map {
+      _.map { organizationsName =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("organizationsName", organizationsName))
+        (riak.fetch(organizationsName) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(organizationsName, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
+              (OrganizationsResult.fromJson(xs.value) leftMap
+                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
+                  JSONParsingError(t)
+                }).toValidationNel.flatMap { j: OrganizationsResult =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("organizationsresult", j))
+                  Validation.success[Throwable, OrganizationsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                }
+            }
+            case None => {
+              Validation.failure[Throwable, OrganizationsResults](new ResourceItemNotFound(organizationsName, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((OrganizationsResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
   }
 }
 

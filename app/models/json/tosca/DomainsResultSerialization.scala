@@ -1,5 +1,5 @@
 /* 
-** Copyright [2013-2014] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 */
 package models.json.tosca
 
+
 import scalaz._
 import scalaz.NonEmptyList._
 import scalaz.Validation
@@ -27,13 +28,12 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ OrganizationsResult }
-
+import models.tosca.{ DomainsResult }
 /**
  * @author morpheyesh
  *
  */
-class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[OrganizationsResult] {
+class DomainsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[DomainsResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   
   protected val NameKey = "name"
@@ -41,9 +41,9 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
      protected val CreatedAtKey ="created_at"
  
 
-  override implicit val writer = new JSONW[OrganizationsResult] {
+  override implicit val writer = new JSONW[DomainsResult] {
    
-    override def write(h: OrganizationsResult): JValue = {
+    override def write(h: DomainsResult): JValue = {
       JObject(
        
           JField(NameKey, toJSON(h.name)) ::
@@ -53,12 +53,12 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
     }
   }
 
-  override implicit val reader = new JSONR[OrganizationsResult] {
+  override implicit val reader = new JSONR[DomainsResult] {
    
     
     
 
-    override def read(json: JValue): Result[OrganizationsResult] = {
+    override def read(json: JValue): Result[DomainsResult] = {
       
        val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
@@ -68,7 +68,7 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
 
       (idField |@| nameField |@| createdAtField) {
         (id: String, name: String, created_at: String) =>
-          new OrganizationsResult(id, name, created_at)
+          new DomainsResult(id, name, created_at)
       }
     }
   }

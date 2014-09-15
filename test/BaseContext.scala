@@ -135,7 +135,7 @@ trait Context extends BaseContext {
   play.api.Logger.debug("<---------------------------------------->")
   play.api.Logger.debug("%-20s -->[%s]".format("RESP SEND", urlSuffix))
 
-  lazy val url = new URL("https://api.megam.co/v2/" + urlSuffix)
+  lazy val url = new URL("http://localhost:9000/v2/" + urlSuffix)
   play.api.Logger.debug("%-20s -->[%s]".format("MYURL", url))
   play.api.Logger.debug("%-20s -->[%s]".format("MYBODY", bodyToStick))
 
@@ -152,7 +152,7 @@ trait Context extends BaseContext {
   implicit private val encoding = Constants.UTF8Charset
 
   protected def execute[T](t: Builder) = {
-    val res = Await.result(t.apply, 5.second)
+    val res = Await.result(t.apply, 30.second)
     play.api.Logger.debug("%-20s%n:%s".format("*** RESP RECVD", new String(res.bodyString)))
     play.api.Logger.debug("<---------------------------------------->")
     res

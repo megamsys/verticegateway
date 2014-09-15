@@ -1,5 +1,5 @@
 /* 
-** Copyright [2013-2014] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -12,13 +12,12 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
-/**
- * @author rajthilak
- *
- */
+* */
 
-package test
+
+package test.tosca
+
+
 
 import org.specs2.mutable._
 import org.specs2.Specification
@@ -32,40 +31,45 @@ import controllers.stack.HeaderConstants._
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
+import test.Context
+
+
+
 /**
- * @author rajthilak
+ * @author morpheyesh
  *
  */
+ 
+ 
 
-class AccountsSpec extends Specification {
-
+class OrganizationsSpec extends Specification {
   def is =
-    "AccountsSpec".title ^ end ^ """
-  AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
-  """ ^ end ^
+    "OrganizationsSpec".title ^ end ^
+      """
+      OrganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
+    """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-<<<<<<< HEAD
+      //"Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
+      //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-     // "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-=======
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
->>>>>>> origin/0.5
-      //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      
+      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+      
+      
       end
 
-  /**
+
+ /**
    * Change the body content in method bodyToStick
    */
+      
+      
   case object Post extends Context {
 
-    protected override def urlSuffix: String = "accounts/content"
+    protected override def urlSuffix: String = "organizations/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"name\":\"FAKEORG1\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -79,17 +83,22 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-
+  //Success
+  
+  
+      
   /**
    * test case for invalidUrl
    */
 
+  
+  
   case object PostInvalidUrl extends Context {
 
-    protected override def urlSuffix: String = "accounts/contentinvalidurl"
+    protected override def urlSuffix: String = "organizations/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+       val contentToEncode = "{\"name\":\"FAKEORG\"}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -102,18 +111,22 @@ class AccountsSpec extends Specification {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
+ 
   }
-
-  /**
+  //Success
+  
+  
+ /**
    * test case for invalidBody
    */
 
+  
   case object PostInvalidBody extends Context {
 
-    protected override def urlSuffix: String = "accounts/content"
+    protected override def urlSuffix: String = "organizations/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"name1\":\"FAKEORG\"}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -127,8 +140,17 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
     }
   }
+  
+  
+  /*
+   * Testing 'GET' request.
+   * 
+   * 
+   */
+  
+  
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/a@b.com"
+    protected override def urlSuffix: String = "organizations/FAKEORG"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -139,33 +161,10 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  case object GetInvalidApi extends Context {
-    protected override def urlSuffix: String = "accounts/megam@mypaas.io"
+  //Success
+  
+  
+ 
+} 
+  
 
-    // protected def headersOpt: Option[Map[String, String]] = None
-
-    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
-      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Unauthorized)
-    }
-  }
-  case object GetInvalidEmail extends Context {
-    protected override def urlSuffix: String = "accounts/#sandy007@megamsand.com"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Unauthorized)
-    }
-  }
-
-}
