@@ -38,6 +38,7 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
+
 /**
  * @author morpheyesh
  *
@@ -134,7 +135,7 @@ object Domains {
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[DomainsResult].some).successNel[Throwable]
-            case None => {
+            case None => {	
               play.api.Logger.warn(("%-20s -->[%s]").format("Domains.created success", "Scaliak returned => None. Thats OK."))
               (parse(gs.get.value).extract[DomainsResult].some).successNel[Throwable];
             }
@@ -142,4 +143,38 @@ object Domains {
         }
     }
   }
+  /*
+  def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Domains", "findByName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("domainsList", domainsList))
+    (domainsList map {
+      _.map { domainsName =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("domainsName", domainsName))
+        (riak.fetch(domainsName) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(domainsName, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
+              (DomainsResult.fromJson(xs.value) leftMap
+                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
+                  JSONParsingError(t)
+                }).toValidationNel.flatMap { j: DomainsResult =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("domainsresult", j))
+                  Validation.success[Throwable, DomainsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                }
+            }
+            case None => {
+              Validation.failure[Throwable, DomainsResults](new ResourceItemNotFound(domainsName, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
+  }
+  
+  */
+  
 }
