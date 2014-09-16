@@ -49,7 +49,7 @@ class AssembliesSpec extends Specification {
     protected override def urlSuffix: String = "assemblies/content"
 
     protected override def bodyToStick: Option[String] = {
-      val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
+    //  val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
      val contentToEncode = "{\"name\":\"Sheet 2\", \"assemblies\":[{ " + 
   " \"name\":\"app_java\"," +
   "\"components\":[{" +
@@ -173,7 +173,32 @@ class AssembliesSpec extends Specification {
   "\"policies\":\"policies\"," +
   "\"inputs\":\"\"," +
   "\"operations\":\"\"" +
-"}],\"inputs\":{\"id\": \"9c8281e6.637d8\", \"assemblies_type\":\"tab\",\"label\" : \"Sheet 2\"}}"
+"}],\"inputs\":{\"id\": \"9c8281e6.637d8\", \"assemblies_type\":\"tab\",\"label\" : \"Sheet 2\", \"cloudsettings\":[ "+
+ "{ "+
+"\"id\":\"f07af88d.0f8508\", "+
+"\"cstype\":\"cloudsettings\", "+
+"\"cloudsettings\":\"clouddefault510348255477891072\", "+
+"\"x\":255, "+
+"\"y\":347, "+
+"\"z\":\"962485d7.69db78\", "+
+"\"wires\":[ "+
+"\"c363c3a9.3c9c4\", "+
+"\"bca0b279.435f5\", "+
+"\"fdf59de8.020a6\" "+
+"]"+
+"}, "+
+"{ "+
+"\"id\":\"1e168d54.e1e973\", "+
+"\"cstype\":\"cloudsettings\", "+
+"\"cloudsettings\":\"clouddefault510348255477891072\", "+
+"\"x\":256, "+
+"\"y\":519, "+
+"\"z\":\"962485d7.69db78\", "+
+"\"wires\":[ "+
+"\"85e6a00a.7a196\""+
+"]"+
+"}] "+
+"}}" 
  
        Some(new String(contentToEncode))
     }

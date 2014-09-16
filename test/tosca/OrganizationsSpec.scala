@@ -51,11 +51,8 @@ class OrganizationsSpec extends Specification {
       "The Client Should" ^
       //"Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
       //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      
-      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
-      
-      
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^      
+      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^      
       end
 
 

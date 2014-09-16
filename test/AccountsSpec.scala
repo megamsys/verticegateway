@@ -46,13 +46,8 @@ class AccountsSpec extends Specification {
       "The Client Should" ^
       //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
       //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-<<<<<<< HEAD
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-     // "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-=======
       "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
->>>>>>> origin/0.5
       //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
       //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end

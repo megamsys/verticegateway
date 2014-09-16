@@ -270,4 +270,61 @@ package object tosca {
     def empty: OrganizationsResults = nel(emptyPC.head, emptyPC.tail)
   }
 
+  type CloudSettingsList = List[CloudSetting]
+  
+  object CloudSettingsList {
+
+     val emptyRR = List(CloudSetting.empty)
+     def toJValue(nres: CloudSettingsList): JValue = {
+          import net.liftweb.json.scalaz.JsonScalaz.toJSON
+          import models.json.tosca.CloudSettingsListSerialization.{ writer => CloudSettingsListWriter }
+          toJSON(nres)(CloudSettingsListWriter)
+     }
+
+     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CloudSettingsList] = {
+         import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+         import models.json.tosca.CloudSettingsListSerialization.{ reader => CloudSettingsListReader }
+         fromJSON(jValue)(CloudSettingsListReader)
+     }
+
+    def toJson(nres: CloudSettingsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+        pretty(render(toJValue(nres)))
+      } else {
+     compactRender(toJValue(nres))
+    }
+
+    def apply(csList: List[CloudSetting]): CloudSettingsList = { println(csList); csList }
+
+    def empty: List[CloudSetting] = emptyRR
+  }
+  
+  type CSWiresList = List[String]
+  
+  object CSWiresList {
+    val emptyRR = List("")
+    def toJValue(nres: CSWiresList): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.CSWiresListSerialization.{ writer => CSWiresListWriter }
+      toJSON(nres)(CSWiresListWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CSWiresList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.CSWiresListSerialization.{ reader => CSWiresListReader }
+      fromJSON(jValue)(CSWiresListReader)
+    }
+
+    def toJson(nres: CSWiresList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(plansList: List[String]): CSWiresList = plansList
+
+    def empty: List[String] = emptyRR
+
+  }
+  
 }
