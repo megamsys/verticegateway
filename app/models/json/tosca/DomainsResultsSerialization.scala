@@ -1,5 +1,5 @@
 /* 
- ** Copyright [2012-2013] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package models.json.tosca
+/*package models.json.tosca
+
 
 
 import scalaz._
@@ -30,18 +31,18 @@ import models.tosca._
  * @author morpheyesh
  *
  */
-object OrganizationsResultsSerialization extends SerializationBase[OrganizationsResults] {
+object DomainsResultsSerialization extends SerializationBase[DomainsResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[OrganizationsResults] {
-    override def write(h: OrganizationsResults): JValue = {
+  implicit override val writer = new JSONW[DomainsResults] {
+    override def write(h: DomainsResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[OrganizationsResult] =>
-          (nrOpt.map { nr: OrganizationsResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[DomainsResult] =>
+          (nrOpt.map { nr: DomainsResult => nr.toJValue }).getOrElse(JNothing)
       }
 
-      JObject(JField(JSONClazKey, JString("Megam::OrganizationsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::DomainsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
@@ -58,22 +59,23 @@ object OrganizationsResultsSerialization extends SerializationBase[Organizations
       )
       PredefResult already has an implicit reader, hence use it.
        */
-  implicit override val reader = new JSONR[OrganizationsResults] {
-    override def read(json: JValue): Result[OrganizationsResults] = {
+  implicit override val reader = new JSONR[DomainsResults] {
+    override def read(json: JValue): Result[DomainsResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            OrganizationsResult.fromJValue(jValue) match {
+             DomainsResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[OrganizationsResult]()
+              case Failure(fail) => List[DomainsResult]()
             }
-          } map { x: OrganizationsResult => x.some }
+          } map { x: DomainsResult => x.some }
           //this is screwy. Making the MarketPlaceResults as Option[NonEmptylist[OrganizationsResult]] will solve it.
-          val nrs: OrganizationsResults = list.toNel.getOrElse(nels(none))
+          val nrs: DomainsResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[OrganizationsResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[DomainsResults]
       }
     }
   }
 }
+*/
