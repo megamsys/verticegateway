@@ -38,6 +38,7 @@ class AssembliesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^     
       "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds ^
+     // "Correctly do GET  requests with an valid Assemblies ID" ! findByIDApp.succeeds ^
   end
 
   /**
@@ -48,18 +49,34 @@ class AssembliesSpec extends Specification {
     protected override def urlSuffix: String = "assemblies/content"
 
     protected override def bodyToStick: Option[String] = {
-      val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
+    //  val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
      val contentToEncode = "{\"name\":\"Sheet 2\", \"assemblies\":[{ " + 
   " \"name\":\"app_java\"," +
   "\"components\":[{" +
     "\"name\":\"component_java\"," +
     "\"tosca_type\":\"tosca.web.java\"," +
-    "\"requirements\":\"requirements\"," +
-    "\"inputs\":{" +
-      "\"id\":\"8dc70ddc.7238f\"," +
-      "\"x\":\"385\"," +
-     "\"y\":\"103\"," +
-      "\"z\":\"9c8281e6.637d8\"" +
+    "\"requirements\":{" +
+       "\"host\":\"cloud_setting_name\"," +
+       "\"dummy\":\"\"" +
+    "}," +   
+    "\"inputs\":{" +      
+      "\"domain\":\"megam.co\"," +
+      "\"port\":\"\"," +
+      "\"username\":\"\"," +
+      "\"password\":\"\"," +      
+      "\"version\":\"\"," +
+      "\"source\":\"\"," +
+      "\"design_inputs\":{" +
+             "\"id\":\"8dc70ddc.7238f\"," +
+             "\"x\":\"385\"," +
+             "\"y\":\"103\"," +
+             "\"z\":\"9c8281e6.637d8\"," +
+             "\"wires\":[\"\", \"\"]" +
+          "}," +   
+      "\"service_inputs\":{" +
+             "\"dbname\":\"\"," +
+             "\"dbpassword\":\"\"" +
+          "}" +           
     "}," +
     "\"external_management_resource\":\"url\"," +
     "\"artifacts\":{" +
@@ -75,12 +92,28 @@ class AssembliesSpec extends Specification {
   "},{" +
     "\"name\":\"component_play\"," +
     "\"tosca_type\":\"tosca.web.play\"," +
-    "\"requirements\":\"requirements\"," +
+    "\"requirements\":{" +
+      "\"host\":\"cloud_setting_name\"," +
+       "\"dummy\":\"\"" +
+    "}," +  
     "\"inputs\":{" +
-      "\"id\":\"bac8df1e.45372\"," +
-      "\"x\":\"385\"," +
-      "\"y\":\"217\"," +
-      "\"z\":\"9c8281e6.637d8\"" +
+      "\"domain\":\"megam.co\"," +
+      "\"port\":\"\"," +
+      "\"username\":\"\"," +
+      "\"password\":\"\"," +      
+      "\"version\":\"\"," +
+      "\"source\":\"\"," +
+      "\"design_inputs\":{" +
+             "\"id\":\"bac8df1e.45372\"," +
+             "\"x\":\"385\"," +
+             "\"y\":\"217\"," +
+             "\"z\":\"9c8281e6.637d8\"," +
+             "\"wires\":[\"\", \"\"]" +
+          "}," +   
+      "\"service_inputs\":{" +
+             "\"dbname\":\"\"," +
+             "\"dbpassword\":\"\"" +
+          "}" +      
     "}," +
     "\"external_management_resource\":\"url\"," +
     "\"artifacts\":{" +
@@ -102,12 +135,28 @@ class AssembliesSpec extends Specification {
   "\"components\":[{" +
     "\"name\":\"component_ruby\"," +
     "\"tosca_type\":\"tosca.web.ruby\"," +
-    "\"requirements\":\"requirements\"," +
+    "\"requirements\":{" +
+    "\"host\":\"cloud_setting_name\"," +
+       "\"dummy\":\"\"" +
+    "}," +  
     "\"inputs\":{" +
-      "\"id\":\"57444c17.a8bbb4\"," +
-      "\"x\":\"216\"," +
-      "\"y\":\"162\"," +
-      "\"z\":\"9c8281e6.637d8\"" +
+     "\"domain\":\"megam.co\"," +
+      "\"port\":\"\"," +
+      "\"username\":\"\"," +
+      "\"password\":\"\"," +      
+      "\"version\":\"\"," +
+      "\"source\":\"\"," +
+      "\"design_inputs\":{" +
+             "\"id\":\"57444c17.a8bbb4\"," +
+             "\"x\":\"216\"," +
+             "\"y\":\"162\"," +
+             "\"z\":\"9c8281e6.637d8\"," +
+             "\"wires\":[\"\", \"\"]" +
+          "}," +   
+      "\"service_inputs\":{" +
+             "\"dbname\":\"\"," +
+             "\"dbpassword\":\"\"" +
+          "}" +        
     "}," +
     "\"external_management_resource\":\"url\"," +
     "\"artifacts\":{" +
@@ -124,7 +173,32 @@ class AssembliesSpec extends Specification {
   "\"policies\":\"policies\"," +
   "\"inputs\":\"\"," +
   "\"operations\":\"\"" +
-"}],\"inputs\":{\"id\": \"9c8281e6.637d8\", \"assemblies_type\":\"tab\",\"label\" : \"Sheet 2\"}}"
+"}],\"inputs\":{\"id\": \"9c8281e6.637d8\", \"assemblies_type\":\"tab\",\"label\" : \"Sheet 2\", \"cloudsettings\":[ "+
+ "{ "+
+"\"id\":\"f07af88d.0f8508\", "+
+"\"cstype\":\"cloudsettings\", "+
+"\"cloudsettings\":\"clouddefault510348255477891072\", "+
+"\"x\":255, "+
+"\"y\":347, "+
+"\"z\":\"962485d7.69db78\", "+
+"\"wires\":[ "+
+"\"c363c3a9.3c9c4\", "+
+"\"bca0b279.435f5\", "+
+"\"fdf59de8.020a6\" "+
+"]"+
+"}, "+
+"{ "+
+"\"id\":\"1e168d54.e1e973\", "+
+"\"cstype\":\"cloudsettings\", "+
+"\"cloudsettings\":\"clouddefault510348255477891072\", "+
+"\"x\":256, "+
+"\"y\":519, "+
+"\"z\":\"962485d7.69db78\", "+
+"\"wires\":[ "+
+"\"85e6a00a.7a196\""+
+"]"+
+"}] "+
+"}}" 
  
        Some(new String(contentToEncode))
     }
@@ -137,6 +211,19 @@ class AssembliesSpec extends Specification {
     def succeeds: SpecsResult = {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+  
+  case object findByIDApp extends Context {
+    protected override def urlSuffix: String = "assemblies/AMS508915982803140608"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
   

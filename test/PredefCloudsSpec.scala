@@ -39,9 +39,9 @@ class PredefCloudsSpec extends Specification {
     """ ^ end ^
       "The Client Should" ^
       //"Correctly do POST requests" ! Post0.succeeds ^
-      //"Correctly do POST requests" ! Post1.succeeds ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+    //  "Correctly do POST requests" ! Post1.succeeds ^
+    //  "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
      // "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
      // "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
@@ -111,7 +111,7 @@ class PredefCloudsSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "predefclouds/ec2_play1122162110944641024"
+    protected override def urlSuffix: String = "predefclouds/clouddefault510348255477891072"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

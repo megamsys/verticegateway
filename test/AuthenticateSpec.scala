@@ -44,8 +44,8 @@ class AuthenticateSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key(200)" ! Post.succeeds ^
-      "Correctly do POST requests with a invalid userid and api key(404)" ! PostWithInvalidUserIDEmail.succeeds ^
-      "Correctly do POST requests with an malformed header(404)" ! PostMalformedHeader.succeeds ^
+     // "Correctly do POST requests with a invalid userid and api key(404)" ! PostWithInvalidUserIDEmail.succeeds ^
+     // "Correctly do POST requests with an malformed header(404)" ! PostMalformedHeader.succeeds ^
       end
   /**
    * Change the body content in method bodyToStick

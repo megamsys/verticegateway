@@ -21,6 +21,7 @@ import scalaz.NonEmptyList._
 
 import scalaz.Validation._
 import models._
+import models.tosca._
 import controllers.Constants.DEMO_EMAIL
 import controllers.stack._
 import controllers.stack.APIAuthElement
@@ -96,7 +97,7 @@ object Assemblies extends Controller with APIAuthElement {
    * Email grabbed from header
    * Output: JSON (AssembliesResults)  
    **/
- /* def shown(id: String) = StackAction(parse.tolerantText) { implicit request =>
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
@@ -109,7 +110,7 @@ object Assemblies extends Controller with APIAuthElement {
 
           models.tosca.Assemblies.findByNodeName(List(id).some) match {
             case Success(succ) =>
-              Ok(Assemblies.toJson(succ, true))
+              Ok(AssembliesResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -130,7 +131,7 @@ object Assemblies extends Controller with APIAuthElement {
    * Email grabbed from header.
    * Output: JSON (AssembliesResult)
    */
-  def list = StackAction(parse.tolerantText) { implicit request =>
+ /* def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {

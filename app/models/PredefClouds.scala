@@ -195,7 +195,7 @@ object PredefClouds {
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, PredefCloudResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, PredefCloudResults]] {
       (((for {
@@ -203,6 +203,7 @@ object PredefClouds {
       } yield {
         val bindex = ""
         val bvalue = Set("")
+         play.api.Logger.debug(("%-20s -->[%s]").format("Account result", aor.get))
         new GunnySack("predefcloud", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {

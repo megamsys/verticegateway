@@ -27,37 +27,37 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ ComponentRequirements }
+import models.tosca.{ ServiceInputs }
 
 /**
  * @author rajthilak
  *
  */
 
-object ComponentRequirementsSerialization extends SerializationBase[ComponentRequirements] {
+object ServiceInputsSerialization extends SerializationBase[ServiceInputs] {
 
-  protected val HostKey = "host"
-  protected val DummyKey = "dummy"
+  protected val DBNameKey = "dbname"
+  protected val DBPasswordKey = "dbpassword" 
 
-  override implicit val writer = new JSONW[ComponentRequirements] {
+  override implicit val writer = new JSONW[ServiceInputs] {
 
-    override def write(h: ComponentRequirements): JValue = {
-      JObject(
-        JField(HostKey, toJSON(h.host)) ::     
-        JField(DummyKey, toJSON(h.dummy)) :: 
+    override def write(h: ServiceInputs): JValue = {
+      JObject(    
+          JField(DBNameKey, toJSON(h.dbname)) ::
+          JField(DBPasswordKey, toJSON(h.dbpassword)) ::         
            Nil)
     }
   }
 
-  override implicit val reader = new JSONR[ComponentRequirements] {
+  override implicit val reader = new JSONR[ServiceInputs] {
 
-    override def read(json: JValue): Result[ComponentRequirements] = {
-      val hostField = field[String](HostKey)(json)
-      val dummyField = field[String](DummyKey)(json)
+    override def read(json: JValue): Result[ServiceInputs] = {  
+      val dbnameField = field[String](DBNameKey)(json)    
+      val dbpasswordField = field[String](DBPasswordKey)(json) 
       
-      (hostField |@| dummyField) {
-        (host: String, dummy: String) =>
-          new ComponentRequirements(host, dummy)
+      (dbnameField |@| dbpasswordField ) { 
+        (dbname: String, dbpassword: String) =>
+          new ServiceInputs(dbname, dbpassword)
       }
     }
   }

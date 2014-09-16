@@ -29,13 +29,12 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object ComponentLinksSerialization extends SerializationBase[ComponentLinks] {
+object CSWiresListSerialization extends SerializationBase[CSWiresList] {
   implicit val formats = DefaultFormats
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "components"
-
-  implicit override val writer = new JSONW[ComponentLinks] {
-    override def write(h: ComponentLinks): JValue = {
+ 
+  implicit override val writer = new JSONW[CSWiresList] {
+    override def write(h: CSWiresList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: String => toJSON(nrOpt)
       }.some
@@ -44,8 +43,8 @@ object ComponentLinksSerialization extends SerializationBase[ComponentLinks] {
     }
   }
 
-  implicit override val reader = new JSONR[ComponentLinks] {
-    override def read(json: JValue): Result[ComponentLinks] = {
+  implicit override val reader = new JSONR[CSWiresList] {
+    override def read(json: JValue): Result[CSWiresList] = {
       var list = new ListBuffer[String]()
       json match {
         case JArray(jObjectList) => {
@@ -53,10 +52,10 @@ object ComponentLinksSerialization extends SerializationBase[ComponentLinks] {
             list += jValue.extract[String]
           }.some
 
-          val nrs: ComponentLinks = list.toList
+          val nrs: CSWiresList = list.toList
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[ComponentLinks]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CSWiresList]
       }
     }
   }

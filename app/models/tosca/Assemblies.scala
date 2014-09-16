@@ -49,8 +49,41 @@ case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList
   val json = "{\"name\":\"" + name + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + inputs.json + "}"
 }
 
-case class AssembliesInputs(id: String, assemblies_type: String, label: String) {
-  val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\"}"
+case class CloudSetting(id: String, cstype: String, cloudsettings: String, x: String, y: String, z: String, wires: models.tosca.CSWiresList) {
+  val json = "{\"id\":\"" + id + "\",\"cstype\":\"" + cstype + "\",\"cloudsettings\":\"" + cloudsettings + "\",\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"wires\":" + CSWiresList.toJson(wires, true) + "}"
+
+   def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    val preser = new models.json.tosca.CloudSettingSerialization()
+    toJSON(this)(preser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+}
+
+object CloudSetting {
+  def empty: CloudSetting = new CloudSetting(new String(), new String(), new String, new String(), new String, new String(), CSWiresList.empty)
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CloudSetting] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    val preser = new models.json.tosca.CloudSettingSerialization()
+    fromJSON(jValue)(preser.reader)
+  }
+
+  def fromJson(json: String): Result[CloudSetting] = (Validation.fromTryCatch {
+    play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+}
+
+case class AssembliesInputs(id: String, assemblies_type: String, label: String, cloudsettings: models.tosca.CloudSettingsList) {
+  val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\",\"cloudsettings\":" + CloudSettingsList.toJson(cloudsettings, true) + "}"
 }
 
 case class AssembliesResult(id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
@@ -154,6 +187,37 @@ object Assemblies {
           }
         }
     }
+  }
+  
+   def findByNodeName(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Assemblies", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", assembliesID))
+    (assembliesID map {
+      _.map { asm_id =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("Assemblies ID", asm_id))
+        (riak.fetch(asm_id) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
+              (AssembliesResult.fromJson(xs.value) leftMap
+                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
+                  JSONParsingError(t)
+                }).toValidationNel.flatMap { j: AssembliesResult =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
+                  Validation.success[Throwable, AssembliesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                }
+            }
+            case None => {
+              Validation.failure[Throwable, AssembliesResults](new ResourceItemNotFound(asm_id, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((AssembliesResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
   }
 
 }

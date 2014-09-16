@@ -30,7 +30,7 @@ import java.nio.charset.Charset
  *
  */
 object AssemblyLinksSerialization extends SerializationBase[AssemblyLinks] {
-
+  implicit val formats = DefaultFormats
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "assemblies"
 
@@ -50,7 +50,8 @@ object AssemblyLinksSerialization extends SerializationBase[AssemblyLinks] {
       json match {
         case JArray(jObjectList) => {
          jObjectList.foreach { jValue: JValue =>
-            list += jValue.toString
+            list += jValue.extract[String]
+            play.api.Logger.debug(("%-20s -->[%s]").format("value--------------------------", list))
           }.some
 
           val nrs: AssemblyLinks = list.toList

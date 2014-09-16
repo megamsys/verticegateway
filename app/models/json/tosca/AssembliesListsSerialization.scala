@@ -15,7 +15,6 @@
 */
 package models.json.tosca
 
-
 import scalaz._
 import scalaz.NonEmptyList._
 import Scalaz._
@@ -25,38 +24,38 @@ import controllers.funnel.SerializationBase
 import models.tosca._
 
 /**
- * @author rajthilak
+ * @author ram
  *
  */
-object AssembliesResultsSerialization extends SerializationBase[AssembliesResults] {
+object AssembliesListsSerialization extends SerializationBase[AssembliesLists] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[AssembliesResults] {
-    override def write(h: AssembliesResults): JValue = {
+  implicit override val writer = new JSONW[AssembliesLists] {
+    override def write(h: AssembliesLists): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[AssembliesResult] =>         
-            (nrOpt.map { nr: AssembliesResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[AssemblyResult] =>         
+            (nrOpt.map { nr: AssemblyResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey,JString("Megam::AssembliesCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)
+      JObject(JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 
-  implicit override val reader = new JSONR[AssembliesResults] {
-    override def read(json: JValue): Result[AssembliesResults] = {
+ 
+  implicit override val reader = new JSONR[AssembliesLists] {
+    override def read(json: JValue): Result[AssembliesLists] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            AssembliesResult.fromJValue(jValue) match {
+            AssemblyResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[AssembliesResult]()
+              case Failure(fail) => List[AssemblyResult]()
             }
-          } map { x: AssembliesResult => x.some }
-          //this is screwy. Making the NodeResults as Option[NonEmptylist[AssembliesResult]] will solve it.
-          val nrs: AssembliesResults = list.toNel.getOrElse(nels(none))
+          } map { x: AssemblyResult => x.some }
+          val nrs: AssembliesLists = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssembliesResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssembliesLists]
       }
     }
   }
