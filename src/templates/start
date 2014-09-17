@@ -24,7 +24,7 @@ respawn limit 0 60
 chdir /usr/share/megam/megamgateway
 
 # changes to the user and group before running the job's process
-setuid megam
+setuid root
 
 
 # start the megamgateway
