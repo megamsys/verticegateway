@@ -6,7 +6,7 @@ MEGAMAUTH=$MEGAMHOME/.megam_auth
 MEGAM_GROUP=megam
 MEGAM_USER=megam
 
-mkdir /var/run/megam/megamgateway/
+mkdir -p /var/run/megam/megamgateway/
 
 if [ "$1" = "configure" ]; then
 
