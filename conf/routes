@@ -101,3 +101,10 @@ GET    /assets/*file                    controllers.Assets.at(path="/public", fi
 POST    /v2/organizations/content           controllers.camp.Organizations.post
 GET     /v2/organizations/:id               controllers.camp.Organizations.show(id: String)
 
+#Domains
+POST   /v2/domains/content                   controllers.camp.Domains.post
+GET    /v2/domains/:id                       controllers.camp.Domains.show(id: String)
+
+
+
+
