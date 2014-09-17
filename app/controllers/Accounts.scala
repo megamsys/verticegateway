@@ -24,8 +24,12 @@ import play.api._
 import play.api.mvc._
 import play.api.mvc.Result
 import scalaz._
-import scalaz.Validation._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 
 /**
  * @author rajthilak

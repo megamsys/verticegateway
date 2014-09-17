@@ -17,8 +17,11 @@ package controllers
 
 import scalaz._
 import Scalaz._
-import scalaz.NonEmptyList._
+import scalaz.effect.IO
+import scalaz.EitherT._
 import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import controllers.funnel.FunnelErrors._
 import controllers.funnel.FunnelResponsesSerialization
 

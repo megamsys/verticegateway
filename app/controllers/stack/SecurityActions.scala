@@ -94,10 +94,10 @@ object SecurityActions {
             |%-10s -> %s
             |%-10s -> %s
             |%-10s -> %s""".format("email", fres.email, "api_key", fres.api_key, "authority", fres.authority).stripMargin)
-            .some).right[NonEmptyList[Error]].pure[IO]
+            .some).right[NonEmptyList[Throwable]].pure[IO]
         } else {
           (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
-            .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Error]).left[Option[String]].pure[IO]
+            .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[String]].pure[IO]
         }
       }
     } yield found).run.map(_.validation).unsafePerformIO()

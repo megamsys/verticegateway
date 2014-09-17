@@ -16,21 +16,24 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import models._
+import models.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -40,6 +43,8 @@ import scala.collection.JavaConversions._
 import models.cache._
 import org.yaml.snakeyaml.Yaml
 
+
+
 /**
  * @author rajthilak
  *
@@ -48,7 +53,7 @@ import org.yaml.snakeyaml.Yaml
 case class CSARLinkInput(kachha: String) {
   val TOSCA_DESCRIPTION = "description"
 
-  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatch {
+  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatchThrowable[Map[String,String],Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "kacchaMango:Entry"))
     mapAsScalaMap[String, String](new Yaml().load(kachha).asInstanceOf[java.util.Map[String, String]]).toMap
   } leftMap { t: Throwable => t
@@ -65,12 +70,12 @@ case class CSARLinkResult(id: String, desc: String)
 object CSARLinks {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "csarlinks")
+  private val riak = GWRiak( "csarlinks")
   implicit def CSARsSemigroup: Semigroup[CSARLinkResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "csarlinkkey"
   val metadataVal = "csarlinkkeys Creation"
-  val bindex = BinIndex.named("csarlink")
+  val bindex = "csarlink"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input yaml, email.
@@ -137,7 +142,7 @@ object CSARLinks {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.tosca.CSARLinkResult,Throwable]  {
                 CSARLinkResult(csarLinkName, xs.value)
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(csarLinkName, t.getMessage)
@@ -168,7 +173,7 @@ object CSARLinks {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = BinIndex.named("")
+        val bindex = ""
         val bvalue = Set("")
         new GunnySack("csarlink", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some

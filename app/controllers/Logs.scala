@@ -37,7 +37,7 @@ import org.megam.common.amqp._
 object Logs extends Controller with APIAuthElement {
 
   def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

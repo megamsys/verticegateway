@@ -68,7 +68,7 @@ object PredefResultsSerialization extends SerializationBase[PredefResults] {
           val nrs: PredefResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[PredefResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[PredefResults]
       }
     }
   }

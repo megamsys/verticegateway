@@ -10,20 +10,25 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart}
 scalaVersion := "2.10.4"
 
 scalacOptions := Seq(
-	"-target:jvm-1.7",
-	"-deprecation",
-	"-feature",
- 	"-optimise",
-  	"-Xcheckinit",
-  	"-Xlint",
-  	"-Xverify",
- // 	"-Yconst-opt",  	available in scala 2.11
-  	"-Yinline",
-  	"-Ywarn-all",
-  	"-Yclosure-elim",
-  	"-language:postfixOps",
-  	"-language:implicitConversions",
-  	"-Ydead-code")
+  "-target:jvm-1.7",
+  "-deprecation",
+  "-feature",
+  "-optimise",
+  "-Xcheckinit",
+  "-Xlint",
+  "-Xverify",
+  "-Yinline",
+  "-Yclosure-elim",
+  //"-Yconst-opt", 
+  //"-Ybackend:GenBCode",
+  //"closurify:delegating",
+  "-language:implicitConversions",
+  "-language:higherKinds",
+  "-language:reflectiveCalls",
+  "-language:postfixOps",
+  "-language:implicitConversions",
+  "-Ydead-code")
+
 
 incOptions := incOptions.value.withNameHashing(true)
 

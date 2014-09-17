@@ -17,6 +17,11 @@ package controllers.funnel
 
 import scalaz._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import controllers.funnel._
@@ -67,7 +72,7 @@ object FunnelResponsesSerialization extends SerializationBase[FunnelResponses] {
           val frs: FunnelResponses = FunnelResponses(list)
           frs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[FunnelResponses]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[FunnelResponses]
       }
     }
   }

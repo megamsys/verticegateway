@@ -56,7 +56,7 @@ object NodeProcessedResultsSerialization extends SerializationBase[NodeProcessed
           val nrs: NodeProcessedResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[NodeProcessedResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[NodeProcessedResults]
       }
     }
   }

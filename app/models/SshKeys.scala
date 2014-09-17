@@ -16,25 +16,29 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+
 
 /**
  * @author rajthilak
@@ -72,7 +76,7 @@ object SshKeyResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[SshKeyResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[SshKeyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -84,12 +88,12 @@ object SshKeyResult {
 object SshKeys {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "sshkeys")
+  private val riak = GWRiak("sshkeys")
   implicit def SshKeyResultsSemigroup: Semigroup[SshKeyResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "SshKey"
   val metadataVal = "SshKeys Creation"
-  val bindex = BinIndex.named("sshkey")
+  val bindex = "sshkey"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -102,7 +106,7 @@ object SshKeys {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val sshKeyInput: ValidationNel[Throwable, SshKeyInput] = (Validation.fromTryCatch {
+    val sshKeyInput: ValidationNel[Throwable, SshKeyInput] = (Validation.fromTryCatchThrowable[models.SshKeyInput,Throwable] {
       parse(input).extract[SshKeyInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -157,7 +161,7 @@ object SshKeys {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch {
+              (Validation.fromTryCatchThrowable[models.SshKeyResult, Throwable] {
                 parse(xs.value).extract[SshKeyResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(sshKeysName, t.getMessage)
@@ -188,7 +192,7 @@ object SshKeys {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = BinIndex.named("")
+        val bindex = ""
         val bvalue = Set("")
         new GunnySack("sshkey", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some

@@ -16,26 +16,30 @@
 package models
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.riak._
 import models.cache._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+
+
 
 /**
  * @author rajthilak
@@ -69,7 +73,7 @@ object MarketPlacePlan {
     fromJSON(jValue)(MarketPlacePlanReader)
   }
 
-  def fromJson(json: String): Result[MarketPlacePlan] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[MarketPlacePlan] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -199,7 +203,7 @@ object MarketPlaceResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[MarketPlaceResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -210,13 +214,13 @@ object MarketPlaceResult {
 object MarketPlaces {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "marketplaces")
+  private val riak = GWRiak( "marketplaces")
   implicit def MarketPlacesSemigroup: Semigroup[MarketPlaceResults] = Semigroup.instance((f1, f2) => f1.append(f2))
   //implicit def MarketPlacePlansSemigroup: Semigroup[MarketPlacePlans] = Semigroup.instance((f3, f4) => f3.append(f4))
 
   val metadataKey = "MarketPlace"
   val metadataVal = "MarketPlaces Creation"
-  val bindex = BinIndex.named("marketplace")
+  val bindex = "marketplace"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -229,7 +233,7 @@ object MarketPlaces {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val marketPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatch {
+    val marketPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput, Throwable] {
       parse(input).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -248,7 +252,7 @@ object MarketPlaces {
 
   private def mkGunnySack_init(input: MarketPlaceInput): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug("models.MarketPlaces mkGunnySack_init: entry--------------------:\n" + input.json)
-    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatch {
+    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput,Throwable] {
       parse(input.json).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
     play.api.Logger.debug("models.MarketPlaces mkGunnySack: entry--------------------:\n" + marketplaceInput)
@@ -332,7 +336,7 @@ object MarketPlaces {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch {
+                    (Validation.fromTryCatchThrowable[models.MarketPlaceResult,Throwable] {
                       parse(xs.value).extract[MarketPlaceResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(marketplacesName, t.getMessage)

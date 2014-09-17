@@ -33,14 +33,5 @@
 				<id>org.eclipse.ui.ide.multiFilter</id>
 			</matcher>
 		</filter>
-		<filter>
-			<id>1402585143471</id>
-			<name>project/project</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-projectRelativePath-matches-false-false-project.project</arguments>
-			</matcher>
-		</filter>
 	</filteredResources>
 </projectDescription>
