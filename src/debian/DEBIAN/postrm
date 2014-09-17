@@ -1,6 +1,7 @@
 if [ "$1" = "remove" ]; then
     # Remove logs
     rm -rf /var/log/megam/megamgateway/*
+    rm -rf /var/run/megam/megamgateway/*
 fi
 
 if [ "$1" = "purge" ]; then
