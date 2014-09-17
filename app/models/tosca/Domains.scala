@@ -85,7 +85,7 @@ object Domains {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("domains")
 
-  //implicit def DomainsResultsSemigroup: Semigroup[DomainsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  implicit def DomainsResultsSemigroup: Semigroup[DomainsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
   //implicit def DomainsProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
 
   val metadataKey = "Domains"
