@@ -37,6 +37,7 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends Seri
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
+  protected val AccountIdKey = "accounts_id"
   protected val NameKey = "name"
   protected val AssembliesKey = "assemblies"
   protected val InputsKey = "inputs"  
@@ -51,6 +52,7 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends Seri
     override def write(h: AssembliesResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
+        JField(AccountIdKey, toJSON(h.accounts_id)) ::
         JField(JSONClazKey, toJSON("Megam::Assemblies")) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(AssembliesKey, toJSON(h.assemblies)(AssemblyLinksWriter)) ::
@@ -67,14 +69,15 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends Seri
 
     override def read(json: JValue): Result[AssembliesResult] = {
       val idField = field[String](IdKey)(json)
+      val accountIdField = field[String](AccountIdKey)(json)
       val nameField = field[String](NameKey)(json)
       val assembliesField = field[AssemblyLinks](AssembliesKey)(json)(AssemblyLinksReader)
       val inputsField = field[AssembliesInputs](InputsKey)(json)(AssembliesInputsReader)        
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| assembliesField |@| inputsField |@| createdAtField) {
-        (id: String, name: String, assemblies: AssemblyLinks, inputs: AssembliesInputs, created_at: String) =>
-          new AssembliesResult(id, name, assemblies, inputs, created_at)
+      (idField |@| accountIdField |@| nameField |@| assembliesField |@| inputsField |@| createdAtField) {
+        (id: String, accountId: String, name: String, assemblies: AssemblyLinks, inputs: AssembliesInputs, created_at: String) =>
+          new AssembliesResult(id, accountId, name, assemblies, inputs, created_at)
       }
     }
   }
