@@ -86,7 +86,7 @@ case class AssembliesInputs(id: String, assemblies_type: String, label: String, 
   val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\",\"cloudsettings\":" + CloudSettingsList.toJson(cloudsettings, true) + "}"
 }
 
-case class AssembliesResult(id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
+case class AssembliesResult(id: String, accounts_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -157,7 +157,7 @@ object Assemblies {
           case None        => assembly_links += ""
         }
       }
-      val json = new AssembliesResult(uir.get._1 + uir.get._2, rip.name, assembly_links.toList, rip.inputs, Time.now.toString).toJson(false)
+      val json = new AssembliesResult(uir.get._1 + uir.get._2, aor.get.id, rip.name, assembly_links.toList, rip.inputs, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }

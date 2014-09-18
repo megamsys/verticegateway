@@ -55,8 +55,8 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-  //  X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
-      X_Megam_EMAIL -> "fake@mypaas.io", X_Megam_APIKEY -> "fakemypaas#megam",
+    X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
+  //    X_Megam_EMAIL -> "fake@mypaas.io", X_Megam_APIKEY -> "fakemypaas#megam",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {

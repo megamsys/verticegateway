@@ -39,7 +39,7 @@ import models.tosca._
 object Domains extends Controller with APIAuthElement {
 
   /*
-   * Create or update a new Organization by email/json input. 
+   * Create or update a new domains by email/json input. 
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
@@ -77,7 +77,7 @@ object Domains extends Controller with APIAuthElement {
    * Email provided in the URI.
    * Output: JSON (DomainsResult)
    **/
-  /*
+
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Domains", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
@@ -104,5 +104,5 @@ object Domains extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-*/
+
 }

@@ -14,10 +14,7 @@
 ** limitations under the License.
 * */
 
-
 package test.tosca
-
-
 
 import org.specs2.mutable._
 import org.specs2.Specification
@@ -27,46 +24,37 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import controllers.stack.HeaderConstants._
-import scalaz._
-import Scalaz._
-import scalaz.NonEmptyList._
-import test.Context
-
-
+import models.tosca._
+import models.tosca.Organizations
+import test.{ Context }
 
 /**
  * @author morpheyesh
  *
  */
- 
- 
 
 class OrganizationsSpec extends Specification {
   def is =
-    "OrganizationsSpec".title ^ end ^
-      """
+    "OrganizationsSpec".title ^ end ^ """
       OrganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
+      "Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
       //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^      
-      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^      
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+     // "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
       end
 
-
- /**
+  /**
    * Change the body content in method bodyToStick
    */
-      
-      
+
   case object Post extends Context {
 
     protected override def urlSuffix: String = "organizations/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"name\":\"FAKEORG1\" }"
+      val contentToEncode = "{\"name\":\"Megam\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -81,21 +69,17 @@ class OrganizationsSpec extends Specification {
     }
   }
   //Success
-  
-  
-      
+
   /**
    * test case for invalidUrl
    */
 
-  
-  
   case object PostInvalidUrl extends Context {
 
     protected override def urlSuffix: String = "organizations/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-       val contentToEncode = "{\"name\":\"FAKEORG\"}"
+      val contentToEncode = "{\"name\":\"FAKEORG\"}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -108,16 +92,14 @@ class OrganizationsSpec extends Specification {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
- 
+
   }
   //Success
-  
-  
- /**
+
+  /**
    * test case for invalidBody
    */
 
-  
   case object PostInvalidBody extends Context {
 
     protected override def urlSuffix: String = "organizations/content"
@@ -134,20 +116,18 @@ class OrganizationsSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
     }
   }
-  
-  
+
   /*
    * Testing 'GET' request.
    * 
    * 
    */
-  
-  
+
   case object Get extends Context {
-    protected override def urlSuffix: String = "organizations/FAKEORG"
+    protected override def urlSuffix: String = "organizations/Megam"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -159,9 +139,5 @@ class OrganizationsSpec extends Specification {
     }
   }
   //Success
-  
-  
- 
-} 
-  
 
+}

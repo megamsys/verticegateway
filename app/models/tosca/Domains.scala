@@ -85,7 +85,7 @@ object Domains {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("domains")
 
-  //implicit def DomainsResultsSemigroup: Semigroup[DomainsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  implicit def DomainsResultsSemigroup: Semigroup[DomainsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
   //implicit def DomainsProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
 
   val metadataKey = "Domains"
@@ -144,7 +144,8 @@ object Domains {
     }
   }
   
- /* def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
+
+  def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Domains", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("domainsList", domainsList))
     (domainsList map {
@@ -174,7 +175,6 @@ object Domains {
       _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
   }
-  */
   
   
 }
