@@ -40,3 +40,5 @@ service megamgateway start || echo "megamgateway could not be started. Try manua
 
 echo "127.0.0.1 gate.mypaas.io megamgateway" >> /etc/hosts
 
+
+
