@@ -45,6 +45,9 @@ object Constants {
 
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
+    
+  val DEFAULT_ORG_NAME = "Default_Org"
+  val DEFAULT_DOMAIN_NAME = "defaultdomain.co"
 
   /*Look for a file /var/lib/megam/.megam_auth with fields 
   megam@mypaas.io:<randomlygenerated pw>
@@ -67,5 +70,7 @@ object Constants {
   val DEMO_APIKEY = "fakemypaas#megam"
 
   val DELETE_REQUEST = "DELETE"
+    
+  
 
 }

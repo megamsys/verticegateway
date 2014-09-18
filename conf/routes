@@ -10,6 +10,9 @@ GET    /init                            controllers.Application.init
 GET    /initaccount                            controllers.Application.initaccount
 GET    /initcloudtoolsetting            controllers.Application.initcloudtoolsetting
 GET    /initmarketplaceaddons           controllers.Application.initmarketplaceaddons
+GET    /initdefaultorganizations       controllers.Application.initdefaultorganizations
+
+
 
 # Authentication - HMAC
 POST   /v2/auth                         controllers.Application.authenticate

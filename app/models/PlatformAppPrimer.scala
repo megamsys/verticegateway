@@ -29,6 +29,7 @@ import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 import play.api.Logger
+import models.tosca._
 
 
 
@@ -126,6 +127,35 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
+  def organizations_default = models.tosca.Organizations.create( MEGAM_ADMIN_EMAIL,
+      OrganizationsInput(DEFAULT_ORG_NAME).json)
+      
+      
+  def org_prep: ValidationNel[Throwable, FunnelResponses] = for {
+    org <- organizations_default    
+  } yield {
+    val chainedComps = List[FunnelResponse](
+      FunnelResponse(CREATED, """Organization created successfully(%s, %s).
+            |
+            |Your email registered successully.""".
+        format(org.get.name).stripMargin, "Megam::Organizations"))
+    FunnelResponses(chainedComps)
+  }
+
+      
+  def domains_default = models.tosca.Domains.create(MEGAM_ADMIN_EMAIL,
+      DomainsInput( DEFAULT_DOMAIN_NAME).json)
+  
+  def dmn_prep: ValidationNel[Throwable, FunnelResponses] = for {
+    dmn <- domains_default    
+  } yield {
+    val chainedComps = List[FunnelResponse](
+      FunnelResponse(CREATED, """Domains created successfully(%s, %s).
+            |
+            |Your email registered successully.""".
+        format(dmn.get.name).stripMargin, "Megam::Domains"))
+    FunnelResponses(chainedComps)
+  }
 }
 
 
