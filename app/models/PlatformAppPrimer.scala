@@ -70,6 +70,7 @@ object PlatformAppPrimer {
     sada <- sandboxAcct
     dummy <- sandboxDummyAcct
   } yield {
+    
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Account created successfully(%s, %s).
             |
@@ -127,18 +128,18 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-  def organizations_default = models.tosca.Organizations.create( MEGAM_ADMIN_EMAIL,
+  def organizations_default = models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
       OrganizationsInput(DEFAULT_ORG_NAME).json)
       
       
   def org_prep: ValidationNel[Throwable, FunnelResponses] = for {
     org <- organizations_default    
   } yield {
+    
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Organization created successfully(%s, %s).
+      FunnelResponse(CREATED, """Organization created successfully(%s).
             |
-            |Your email registered successully.""".
-        format(org.get.name).stripMargin, "Megam::Organizations"))
+            |Your email registered successully.""".format(org.get.name).stripMargin, "Megam::Organizations"))
     FunnelResponses(chainedComps)
   }
 
@@ -149,11 +150,12 @@ object PlatformAppPrimer {
   def dmn_prep: ValidationNel[Throwable, FunnelResponses] = for {
     dmn <- domains_default    
   } yield {
+    
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Domains created successfully(%s, %s).
+      FunnelResponse(CREATED, """Domains created successfully(%s).
             |
             |Your email registered successully.""".
-        format(dmn.get.name).stripMargin, "Megam::Domains"))
+       format(dmn.get.name).stripMargin, "Megam::Domains"))
     FunnelResponses(chainedComps)
   }
 }
