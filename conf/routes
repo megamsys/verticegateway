@@ -11,6 +11,7 @@ GET    /initaccount                            controllers.Application.initaccou
 GET    /initcloudtoolsetting            controllers.Application.initcloudtoolsetting
 GET    /initmarketplaceaddons           controllers.Application.initmarketplaceaddons
 GET    /initdefaultorganizations       controllers.Application.initdefaultorganizations
+GET    /initdefaultdomains             controllers.Application.initdefaultdomains
 
 
 
