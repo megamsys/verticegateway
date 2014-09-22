@@ -36,7 +36,8 @@ fi
 
 initctl reload-configuration
 
+riak start
+
 service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
 
-echo "127.0.0.1 gate.mypaas.io megamgateway" >> /etc/hosts
 
