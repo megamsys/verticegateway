@@ -32,13 +32,15 @@ fi
 
 [ -f /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
+storage_backend = leveldb
+
+sed -i 's/^[ \t]*storage_backend .*/storage_backend = leveldb/' /etc/riak/riak.conf
 
 
 initctl reload-configuration
 
+riak start
+
 service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
-
-echo "127.0.0.1 gate.mypaas.io megamgateway" >> /etc/hosts
-
 
 
