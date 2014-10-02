@@ -23,7 +23,7 @@ resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline
 // Use the Play sbt plugin for Play projects
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.4")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.8.0-M1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.4")
 
 libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-api"       % "1.7.7" force(),

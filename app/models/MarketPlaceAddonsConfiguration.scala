@@ -194,7 +194,7 @@ object MarketPlaceAddonsConfiguration {
     }).head //return the folded element in the head. 
   }
 
-  def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsConfigurationResults] = {
+  /*def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsConfigurationResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddonsConfiguration", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", nodeNameList))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, MarketPlaceAddonsConfigurationResults]] {
@@ -226,5 +226,5 @@ object MarketPlaceAddonsConfiguration {
     res.getOrElse(new ResourceItemNotFound(nodeNameList.map(m => m.mkString("[", ",", "]")).get, "application MarketPlaceAddonsConfiguration = nothing found.").failureNel[MarketPlaceAddonsConfigurationResults])
 
   }
- 
+ */
 }

@@ -2,40 +2,35 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Map static resources from the /public folder to the /public path
+GET    /assets/*file                    controllers.Assets.at(path="/public", file)
+
 # Home page
 GET    /                                controllers.Application.index
 GET    /utru                            controllers.Application.login
 POST   /session                         controllers.Application.loginauthenticate
 GET    /init                            controllers.Application.init
-GET    /initaccount                            controllers.Application.initaccount
+GET    /initaccount                     controllers.Application.initaccount
 GET    /initcloudtoolsetting            controllers.Application.initcloudtoolsetting
 GET    /initmarketplaceaddons           controllers.Application.initmarketplaceaddons
-GET    /initdefaultorganizations       controllers.Application.initdefaultorganizations
-GET    /initdefaultdomains             controllers.Application.initdefaultdomains
-
-
+GET    /initdefaultorganizations        controllers.Application.initdefaultorganizations
+GET    /initdefaultdomains              controllers.Application.initdefaultdomains
 
 # Authentication - HMAC
 POST   /v2/auth                         controllers.Application.authenticate
+
+# Account
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 
-# Nodes
-GET    /v2/nodes                        controllers.Nodes.list
-GET    /v2/nodes/:id                    controllers.Nodes.show(id: String)
-POST   /v2/nodes/content                controllers.Nodes.post
-POST   /v2/nodes/update                 controllers.Nodes.update
- 
-# Requests for Nodes 
-GET    /v2/requests                     controllers.Requests.list()                          
-GET    /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
-POST   /v2/requests/content             controllers.Requests.post
 
-# Logs for Nodes 
-#just declare POST for testing
-#GET   /v2/logs	   		    controllers.Logs.list()                          
-#GET   /v2/logs/:nodeid		controllers.Logs.show(nodeid: String)
-#GET   /v2/logs/index        controllers.Logs.socketindex
+#Organizations
+POST    /v2/organizations/content           controllers.camp.Organizations.post
+GET     /v2/organizations/:id               controllers.camp.Organizations.show(id: String)
+
+#Domains
+POST   /v2/domains/content                   controllers.camp.Domains.post
+GET    /v2/domains/:id                       controllers.camp.Domains.show(id: String)
 
 #Predefs
 GET    /v2/predefs                      controllers.Predefs.list()
@@ -45,35 +40,6 @@ GET    /v2/predefs/:predefid            controllers.Predefs.show(predefid: Strin
 POST   /v2/predefclouds/content         controllers.PredefClouds.post
 GET    /v2/predefclouds                 controllers.PredefClouds.list
 GET    /v2/predefclouds/:pre_name       controllers.PredefClouds.show(pre_name: String)
-
-#CloudDeployers
-GET    /v2/cloudtools                   controllers.CloudTools.list()
-GET    /v2/cloudtools/:cloud_toolname   controllers.CloudTools.show(cloud_toolname: String)
-
-# AppDefns for Nodes                          
-GET    /v2/appdefns                     controllers.AppDefns.list()
-GET    /v2/appdefns/:nodeid/:id	        controllers.AppDefns.show(nodeid: String, id: String)
-GET    /v2/appdefns/:nodeid             controllers.AppDefns.shown(nodeid: String)
-POST   /v2/appdefns/content             controllers.AppDefns.post
-POST   /v2/appdefns/update                 controllers.AppDefns.update
-
-# AppRequests for Nodes                          
-GET    /v2/appreqs/:nodeid              controllers.AppReqs.show(nodeid: String)
-POST   /v2/appreqs/content              controllers.AppReqs.post
-
-# BoltDefns for Nodes                          
-GET    /v2/boltdefns/:nodeid            controllers.BoltDefns.show(nodeid: String)
-POST   /v2/boltdefns/content            controllers.BoltDefns.post
-POST   /v2/boltdefns/update                 controllers.BoltDefns.update
-
-# BoltRequests for Nodes                          
-GET    /v2/boltreqs/:nodeid             controllers.BoltReqs.show(nodeid: String)
-POST   /v2/boltreqs/content             controllers.BoltReqs.post
-
-# CloudToolSetting
-GET    /v2/cloudtoolsettings            controllers.CloudToolSettings.list
-GET    /v2/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: String)
-POST   /v2/cloudtoolsettings/content    controllers.CloudToolSettings.post
 
 #SshKeys
 POST   /v2/sshkeys/content         controllers.SshKeys.post
@@ -87,7 +53,7 @@ GET    /v2/marketplaces/:id       controllers.MarketPlaces.show(id: String)
 
 #MarketPlaceAddons
 POST   /v2/marketplaceaddons/content         controllers.MarketPlaceAddons.post
-GET    /v2/marketplaceaddons/:id             controllers.MarketPlaceAddons.show(id: String)
+#GET    /v2/marketplaceaddons/:id             controllers.MarketPlaceAddons.show(id: String)
 
 #CSARs
 POST   /v2/csars/content         controllers.camp.CSARs.post
@@ -100,21 +66,15 @@ GET    /v2/assemblies/:id         controllers.camp.Assemblies.show(id: String)
 GET    /v2/assembly/:id           controllers.camp.Assembly.show(id: String)
 GET    /v2/components/:id         controllers.camp.Components.show(id: String)
 
-#organizations
-POST   /v2/organizations/content   controllers.camp.Organizations.post
+# Requests for Assemblies 
+POST   /v2/requests/content             controllers.Requests.post
+#GET    /v2/requests                     controllers.Requests.list()                          
+#GET    /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
 
-# Map static resources from the /public folder to the /public path
-GET    /assets/*file                    controllers.Assets.at(path="/public", file)
-
-
-#Organizations
-POST    /v2/organizations/content           controllers.camp.Organizations.post
-GET     /v2/organizations/:id               controllers.camp.Organizations.show(id: String)
-
-#Domains
-POST   /v2/domains/content                   controllers.camp.Domains.post
-GET    /v2/domains/:id                       controllers.camp.Domains.show(id: String)
-
+# CloudToolSetting
+POST   /v2/cloudtoolsettings/content    controllers.CloudToolSettings.post
+GET    /v2/cloudtoolsettings            controllers.CloudToolSettings.list
+GET    /v2/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: String)
 
 
 

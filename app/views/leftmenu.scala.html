@@ -1,132 +1,56 @@
 <div class="api-toc ">
-	<a  href="http://www.megam.co" > <img src="@routes.Assets.at("images/logo-megam160x43.png")"/> </a>
+	<a  href="http://www.gomegam.com" > <img src="@routes.Assets.at("images/logo-megam160x43.png")"/> </a>
 	</br>
 	</br>
-	<div class="btn-group">
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-			Main <span class="caret"></span>
-		</button>
-		<ul class="dropdown-menu" role="menu">
-			<li>
-				<a href="http:\\docs.megam.co">docs.megam.co</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="http:\\support.megam.co">support.megam.co</a>
-			</li>
-			<li>
-				<a href="https:\\www.megam.co">www.megam.co</a>
-			</li>
-		</ul>
+	<div class="">
+		<a href="http://www.gomegam.com/docs" target="_blank"  class="btn btn-primary btn-sm" role="button">docs</a>
+		<a href="http://support.megam.co" class="btn btn-primary btn-sm" target="_blank">support</a>
+		<a href="https://www.megam.co" class="btn btn-default btn-sm active" target="_blank">megam.co</a>
 	</div>
 	<ul id="pagetoc">
 		
 		<li class="contentlevel contentlevel_1">
-			<a href="#accounts">Accounts</a>
+			<a href="#gomegam">Accounts</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#accounts_get">GET</a>
+			<a href="#gomegam_apidocs">GET</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#accounts_post">POST</a>
+			<a href="#gomegam_apidocs">POST</a>
 		</li>
 
 		<li class="contentlevel contentlevel_1">
-			<a href="#nodes">Nodes</a>
+			<a href="#gomegam">Assemblies</a>
 		</li>
 
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get">GET - v1/nodes</a>
+			<a href="#gomegam_apidocs">GET - v2/assemblies</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_get_byname">GET - v1/nodes/id</a>
+			<a href="#gomegam_apidocs">GET - v2/assemblies/id</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#nodes_post">POST</a>
+			<a href="#gomegam_apidocs">POST</a>
 		</li>
 		<li class="contentlevel contentlevel_1">
-			<a href="#predefs">Predefs</a>
+			<a href="#gomegam">Predef Clouds</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#predefs_get">GET - v1/predefs</a>
+			<a href="#gomegam_apidocs">GET - v2/predefclouds</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#predefs_get_byname">GET - v1/predefs/:node_name</a>
-		</li>
+			<a href="#gomegam_apidocs">GET - v2/predefclouds/:context</a>
+		</li>		
+		
 		<li class="contentlevel contentlevel_1">
-			<a href="#predefclouds">Predef Clouds</a>
+			<a href="#gomegam">Marketplaces</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#predefclouds">GET - v1/predefclouds</a>
+			<a href="#gomegam_apidocs">GET - v2/marketplaces</a>
 		</li>
 		<li class="contentlevel contentlevel_2">
-			<a href="#predefclouds/:context">GET - v1/predefclouds/:context</a>
-		</li>
-		<li class="contentlevel contentlevel_1">
-			<a href="#requests">Requests</a>
-		</li>
-
-		<li class="contentlevel contentlevel_2">
-			<a href="#requests_get">GET - v1/requests</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#requests_get_byname">GET - v1/requests/id</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#requests_post">POST</a>
-		</li>
-		<li class="contentlevel contentlevel_1">
-			<a href="#apprequests">AppRequests</a>
-		</li>
-
-		<li class="contentlevel contentlevel_2">
-			<a href="#apprequests_get">GET - v1/apprequests</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#apprequests_get_byname">GET - v1/apprequests/id</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#apprequests post">POST</a>
-		</li>
-
-		<li class="contentlevel contentlevel_1">
-			<a href="#appdefns">AppDefns</a>
-		</li>
-
-		<li class="contentlevel contentlevel_2">
-			<a href="#appdefns_get">GET - v1/appdefns</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#appdefns_get_byname">GET - v1/appdefns/id</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#appdefns_post">POST</a>
-		</li>
-		<li class="contentlevel contentlevel_1">
-			<a href="#boltrequests">BoltRequests</a>
-		</li>
-
-		<li class="contentlevel contentlevel_2">
-			<a href="#boltrequests_get">GET - v1/boltrequests</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#boltrequests_get_byname">GET - v1/boltrequests/id</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#boltrequests_post">POST</a>
-		</li>
-		<li class="contentlevel contentlevel_1">
-			<a href="#boltdefns">BoltDefns</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#boltdefns_get">GET - v1/boltdefns</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#boltdefns_get_byname">GET - v1/boltdefns/id</a>
-		</li>
-		<li class="contentlevel contentlevel_2">
-			<a href="#boltdefns_post">POST</a>
-		</li>
+			<a href="#gomegam_apidocs">GET - v2/marketplacess/id</a>
+		</li>	
 		
 	</ul>
 </div>
