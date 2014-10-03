@@ -194,7 +194,7 @@ object MarketPlaceAddons {
     }).head //return the folded element in the head. 
   }
 
-  def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsResults] = {
+  /*def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", nodeNameList))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, MarketPlaceAddonsResults]] {
@@ -225,7 +225,7 @@ object MarketPlaceAddons {
     }.run.map(_.validation).unsafePerformIO
     res.getOrElse(new ResourceItemNotFound(nodeNameList.map(m => m.mkString("[", ",", "]")).get, "application MarketPlaceAddons = nothing found.").failureNel[MarketPlaceAddonsResults])
 
-  }
+  }*/
 
   /*
    * An IO wrapped finder using an email. Upon fetching the node results for an email, 

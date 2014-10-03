@@ -63,9 +63,6 @@ object PlatformAppPrimer {
 
   def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_google_default) }
 
-  //define the cloud tools used to manage the cloud platform. 
-  def cloudtools = models.CloudTools.create
-
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     sada <- sandboxAcct
     dummy <- sandboxDummyAcct
@@ -83,7 +80,6 @@ object PlatformAppPrimer {
     lpd <- predefs
     ccd <- clone_predefcloud(MEGAM_ADMIN_EMAIL)
     cdsd <- clone_predefcloud(DEMO_EMAIL)
-    cts <- cloudtools
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Predefs created successfully. Cache gets loaded upon first fetch.
@@ -91,10 +87,7 @@ object PlatformAppPrimer {
 								|%nLoaded values are ----->%n[%s]""".format(lpd.toString).stripMargin, "Megam::Predef"),
       FunnelResponse(CREATED, """Predefs cloud created successfully(%s,%s).
 								|
-								|You can use the the 'predefs cloud name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"),
-      FunnelResponse(CREATED, """Cloud tools created successfully. Cache gets loaded upon first fetch.
-								|
-								|%nLoaded values are ----->%n[%s]""".format(cts.toString).stripMargin, "Megam::CloudTools"))
+								|You can use the the 'predefs cloud name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"))
       FunnelResponses(chainedComps)
       }
 

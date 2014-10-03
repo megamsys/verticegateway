@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{RequestResult, NodeCommand}
+import models.{RequestResult}
 
 /**
  * @author ram
@@ -39,11 +39,9 @@ class RequestResultSerialization(charset: Charset = UTF8Charset) extends Seriali
   protected val NodeIDKey = "node_id"
   protected val NodeNameKey = "node_name"
   protected val ReqTypeKey = "req_type"
-  protected val CommandKey = "command"
   protected val CreatedAtKey ="created_at" 
 
   override implicit val writer = new JSONW[RequestResult] {
-    import NodeCommandSerialization.{ writer => NodeCommandWriter }
 
     override def write(h: RequestResult): JValue = {
       JObject(
@@ -52,25 +50,22 @@ class RequestResultSerialization(charset: Charset = UTF8Charset) extends Seriali
           JField(JSONClazKey, toJSON("Megam::Request")) ::
           JField(NodeNameKey, toJSON(h.node_name)) ::
           JField(ReqTypeKey, toJSON(h.req_type)) ::
-          JField(CreatedAtKey, toJSON(h.created_at))   ::
-          JField(CommandKey, toJSON(h.command)(NodeCommandWriter)) :: Nil)
+          JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
 
   override implicit val reader = new JSONR[RequestResult] {
-    import NodeCommandSerialization.{ reader => NodeCommandReader }
 
     override def read(json: JValue): Result[RequestResult] = {
       val idField = field[String](IdKey)(json)
       val nodeIdField = field[String](NodeIDKey)(json)
       val nodeNameField = field[String](NodeNameKey)(json)
       val reqtypeField = field[String](ReqTypeKey)(json)
-      val commandField = field[NodeCommand](CommandKey)(json)(NodeCommandReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nodeIdField |@| nodeNameField |@| reqtypeField |@| commandField |@| createdAtField) {
-        (id: String, node_id: String, node_name: String, req_type: String, command: NodeCommand, created_at: String) =>
-          new RequestResult(id, node_id, node_name, req_type, command, created_at)
+      (idField |@| nodeIdField |@| nodeNameField |@| reqtypeField |@| createdAtField) {
+        (id: String, node_id: String, node_name: String, req_type: String, created_at: String) =>
+          new RequestResult(id, node_id, node_name, req_type, created_at)
       }
     }
   }
