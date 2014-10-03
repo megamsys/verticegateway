@@ -119,8 +119,7 @@ object MarketPlaceAddons extends Controller with APIAuthElement {
   /*
    * GET: findByAppDefnsName: Show the MarketPlaceAddons for a  node name per user(by email)
    * Email grabbed from header
-   * Output: JSON (MarketPlaceAddonsResults)  
-   **/
+   * Output: JSON (MarketPlaceAddonsResults)   
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaceAddons", "show:Entry"))
 
@@ -147,5 +146,6 @@ object MarketPlaceAddons extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
   }
+  */
 
 }

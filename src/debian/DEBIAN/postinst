@@ -6,6 +6,8 @@ MEGAMAUTH=$MEGAMHOME/.megam_auth
 MEGAM_GROUP=megam
 MEGAM_USER=megam
 
+mkdir -p /var/run/megam/megamgateway/
+
 if [ "$1" = "configure" ]; then
 
     # Use dpkg-statoverride instead of direct chmod/chown
@@ -28,79 +30,17 @@ if [ "$1" = "configure" ]; then
 fi
 
 
-cat <<EOF >/etc/nginx/sites-available/megamgateway
-# HTTPS server
-server {
-listen 80;
-rewrite ^ https://gate.mypaas.io\$request_uri? permanent;
-}
-
-server {
-listen 443;
-server_name gate.mypaas.io;
-
-# play public assets
-root html;
-
-# SSL configuration
-ssl on;
-ssl_certificate /etc/nginx/certs/megamgateway_pub.crt;
-ssl_certificate_key /etc/nginx/private/megamgateway.key;
-
-ssl_session_timeout 5m;
-
-ssl_protocols SSLv3 TLSv1;
-ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
-ssl_prefer_server_ciphers on;
-
-# serve assets or request page from proxy (if asset not found)
-location / {
-try_files \$uri @proxy;
-}
-
-# the play web server
-location @proxy {
-proxy_pass http://localhost:9000;
-proxy_redirect off;
-proxy_buffering off;
-
-#send protocol info to play server
-proxy_set_header Host \$host;
-proxy_set_header X-Real-IP \$remote_addr;
-proxy_set_header X-Forwarded-Proto https;
-proxy_set_header X-Forwarded-Ssl on;
-proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-}
-}
-EOF
-
-mkdir -p /etc/nginx/private &&
-mkdir -p /etc/nginx/certs &&
-
-openssl req -x509 -nodes -days 365 -newkey rsa:1024 \
--keyout /etc/nginx/private/megamgateway.key \
--out /etc/nginx/certs/megamgateway_pub.crt <<EOF
-IN
-TN
-Private
-
-Megam Gateway Server
-Development
-gate.mypaas.io
-
-EOF
-
 [ -f /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
-cp /etc/nginx/private/megamgateway.key $MEGAMHOME
-cp /etc/nginx/certs/megamgateway_pub.crt $MEGAMHOME
+storage_backend = leveldb
 
-ln -s /etc/nginx/sites-available/megamgateway /etc/nginx/sites-enabled/megamgateway
+sed -i 's/^[ \t]*storage_backend .*/storage_backend = leveldb/' /etc/riak/riak.conf
+
 
 initctl reload-configuration
 
+riak start
+
 service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
 
-echo "127.0.0.1 gate.mypaas.io megamgateway" >> /etc/hosts
 
-service nginx restart
