@@ -50,7 +50,7 @@ object Assemblies extends Controller with APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "request funneled."))
           models.tosca.Assemblies.create(email, clientAPIBody) match {
-            case Success(succ) =>
+            case Success(succ) => {
               if (email.trim.equalsIgnoreCase(DEMO_EMAIL) ) {
                 Status(CREATED)(FunnelResponse(CREATED, """Assemblies initiation dry run submitted successfully.   
             |
@@ -60,24 +60,21 @@ object Assemblies extends Controller with APIAuthElement {
                 /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/fialures.
                */
-            //    val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "Hah"))
-
-           //     CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap  { x =>
-              //    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "published successfully."))
-                  Status(CREATED)(FunnelResponse(CREATED, """Assemblies initiation instruction submitted successfully.
+                 (CloudStandUpPublish(nr.key, nr.req_id).dop.flatMap { x =>
+                        play.api.Logger.debug(("%-20s -->[%s] %s").format("controllers.Assemblies", "published successfully."))
+                        FunnelResponse(CREATED, """Assemblies initiation instruction submitted successfully.
             |
-            |The Assemblies is working for you. It will be ready shortly.""", "Megam::Assemblies").toJson(true))
-        //    |The Assemblies is working for you. It will be ready shortly.""", "Megam::Assemblies").toJson(true)).successNel[Throwable]
-           
-             ///   } match {
-                  //this is only a temporary hack.
-              //    case Success(succ_cpc) => succ_cpc
-              //    case Failure(err) =>
-              //      Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Assemblies initiation submission failed.
-          //  |
-         //   |Retry again, our queue servers are crowded""", "Megam::Assemblies").toJson(true))
-           //     }
+            |Megam is cranking the cloud for you. It will be ready shortly.""".format(nr.key, nr.req_id).stripMargin, "Megam::Assemblies").successNel[Throwable]
+                      } match {
+                        //this is only a temporary hack.
+                        case Success(succ_cpc) => succ_cpc
+                        case Failure(err) =>
+                          FunnelResponse(BAD_REQUEST, """Node initiation submission failed.   
+            |for 'node name':{%s} 'request_id':{%s}
+            |Retry again, our queue servers isn't running or maxed""".format(nr.key, nr.req_id).stripMargin, "Megam::Node")
+                      })
               }
+            }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
