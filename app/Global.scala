@@ -26,19 +26,51 @@ import play.api.mvc.Results._
 import play.filters.gzip.{ GzipFilter }
 import controllers.stack.HeaderConstants._
 import scala.concurrent.Future
+import controllers._
+import java.io._
+
 
 /**
  * We do bunch of things in Global, a gzip response is sent back to the client when the
  * header has "Content-length" > 5000bytes
  */
+
+
+
+
 object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) => 
    response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
   
   
 
   override def onStart(app: Application) {
-    play.api.Logger.info("megamgateway - started")
-  }
+    play.api.Logger.info("megamgateway - started---------------------------------------------------------")
+  
+   
+    
+   var DName: String = "primed"
+   var dir: File = new File("Dname");
+    dir.mkdir();
+    
+    var FileName: String = DName + File.separator + "megam_primed" + ".log"
+    val FileObj: File = new File(FileName)
+    
+    if (!FileObj.exists())
+    {
+      play.api.Logger.info("DEFAULT SETTING ARE INITIALIZED------------------------------------- ----------")
+      
+    }
+    else
+    {
+    models.PlatformAppPrimer.acc_prep
+    models.PlatformAppPrimer.cts_prep
+    models.PlatformAppPrimer.mkp_prep
+    models.PlatformAppPrimer.org_prep
+    models.PlatformAppPrimer.dmn_prep
+    }
+    play.api.Logger.info("-------------------------------------------------------------------------------")
+
+   }
 
   override def onStop(app: Application) {
     play.api.Logger.info("megamgateway - going down.")
