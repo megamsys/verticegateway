@@ -13,7 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package models.json
+package models.json.tosca
+
 
 import scalaz._
 import scalaz.NonEmptyList._
@@ -21,42 +22,41 @@ import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import controllers.funnel.SerializationBase
-import models._
+import models.tosca._
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
-object BoltRequestResultsSerialization extends SerializationBase[BoltRequestResults] {
+object AssemblyResultsSerialization extends SerializationBase[AssemblyResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[BoltRequestResults] {
-    override def write(h: BoltRequestResults): JValue = {
+  implicit override val writer = new JSONW[AssemblyResults] {
+    override def write(h: AssemblyResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[BoltRequestResult] =>
-          (nrOpt.map { nr: BoltRequestResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[AssemblyResult] =>         
+            (nrOpt.map { nr: AssemblyResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey, JString("Megam::BoltRequestCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey,JString("Megam::AssemblyCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 
-  
-  implicit override val reader = new JSONR[BoltRequestResults] {
-    override def read(json: JValue): Result[BoltRequestResults] = {
+  implicit override val reader = new JSONR[AssemblyResults] {
+    override def read(json: JValue): Result[AssemblyResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            BoltRequestResult.fromJValue(jValue) match {
+            AssemblyResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[BoltRequestResult]()
+              case Failure(fail) => List[AssemblyResult]()
             }
-          } map { x: BoltRequestResult => x.some }
-          //this is screwy. Making the RequestResults as Option[NonEmptylist[RequestResult]] will solve it.
-          val nrs: BoltRequestResults = list.toNel.getOrElse(nels(none))
+          } map { x: AssemblyResult => x.some }
+          //this is screwy. Making the NodeResults as Option[NonEmptylist[AssembliesResult]] will solve it.
+          val nrs: AssemblyResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[BoltRequestResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssemblyResults]
       }
     }
   }

@@ -97,6 +97,12 @@ case class Assembly(name: String, components: models.tosca.ComponentsList, polic
 }
 
 object Assembly {
+  
+  private val riak = GWRiak("assembly")
+
+  val metadataKey = "ASSEMBLY"
+  val metadataVal = "Assembly Creation"
+  val bindex = "assembly"
 
   def empty: Assembly = new Assembly(new String(), ComponentsList.empty, new String(), new String, new String())
 
@@ -112,12 +118,45 @@ object Assembly {
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+  
+  
+   def findByNodeName(assemblyID: Option[List[String]]): ValidationNel[Throwable, AssemblyResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Assembly", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", assemblyID))
+    (assemblyID map {
+      _.map { asm_id =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("Assembly ID", asm_id))
+        (riak.fetch(asm_id) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
+              (AssemblyResult.fromJson(xs.value) leftMap
+                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
+                  JSONParsingError(t)
+                }).toValidationNel.flatMap { j: AssemblyResult =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
+                  Validation.success[Throwable, AssemblyResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                }
+            }
+            case None => {
+              Validation.failure[Throwable, AssemblyResults](new ResourceItemNotFound(asm_id, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((AssemblyResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
+  }  
+  
 }
 
 object AssembliesList {
   implicit val formats = DefaultFormats
 
-  implicit def AssembliesResultsSemigroup: Semigroup[AssembliesResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  implicit def AssembliesListsSemigroup: Semigroup[AssembliesLists] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val emptyRR = List(Assembly.empty)
   def toJValue(nres: AssembliesList): JValue = {
@@ -149,7 +188,7 @@ object AssembliesList {
   val metadataVal = "Assembly Creation"
   val bindex = "assembly"
 
-  def createLinks(email: String, input: AssembliesList): ValidationNel[Throwable, AssembliesResults] = {
+  def createLinks(email: String, input: AssembliesList): ValidationNel[Throwable, AssembliesLists] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.AssembliesList", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
@@ -158,10 +197,10 @@ object AssembliesList {
       asminp =>
         play.api.Logger.debug(("%-20s -->[%s]").format("assembly", asminp))
         (create(email, asminp))
-    }).foldRight((AssembliesResults.empty).successNel[Throwable])(_ +++ _)
+    }).foldRight((AssembliesLists.empty).successNel[Throwable])(_ +++ _)
 
     play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Assembly", res))
-    res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[AssembliesResults])
+    res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[AssembliesLists])
     res
   }
 
@@ -169,7 +208,7 @@ object AssembliesList {
    * create new market place item with the 'name' of the item provide as input.
    * A index name assemblies name will point to the "csars" bucket
    */
-  def create(email: String, input: Assembly): ValidationNel[Throwable, AssembliesResults] = {
+  def create(email: String, input: Assembly): ValidationNel[Throwable, AssembliesLists] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.AssembliesList", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
@@ -217,5 +256,6 @@ object AssembliesList {
     }
   }
 
+  
 }
  

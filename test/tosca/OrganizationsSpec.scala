@@ -26,11 +26,7 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.tosca._
 import models.tosca.Organizations
-import test.{Context}
-
-
-
-
+import test.{ Context }
 
 /**
  * @author morpheyesh
@@ -42,12 +38,12 @@ class OrganizationsSpec extends Specification {
     "OrganizationsSpec".title ^ end ^ """
       OrganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
-  "The Client Should" ^
-  //"Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
-  //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-  //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-  "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
-  end
+      "The Client Should" ^
+      "Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
+      //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+     // "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+      end
 
   /**
    * Change the body content in method bodyToStick
@@ -58,7 +54,7 @@ class OrganizationsSpec extends Specification {
     protected override def urlSuffix: String = "organizations/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"name\":\"FAKEORG1\" }"
+      val contentToEncode = "{\"name\":\"Megam\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -131,7 +127,7 @@ class OrganizationsSpec extends Specification {
    */
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "organizations/FAKEORG"
+    protected override def urlSuffix: String = "organizations/Megam"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -144,7 +140,4 @@ class OrganizationsSpec extends Specification {
   }
   //Success
 
-
-
-  
 }

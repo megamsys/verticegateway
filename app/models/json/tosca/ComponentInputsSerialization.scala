@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ ComponentInputs }
+import models.tosca.{ ComponentInputs, DesignInputs, ServiceInputs }
 
 /**
  * @author rajthilak
@@ -36,34 +36,52 @@ import models.tosca.{ ComponentInputs }
 
 object ComponentInputsSerialization extends SerializationBase[ComponentInputs] {
 
-  protected val IdKey = "id"
-  protected val XKey = "x"
-  protected val YKey = "y"
-  protected val ZKey = "z"
+  protected val DomainKey = "domain"
+  protected val PortKey = "port"
+  protected val UserNameKey = "username"
+  protected val PasswordKey = "password" 
+  protected val VersionKey = "version"
+  protected val SourceKey = "source"
+  protected val DesignInputsKey = "design_inputs"
+  protected val ServiceInputsKey = "service_inputs"
 
   override implicit val writer = new JSONW[ComponentInputs] {
 
+     import DesignInputsSerialization.{ writer => DesignInputsWriter }
+     import ServiceInputsSerialization.{ writer => ServiceInputsWriter }
+    
     override def write(h: ComponentInputs): JValue = {
-      JObject(
-        JField(IdKey, toJSON(h.id)) ::
-          JField(XKey, toJSON(h.x)) ::
-          JField(YKey, toJSON(h.y)) :: 
-          JField(ZKey, toJSON(h.z)) :: 
+      JObject(       
+          JField(DomainKey, toJSON(h.domain)) ::
+          JField(PortKey, toJSON(h.port)) :: 
+          JField(UserNameKey, toJSON(h.username)) :: 
+          JField(PasswordKey, toJSON(h.password)) ::        
+          JField(VersionKey, toJSON(h.version)) ::
+          JField(SourceKey, toJSON(h.source)) ::
+           JField(DesignInputsKey, toJSON(h.design_inputs)(DesignInputsWriter)) ::
+          JField(ServiceInputsKey, toJSON(h.service_inputs)(ServiceInputsWriter)) ::
            Nil)
     }
   }
 
   override implicit val reader = new JSONR[ComponentInputs] {
 
-    override def read(json: JValue): Result[ComponentInputs] = {
-      val idField = field[String](IdKey)(json)
-      val xField = field[String](XKey)(json)    
-      val yField = field[String](YKey)(json)
-      val zField = field[String](ZKey)(json)
+    import DesignInputsSerialization.{ reader => DesignInputsReader }
+     import ServiceInputsSerialization.{ reader => ServiceInputsReader }
+    
+    override def read(json: JValue): Result[ComponentInputs] = {   
+      val domainField = field[String](DomainKey)(json)    
+      val portField = field[String](PortKey)(json)
+      val usernameField = field[String](UserNameKey)(json)
+      val passwordField = field[String](PasswordKey)(json)   
+      val versionField = field[String](VersionKey)(json)
+      val sourceField = field[String](SourceKey)(json)
+      val designinputsField = field[DesignInputs](DesignInputsKey)(json)(DesignInputsReader)
+      val serviceinputsField = field[ServiceInputs](ServiceInputsKey)(json)(ServiceInputsReader)
       
-      (idField |@| xField |@| yField |@| zField) {
-        (id: String, x: String, y: String, z: String) =>
-          new ComponentInputs(id, x, y, z)
+      (domainField |@| portField |@| usernameField |@| passwordField |@| versionField |@| sourceField |@| designinputsField |@| serviceinputsField) { 
+        (domain: String, port: String, username: String, password: String, version: String, source: String, design_inputs: DesignInputs, service_inputs: ServiceInputs) =>
+          new ComponentInputs(domain, port, username, password, version, source, design_inputs, service_inputs)
       }
     }
   }

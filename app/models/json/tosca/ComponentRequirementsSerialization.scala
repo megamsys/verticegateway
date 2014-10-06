@@ -33,16 +33,18 @@ import models.tosca.{ ComponentRequirements }
  * @author rajthilak
  *
  */
-/*
+
 object ComponentRequirementsSerialization extends SerializationBase[ComponentRequirements] {
 
   protected val HostKey = "host"
+  protected val DummyKey = "dummy"
 
   override implicit val writer = new JSONW[ComponentRequirements] {
 
     override def write(h: ComponentRequirements): JValue = {
       JObject(
-        JField(HostKey, toJSON(h.host)) ::        
+        JField(HostKey, toJSON(h.host)) ::     
+        JField(DummyKey, toJSON(h.dummy)) :: 
            Nil)
     }
   }
@@ -51,12 +53,12 @@ object ComponentRequirementsSerialization extends SerializationBase[ComponentReq
 
     override def read(json: JValue): Result[ComponentRequirements] = {
       val hostField = field[String](HostKey)(json)
+      val dummyField = field[String](DummyKey)(json)
       
-      (hostField) {
-        (host: String) =>
-          new ComponentRequirements(host)
+      (hostField |@| dummyField) {
+        (host: String, dummy: String) =>
+          new ComponentRequirements(host, dummy)
       }
     }
   }
 }
-*/

@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package models.json
+package models.json.tosca
 
 import scalaz._
 import scalaz.NonEmptyList._
@@ -21,42 +21,41 @@ import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import controllers.funnel.SerializationBase
-import models._
+import models.tosca._
 
 /**
  * @author ram
  *
  */
-object AppRequestResultsSerialization extends SerializationBase[AppRequestResults] {
+object AssembliesListsSerialization extends SerializationBase[AssembliesLists] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[AppRequestResults] {
-    override def write(h: AppRequestResults): JValue = {
+  implicit override val writer = new JSONW[AssembliesLists] {
+    override def write(h: AssembliesLists): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[AppRequestResult] =>
-          (nrOpt.map { nr: AppRequestResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[AssemblyResult] =>         
+            (nrOpt.map { nr: AssemblyResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey, JString("Megam::AppRequestCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 
-  
-  implicit override val reader = new JSONR[AppRequestResults] {
-    override def read(json: JValue): Result[AppRequestResults] = {
+ 
+  implicit override val reader = new JSONR[AssembliesLists] {
+    override def read(json: JValue): Result[AssembliesLists] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            AppRequestResult.fromJValue(jValue) match {
+            AssemblyResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[AppRequestResult]()
+              case Failure(fail) => List[AssemblyResult]()
             }
-          } map { x: AppRequestResult => x.some }
-          //this is screwy. Making the RequestResults as Option[NonEmptylist[RequestResult]] will solve it.
-          val nrs: AppRequestResults = list.toNel.getOrElse(nels(none))
+          } map { x: AssemblyResult => x.some }
+          val nrs: AssembliesLists = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AppRequestResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssembliesLists]
       }
     }
   }

@@ -42,7 +42,7 @@ class DomainsSpec extends Specification {
       DomainsSpec is the implementation that calls the megam_play API server with the /Domains url to create Domains
     """ ^ end ^
   "The Client Should" ^
-  //"Correctly do POST requests with a valid domains name" ! Post.succeeds ^
+  "Correctly do POST requests with a valid domains name" ! Post.succeeds ^
   //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
   //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
   //"Correctly do GET requests with a valid domains name" ! Get.succeeds ^
@@ -54,7 +54,7 @@ case object Post extends Context {
   protected override def urlSuffix: String = "domains/content"
 
   protected override def bodyToStick: Option[String] = {
-    val contentToEncode = "{\"name\":\"megam.org\" }"
+    val contentToEncode = "{\"name\":\"megam.co\" }"
     Some(new String(contentToEncode))
   }
   protected override def headersOpt: Option[Map[String, String]] = None

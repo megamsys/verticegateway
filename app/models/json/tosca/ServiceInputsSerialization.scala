@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package models.json
+package models.json.tosca
 
 import scalaz._
 import scalaz.NonEmptyList._
@@ -27,32 +27,38 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ NodeCloudToolService, NodeCloudToolChef }
+import models.tosca.{ ServiceInputs }
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
-object NodeCloudToolServiceSerialization extends SerializationBase[NodeCloudToolService] {
-  protected val ChefKey = "chef"
 
-  override implicit val writer = new JSONW[NodeCloudToolService] {
+object ServiceInputsSerialization extends SerializationBase[ServiceInputs] {
 
-    import NodeCloudToolChefSerialization.{ writer => NodeCloudToolChefWriter }
+  protected val DBNameKey = "dbname"
+  protected val DBPasswordKey = "dbpassword" 
 
-    override def write(h: NodeCloudToolService): JValue = {
-      JObject(
-        JField(ChefKey, toJSON(h.chef)(NodeCloudToolChefWriter)) :: Nil)
+  override implicit val writer = new JSONW[ServiceInputs] {
+
+    override def write(h: ServiceInputs): JValue = {
+      JObject(    
+          JField(DBNameKey, toJSON(h.dbname)) ::
+          JField(DBPasswordKey, toJSON(h.dbpassword)) ::         
+           Nil)
     }
   }
 
-  override implicit val reader = new JSONR[NodeCloudToolService] {
+  override implicit val reader = new JSONR[ServiceInputs] {
 
-    import NodeCloudToolChefSerialization.{ reader => NodeCloudToolChefReader }
-
-    override def read(json: JValue): Result[NodeCloudToolService] = {
-      val chefValSF = field[NodeCloudToolChef](ChefKey)(json)(NodeCloudToolChefReader)
-      chefValSF map {chefVal => new NodeCloudToolService(chefVal) }
+    override def read(json: JValue): Result[ServiceInputs] = {  
+      val dbnameField = field[String](DBNameKey)(json)    
+      val dbpasswordField = field[String](DBPasswordKey)(json) 
+      
+      (dbnameField |@| dbpasswordField ) { 
+        (dbname: String, dbpassword: String) =>
+          new ServiceInputs(dbname, dbpassword)
+      }
     }
   }
 }

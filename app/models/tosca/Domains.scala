@@ -144,6 +144,7 @@ object Domains {
     }
   }
   
+
   def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Domains", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("domainsList", domainsList))
@@ -174,7 +175,6 @@ object Domains {
       _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
   }
-  
   
   
 }
