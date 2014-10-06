@@ -17,10 +17,10 @@ package controllers
 
 import java.nio.charset.Charset
 import play.api.Logger
-import scala.util.{Try}
+import scala.util.{ Try }
 import play.api.http.HeaderNames._
 import controllers.stack.HeaderConstants._
-
+import java.io._
 
 /**
  * @author ram
@@ -33,11 +33,11 @@ object Constants {
 
   val UTF8Charset = Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
-  
-  lazy val WithGzipHeader: Map[String,String] = Map(CONTENT_TYPE -> application_gzip)
-  
-  lazy val WithGzipHoleHeader: Map[String,String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
-  
+
+  lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
+
+  lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
+
   /**
    * The MEGAM_HOME variable is setup during the installation of megamgateway in MEGAM_HOME/.megam_auth
    */
@@ -45,7 +45,7 @@ object Constants {
 
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
-    
+
   val DEFAULT_ORG_NAME = "Default_Org"
   val DEFAULT_DOMAIN_NAME = "defaultdomain.co"
 
@@ -70,7 +70,11 @@ object Constants {
   val DEMO_APIKEY = "fakemypaas#megam"
 
   val DELETE_REQUEST = "DELETE"
+
+  val MEGAM_PRIMED = (for {home <- MEGAM_HOME} 
+  yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
     
   
+ 
 
 }

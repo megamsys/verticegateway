@@ -67,7 +67,7 @@ object PlatformAppPrimer {
     sada <- sandboxAcct
     dummy <- sandboxDummyAcct
   } yield {
-    
+    println("------------------------------------------------------------------------->")
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Account created successfully(%s, %s).
             |
