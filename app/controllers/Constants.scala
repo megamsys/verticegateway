@@ -61,22 +61,20 @@ object Constants {
   } yield {
     val res1 = res.split(":").take(2)
     MegamAdmin(res1(0), res1(1), MEGAM_ADMIN_AUTHORITY)
-  }).getOrElse(MegamAdmin("megamfinal@mypaas.io", "IamAtlas{74}NobodyCanSeeME#07", MEGAM_ADMIN_AUTHORITY))
+  }).getOrElse(MegamAdmin("megam@mypaas.io", "IamAtlas{74}NobodyCanSeeME#07", MEGAM_ADMIN_AUTHORITY))
 
   val MEGAM_ADMIN_EMAIL = adminAuth.email
   val MEGAM_ADMIN_APIKEY = adminAuth.api_key
 
-  val DEMO_EMAIL = "fakefinal@mypaas.io"
+  val DEMO_EMAIL = "fake@mypaas.io"
   val DEMO_APIKEY = "fakemypaas#megam"
 
   val DELETE_REQUEST = "DELETE"
 
-  //var DName: String = "~/var/lib/megam/"
-      
-  val dir: File = new File(MEGAM_HOME)
-  dir.mkdir();
-
-  var FileName: String = ".megam_primed"
-  val FileObj: File = new File(FileName)
+  val MEGAM_PRIMED = (for {home <- MEGAM_HOME} 
+  yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
+    
+  
+ 
 
 }

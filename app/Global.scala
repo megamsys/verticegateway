@@ -28,7 +28,6 @@ import controllers.stack.HeaderConstants._
 import scala.concurrent.Future
 import controllers._
 import java.io._
-import Constants._
 
 /**
  * We do bunch of things in Global, a gzip response is sent back to the client when the
@@ -46,17 +45,11 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
   override def onStart(app: Application) {
     play.api.Logger.info("megamgateway - started---------------------------------------------------------")
   
- /* 
-   var DName: String = "~/var/lib/megam/"
-   val dir: File = new File(DName);
-   dir.mkdir();
-  
-    
-  var FileName: String =  DName + File.separator +  ".megam_primed" 
-    val FileObj: File = new File(FileName)	
-    */
-    
-    FileObj.exists() match {
+ 
+     val megamprimedfile = new File(Constants.MEGAM_PRIMED)
+    megamprimedfile.mkdirs()
+   
+    megamprimedfile.exists() match {
       case true => play.api.Logger.info("ALREADY INITIALIZED")
       case false =>  play.api.Logger.info("DEFAULT INITIALIZATION ARE DONE")
                       models.PlatformAppPrimer.acc_prep
@@ -64,31 +57,8 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
                       models.PlatformAppPrimer.mkp_prep
                       models.PlatformAppPrimer.org_prep
                       models.PlatformAppPrimer.dmn_prep
-                      FileObj.createNewFile();
+                      megamprimedfile.createNewFile();
     }
-    
-    
-   /* if (FileObj.exists())
-    {
-      play.api.Logger.info("DEFAULT SETTING ARE INITIALIZED ALREADY")
-    }
-    else
-    {
-      play.api.Logger.info("INITIALIZATION ARE DONE")
-    FileObj.createNewFile();
-    models.PlatformAppPrimer.acc_prep
-    models.PlatformAppPrimer.cts_prep
-    models.PlatformAppPrimer.mkp_prep
-    models.PlatformAppPrimer.org_prep
-    models.PlatformAppPrimer.dmn_prep
-    
-    
-    }
-    */
-    
-    
-    play.api.Logger.info("-------------------------------------------------------------------------------")
-
    }
 
   override def onStop(app: Application) {
