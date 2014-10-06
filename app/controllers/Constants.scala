@@ -17,10 +17,10 @@ package controllers
 
 import java.nio.charset.Charset
 import play.api.Logger
-import scala.util.{Try}
+import scala.util.{ Try }
 import play.api.http.HeaderNames._
 import controllers.stack.HeaderConstants._
-
+import java.io._
 
 /**
  * @author ram
@@ -33,11 +33,11 @@ object Constants {
 
   val UTF8Charset = Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
-  
-  lazy val WithGzipHeader: Map[String,String] = Map(CONTENT_TYPE -> application_gzip)
-  
-  lazy val WithGzipHoleHeader: Map[String,String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
-  
+
+  lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
+
+  lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
+
   /**
    * The MEGAM_HOME variable is setup during the installation of megamgateway in MEGAM_HOME/.megam_auth
    */
@@ -45,7 +45,7 @@ object Constants {
 
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
-    
+
   val DEFAULT_ORG_NAME = "Default_Org"
   val DEFAULT_DOMAIN_NAME = "defaultdomain.co"
 
@@ -61,16 +61,22 @@ object Constants {
   } yield {
     val res1 = res.split(":").take(2)
     MegamAdmin(res1(0), res1(1), MEGAM_ADMIN_AUTHORITY)
-  }).getOrElse(MegamAdmin("megam@mypaas.io", "IamAtlas{74}NobodyCanSeeME#07", MEGAM_ADMIN_AUTHORITY))
+  }).getOrElse(MegamAdmin("megamfinal@mypaas.io", "IamAtlas{74}NobodyCanSeeME#07", MEGAM_ADMIN_AUTHORITY))
 
   val MEGAM_ADMIN_EMAIL = adminAuth.email
   val MEGAM_ADMIN_APIKEY = adminAuth.api_key
 
-  val DEMO_EMAIL = "fakeh@mypaas.io"
+  val DEMO_EMAIL = "fakefinal@mypaas.io"
   val DEMO_APIKEY = "fakemypaas#megam"
 
   val DELETE_REQUEST = "DELETE"
-    
-  
+
+  //var DName: String = "~/var/lib/megam/"
+      
+  val dir: File = new File(MEGAM_HOME)
+  dir.mkdir();
+
+  var FileName: String = ".megam_primed"
+  val FileObj: File = new File(FileName)
 
 }
