@@ -92,14 +92,15 @@ object PlatformAppPrimer {
       }
 
   //populate the default cloud tool settings  
-  def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip", "cloudrecipes/megam@mypaas.io/default_chef/chef-repo/.chef/knife.rb").json
-
+ // def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip", "cloudrecipes/megam@mypaas.io/default_chef/chef-repo/.chef/knife.rb").json
+ def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "/var/lib/megam/default_chef/", "/var/lib/megam/default_chef/chef-repo/.chef/knife.rb").json
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
   def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
     cts <- clone_cloudtoolsettings(MEGAM_ADMIN_EMAIL)
     ctds <- clone_cloudtoolsettings(DEMO_EMAIL)
-    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/" + MEGAM_ADMIN_EMAIL + "/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
+    //pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/" + MEGAM_ADMIN_EMAIL + "/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
+    pub <- CloudToolPublish("/var/lib/megam/default_chef", "https://github.com/indykish/chef-repo.git").dop
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """CloudToolSettings created successfully(%s,%s).

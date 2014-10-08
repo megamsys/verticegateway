@@ -38,9 +38,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val IdKey = "id"
   protected val NameKey = "name"
   protected val AppDetailsKey = "appdetails"  
-  protected val FeaturesKey = "features" 
   protected val PlanKey = "plans"
-  protected val AppLinksKey = "applinks"
   protected val AttachKey = "attach"
   protected val PredefNodeKey = "predefnode"
   protected val ApprovedKey = "approved"    
@@ -49,9 +47,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   override implicit val writer = new JSONW[MarketPlaceResult] {
     import MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
     import MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
-    import MarketPlaceFeaturesSerialization.{ writer => MarketPlaceFeaturesWriter }
     import MarketPlaceAppDetailsSerialization.{ writer => MarketPlaceAppDetailsWriter }
-    import MarketPlaceAppLinksSerialization.{ writer => MarketPlaceAppLinksWriter }
 
     override def write(h: MarketPlaceResult): JValue = {
       JObject(
@@ -59,9 +55,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
           JField(NameKey, toJSON(h.name)) ::
           JField(AppDetailsKey, toJSON(h.appdetails)(MarketPlaceAppDetailsWriter)) ::
           JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::          
-          JField(FeaturesKey, toJSON(h.features)(MarketPlaceFeaturesWriter)) ::          
           JField(PlanKey, toJSON(h.plans)(MarketPlacePlansWriter)) ::
-          JField(AppLinksKey, toJSON(h.applinks)(MarketPlaceAppLinksWriter)) ::
           JField(AttachKey, toJSON(h.attach)) ::
           JField(PredefNodeKey, toJSON(h.predefnode)) ::
           JField(ApprovedKey, toJSON(h.approved)) ::
@@ -73,25 +67,21 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   override implicit val reader = new JSONR[MarketPlaceResult] {
      import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
     import MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
-    import MarketPlaceFeaturesSerialization.{ reader => MarketPlaceFeaturesReader }
     import MarketPlaceAppDetailsSerialization.{ reader => MarketPlaceAppDetailsReader }
-    import MarketPlaceAppLinksSerialization.{ reader => MarketPlaceAppLinksReader }
 
     override def read(json: JValue): Result[MarketPlaceResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
       val appdetailsField = field[MarketPlaceAppDetails](AppDetailsKey)(json)(MarketPlaceAppDetailsReader)      
-      val featuresField = field[MarketPlaceFeatures](FeaturesKey)(json)(MarketPlaceFeaturesReader)      
       val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
-      val applinksField = field[MarketPlaceAppLinks](AppLinksKey)(json)(MarketPlaceAppLinksReader)
       val attachField = field[String](AttachKey)(json)
       val predefnodeField = field[String](PredefNodeKey)(json)
       val approvedField = field[String](ApprovedKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| appdetailsField |@| featuresField |@| planField |@| applinksField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
-        (id: String, name: String, appdetails: MarketPlaceAppDetails, features: MarketPlaceFeatures, plan: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) =>
-          new MarketPlaceResult(id, name, appdetails, features, plan, applinks, attach, predefnode, approved, created_at)
+      (idField |@| nameField |@| appdetailsField |@| planField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
+        (id: String, name: String, appdetails: MarketPlaceAppDetails, plan: MarketPlacePlans, attach: String, predefnode: String, approved: String, created_at: String) =>
+          new MarketPlaceResult(id, name, appdetails, plan, attach, predefnode, approved, created_at)
       }
     }
   }

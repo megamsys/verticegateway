@@ -56,7 +56,7 @@ class AssembliesSpec extends Specification {
     "\"name\":\"component_java\"," +
     "\"tosca_type\":\"tosca.web.java\"," +
     "\"requirements\":{" +
-       "\"host\":\"cloud_setting_name\"," +
+       "\"host\":\"google517278021527273472\"," +
        "\"dummy\":\"\"" +
     "}," +   
     "\"inputs\":{" +      
@@ -93,7 +93,7 @@ class AssembliesSpec extends Specification {
     "\"name\":\"component_play\"," +
     "\"tosca_type\":\"tosca.web.play\"," +
     "\"requirements\":{" +
-      "\"host\":\"cloud_setting_name\"," +
+      "\"host\":\"google517278021527273472\"," +
        "\"dummy\":\"\"" +
     "}," +  
     "\"inputs\":{" +
@@ -136,7 +136,7 @@ class AssembliesSpec extends Specification {
     "\"name\":\"component_ruby\"," +
     "\"tosca_type\":\"tosca.web.ruby\"," +
     "\"requirements\":{" +
-    "\"host\":\"cloud_setting_name\"," +
+    "\"host\":\"ec2517276647657832448\"," +
        "\"dummy\":\"\"" +
     "}," +  
     "\"inputs\":{" +
