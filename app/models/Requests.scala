@@ -45,7 +45,7 @@ import java.nio.charset.Charset
  * This would actually be a link to the Nodes bucket. which would allow us to use link-walking
  */
 case class RequestInputNewNode(node_id: String, node_name: String, req_type: String) {
-  val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"req_type\":\"" + req_type 
+  val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"req_type\":\"" + req_type + "\""
 }
 
 case class RequestInputExistNode(node_name: String, req_type: String) {
