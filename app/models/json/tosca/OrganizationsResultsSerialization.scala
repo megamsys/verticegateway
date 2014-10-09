@@ -41,7 +41,7 @@ object OrganizationsResultsSerialization extends SerializationBase[Organizations
           (nrOpt.map { nr: OrganizationsResult => nr.toJValue }).getOrElse(JNothing)
       }
 
-      JObject(JField(JSONClazKey, JString("Megam::OrganizationsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::Organizations")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 

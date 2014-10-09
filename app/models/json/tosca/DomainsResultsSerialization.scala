@@ -42,7 +42,7 @@ object DomainsResultsSerialization extends SerializationBase[DomainsResults] {
           (nrOpt.map { nr: DomainsResult => nr.toJValue }).getOrElse(JNothing)
       }
 
-      JObject(JField(JSONClazKey, JString("Megam::DomainsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::Domains")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
