@@ -37,8 +37,8 @@ class AssembliesSpec extends Specification {
   AssembliesSpec is the implementation that calls the megam_play API server with the /assemblies url
   """ ^ end ^
       "The Client Should" ^     
-      "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds ^
-     // "Correctly do GET  requests with an valid Assemblies ID" ! findByIDApp.succeeds ^
+      //"Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do GET  requests with an valid Assemblies ID" ! findByIDApp.succeeds ^
   end
 
   /**
@@ -50,155 +50,184 @@ class AssembliesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
     //  val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
-     val contentToEncode = "{\"name\":\"Sheet 2\", \"assemblies\":[{ " + 
-  " \"name\":\"app_java\"," +
-  "\"components\":[{" +
-    "\"name\":\"component_java\"," +
-    "\"tosca_type\":\"tosca.web.java\"," +
-    "\"requirements\":{" +
-       "\"host\":\"google517278021527273472\"," +
-       "\"dummy\":\"\"" +
-    "}," +   
-    "\"inputs\":{" +      
-      "\"domain\":\"megam.co\"," +
-      "\"port\":\"\"," +
-      "\"username\":\"\"," +
-      "\"password\":\"\"," +      
-      "\"version\":\"\"," +
-      "\"source\":\"\"," +
-      "\"design_inputs\":{" +
-             "\"id\":\"8dc70ddc.7238f\"," +
-             "\"x\":\"385\"," +
-             "\"y\":\"103\"," +
-             "\"z\":\"9c8281e6.637d8\"," +
-             "\"wires\":[\"\", \"\"]" +
-          "}," +   
-      "\"service_inputs\":{" +
-             "\"dbname\":\"\"," +
-             "\"dbpassword\":\"\"" +
-          "}" +           
-    "}," +
-    "\"external_management_resource\":\"url\"," +
-    "\"artifacts\":{" +
-      "\"artifact_type\":\"tosca type\"," +
-      "\"content\":\"\"," +
-      "\"requirements\":\"requirement_type\"" +
-    "}," +
-    "\"related_components\":\"relatedcomponents\"," +
-    "\"operations\":{" +
-      "\"operation_type\":\"\"," +
-      "\"target_resource\":\"\"" +
-    "}" +
-  "},{" +
-    "\"name\":\"component_play\"," +
-    "\"tosca_type\":\"tosca.web.play\"," +
-    "\"requirements\":{" +
-      "\"host\":\"google517278021527273472\"," +
-       "\"dummy\":\"\"" +
-    "}," +  
-    "\"inputs\":{" +
-      "\"domain\":\"megam.co\"," +
-      "\"port\":\"\"," +
-      "\"username\":\"\"," +
-      "\"password\":\"\"," +      
-      "\"version\":\"\"," +
-      "\"source\":\"\"," +
-      "\"design_inputs\":{" +
-             "\"id\":\"bac8df1e.45372\"," +
-             "\"x\":\"385\"," +
-             "\"y\":\"217\"," +
-             "\"z\":\"9c8281e6.637d8\"," +
-             "\"wires\":[\"\", \"\"]" +
-          "}," +   
-      "\"service_inputs\":{" +
-             "\"dbname\":\"\"," +
-             "\"dbpassword\":\"\"" +
-          "}" +      
-    "}," +
-    "\"external_management_resource\":\"url\"," +
-    "\"artifacts\":{" +
-      "\"artifact_type\":\"tosca type\"," +
-      "\"content\":\"\"," +
-      "\"requirements\":\"requirement_type\"" +
-    "}," +
-    "\"related_components\":\"relatedcomponents\"," +
-    "\"operations\":{" +
-      "\"operation_type\":\"\"," +
-      "\"target_resource\":\"\"" +
-    "}" +
-  "}]," +
-  "\"policies\":\"policies\"," +
-  "\"inputs\":\"\"," +
-  "\"operations\":\"\"" +
-"},{" +
-  "\"name\":\"app_ruby\"," +
-  "\"components\":[{" +
-    "\"name\":\"component_ruby\"," +
-    "\"tosca_type\":\"tosca.web.ruby\"," +
-    "\"requirements\":{" +
-    "\"host\":\"ec2517276647657832448\"," +
-       "\"dummy\":\"\"" +
-    "}," +  
-    "\"inputs\":{" +
-     "\"domain\":\"megam.co\"," +
-      "\"port\":\"\"," +
-      "\"username\":\"\"," +
-      "\"password\":\"\"," +      
-      "\"version\":\"\"," +
-      "\"source\":\"\"," +
-      "\"design_inputs\":{" +
-             "\"id\":\"57444c17.a8bbb4\"," +
-             "\"x\":\"216\"," +
-             "\"y\":\"162\"," +
-             "\"z\":\"9c8281e6.637d8\"," +
-             "\"wires\":[\"\", \"\"]" +
-          "}," +   
-      "\"service_inputs\":{" +
-             "\"dbname\":\"\"," +
-             "\"dbpassword\":\"\"" +
-          "}" +        
-    "}," +
-    "\"external_management_resource\":\"url\"," +
-    "\"artifacts\":{" +
-      "\"artifact_type\":\"tosca type\"," +
-      "\"content\":\"\"," +
-      "\"requirements\":\"requirement_type\"" +
-    "}," +
-    "\"related_components\":\"relatedcomponents\"," +
-    "\"operations\":{" +
-      "\"operation_type\":\"\"," +
-      "\"target_resource\":\"\"" +
-    "}" +
-  "}]," +
-  "\"policies\":\"policies\"," +
-  "\"inputs\":\"\"," +
-  "\"operations\":\"\"" +
-"}],\"inputs\":{\"id\": \"9c8281e6.637d8\", \"assemblies_type\":\"tab\",\"label\" : \"Sheet 2\", \"cloudsettings\":[ "+
- "{ "+
-"\"id\":\"f07af88d.0f8508\", "+
-"\"cstype\":\"cloudsettings\", "+
-"\"cloudsettings\":\"clouddefault510348255477891072\", "+
-"\"x\":255, "+
-"\"y\":347, "+
-"\"z\":\"962485d7.69db78\", "+
-"\"wires\":[ "+
-"\"c363c3a9.3c9c4\", "+
-"\"bca0b279.435f5\", "+
-"\"fdf59de8.020a6\" "+
-"]"+
-"}, "+
-"{ "+
-"\"id\":\"1e168d54.e1e973\", "+
-"\"cstype\":\"cloudsettings\", "+
-"\"cloudsettings\":\"clouddefault510348255477891072\", "+
-"\"x\":256, "+
-"\"y\":519, "+
-"\"z\":\"962485d7.69db78\", "+
-"\"wires\":[ "+
-"\"85e6a00a.7a196\""+
-"]"+
-"}] "+
-"}}" 
+      val contentToEncode = "{ \"name\":\"Sheet 1\", " +
+"\"assemblies\":[ " +
+"{ " +
+"\"name\":\"PaulineHarper\"," +
+"\"components\":[" +
+"{" +
+"\"name\":\"GussieMathis\"," +
+"\"tosca_type\":\"tosca.web.riak\"," +
+"\"requirements\":{" +
+"\"host\":\"aws516887611449540608\"," +
+"\"dummy\":\"\"" +
+"}," +
+"\"inputs\":{" +
+"\"domain\":\"megam.co\"," +
+"\"port\":\"\"," +
+"\"username\":\"\"," +
+"\"password\":\"\"," +
+"\"version\":\"2.0.0\"," +
+"\"source\":\"\"," +
+"\"design_inputs\":{" +
+"\"id\":\"46fc26f2.b903d8\"," +
+"\"x\":645," +
+"\"y\":184," +
+"\"z\":\"adae6e10.52519\"," +
+"\"wires\":[" +
+"\"e0e3651f.1f1c98\"" +
+"]" +
+"}," +
+"\"service_inputs\":{" +
+"\"dbname\":\"\"," +
+"\"dbpassword\":\"\"" +
+"}" +
+"}," +
+"\"external_management_resource\":\"\"," +
+"\"artifacts\":{" +
+"\"artifact_type\":\"tosca type\"," +
+"\"content\":\"\"," +
+"\"requirements\":\"\"" +
+"}," +
+"\"related_components\":\"VernonDennis.megam.co/MasonHernandez\"," +
+"\"operations\":{" +
+"\"operation_type\":\"\"," +
+"\"target_resource\":\"\"" +
+"}" +
+"}" +
+"]," +
+"\"policies\":[" +
+"{" +
+"\"name\":\"bind policy\"," +
+"\"ptype\":\"colocated\"," +
+"\"members\":[" +
+"\"46fc26f2.b903d8\"" +
+"]" +
+"}" +
+"]," +
+"\"inputs\":\"\"," +
+"\"operations\":\"\"" +
+"}," +
+"{" +
+"\"name\":\"VernonDennis\"," +
+"\"components\":[" +
+"{" +
+"\"name\":\"AddieOrtega\"," +
+"\"tosca_type\":\"tosca.web.java\"," +
+"\"requirements\":{" +
+"\"host\":\"aws516887611449540608\"," +
+"\"dummy\":\"\"" +
+"}," +
+"\"inputs\":{" +
+"\"domain\":\"megam.co\"," +
+"\"port\":\"\"," +
+"\"username\":\"\"," +
+"\"password\":\"\"," +
+"\"version\":\"\"," +
+"\"source\":\"dfhfgjh\"," +
+"\"design_inputs\":{" +
+"\"id\":\"e0e3651f.1f1c98\"," +
+"\"x\":428," +
+"\"y\":134," +
+"\"z\":\"adae6e10.52519\"," +
+"\"wires\":[" +
+"\"46fc26f2.b903d8\"" +
+"]" +
+"}," +
+"\"service_inputs\":{" +
+"\"dbname\":\"\"," +
+"\"dbpassword\":\"\"" +
+"}" +
+"}," +
+"\"external_management_resource\":\"\"," +
+"\"artifacts\":{" +
+"\"artifact_type\":\"tosca type\"," +
+"\"content\":\"\"," +
+"\"requirements\":\"\"" +
+"}," +
+"\"related_components\":\"PaulineHarper.megam.co/GussieMathis\"," +
+"\"operations\":{" +
+"\"operation_type\":\"\"," +
+"\"target_resource\":\"\"" +
+"}" +
+"}," +
+"{" +
+"\"name\":\"MasonHernandez\"," +
+"\"tosca_type\":\"tosca.web.akka\"," +
+"\"requirements\":{" +
+"\"host\":\"aws516887611449540608\"," +
+"\"dummy\":\"\"" +
+"}," +
+"\"inputs\":{" +
+"\"domain\":\"megam.co\"," +
+"\"port\":\"\"," +
+"\"username\":\"\"," +
+"\"password\":\"\"," +
+"\"version\":\"\"," +
+"\"source\":\"dfghfh\"," +
+"\"design_inputs\":{" +
+"\"id\":\"3ecdffaf.c132\"," +
+"\"x\":450," +
+"\"y\":297," +
+"\"z\":\"adae6e10.52519\"," +
+"\"wires\":[" +
+"\"46fc26f2.b903d8\"" +
+"]" +
+"}," +
+"\"service_inputs\":{" +
+"\"dbname\":\"\"," +
+"\"dbpassword\":\"\"" +
+"}" +
+"}," +
+"\"external_management_resource\":\"\"," +
+"\"artifacts\":{" +
+"\"artifact_type\":\"tosca type\"," +
+"\"content\":\"\"," +
+"\"requirements\":\"\"" +
+"}," +
+"\"related_components\":\"PaulineHarper.megam.co/GussieMathis\"," +
+"\"operations\":{" +
+"\"operation_type\":\"\"," +
+"\"target_resource\":\"\"" +
+"}" +
+"}" +
+"]," +
+"\"policies\":[" +
+"{" +
+"\"name\":\"bind policy\"," +
+"\"ptype\":\"colocated\"," +
+"\"members\":[" +
+"\"e0e3651f.1f1c98\"," +
+"\"3ecdffaf.c132\"" +
+"]" +
+"}" +
+"]," +
+"\"inputs\":\"\"," +
+"\"operations\":\"\"" +
+"}" +
+"]," +
+"\"inputs\":{" +
+"\"id\":\"adae6e10.52519\"," +
+"\"assemblies_type\":\"tab\"," +
+"\"label\":\"Sheet 1\"," +
+"\"cloudsettings\":[" +
+"{" +
+"\"id\":\"53ef867c.ac1078\"," +
+"\"cstype\":\"cloudsettings\"," +
+"\"cloudsettings\":\"aws516887611449540608\"," +
+"\"x\":186," +
+"\"y\":215," +
+"\"z\":\"adae6e10.52519\"," +
+"\"wires\":[" +
+"\"e0e3651f.1f1c98\"," +
+"\"3ecdffaf.c132\"," +
+"\"46fc26f2.b903d8\"" +
+"]" +
+"}" +
+"]" +
+"}" +
+"}"
+      
  
        Some(new String(contentToEncode))
     }
@@ -215,7 +244,7 @@ class AssembliesSpec extends Specification {
   }
   
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "assemblies/AMS508915982803140608"
+    protected override def urlSuffix: String = "assemblies/AMS520198742872162304"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

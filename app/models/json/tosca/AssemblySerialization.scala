@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Assembly, ComponentsList }
+import models.tosca.{ Assembly, ComponentsList, PoliciesList }
 
 /**
  * @author rajthilak
@@ -45,14 +45,14 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
   override implicit val writer = new JSONW[Assembly] {
     
  import ComponentsListSerialization.{ writer => ComponentsListWriter }
+ import PoliciesListSerialization.{ writer => PoliciesListWriter }
  
     override def write(h: Assembly): JValue = {
       JObject(
    //     JField(JSONClazKey, toJSON("Megam::Assembly")) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(ComponentsKey, toJSON(h.components)(ComponentsListWriter)) ::
-         // JField(ComponentsKey, toJSON(h.components)) ::
-          JField(PoliciesKey, toJSON(h.policies)) ::
+          JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
           JField(InputsKey, toJSON(h.inputs)) ::
           JField(OperationsKey, toJSON(h.operations)) :: Nil)
     }
@@ -61,18 +61,17 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
   override implicit val reader = new JSONR[Assembly] {
     
      import ComponentsListSerialization.{ reader => ComponentsListReader }
+     import PoliciesListSerialization.{reader => PoliciesListReader }
 
     override def read(json: JValue): Result[Assembly] = {
       val nameField = field[String](NameKey)(json)
       val componentsField = field[ComponentsList](ComponentsKey)(json)(ComponentsListReader)
-    //  val componentsField = field[String](ComponentsKey)(json)
-      val policiesField = field[String](PoliciesKey)(json)
+      val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
 
       (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField) {
-        //(name: String, components: Components, policies: String, inputs: String, operations: String) =>
-          (name: String, components: ComponentsList, policies: String, inputs: String, operations: String) =>
+          (name: String, components: ComponentsList, policies: PoliciesList, inputs: String, operations: String) =>
           new Assembly(name, components, policies, inputs, operations)
       }
     }

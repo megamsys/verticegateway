@@ -47,7 +47,7 @@ import java.nio.charset.Charset
  *
  */
 
-case class AssemblyResult(id: String, name: String, components: models.tosca.ComponentLinks, policies: String, inputs: String, operations: String, created_at: String) {
+case class AssemblyResult(id: String, name: String, components: models.tosca.ComponentLinks, policies: models.tosca.PoliciesList, inputs: String, operations: String, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.AssemblyResultSerialization
@@ -79,9 +79,44 @@ object AssemblyResult {
 
 }
 
-case class Assembly(name: String, components: models.tosca.ComponentsList, policies: String, inputs: String, operations: String) {
-  val json = "{\"name\":\"" + name + "\",\"components\":" + ComponentsList.toJson(components, true) + ",\"policies\":\"" + policies +
-    "\",\"inputs\":\"" + inputs + "\",\"operations\":\"" + operations + "\"}"
+case class Policy(name: String, ptype: String, members: models.tosca.MembersList) {
+  val json = "{\"name\":\"" + name + "\",\"ptype\":\"" + ptype + "\",\"members\":" + MembersList.toJson(members, true) + "}"
+  
+   def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    val preser = new models.json.tosca.PolicySerialization()
+    toJSON(this)(preser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+  
+}
+
+object Policy {
+  def empty: Policy = new Policy(new String(), new String(), MembersList.empty)
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Policy] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    val preser = new models.json.tosca.PolicySerialization()
+    fromJSON(jValue)(preser.reader)   
+  }
+
+  def fromJson(json: String): Result[Policy] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+    play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+
+}
+
+case class Assembly(name: String, components: models.tosca.ComponentsList, policies: models.tosca.PoliciesList, inputs: String, operations: String) {
+  val json = "{\"name\":\"" + name + "\",\"components\":" + ComponentsList.toJson(components, true) + ",\"policies\":" + PoliciesList.toJson(policies, true) +
+    ",\"inputs\":\"" + inputs + "\",\"operations\":\"" + operations + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -104,7 +139,7 @@ object Assembly {
   val metadataVal = "Assembly Creation"
   val bindex = "assembly"
 
-  def empty: Assembly = new Assembly(new String(), ComponentsList.empty, new String(), new String, new String())
+  def empty: Assembly = new Assembly(new String(), ComponentsList.empty, PoliciesList.empty, new String, new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Assembly] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
