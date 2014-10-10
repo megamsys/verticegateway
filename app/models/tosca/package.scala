@@ -350,4 +350,62 @@ package object tosca {
 
   }
   
+  type PoliciesList = List[Policy]
+
+  object PoliciesList {
+    val emptyRR = List(Policy.empty)
+    def toJValue(nres: PoliciesList): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.PoliciesListSerialization.{ writer => PoliciesListWriter }
+      toJSON(nres)(PoliciesListWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PoliciesList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.PoliciesListSerialization.{ reader => PoliciesListReader }
+      fromJSON(jValue)(PoliciesListReader)
+    }
+
+    def toJson(nres: PoliciesList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+    
+    def apply(plansList: List[Policy]): PoliciesList = plansList
+
+    def empty: List[Policy] = emptyRR
+
+  }
+  
+  type MembersList = List[String]
+  
+  object MembersList {
+    val emptyRR = List("")
+    def toJValue(nres: MembersList): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.MembersListSerialization.{ writer => MembersListWriter }
+      toJSON(nres)(MembersListWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MembersList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.MembersListSerialization.{ reader => MembersListReader }
+      fromJSON(jValue)(MembersListReader)
+    }
+
+    def toJson(nres: MembersList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(plansList: List[String]): MembersList = plansList
+
+    def empty: List[String] = emptyRR
+
+  }
+  
 }
