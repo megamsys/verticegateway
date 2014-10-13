@@ -49,7 +49,7 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
        
           JField(NameKey, toJSON(h.name)) ::
            JField(IdKey, toJSON(h.id)) ::
-           JField(IdKey, toJSON(h.accounts_id)) ::
+           JField(AccountIdKey, toJSON(h.accounts_id)) ::
            JField(CreatedAtKey, toJSON(h.created_at))   ::          
           Nil)
     }
