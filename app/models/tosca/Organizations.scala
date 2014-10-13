@@ -114,7 +114,7 @@ object Organizations {
       aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "org").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bvalue = Set(org.name)
+      val bvalue = Set(aor.get.id)
       val json = new OrganizationsResult(uir.get._1 + uir.get._2, aor.get.id, org.name, Time.now.toString).toJson(false)
       new GunnySack(org.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
