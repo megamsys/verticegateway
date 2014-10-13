@@ -54,7 +54,7 @@ class OrganizationsSpec extends Specification {
     protected override def urlSuffix: String = "organizations/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"name\":\"Megam\" }"
+      val contentToEncode = "{\"name\":\"Megam4\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
