@@ -46,10 +46,9 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
    
     override def write(h: OrganizationsResult): JValue = {
       JObject(
-       
-          JField(NameKey, toJSON(h.name)) ::
            JField(IdKey, toJSON(h.id)) ::
            JField(AccountIdKey, toJSON(h.accounts_id)) ::
+           JField(NameKey, toJSON(h.name)) ::        
            JField(CreatedAtKey, toJSON(h.created_at))   ::          
           Nil)
     }
