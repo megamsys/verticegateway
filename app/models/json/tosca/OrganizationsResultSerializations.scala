@@ -36,9 +36,10 @@ import models.tosca.{ OrganizationsResult }
 class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[OrganizationsResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   
-  protected val NameKey = "name"
       protected val IdKey = "id"
-     protected val CreatedAtKey ="created_at"
+      protected val AccountIdKey = "accounts_id"
+      protected val NameKey = "name"
+      protected val CreatedAtKey ="created_at"
  
 
   override implicit val writer = new JSONW[OrganizationsResult] {
@@ -48,6 +49,7 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
        
           JField(NameKey, toJSON(h.name)) ::
            JField(IdKey, toJSON(h.id)) ::
+           JField(AccountIdKey, toJSON(h.accounts_id)) ::
            JField(CreatedAtKey, toJSON(h.created_at))   ::          
           Nil)
     }
@@ -61,14 +63,15 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
     override def read(json: JValue): Result[OrganizationsResult] = {
       
        val idField = field[String](IdKey)(json)
+       val accountIdField = field[String](AccountIdKey)(json)
       val nameField = field[String](NameKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
       
 
-      (idField |@| nameField |@| createdAtField) {
-        (id: String, name: String, created_at: String) =>
-          new OrganizationsResult(id, name, created_at)
+      (idField |@|accountIdField |@| nameField |@| createdAtField) {
+        (id: String, accountId: String, name: String, created_at: String) =>
+          new OrganizationsResult(id, accountId, name, created_at)
       }
     }
   }

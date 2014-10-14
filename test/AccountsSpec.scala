@@ -48,6 +48,7 @@ class AccountsSpec extends Specification {
       //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
       //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
@@ -60,7 +61,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"email\":\"megam9@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

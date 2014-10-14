@@ -48,7 +48,7 @@ case class OrganizationsInput(name: String) {
   val json = "{\"name\":\"" + name + "\"}"
 }
 
-case class OrganizationsResult(id: String, name: String, created_at: String) {
+case class OrganizationsResult(id: String, accounts_id: String, name: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -111,10 +111,11 @@ object Organizations {
 
     for {
       org <- organizationsInput
+      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "org").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bvalue = Set(org.name)
-      val json = new OrganizationsResult(uir.get._1 + uir.get._2, org.name, Time.now.toString).toJson(false)
+      val bvalue = Set(aor.get.id)
+      val json = new OrganizationsResult(uir.get._1 + uir.get._2, aor.get.id, org.name, Time.now.toString).toJson(false)
       new GunnySack(org.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
