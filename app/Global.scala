@@ -39,16 +39,15 @@ import java.io._
 
 object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) => 
    response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
-  
-  
+    
 
   override def onStart(app: Application) {
     play.api.Logger.info("megamgateway - started---------------------------------------------------------")
-   
-    val megamprimeddir = new File(Constants.MEGAM_PRIMED_DIR)
+ 
+     val megamprimeddir = new File(Constants.MEGAM_PRIMED_DIR)
     megamprimeddir.mkdirs()
-
-    val megamprimedfile = new File(Constants.MEGAM_PRIMED_FILE)
+    
+   val megamprimedfile = new File(Constants.MEGAM_PRIMED_FILE)
 
     megamprimedfile.exists() match {
       case true => play.api.Logger.info("ALREADY INITIALIZED")

@@ -244,7 +244,7 @@ MarketPlacePlans(List(new MarketPlacePlan("0", "The World’s Most Scalable Dist
     "44-Op5" -> MarketPlaceInput("44-Op5", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/op5.png", "Monitor", "Take Control of your IT op5 helps you as an IT professional to get in control of IT stuff. From the basement server to the hybrid cloud, our open and flexible server monitoring solution delivers a unified view of your entire IT."), 
       MarketPlacePlans(List(new MarketPlacePlan("0", "op5 Monitor for your Enterprise", "Free", "6.2.1", "https://s3-ap-southeast-1.amazonaws.com/megampub/0.3/op5/op5-monitor-6.2.1.tar.gz", "CentOS 6.3"),
         new MarketPlacePlan("0", "op5 Monitor for your Enterprise", "Free", "6.3 Beta", "https://s3-ap-southeast-1.amazonaws.com/megampub/0.3/op5/op5-monitor-6.3.0-beta1-public_beta-20140311.tar.gz", "CentOS 6.3"))),
-      "false", "predefnode", "true")) */
+      "false", "predefnode", "true"))*/
 
   val toStream = toMap.keySet.toStream
 

@@ -77,6 +77,7 @@ object Constants {
  val MEGAM_PRIMED_FILE = (for {home <- MEGAM_HOME}
  yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
 
+
     
   
  
