@@ -46,9 +46,11 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
     play.api.Logger.info("megamgateway - started---------------------------------------------------------")
   
  
-     val megamprimedfile = new File(Constants.MEGAM_PRIMED)
-    megamprimedfile.mkdirs()
-   
+     val megamprimeddir = new File(Constants.MEGAM_PRIMED_DIR)
+    megamprimeddir.mkdirs()
+    
+   val megamprimedfile = new File(Constants.MEGAM_PRIMED_FILE)
+
     megamprimedfile.exists() match {
       case true => play.api.Logger.info("ALREADY INITIALIZED")
       case false =>  play.api.Logger.info("DEFAULT INITIALIZATION ARE DONE")
