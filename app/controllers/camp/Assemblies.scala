@@ -87,7 +87,7 @@ object Assemblies extends Controller with APIAuthElement {
                         Status(rn.code)(rn.toJson(true))
                       }
                     }
-                  case None => 
+                  case None =>
                     Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Assemblies initiation instruction submission failed.
             |
             |Retry again""", "Megam::Assemblies").toJson(true))
@@ -125,7 +125,7 @@ object Assemblies extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "request funneled."))
 
-          models.tosca.Assemblies.findByNodeName(List(id).some) match {
+          models.tosca.Assemblies.findById(List(id).some) match {
             case Success(succ) =>
               Ok(AssembliesResults.toJson(succ, true))
             case Failure(err) =>
@@ -147,7 +147,7 @@ object Assemblies extends Controller with APIAuthElement {
    * Email grabbed from header.
    * Output: JSON (AssembliesResult)
    */
-  /* def list = StackAction(parse.tolerantText) { implicit request =>
+  def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
@@ -166,5 +166,5 @@ object Assemblies extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }*/
+  }
 }
