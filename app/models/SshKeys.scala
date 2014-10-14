@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -76,7 +76,7 @@ object SshKeyResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[SshKeyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[SshKeyResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -106,7 +106,7 @@ object SshKeys {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val sshKeyInput: ValidationNel[Throwable, SshKeyInput] = (Validation.fromTryCatchThrowable[models.SshKeyInput,Throwable] {
+    val sshKeyInput: ValidationNel[Throwable, SshKeyInput] = (Validation.fromTryCatch[models.SshKeyInput] {
       parse(input).extract[SshKeyInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -161,7 +161,7 @@ object SshKeys {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.SshKeyResult, Throwable] {
+              (Validation.fromTryCatch[models.SshKeyResult] {
                 parse(xs.value).extract[SshKeyResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(sshKeysName, t.getMessage)

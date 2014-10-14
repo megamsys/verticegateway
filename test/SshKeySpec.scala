@@ -27,7 +27,7 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import controllers.stack.SecurityActions._
+import controllers.stack.HeaderConstants._
 import models.{ SshKeyInput }
 
 class SshKeysSpec extends Specification {
@@ -53,7 +53,7 @@ class SshKeysSpec extends Specification {
     protected override def urlSuffix: String = "sshkeys/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new SshKeyInput("sample", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com").json
+      val contentToEncode = new SshKeyInput("sample", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/megam@mypaas.io").json
       Some(contentToEncode)
     }
 
@@ -76,7 +76,7 @@ class SshKeysSpec extends Specification {
     protected override def urlSuffix: String = "sshkeys/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new SshKeyInput("sample", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com").json
+      val contentToEncode = new SshKeyInput("sample", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/megam@mypaas.io").json
       Some(contentToEncode)
     }
 
@@ -128,7 +128,7 @@ class SshKeysSpec extends Specification {
     protected override def urlSuffix: String = "sshkeys/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -152,7 +152,7 @@ class SshKeysSpec extends Specification {
     protected override def urlSuffix: String = "sshkeys/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"sandy@megamsandbox.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -171,7 +171,7 @@ class SshKeysSpec extends Specification {
     protected override def urlSuffix: String = "sshkeys/ec2_rails"
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
+      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
       X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)

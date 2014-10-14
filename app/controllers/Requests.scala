@@ -21,7 +21,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.stack._
@@ -46,7 +46,7 @@ object Requests extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "post:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -55,26 +55,26 @@ object Requests extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Request", "request funneled."))
           models.Requests.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
-              val tuple_succ = succ.getOrElse(("Nah", "Bah", "Gah", "Hah"))
+              val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
 
               //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
               if (email.trim.equalsIgnoreCase(DEMO_EMAIL))
                 Status(CREATED)(FunnelResponse(CREATED, """Request initiation dryrun submitted successfully.
             |
             |Dry launch of {:node_name=>'%s', :req_type=>'%s'}
-            |No actual launch in cloud. Signup for a new account to get started.""".format(tuple_succ._3, tuple_succ._4).stripMargin, "Megam::Request").toJson(true))
+            |No actual launch in cloud. Signup for a new account to get started.""".format(tuple_succ._2, tuple_succ._3).stripMargin, "Megam::Request").toJson(true))
               else {
                 //create delete method
-                val pubres = if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) {
+                val pubres = if (tuple_succ._3.trim.equalsIgnoreCase(DELETE_REQUEST)) {
                    val update_json = "{\"node_name\":\"" + tuple_succ._3 + "\",\"accounts_id\":\"\",\"status\":\"DELETED\",\"appdefnsid\":\"\",\"boltdefnsid\":\"\",\"new_node_name\":\"\"}"
                   for {
-                    uop <-  models.Nodes.update(update_json) 
-                    csup <- CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop                    
-                    rop <-  RiakStashPublish(tuple_succ._1, tuple_succ._3).dop
+                   // uop <-  models.Nodes.update(update_json) 
+                    csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop                    
+                    rop <-  RiakStashPublish(tuple_succ._1, tuple_succ._2).dop
                   } yield {} 
                 } else {
                   for {                   
-                    csup <- CloudStandUpPublish(tuple_succ._3, tuple_succ._1).dop            
+                    csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop            
                   } yield {} 
                 }
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.node.update", pubres))
@@ -110,12 +110,12 @@ object Requests extends Controller with APIAuthElement {
    * GET: findByNodeName: Show requests for a  node name per user(by email)
    * Email grabbed from header
    * Output: JSON (RequestResults)  
-   **/
+   
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -137,15 +137,15 @@ object Requests extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
-  }
+  }*/
 
   /*
    * GET: findbyEmail: List all the requests per email
    * Email grabbed from header.
    * Output: JSON (NodeResult)
-   */
+   
   def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatch[Result] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -163,6 +163,6 @@ object Requests extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
+  }*/
 
 }

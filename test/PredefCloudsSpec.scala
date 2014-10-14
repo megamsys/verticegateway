@@ -28,7 +28,7 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import controllers.stack.SecurityActions._
+import controllers.stack.HeaderConstants._
 import models.{ PredefCloudInput, PredefCloudSpec, PredefCloudAccess }
 
 class PredefCloudsSpec extends Specification {
@@ -39,9 +39,9 @@ class PredefCloudsSpec extends Specification {
     """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests" ! Post0.succeeds ^
-      //"Correctly do POST requests" ! Post1.succeeds ^
-      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+    //  "Correctly do POST requests" ! Post1.succeeds ^
+    //  "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+     // "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
      // "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
      // "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
@@ -80,7 +80,7 @@ class PredefCloudsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = new PredefCloudInput("ec2_play", new PredefCloudSpec("fooz-type", "fooz-group", "fooz-image", "fooz-flvr", ""),
-        new PredefCloudAccess("fooz-ssh", "fooz-identity-file", "fooz-sshuser", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "fooz-identity-file", "", "region")).json
+        new PredefCloudAccess("fooz-ssh", "fooz-identity-file", "fooz-sshuser", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/megam@mypaas.io/default", "fooz-identity-file", "", "region")).json
       Some(contentToEncode)
     }
 
@@ -111,7 +111,7 @@ class PredefCloudsSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "predefclouds/ec2_rails"
+    protected override def urlSuffix: String = "predefclouds/clouddefault510348255477891072"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -132,7 +132,7 @@ class PredefCloudsSpec extends Specification {
     protected override def urlSuffix: String = "predefclouds/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"sandy@megamsandbox.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -156,7 +156,7 @@ class PredefCloudsSpec extends Specification {
     protected override def urlSuffix: String = "predefclouds/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"sandy@megamsandbox.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -175,7 +175,7 @@ class PredefCloudsSpec extends Specification {
     protected override def urlSuffix: String = "predefclouds/ec2_rails"
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
+      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
       X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)

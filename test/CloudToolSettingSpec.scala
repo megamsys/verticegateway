@@ -27,7 +27,7 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import controllers.stack.SecurityActions._
+import controllers.stack.HeaderConstants._
 import models.{ CloudToolSettingInput }
 
 class CloudToolSettingSpec extends Specification {
@@ -53,7 +53,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo/.chef/knife.rb").json
+      val contentToEncode = new CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip", "cloudrecipes/megam@mypaas.io/default_chef/chef-repo/.chef/knife.rb").json
       Some(contentToEncode)
     }
 
@@ -76,7 +76,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/default").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default", "megam@mypaas.io/default").json
       Some(contentToEncode)
     }
 
@@ -128,7 +128,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/default").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/megam@mypaas.io/default", "megam@mypaas.io/default").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -152,7 +152,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/sandy@megamsandbox.com/default", "sandy@megamsandbox.com/default").json
+      val contentToEncode = new CloudToolSettingInput("chef", "test", "https://github.com", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/megam@mypaas.io/default", "megam@mypaas.io/default").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -171,7 +171,7 @@ class CloudToolSettingSpec extends Specification {
     protected override def urlSuffix: String = "cloudtoolsettings/ec2_rails"
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "sandy@megamsandbox.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
+      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
       X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)

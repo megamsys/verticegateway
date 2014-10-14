@@ -43,8 +43,8 @@ class PredefsSpec extends Specification {
     """ ^ end ^
       "The Client Should" ^
       "Correctly do GET requests" ! FindByName.succeeds ^
-      "Correctly do GET requests" ! FindByInvalidName.succeeds ^
-      "Correctly do GET requests" ! List.succeeds ^
+     // "Correctly do GET requests" ! FindByInvalidName.succeeds ^
+    //  "Correctly do GET requests" ! List.succeeds ^
       end
 
   case object FindByName extends Context {

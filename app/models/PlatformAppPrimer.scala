@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import play.api.http.Status._
@@ -29,6 +29,7 @@ import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
 import play.api.Logger
+import models.tosca._
 
 
 
@@ -62,13 +63,11 @@ object PlatformAppPrimer {
 
   def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_google_default) }
 
-  //define the cloud tools used to manage the cloud platform. 
-  def cloudtools = models.CloudTools.create
-
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     sada <- sandboxAcct
     dummy <- sandboxDummyAcct
   } yield {
+    println("------------------------------------------------------------------------->")
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Account created successfully(%s, %s).
             |
@@ -81,7 +80,6 @@ object PlatformAppPrimer {
     lpd <- predefs
     ccd <- clone_predefcloud(MEGAM_ADMIN_EMAIL)
     cdsd <- clone_predefcloud(DEMO_EMAIL)
-    cts <- cloudtools
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Predefs created successfully. Cache gets loaded upon first fetch.
@@ -89,22 +87,20 @@ object PlatformAppPrimer {
 								|%nLoaded values are ----->%n[%s]""".format(lpd.toString).stripMargin, "Megam::Predef"),
       FunnelResponse(CREATED, """Predefs cloud created successfully(%s,%s).
 								|
-								|You can use the the 'predefs cloud name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"),
-      FunnelResponse(CREATED, """Cloud tools created successfully. Cache gets loaded upon first fetch.
-								|
-								|%nLoaded values are ----->%n[%s]""".format(cts.toString).stripMargin, "Megam::CloudTools"))
+								|You can use the the 'predefs cloud name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"))
       FunnelResponses(chainedComps)
       }
 
   //populate the default cloud tool settings  
-  def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo.zip", "cloudrecipes/sandy@megamsandbox.com/default_chef/chef-repo/.chef/knife.rb").json
-
+ // def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip", "cloudrecipes/megam@mypaas.io/default_chef/chef-repo/.chef/knife.rb").json
+ def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "/var/lib/megam/default_chef/", "/var/lib/megam/default_chef/chef-repo/.chef/knife.rb").json
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
   def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
     cts <- clone_cloudtoolsettings(MEGAM_ADMIN_EMAIL)
     ctds <- clone_cloudtoolsettings(DEMO_EMAIL)
-    pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/" + MEGAM_ADMIN_EMAIL + "/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
+    //pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/" + MEGAM_ADMIN_EMAIL + "/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
+    pub <- CloudToolPublish("/var/lib/megam/default_chef", "https://github.com/indykish/chef-repo.git").dop
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """CloudToolSettings created successfully(%s,%s).
@@ -126,6 +122,36 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
+  def organizations_default = models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
+      OrganizationsInput(DEFAULT_ORG_NAME).json)
+      
+      
+  def org_prep: ValidationNel[Throwable, FunnelResponses] = for {
+    org <- organizations_default    
+  } yield {
+    
+    val chainedComps = List[FunnelResponse](
+      FunnelResponse(CREATED, """Organization created successfully(%s).
+            |
+            |Your email registered successully.""".format(org.get.name).stripMargin, "Megam::Organizations"))
+    FunnelResponses(chainedComps)
+  }
+
+      
+  def domains_default = models.tosca.Domains.create(MEGAM_ADMIN_EMAIL,
+      DomainsInput( DEFAULT_DOMAIN_NAME).json)
+  
+  def dmn_prep: ValidationNel[Throwable, FunnelResponses] = for {
+    dmn <- domains_default    
+  } yield {
+    
+    val chainedComps = List[FunnelResponse](
+      FunnelResponse(CREATED, """Domains created successfully(%s).
+            |
+            |Your email registered successully.""".
+       format(dmn.get.name).stripMargin, "Megam::Domains"))
+    FunnelResponses(chainedComps)
+  }
 }
 
 

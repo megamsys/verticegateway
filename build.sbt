@@ -53,7 +53,7 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "nginx", "megamcommon", "megamsnowflake", "apg","openjdk-7-jre-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("curl", "megamcommon", "megamsnowflake", "apg","openjdk-7-jre-headless", "bash")
 
 debianPackageRecommends in Debian += "riak"
 
@@ -76,3 +76,6 @@ dockerRepository := Some("indykish")
 dockerExposedPorts in Docker := Seq(9000, 9443)
 
 dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
+
+
+

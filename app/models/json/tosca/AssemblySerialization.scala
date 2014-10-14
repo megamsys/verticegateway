@@ -27,15 +27,15 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Assembly, Components }
+import models.tosca.{ Assembly, ComponentsList, PoliciesList }
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 class AssemblySerialization(charset: Charset = UTF8Charset) extends SerializationBase[Assembly] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+//  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val NameKey = "name"
   protected val ComponentsKey = "components"
   protected val PoliciesKey = "policies"
@@ -44,14 +44,15 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
     
   override implicit val writer = new JSONW[Assembly] {
     
- import ComponentsSerialization.{ writer => ComponentsWriter }
+ import ComponentsListSerialization.{ writer => ComponentsListWriter }
+ import PoliciesListSerialization.{ writer => PoliciesListWriter }
  
     override def write(h: Assembly): JValue = {
       JObject(
-        JField(JSONClazKey, toJSON("Megam::Assembly")) ::
+   //     JField(JSONClazKey, toJSON("Megam::Assembly")) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(ComponentsKey, toJSON(h.components)(ComponentsWriter)) ::
-          JField(PoliciesKey, toJSON(h.policies)) ::
+          JField(ComponentsKey, toJSON(h.components)(ComponentsListWriter)) ::
+          JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
           JField(InputsKey, toJSON(h.inputs)) ::
           JField(OperationsKey, toJSON(h.operations)) :: Nil)
     }
@@ -59,17 +60,18 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
 
   override implicit val reader = new JSONR[Assembly] {
     
-     import ComponentsSerialization.{ reader => ComponentsReader }
+     import ComponentsListSerialization.{ reader => ComponentsListReader }
+     import PoliciesListSerialization.{reader => PoliciesListReader }
 
     override def read(json: JValue): Result[Assembly] = {
       val nameField = field[String](NameKey)(json)
-      val componentsField = field[Components](ComponentsKey)(json)(ComponentsReader)
-      val policiesField = field[String](PoliciesKey)(json)
+      val componentsField = field[ComponentsList](ComponentsKey)(json)(ComponentsListReader)
+      val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
 
       (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField) {
-        (name: String, components: Components, policies: String, inputs: String, operations: String) =>
+          (name: String, components: ComponentsList, policies: PoliciesList, inputs: String, operations: String) =>
           new Assembly(name, components, policies, inputs, operations)
       }
     }

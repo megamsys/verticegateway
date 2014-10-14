@@ -31,12 +31,12 @@ import java.nio.charset.Charset
 object AssembliesListSerialization extends SerializationBase[AssembliesList] {
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "plans"
+  protected val ResultsKey = "assemblies"
 
   implicit override val writer = new JSONW[AssembliesList] {
     override def write(h: AssembliesList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
-        nrOpt: Assembly => nrOpt.toJValue
+        nrOpt: Assembly => println(nrOpt); nrOpt.toJValue
       }.some
       
       JArray(nrsList.getOrElse(List.empty[JValue]))
@@ -57,7 +57,7 @@ object AssembliesListSerialization extends SerializationBase[AssembliesList] {
           val nrs: AssembliesList = AssembliesList(list.getOrElse(AssembliesList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssembliesList]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AssembliesList]
       }
     }
   }

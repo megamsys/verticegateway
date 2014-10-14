@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -85,7 +85,7 @@ object PredefCloudResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[PredefCloudResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[PredefCloudResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -115,7 +115,7 @@ object PredefClouds {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val predefCloudInput: ValidationNel[Throwable, PredefCloudInput] = (Validation.fromTryCatchThrowable[models.PredefCloudInput, Throwable] {
+    val predefCloudInput: ValidationNel[Throwable, PredefCloudInput] = (Validation.fromTryCatch[models.PredefCloudInput] {
       parse(input).extract[PredefCloudInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -170,7 +170,7 @@ object PredefClouds {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.PredefCloudResult, Throwable] {
+              (Validation.fromTryCatch[models.PredefCloudResult] {
                 parse(xs.value).extract[PredefCloudResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(predefcloudsName, t.getMessage)
@@ -195,7 +195,7 @@ object PredefClouds {
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, PredefCloudResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, PredefCloudResults]] {
       (((for {
@@ -203,6 +203,7 @@ object PredefClouds {
       } yield {
         val bindex = ""
         val bvalue = Set("")
+         play.api.Logger.debug(("%-20s -->[%s]").format("Account result", aor.get))
         new GunnySack("predefcloud", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {

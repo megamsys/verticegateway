@@ -19,20 +19,16 @@ object ApplicationBuild extends Build {
 
   val play2AuthVersion = "0.12.0"
 
-  val megamVersion = "0.5.3"
-
+  val megamVersion = "0.5.7"
 
   val appDependencies = Seq(
     javaCore, cache, javaEbean, filters,
-    "com.stackmob" %% "scaliak" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
+    "com.stackmob" % "scaliak_2.10" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
     "com.github.indykish" %% "megam_common" % megamVersion,
     "com.github.mumoshu" %% "play2-memcached" % "0.6.0",
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
-    "jp.t2v" %% "play2-auth-test" % play2AuthVersion % "test",
-    "com.stackmob" %% "newman" % "1.3.5" % "test",
-    "org.specs2" %% "specs2" % "2.3.13" % "test",  
-    "org.yaml" % "snakeyaml" % "1.13"
-    )
+    "org.yaml" % "snakeyaml" % "1.13",
+    "com.stackmob" %% "newman" % "1.3.5" % "test")
 
   val root = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
     version := appVersion,

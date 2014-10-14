@@ -28,7 +28,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
 /**
@@ -52,7 +52,7 @@ object Accounts extends Controller with APIAuthElement {
     val input = (request.body).toString()
     play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
     models.Accounts.create(input) match {
-      case Success(succ) =>
+      case Success(succ) =>    
         PlatformAppPrimer.clone_predefcloud(succ.get.email).flatMap { x =>
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful.
