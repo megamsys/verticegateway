@@ -37,7 +37,7 @@ object ComponentsResultsSerialization extends SerializationBase[ComponentsResult
         nrOpt: Option[ComponentResult] =>         
             (nrOpt.map { nr: ComponentResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(ResultsKey,JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::ComponentsCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 

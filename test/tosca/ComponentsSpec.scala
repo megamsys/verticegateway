@@ -42,7 +42,7 @@ class ComponentsSpec extends Specification {
 
     
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "components/COM508915982664728576"
+    protected override def urlSuffix: String = "components/COM1133824040297955328"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
