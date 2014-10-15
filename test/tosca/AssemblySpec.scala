@@ -42,7 +42,7 @@ class AssemblySpec extends Specification {
 
     
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "assembly/ASM508915982769586176"
+    protected override def urlSuffix: String = "assembly/ASM1133747829995601920"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
