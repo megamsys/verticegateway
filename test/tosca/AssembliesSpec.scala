@@ -39,7 +39,7 @@ class AssembliesSpec extends Specification {
       "The Client Should" ^
       "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
      // "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
+     // "Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
       end
 
   /**
@@ -71,7 +71,7 @@ class AssembliesSpec extends Specification {
         "\"version\":\"2.0.0\"," +
         "\"source\":\"\"," +
         "\"design_inputs\":{" +
-        "\"id\":\"46fc26f2.b903d8\"," +
+        "\"did\":\"46fc26f2.b903d8\"," +
         "\"x\":645," +
         "\"y\":184," +
         "\"z\":\"adae6e10.52519\"," +
@@ -88,7 +88,7 @@ class AssembliesSpec extends Specification {
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
         "\"content\":\"\"," +
-        "\"requirements\":\"\"" +
+        "\"artifact_requirements\":\"\"" +
         "}," +
         "\"related_components\":\"VernonDennis.megam.co/MasonHernandez\"," +
         "\"operations\":{" +
@@ -127,7 +127,7 @@ class AssembliesSpec extends Specification {
         "\"version\":\"\"," +
         "\"source\":\"dfhfgjh\"," +
         "\"design_inputs\":{" +
-        "\"id\":\"e0e3651f.1f1c98\"," +
+        "\"did\":\"e0e3651f.1f1c98\"," +
         "\"x\":428," +
         "\"y\":134," +
         "\"z\":\"adae6e10.52519\"," +
@@ -144,7 +144,7 @@ class AssembliesSpec extends Specification {
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
         "\"content\":\"\"," +
-        "\"requirements\":\"\"" +
+        "\"artifact_requirements\":\"\"" +
         "}," +
         "\"related_components\":\"PaulineHarper.megam.co/GussieMathis\"," +
         "\"operations\":{" +
@@ -167,7 +167,7 @@ class AssembliesSpec extends Specification {
         "\"version\":\"\"," +
         "\"source\":\"dfghfh\"," +
         "\"design_inputs\":{" +
-        "\"id\":\"3ecdffaf.c132\"," +
+        "\"did\":\"3ecdffaf.c132\"," +
         "\"x\":450," +
         "\"y\":297," +
         "\"z\":\"adae6e10.52519\"," +
@@ -184,7 +184,7 @@ class AssembliesSpec extends Specification {
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
         "\"content\":\"\"," +
-        "\"requirements\":\"\"" +
+        "\"artifact_requirements\":\"\"" +
         "}," +
         "\"related_components\":\"PaulineHarper.megam.co/GussieMathis\"," +
         "\"operations\":{" +

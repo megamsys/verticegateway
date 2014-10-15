@@ -89,8 +89,8 @@ object ExResource {
 }
 
 //case class Artifacts(artifact_type: String, content: String, requirements: ArtifactRequirements) {
-case class Artifacts(artifact_type: String, content: String, requirements: String) {
-  val json = "{\"artifact_type\":\"" + artifact_type + "\",\"content\":\"" + content + "\",\"requirements\":\"" + requirements + "\"}"
+case class Artifacts(artifact_type: String, content: String, artifact_requirements: String) {
+  val json = "{\"artifact_type\":\"" + artifact_type + "\",\"content\":\"" + content + "\",\"artifact_requirements\":\"" + artifact_requirements + "\"}"
 }
 
 object Artifacts {
