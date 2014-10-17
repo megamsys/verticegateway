@@ -65,7 +65,7 @@ object Accounts extends Controller with APIAuthElement {
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
         }
-        PlatformAppPrimer.clone_cloudtoolsettings(succ.get.email).flatMap { x =>
+        /*PlatformAppPrimer.clone_cloudtoolsettings(succ.get.email).flatMap { x =>
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful.
             |
@@ -76,7 +76,7 @@ object Accounts extends Controller with APIAuthElement {
           case Failure(errcpc) =>
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
-        }
+        }*/
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))

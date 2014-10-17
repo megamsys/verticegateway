@@ -31,8 +31,6 @@ import models._
 import play.api.Logger
 import models.tosca._
 
-
-
 /**
  * @author ram
  *
@@ -88,12 +86,10 @@ object PlatformAppPrimer {
       FunnelResponse(CREATED, """Predefs cloud created successfully(%s,%s).
 								|
 								|You can use the the 'predefs cloud name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"))
-      FunnelResponses(chainedComps)
-      }
+    FunnelResponses(chainedComps)
+  }
 
-  //populate the default cloud tool settings  
- // def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/megam@mypaas.io/default_chef/chef-repo.zip", "cloudrecipes/megam@mypaas.io/default_chef/chef-repo/.chef/knife.rb").json
- def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "/var/lib/megam/default_chef/", "/var/lib/megam/default_chef/chef-repo/.chef/knife.rb").json
+  /*def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "/var/lib/megam/default_chef/", "/var/lib/megam/default_chef/chef-repo/.chef/knife.rb").json
   def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
 
   def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
@@ -110,7 +106,7 @@ object PlatformAppPrimer {
             |
             |You can use the the 'CloudToolSetting.""", "Megam::CloudToolSetting"))
     FunnelResponses(chainedComps)
-  }
+  }*/
 
   def mkp_prep: ValidationNel[Throwable, FunnelResponses] = for {
     mkp <- marketplace_addons
@@ -123,13 +119,12 @@ object PlatformAppPrimer {
   }
 
   def organizations_default = models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
-      OrganizationsInput(DEFAULT_ORG_NAME).json)
-      
-      
+    OrganizationsInput(DEFAULT_ORG_NAME).json)
+
   def org_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    org <- organizations_default    
+    org <- organizations_default
   } yield {
-    
+
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Organization created successfully(%s).
             |
@@ -137,19 +132,18 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-      
   def domains_default = models.tosca.Domains.create(MEGAM_ADMIN_EMAIL,
-      DomainsInput( DEFAULT_DOMAIN_NAME).json)
-  
+    DomainsInput(DEFAULT_DOMAIN_NAME).json)
+
   def dmn_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    dmn <- domains_default    
+    dmn <- domains_default
   } yield {
-    
+
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Domains created successfully(%s).
             |
             |Your email registered successully.""".
-       format(dmn.get.name).stripMargin, "Megam::Domains"))
+        format(dmn.get.name).stripMargin, "Megam::Domains"))
     FunnelResponses(chainedComps)
   }
 }

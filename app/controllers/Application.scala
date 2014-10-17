@@ -124,7 +124,7 @@ object Application extends Controller with APIAuthElement {
 
   }
   
-   def initcloudtoolsetting = Action { implicit request =>
+   /*def initcloudtoolsetting = Action { implicit request =>
     PlatformAppPrimer.cts_prep match {
       case Success(succ) => {
         val fu = List(("success" -> "Megam CMP :Cloud provisioner is ready.")) ++ FunnelResponses.toTuple2(succ)
@@ -137,7 +137,7 @@ object Application extends Controller with APIAuthElement {
         Redirect("/").flashing(fu: _*)
       }
     }
-  }
+  }*/
 
   def initmarketplaceaddons = Action { implicit request =>
     PlatformAppPrimer.mkp_prep match {
