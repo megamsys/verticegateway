@@ -11,7 +11,7 @@ GET    /utru                            controllers.Application.login
 POST   /session                         controllers.Application.loginauthenticate
 GET    /init                            controllers.Application.init
 GET    /initaccount                     controllers.Application.initaccount
-GET    /initcloudtoolsetting            controllers.Application.initcloudtoolsetting
+#GET    /initcloudtoolsetting            controllers.Application.initcloudtoolsetting
 GET    /initmarketplaceaddons           controllers.Application.initmarketplaceaddons
 GET    /initdefaultorganizations        controllers.Application.initdefaultorganizations
 GET    /initdefaultdomains              controllers.Application.initdefaultdomains
