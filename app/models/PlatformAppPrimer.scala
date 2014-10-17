@@ -122,6 +122,9 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
+  def organizations_defaults = { ccemail: String =>  models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
+      OrganizationsInput(DEFAULT_ORG_NAME).json) }
+      
   def organizations_default = models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
       OrganizationsInput(DEFAULT_ORG_NAME).json)
       

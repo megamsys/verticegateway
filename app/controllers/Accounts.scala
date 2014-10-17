@@ -78,7 +78,7 @@ object Accounts extends Controller with APIAuthElement {
             Status(rncpc.code)(rncpc.toJson(true))
         }
         
-        PlatformAppPrimer.organizations_default(succ.get.email).flatMap { x =>
+        PlatformAppPrimer.organizations_defaults(succ.get.email).flatMap { x =>
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful.
             |
