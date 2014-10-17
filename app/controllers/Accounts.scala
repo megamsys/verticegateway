@@ -82,8 +82,8 @@ object Accounts extends Controller with APIAuthElement {
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful.
             |
-            |email '%s' and api_key '%s' is registered - @megam.""".
-              format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
+            |email '%s' is registered - @megam.""".
+              format(succ.get.email).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
         } match {
           case Success(succ_cpc) => succ_cpc
           case Failure(errcpc) =>
