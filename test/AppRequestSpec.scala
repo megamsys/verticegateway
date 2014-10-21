@@ -42,10 +42,10 @@ class AppRequestSpec extends Specification {
    */
   case object Post extends Context {
 
-    protected override def urlSuffix: String = "appreqs/content"
+    protected override def urlSuffix: String = "apprequests/content"
 
     protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"req_type\":\"start\",\"node_name\":\"lobotomies1.megam.co\",\"appdefns_id\":\"ACT451686882514829312\",\"lc_apply\":\"start tomcat\",\"lc_additional\":\"lc_additional\",\"lc_when\":\"lc_when\"}"                                 
+      val contentToEncode = "{\"app_id\":\"ASM1136003656177549312\",\"app_name\":\"HermanWard.megam.co\",\"action\":\"start\"}"                                 
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -59,30 +59,6 @@ class AppRequestSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-
-  case object findByInvalidName extends Context {
-    protected override def urlSuffix: String = "appreqs/checksample"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }
-  case object findByName extends Context {
-    protected override def urlSuffix: String = "appreqs/appsample1.megam.co"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }
+  
 
 }
