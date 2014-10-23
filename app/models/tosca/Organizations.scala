@@ -201,8 +201,5 @@ object Organizations {
     res.getOrElse(new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
   }
   
-  
-  
-  
 }
 
