@@ -39,10 +39,11 @@ class OrganizationsSpec extends Specification {
       OrganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
+      //"Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
       //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
      // "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+        "Correctly do LIST request with a valid email id" ! List.succeeds ^
       end
 
   /**
@@ -139,5 +140,19 @@ class OrganizationsSpec extends Specification {
     }
   }
   //Success
+  
+  case object List extends Context {
+    protected override def urlSuffix: String = "organizations"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+
 
 }

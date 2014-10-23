@@ -107,11 +107,11 @@ object Organizations extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  /*
+  
   /**
-   * GET: findbyEmail: List all the market place names per email
+   * GET: findbyEmail: List all the organizations names per email
    * Email grabbed from header.
-   * Output: JSON (MarketPlacesResult)
+   * Output: JSON (OrganizationsResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "list:Entry"))
@@ -121,7 +121,7 @@ object Organizations extends Controller with APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.tosca.Organizations.listAll match {
+          models.tosca.Organizations.findByEmail(email) match {
             case Success(succ) => {
               Ok(OrganizationsResults.toJson(succ, true))
             }
@@ -137,5 +137,5 @@ object Organizations extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-*/
+
 }
