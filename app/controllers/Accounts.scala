@@ -78,6 +78,8 @@ object Accounts extends Controller with APIAuthElement {
             Status(rncpc.code)(rncpc.toJson(true))
 
         }
+        * */
+        
         
         PlatformAppPrimer.organizations_defaults(succ.get.email).flatMap { x =>
           Status(CREATED)(
@@ -92,14 +94,15 @@ object Accounts extends Controller with APIAuthElement {
             Status(rncpc.code)(rncpc.toJson(true))
         }
 
-        }*/
-
-      case Failure(err) => {
+       
+  
+        case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
       }
     }
   }
+  
   /*
    * GET: findByEmail: Show a particular account by email 
    * Email provided in the URI.
