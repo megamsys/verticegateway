@@ -46,7 +46,7 @@ object Constants {
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
-  val DEFAULT_ORG_NAME = "org.megamf"
+  val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megam.co"
 
   /*Look for a file /var/lib/megam/.megam_auth with fields 
@@ -61,7 +61,7 @@ object Constants {
   } yield {
     val res1 = res.split(":").take(2)
     MegamAdmin(res1(0), res1(1), MEGAM_ADMIN_AUTHORITY)
-  }).getOrElse(MegamAdmin("megamf@mypaas.io", "IamAtlas{74}NobodyCanSeeME#07", MEGAM_ADMIN_AUTHORITY))
+  }).getOrElse(MegamAdmin("megam@mypaas.io", "IamAtlas{74}NobodyCanSeeME#07", MEGAM_ADMIN_AUTHORITY))
 
   val MEGAM_ADMIN_EMAIL = adminAuth.email
   val MEGAM_ADMIN_APIKEY = adminAuth.api_key

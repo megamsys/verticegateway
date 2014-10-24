@@ -118,7 +118,7 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-  def clone_organizations = { orgemail: String =>  models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
+  def clone_organizations = { clonefor_email: String =>  models.tosca.Organizations.create(clonefor_email,
       OrganizationsInput(DEFAULT_ORG_NAME).json) } 
       
   def organizations_default = models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
