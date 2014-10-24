@@ -27,6 +27,7 @@ GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 #Organizations
 POST    /v2/organizations/content           controllers.camp.Organizations.post
 GET     /v2/organizations/:id               controllers.camp.Organizations.show(id: String)
+GET		/v2/organizations					controllers.camp.Organizations.list()
 
 #Domains
 POST   /v2/domains/content                   controllers.camp.Domains.post

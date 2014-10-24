@@ -86,8 +86,6 @@ object Organizations {
   private val riak = GWRiak("organizations")
 
   implicit def OrganizationsResultsSemigroup: Semigroup[OrganizationsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  //implicit def OrganizationsProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
-
   
   
   val metadataKey = "Organizations"
@@ -189,7 +187,7 @@ object Organizations {
         val bindex = ""
         val bvalue = Set("")
          play.api.Logger.debug(("%-20s -->[%s]").format(" Organizations result", aor.get))
-        new GunnySack("Organizations", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+        new GunnySack("organization", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
