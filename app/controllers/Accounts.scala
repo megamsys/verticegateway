@@ -65,23 +65,8 @@ object Accounts extends Controller with APIAuthElement {
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
         }
-        /*PlatformAppPrimer.clone_cloudtoolsettings(succ.get.email).flatMap { x =>
-          Status(CREATED)(
-            FunnelResponse(CREATED, """Onboard successful.
-            |
-            |email '%s' and api_key '%s' is registered - @megam.""".
-              format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
-        } match {
-          case Success(succ_cpc) => succ_cpc
-          case Failure(errcpc) =>
-            val rncpc: FunnelResponse = new HttpReturningError(errcpc)
-            Status(rncpc.code)(rncpc.toJson(true))
-
-        }
-        * */
-        
-        
-        PlatformAppPrimer.organizations_defaults(succ.get.email).flatMap { x =>
+              
+        PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful.
             |
