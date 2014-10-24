@@ -177,5 +177,29 @@ object Organizations {
       _.foldRight((OrganizationsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
   }
+  
+  
+   def findByEmail(email: String): ValidationNel[Throwable, OrganizationsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, OrganizationsResults]] {
+      (((for {
+        aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        val bindex = ""
+        val bvalue = Set("")
+         play.api.Logger.debug(("%-20s -->[%s]").format(" Organizations result", aor.get))
+        new GunnySack("Organizations", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
+      } map { nm: List[String] =>
+        (if (!nm.isEmpty) findByName(nm.some) else
+          new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
+  }
+  
 }
 

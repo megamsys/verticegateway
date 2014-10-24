@@ -76,13 +76,33 @@ object Accounts extends Controller with APIAuthElement {
           case Failure(errcpc) =>
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
-        }*/
-      case Failure(err) => {
+
+        }
+        * */
+        
+        
+        PlatformAppPrimer.organizations_defaults(succ.get.email).flatMap { x =>
+          Status(CREATED)(
+            FunnelResponse(CREATED, """Onboard successful.
+            |
+            |email '%s' is registered - @megam.""".
+              format(succ.get.email).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
+        } match {
+          case Success(succ_cpc) => succ_cpc
+          case Failure(errcpc) =>
+            val rncpc: FunnelResponse = new HttpReturningError(errcpc)
+            Status(rncpc.code)(rncpc.toJson(true))
+        }
+
+       
+  
+        case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
       }
     }
   }
+  
   /*
    * GET: findByEmail: Show a particular account by email 
    * Email provided in the URI.
