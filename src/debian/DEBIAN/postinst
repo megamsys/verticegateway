@@ -32,6 +32,9 @@ fi
 
 [ -f /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
+storage_backend = leveldb
+
+sed -i 's/^[ \t]*storage_backend .*/storage_backend = leveldb/' /etc/riak/riak.conf
 
 
 initctl reload-configuration
