@@ -25,7 +25,7 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.tosca._
 import models.tosca.Assembly
-import test.{Context}
+import test.{ Context }
 /**
  * @author rajthilak
  *
@@ -36,11 +36,11 @@ class AssemblySpec extends Specification {
     "AssemblySpec".title ^ end ^ """
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
-      "The Client Should" ^     
-      "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-  end
+      "The Client Should" ^
+      // "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+      "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
+      end
 
-    
   case object findByIDApp extends Context {
     protected override def urlSuffix: String = "assembly/ASM1136003656177549312"
 
@@ -53,6 +53,39 @@ class AssemblySpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  
+
+  case object updateApp extends Context {
+
+    protected override def urlSuffix: String = "assembly/update"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{" +
+        "\"id\":\"ASM1139235178976247808\"," +
+        "\"json_claz\":\"Megam::Assembly\"," +
+        "\"name\":\"calcines\"," +
+        "\"components\":[\"COM1139235178934304768\",\"\"]," +
+        "\"policies\":[{ " +
+        "\"name\":\"bind policy\"," +
+        "\"ptype\":\"colocated\"," +
+        "\"members\":[\"calcines.megam.co/MattieGarcia\",\"calcines.megam.co/parsnip\"]" +
+        "}]," +
+        "\"inputs\":\"\"," +
+        "\"operations\":\"\"," +
+        "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
+        "}"
+
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
 
 }
