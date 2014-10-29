@@ -54,8 +54,8 @@ object ComponentRequirements {
 }
 
 case class DesignInputs(id: String, x: String, y: String, z: String, wires: models.tosca.ComponentDesignInputsWires) {
-  val json = "{\"id\":\"" + id + "\",\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + 
-  "\",\"wires\":" + ComponentDesignInputsWires.toJson(wires, true) + "}"
+  val json = "{\"id\":\"" + id + "\",\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z +
+    "\",\"wires\":" + ComponentDesignInputsWires.toJson(wires, true) + "}"
 }
 
 object DesignInputs {
@@ -72,8 +72,8 @@ object ServiceInputs {
 
 case class ComponentInputs(domain: String, port: String, username: String, password: String, version: String, source: String, design_inputs: DesignInputs, service_inputs: ServiceInputs) {
   val json = "{\"domain\":\"" + domain + "\",\"port\":\"" + port + "\",\"username\":\"" + username +
-  "\",\"password\":\"" + password + "\",\"version\":\"" + version + "\",\"source\":\"" + source + 
-  "\",\"design_inputs\":" + design_inputs.json + ",\"service_inputs\":" + service_inputs.json + "}"
+    "\",\"password\":\"" + password + "\",\"version\":\"" + version + "\",\"source\":\"" + source +
+    "\",\"design_inputs\":" + design_inputs.json + ",\"service_inputs\":" + service_inputs.json + "}"
 }
 
 object ComponentInputs {
@@ -146,6 +146,12 @@ object ComponentResult {
 
 }
 
+case class ComponentUpdateInput(id: String, name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations, created_at: String) {
+  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"requirements\":" + requirements.json +
+    ",\"inputs\":" + inputs.json + ",\"external_management_resource\":\"" + external_management_resource + "\",\"artifacts\":" + artifacts.json +
+    ",\"related_components\":\"" + related_components + "\",\"operations\":" + operations.json + ",\"created_at\":\"" + created_at + "\"}"
+}
+
 //case class Component(name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: ExResource, artifacts: Artifacts, related_components: String, operations: ComponentOperations) {
 case class Component(name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations) {
   val json = "{\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"requirements\":" + requirements.json +
@@ -166,13 +172,13 @@ case class Component(name: String, tosca_type: String, requirements: ComponentRe
 }
 
 object Component {
-  
- private val riak = GWRiak("components")
+  implicit val formats = DefaultFormats
+  private val riak = GWRiak("components")
 
   val metadataKey = "COMPONENT"
   val metadataVal = "Component Creation"
   val bindex = "component"
-  
+
   // def empty: Component = new Component(new String(), new String(), ComponentRequirements.empty, ComponentInputs.empty, ExResource.empty, Artifacts.empty, new String(), ComponentOperations.empty)
   def empty: Component = new Component(new String(), new String(), ComponentRequirements.empty, ComponentInputs.empty, new String(), Artifacts.empty, new String(), ComponentOperations.empty)
 
@@ -189,7 +195,7 @@ object Component {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   def findByNodeName(componentID: Option[List[String]]): ValidationNel[Throwable, ComponentsResults] = {
+  def findByNodeName(componentID: Option[List[String]]): ValidationNel[Throwable, ComponentsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Component", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", componentID))
     (componentID map {
@@ -218,8 +224,49 @@ object Component {
     } map {
       _.foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
-  }  
-  
+  }
+
+  private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Component Update", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    val ripNel: ValidationNel[Throwable, ComponentUpdateInput] = (Validation.fromTryCatch {
+      parse(input).extract[ComponentUpdateInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      rip <- ripNel
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val bvalue = Set(aor.get.id)
+
+      val json = ComponentResult(rip.id, rip.name, rip.tosca_type, rip.requirements, rip.inputs, rip.external_management_resource, rip.artifacts, rip.related_components, rip.operations, rip.created_at).toJson(false)
+      new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+    }
+  }
+
+  def update(email: String, input: String): ValidationNel[Throwable, ComponentsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Components", "update:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+    for {
+      gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val nrip = parse(gs.get.value).extract[ComponentResult]
+      maybeGS match {
+        case Some(thatGS) =>
+          nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.requirements, nrip.inputs, nrip.external_management_resource, nrip.artifacts, nrip.related_components, nrip.operations, nrip.created_at).some)
+        case None => {
+          play.api.Logger.warn(("%-20s -->[%s]").format("Component.updated successfully", "Scaliak returned => None. Thats OK."))
+          nels(ComponentResult(nrip.id, nrip.name, nrip.tosca_type, nrip.requirements, nrip.inputs, nrip.external_management_resource, nrip.artifacts, nrip.related_components, nrip.operations, nrip.created_at).some)
+
+        }
+      }
+    }
+  }
+
 }
 
 object ComponentsList {
