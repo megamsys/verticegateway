@@ -317,7 +317,7 @@ object AssembliesList {
     }
 
   }
-
+ 
   private def mkGunnySack(email: String, rip: Assembly): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assembly", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))

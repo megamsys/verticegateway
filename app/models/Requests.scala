@@ -161,6 +161,10 @@ object Requests {
     }    
   }  
 
+  
+  
+  
+  
   /*
    * create new Request with the new 'Nodename' of the node provide as input.
    * A index name nodeID will point to the "nodes" bucket
@@ -246,6 +250,8 @@ object Requests {
 
   }
 
+  
+  
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
    * the nodenames are listed on the index (account.id) in bucket `Nodes`.
