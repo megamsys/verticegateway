@@ -57,7 +57,7 @@ object Assemblies extends Controller with APIAuthElement {
             |No actual launch in cloud. Signup for a new account to get started.""", "Megam::Assemblies").toJson(true))
               } else {
                 /*This isn't correct. Revisit, as the testing progresses.
-               We need to trap success/fialures.
+               We need to trap success/failures.
                */
                 asm_succ match {
                   case Some(asm) =>
@@ -167,4 +167,5 @@ object Assemblies extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
+  
 }

@@ -75,22 +75,22 @@ object Assembly extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.tosca.Assembly.update(email, clientAPIBody) match {
-            case Success(succ) => 
+            case Success(succ) =>
               //Ok(AssemblyResults.toJson(succ, true))
-               val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
-                CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppRequests", "published successfully."))
-                  Status(CREATED)(FunnelResponse(CREATED, """AppUpdate initiation instruction submitted successfully.
+              val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
+              CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
+                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.AppRequests", "published successfully."))
+                Status(CREATED)(FunnelResponse(CREATED, """AppUpdate initiation instruction submitted successfully.
             |
             |The App update request is working for you. It will be ready shortly.""", "Megam::Assembly").toJson(true)).successNel[Throwable]
-                } match {
-                  //this is only a temporary hack.
-                  case Success(succ_cpc) => succ_cpc
-                  case Failure(err) =>
-                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """AppUpdateRequest initiation submission failed.
+              } match {
+                //this is only a temporary hack.
+                case Success(succ_cpc) => succ_cpc
+                case Failure(err) =>
+                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """AppUpdateRequest initiation submission failed.
             |
             |Retry again, our queue servers are crowded""", "Megam::Assembly").toJson(true))
-                }
+              }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -129,4 +129,7 @@ object Assembly extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }*/
+
+ 
+
 }
