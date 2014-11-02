@@ -67,6 +67,8 @@ linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Li
 
 name in Docker := "megamgateway"
 
+maintainer in Docker := "Rajthilak <rajthilak@megam.co.in>"
+
 version in Docker <<= sbt.Keys.version
 
 dockerBaseImage := "dockerfile/java"

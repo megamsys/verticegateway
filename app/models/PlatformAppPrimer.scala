@@ -65,7 +65,6 @@ object PlatformAppPrimer {
     sada <- sandboxAcct
     dummy <- sandboxDummyAcct
   } yield {
-    println("------------------------------------------------------------------------->")
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Account created successfully(%s, %s).
             |
@@ -89,25 +88,6 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-  /*def cloudtoolsetting_default = CloudToolSettingInput("chef", "default_chef", "https://github.com/indykish/chef-repo.git", "/var/lib/megam/default_chef/", "/var/lib/megam/default_chef/chef-repo/.chef/knife.rb").json
-  def clone_cloudtoolsettings = { ccemail: String => models.CloudToolSettings.create(ccemail, cloudtoolsetting_default) }
-
-  def cts_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    cts <- clone_cloudtoolsettings(MEGAM_ADMIN_EMAIL)
-    ctds <- clone_cloudtoolsettings(DEMO_EMAIL)
-    //pub <- CloudToolPublish("https://s3-ap-southeast-1.amazonaws.com/cloudrecipes/" + MEGAM_ADMIN_EMAIL + "/default_chef/chef-repo.zip", "https://github.com/indykish/chef-repo.git").dop
-    pub <- CloudToolPublish("/var/lib/megam/default_chef", "https://github.com/indykish/chef-repo.git").dop
-  } yield {
-    val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """CloudToolSettings created successfully(%s,%s).
-            |
-            |You can use the the 'cloud tool setting name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cts.getOrElse("none")), "Megam::CloudToolSetting"),
-      FunnelResponse(CREATED, """CloudToolSettings inilization published successfully.
-            |
-            |You can use the the 'CloudToolSetting.""", "Megam::CloudToolSetting"))
-    FunnelResponses(chainedComps)
-  }*/
-
   def mkp_prep: ValidationNel[Throwable, FunnelResponses] = for {
     mkp <- marketplace_addons
   } yield {
@@ -118,9 +98,11 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-  def clone_organizations = { clonefor_email: String =>  models.tosca.Organizations.create(clonefor_email,
-      OrganizationsInput(DEFAULT_ORG_NAME).json) } 
-      
+  def clone_organizations = { clonefor_email: String =>
+    models.tosca.Organizations.create(clonefor_email,
+      OrganizationsInput(DEFAULT_ORG_NAME).json)
+  }
+
   def organizations_default = models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
     OrganizationsInput(DEFAULT_ORG_NAME).json)
 
