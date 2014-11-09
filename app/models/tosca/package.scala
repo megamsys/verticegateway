@@ -408,4 +408,33 @@ package object tosca {
 
   }
   
+  type OutputsList = List[Output]
+
+  object OutputsList {
+    val emptyRR = List(Output.empty)
+    def toJValue(nres: OutputsList): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.OutputsListSerialization.{ writer => OutputsListWriter }
+      toJSON(nres)(OutputsListWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OutputsList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.OutputsListSerialization.{ reader => OutputsListReader }
+      fromJSON(jValue)(OutputsListReader)
+    }
+
+    def toJson(nres: OutputsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+    
+    def apply(plansList: List[Output]): OutputsList = plansList
+
+    def empty: List[Output] = emptyRR
+
+  }
+  
 }
