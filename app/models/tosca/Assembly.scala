@@ -264,10 +264,10 @@ object Assembly {
       val nrip = parse(gs.get.value).extract[AssemblyResult]
       maybeGS match {
         case Some(thatGS) =>
-          Tuple2(Map[String, String](("id" -> nrip.id), ("policy_name" -> "bind policy"), ("Args" -> "Nah")), nrip.name).some
+          Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.name).some
         case None => {
           play.api.Logger.warn(("%-20s -->[%s]").format("Assembly.updated successfully", "Scaliak returned => None. Thats OK."))
-          Tuple2(Map[String, String](("id" -> nrip.id), ("policy_name" -> "bind policy"), ("Args" -> "Nah")), nrip.name).some
+          Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.name).some
         }
       }
     }
