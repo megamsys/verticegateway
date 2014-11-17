@@ -15,7 +15,7 @@ mean when a customer is onboarded an api_key is generated an stored in a secure 
 [Riak 2.0.2 +](http://docs.basho.com/riak/latest/downloads/)
 
 
-### Setting up your development env.
+### Compile from source
 
 ```
 * git clone https://github.com/megamsys/megam_gateway.git
@@ -36,10 +36,9 @@ Refer [documentation] (http://www.gomegam.com/docs)
 
 
 
-
 We are glad to help if you have questions, or request for new features..
 
-[twitter](http://twitter.com/megamsys) [email](<support@megam.co.in>)
+[twitter @megamsys](http://twitter.com/megamsys) [email support@megam.co.in](<support@megam.co.in>)
 
 	
 # License
