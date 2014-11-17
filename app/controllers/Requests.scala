@@ -56,8 +56,8 @@ object Requests extends Controller with APIAuthElement {
           models.Requests.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
               val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
-
-              //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
+                
+                                                     //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
               if (email.trim.equalsIgnoreCase(DEMO_EMAIL))
                 Status(CREATED)(FunnelResponse(CREATED, """Request initiation dryrun submitted successfully.
             |

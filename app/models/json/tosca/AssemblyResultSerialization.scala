@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ AssemblyResult, ComponentLinks, PoliciesList }
+import models.tosca.{ AssemblyResult, ComponentLinks, PoliciesList, OutputsList }
 
 /**
  * @author rajthilak
@@ -42,12 +42,14 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
   protected val PoliciesKey = "policies"
   protected val InputsKey = "inputs"
   protected val OperationsKey = "operations"
+  protected val OutputsKey = "outputs"
   protected val CreatedAtKey ="created_at" 
     
   override implicit val writer = new JSONW[AssemblyResult] {
 
     import ComponentLinksSerialization.{ writer => ComponentLinksWriter }
     import PoliciesListSerialization.{ writer => PoliciesListWriter }
+    import OutputsListSerialization.{ writer => OutputsListWriter }
     
     override def write(h: AssemblyResult): JValue = {
       JObject(
@@ -58,6 +60,7 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
           JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
           JField(InputsKey, toJSON(h.inputs)) ::
           JField(OperationsKey, toJSON(h.operations)) ::
+          JField(OutputsKey, toJSON(h.outputs)(OutputsListWriter)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
@@ -66,6 +69,7 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
     
     import ComponentLinksSerialization.{ reader => ComponentLinksReader }
     import PoliciesListSerialization.{ reader => PoliciesListReader }
+    import OutputsListSerialization.{ reader => OutputsListReader }
 
     override def read(json: JValue): Result[AssemblyResult] = {
       val idField = field[String](IdKey)(json)
@@ -74,11 +78,12 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
       val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
+      val outputsField = field[OutputsList](OutputsKey)(json)(OutputsListReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| createdAtField) {
-          (id: String, name: String, components: ComponentLinks, policies: PoliciesList, inputs: String, operations: String, created_at: String) =>
-          new AssemblyResult(id, name, components, policies, inputs, operations, created_at)
+      (idField |@| nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| createdAtField) {
+          (id: String, name: String, components: ComponentLinks, policies: PoliciesList, inputs: String, operations: String, outputs: OutputsList, created_at: String) =>
+          new AssemblyResult(id, name, components, policies, inputs, operations, outputs, created_at)
       }
     }
   }

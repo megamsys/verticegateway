@@ -28,6 +28,7 @@ import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models.tosca._
+import models._
 import models.Accounts
 import models.cache._
 import models.riak._
@@ -313,7 +314,7 @@ object ComponentsList {
    */
   private def mkGunnySack(email: String, input: Component): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Component", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))    
 
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })

@@ -55,7 +55,7 @@ object AppRequests extends Controller with APIAuthElement {
           models.AppRequests.create(clientAPIBody) match {
             case Success(succ) =>             
                 /*This isn't correct. Revisit, as the testing progresses.
-               We need to trap success/fialures.
+               We need to trap success/failures.
                */
                 val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
                 CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
