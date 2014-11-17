@@ -1,16 +1,10 @@
 Megam Gateway
 ================
 
-API server (REST based) for the "Megam PaaS". The API server protectes the resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
+API server for "Megam PaaS". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
 mean when a customer is onboarded an api_key is generated an stored in a secure datasource.
 
-[![Build Status](https://travis-ci.org/indykish/megam_play.png)](https://travis-ci.org/indykish/megam_play)
-
-
-
-### Resources
-
-Refer [documentation] (http://www.gomegam.com/docs)
+[![Build Status](https://travis-ci.org/megamsys/megam_gateway.png)](https://travis-ci.org/megamsys/megam_gateway)
 
 
 ### Requirements
@@ -21,25 +15,26 @@ Refer [documentation] (http://www.gomegam.com/docs)
 [Riak 2.0.2 +](http://docs.basho.com/riak/latest/downloads/)
 
 
-### Developing Megam Gateway
-
-Before your run it,
-
-* RabbitMQ Server is running
-
-* Riak is running
-
 ### Setting up your development env.
 
+```
 * git clone https://github.com/megamsys/megam_gateway.git
 
 * sbt
 
-* play run
+* clean 
 
-Open another terminal
+* compile
 
-* sbt test
+* run
+
+```
+
+### Documentation
+
+Refer [documentation] (http://www.gomegam.com/docs)
+
+
 
 
 We are glad to help if you have questions, or request for new features..
