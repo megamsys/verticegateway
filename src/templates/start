@@ -11,17 +11,17 @@ script
     export HOME="/root"
 
     cd /usr/share/megam/megamgateway/bin/
-    exec sudo ./megamgateway >> /var/log/megam/megamgateway.log 2>&1
-    echo $$ > /var/run/megam/megamgateway.pid
+    exec sudo ./megamgateway >> /var/log/megam/megamgateway/megamgateway.log 2>&1
+    echo $$ > /var/run/megam/megamgateway/megamgateway.pid
 end script
 
 pre-start script
     # Date format same as (new Date()).toISOString() for consistency
-    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> /var/log/megam/megamgateway.log
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> /var/log/megam/megamgateway/megamgateway.log
 end script
 
 pre-stop script
-    rm /var/run/megam/megamgateway.pid
-    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> /var/log/megam/megamgateway.log
+    rm /var/run/megam/megamgateway/megamgateway.pid
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> /var/log/megam/megamgateway/megamgateway.log
 end script
 
