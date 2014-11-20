@@ -60,9 +60,7 @@ object CSARs extends Controller with APIAuthElement {
           models.tosca.CSARs.create(email, clientAPIBody) match {
             case Success(succ) => {
               Status(CREATED)(
-                FunnelResponse(CREATED, """csar created successfully.
-            |
-            |You can use the the 'csar name':{%s}.""".format(succ.getOrElse("none")), "Megam::CSAR").toJson(true))
+                FunnelResponse(CREATED, """csar %s created successfully.""".format(succ.getOrElse(CSARResult.empty).id), "Megam::CSAR").toJson(true))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

@@ -76,6 +76,8 @@ object CSARResult {
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+  
+  val empty = CSARResult("","","","")
 
 }
 
