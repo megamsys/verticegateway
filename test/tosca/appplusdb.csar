@@ -48,9 +48,7 @@ node_templates:
       - host: web_server
 
   web_server:
-    type: tosca.nodes.Compute
-    properties:
-      # omitted here for sake of brevity
+    type: tosca.nodes.Compute   
 
   wordpress_db:
     type: tosca.nodes.Database.PostgreSQL
@@ -72,6 +70,5 @@ node_templates:
 
   db_server:
     type: tosca.nodes.Compute
-    properties:
-      # omitted here for sake of brevity
+    
       
