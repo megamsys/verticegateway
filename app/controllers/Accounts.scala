@@ -55,9 +55,7 @@ object Accounts extends Controller with APIAuthElement {
       case Success(succ) =>    
         PlatformAppPrimer.clone_predefcloud(succ.get.email).flatMap { x =>
           Status(CREATED)(
-            FunnelResponse(CREATED, """Onboard successful.
-            |
-            |email '%s' and api_key '%s' is registered - @megam.""".
+            FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
               format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
         } match {
           case Success(succ_cpc) => succ_cpc
@@ -68,10 +66,8 @@ object Accounts extends Controller with APIAuthElement {
               
         PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
           Status(CREATED)(
-            FunnelResponse(CREATED, """Onboard successful.
-            |
-            |email '%s' is registered - @megam.""".
-              format(succ.get.email).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
+            FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
+              format(succ.get.email,succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
         } match {
           case Success(succ_cpc) => succ_cpc
           case Failure(errcpc) =>
