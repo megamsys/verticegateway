@@ -140,16 +140,7 @@ object CSARLinks {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.tosca.CSARLinkResult] {
-
-               /* val csarInput: Validation[Throwable, Map[String, String]] = CSARLinkInput(xs.value).kacchaMango
-                play.api.Logger.debug("---------------------" + csarInput)
-                lazy val desc1: ValidationNel[Throwable, Option[String]] = (csarInput.leftMap { err: Throwable => err
-                }).toValidationNel.flatMap { chunk: Map[String, String] => Validation.success[Throwable, Option[String]](chunk.get("node_templates")).toValidationNel }
-                play.api.Logger.debug("---------------------" + desc1)*/
-               lazy val js: ValidationNel[Throwable, Option[String]] = CSARJson.toJson(xs.value)
-                play.api.Logger.debug("--------------------------"+ js)
-                
+              (Validation.fromTryCatch[models.tosca.CSARLinkResult] {      
                 CSARLinkResult(csarLinkName, xs.value)
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(csarLinkName, t.getMessage)

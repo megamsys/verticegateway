@@ -60,6 +60,7 @@ POST   /v2/marketplaceaddons/content         controllers.MarketPlaceAddons.post
 POST   /v2/csars/content         controllers.camp.CSARs.post
 GET    /v2/csars                 controllers.camp.CSARs.list
 GET    /v2/csars/:id 		     controllers.camp.CSARs.show(id: String)
+GET   /v2/csars/push/:id         controllers.camp.CSARs.push(id: String)
 
 #Assemblies
 POST   /v2/assemblies/content     controllers.camp.Assemblies.post
