@@ -109,6 +109,35 @@ object CSARs extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
+  
+ def push(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "post:Entry"))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "request funneled."))
+          models.tosca.CSARs.push(email, id) match {
+            case Success(succ) => {
+              Status(CREATED)(
+                FunnelResponse(CREATED, """csar pushed successfully.""", "Megam::CSAR").toJson(true))
+            }
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+
+  }
 
   /**
    * GET: findbyEmail: List all the csars per email

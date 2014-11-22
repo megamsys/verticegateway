@@ -39,6 +39,7 @@ import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import org.megam.common.amqp.response._
 
 /**
  * @author rajthilak
@@ -76,8 +77,8 @@ object CSARResult {
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-  
-  val empty = CSARResult("","","","")
+
+  val empty = CSARResult("", "", "", "")
 
 }
 
@@ -139,6 +140,61 @@ object CSARs {
         }
     }
   }
+
+  def getCSAR(input: String): ValidationNel[Throwable, CSARResults] = {
+    for {
+      csir <- (CSARs.findByName(List(input).some) leftMap { err: NonEmptyList[Throwable] => err })
+    } yield {
+      csir
+    }
+  }
+
+  def getCsarLink(input: CSARResults): ValidationNel[Throwable, CSARLinkResults] = {
+    (input map {
+      _.map { csars =>
+        InMemory[ValidationNel[Throwable, CSARLinkResults]]({
+          csar =>
+            {
+              play.api.Logger.debug("tosca.CSARs findLinksByName: csars:" + csars)
+              CSARLinks.findByName(List(csars.link).some)
+            }
+        }).get(csars.link).eval(InMemoryCache[ValidationNel[Throwable, CSARLinkResults]]())
+      }
+    } map {
+      _.foldRight((CSARLinkResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
+  }
+  
+  def getYaml(input: CSARLinkResults): ValidationNel[Throwable, String] = {
+    (input map {
+      _.map { links =>
+        InMemory[ValidationNel[Throwable, String]]({
+          csar =>
+            {
+              play.api.Logger.debug("tosca.CSARs findLinksByName: csars:" + links)
+              CSARJson.toJson(links.desc)
+            }
+        }).get(links.desc).eval(InMemoryCache[ValidationNel[Throwable, String]]())
+      }
+    } map {
+      _.foldRight(("").successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
+  }
+
+  def push(email: String, input: String): ValidationNel[Throwable, AMQPResponse] = {
+    for {
+      csar <- (CSARs.getCSAR(input) leftMap { err: NonEmptyList[Throwable] => err })
+      csir <- (getCsarLink(csar) leftMap { err: NonEmptyList[Throwable] => err })
+      json <- (getYaml(csir) leftMap { err: NonEmptyList[Throwable] => err })
+      asm <- (Assemblies.create(email, json) leftMap { err: NonEmptyList[Throwable] => err })
+      request <- (models.Requests.createforNewNode("{\"node_id\": \"" + asm.get.id + "\",\"node_name\": \"" + asm.get.name + "\",\"req_type\": \"create\"}") leftMap { err: NonEmptyList[Throwable] => err })
+      amqp <- (CloudStandUpPublish(request.get._2, request.get._1).dop leftMap { err: NonEmptyList[Throwable] => err })
+    } yield {
+      play.api.Logger.debug("tosca.CSARs Pushed: csars:" + json)
+      amqp
+    }
+  }
+  
 
   def findLinksByName(csarslinksNameList: Option[List[String]]): ValidationNel[Throwable, CSARLinkResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findLinksByNodeName:Entry"))
@@ -222,6 +278,14 @@ object CSARs {
 
   implicit val sedimentCSARsResults = new Sedimenter[ValidationNel[Throwable, CSARResults]] {
     def sediment(maybeASediment: ValidationNel[Throwable, CSARResults]): Boolean = {
+      val notSed = maybeASediment.isSuccess
+      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->CSR:sediment:", notSed))
+      notSed
+    }
+  }
+  
+  implicit val sedimentStrings = new Sedimenter[ValidationNel[Throwable, String]] {
+    def sediment(maybeASediment: ValidationNel[Throwable, String]): Boolean = {
       val notSed = maybeASediment.isSuccess
       play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->CSR:sediment:", notSed))
       notSed

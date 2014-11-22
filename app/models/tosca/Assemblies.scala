@@ -86,6 +86,10 @@ case class AssembliesInputs(id: String, assemblies_type: String, label: String, 
   val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\",\"cloudsettings\":" + CloudSettingsList.toJson(cloudsettings, true) + "}"
 }
 
+object AssembliesInputs {
+  def empty: AssembliesInputs = new AssembliesInputs(new String(), new String(), new String, models.tosca.CloudSettingsList.emptyRR)
+}
+
 case class AssembliesResult(id: String, accounts_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
 
   def toJValue: JValue = {
