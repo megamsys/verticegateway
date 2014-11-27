@@ -43,6 +43,7 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
   protected val InputsKey = "inputs"
   protected val OperationsKey = "operations"
   protected val OutputsKey = "outputs"
+  protected val StatusKey = "status"
   protected val CreatedAtKey ="created_at" 
     
   override implicit val writer = new JSONW[AssemblyResult] {
@@ -61,6 +62,7 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
           JField(InputsKey, toJSON(h.inputs)) ::
           JField(OperationsKey, toJSON(h.operations)) ::
           JField(OutputsKey, toJSON(h.outputs)(OutputsListWriter)) ::
+          JField(StatusKey, toJSON(h.status)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
@@ -79,11 +81,12 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
       val outputsField = field[OutputsList](OutputsKey)(json)(OutputsListReader)
+      val statusField = field[String](StatusKey)(json) 
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| createdAtField) {
-          (id: String, name: String, components: ComponentLinks, policies: PoliciesList, inputs: String, operations: String, outputs: OutputsList, created_at: String) =>
-          new AssemblyResult(id, name, components, policies, inputs, operations, outputs, created_at)
+      (idField |@| nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| statusField |@| createdAtField) {
+          (id: String, name: String, components: ComponentLinks, policies: PoliciesList, inputs: String, operations: String, outputs: OutputsList, status: String, created_at: String) =>
+          new AssemblyResult(id, name, components, policies, inputs, operations, outputs, status, created_at)
       }
     }
   }

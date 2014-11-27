@@ -37,12 +37,12 @@ class AssemblySpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-      // "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-      "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
+       "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+     // "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "assembly/ASM1136003656177549312"
+    protected override def urlSuffix: String = "assembly/ASM1149695136490455040"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -71,6 +71,7 @@ class AssemblySpec extends Specification {
         "}]," +
         "\"inputs\":\"\"," +
         "\"operations\":\"\"," +
+        "\"status\":\"Launching\"," +
         "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
         "}"
 
