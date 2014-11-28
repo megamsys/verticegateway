@@ -107,7 +107,8 @@ class AssembliesSpec extends Specification {
         "}" +
         "]," +
         "\"inputs\":\"\"," +
-        "\"operations\":\"\"" +
+        "\"operations\":\"\"," +
+        "\"status\":\"Launching\"" +
         "}," +
         "{" +
         "\"name\":\"VernonDennis\"," +
@@ -204,7 +205,8 @@ class AssembliesSpec extends Specification {
         "}" +
         "]," +
         "\"inputs\":\"\"," +
-        "\"operations\":\"\"" +
+        "\"operations\":\"\"," +
+        "\"status\":\"Launching\"" +
         "}" +
         "]," +
         "\"inputs\":{" +
