@@ -73,7 +73,7 @@ version in Docker <<= sbt.Keys.version
 
 dockerBaseImage := "dockerfile/java"
 
-dockerRepository := Some("indykish")
+dockerRepository := Some("gomegam")
 
 dockerExposedPorts in Docker := Seq(9000, 9443)
 
