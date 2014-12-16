@@ -1,0 +1,2 @@
+[ -d /var/run/megam/megamgateway/ ] &&  mkdir -p /var/run/megam/megamgateway/
+[ -d /var/log/megam/megamgateway/ ] &&  mkdir -p /var/log/megam/megamgateway/
