@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ AssembliesResult, AssembliesInputs}
+import models.tosca.{ AssembliesResult, AssembliesInputs, CloudSettingsList }
 import org.megam.common.enumeration._
 
 
@@ -39,29 +39,31 @@ object AssembliesInputsSerialization extends SerializationBase[AssembliesInputs]
   protected val IdKey = "id"
   protected val AssembliesTypeKey = "assemblies_type"
   protected val LabelKey = "label"
-  
+  protected val CloudSettingsKey = "cloudsettings"
 
   override implicit val writer = new JSONW[AssembliesInputs] {
 
-
+import CloudSettingsListSerialization.{ writer => CloudSettingsListWriter }
     override def write(h: AssembliesInputs): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
         JField(AssembliesTypeKey, toJSON(h.assemblies_type)) ::
-        JField(LabelKey, toJSON(h.label))  ::Nil)
+        JField(LabelKey, toJSON(h.label))  ::
+         JField(CloudSettingsKey, toJSON(h.cloudsettings)(CloudSettingsListWriter)) ::  Nil)
     }
   }
 
   override implicit val reader = new JSONR[AssembliesInputs] {
-
+import CloudSettingsListSerialization.{ reader => CloudSettingsListReader }
     override def read(json: JValue): Result[AssembliesInputs] = {
       val idField = field[String](IdKey)(json)
       val assembliestypeField = field[String](AssembliesTypeKey)(json)
       val labelField = field[String](LabelKey)(json)
+      val cloudsettingsField = field[CloudSettingsList](CloudSettingsKey)(json)(CloudSettingsListReader) 
     
-      (idField |@| assembliestypeField |@| labelField) {
-        (id: String, assemblies_type: String, label: String) =>
-          new AssembliesInputs(id, assemblies_type, label)
+      (idField |@| assembliestypeField |@| labelField |@| cloudsettingsField) {
+        (id: String, assemblies_type: String, label: String, cloudsettings: CloudSettingsList) =>
+          new AssembliesInputs(id, assemblies_type, label, cloudsettings)
       }
     }
   }

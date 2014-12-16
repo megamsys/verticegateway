@@ -1,5 +1,5 @@
 /* 
-** Copyright [2013-2014] [Megam Systems]
+ ** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -24,15 +24,17 @@ import scalaz.Validation._
 import scalaz.EitherT._
 import Scalaz._
 import org.megam.util.Time
+import scala.collection.mutable.ListBuffer
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models.tosca._
 import models._
+import models.riak._
 import models.cache._
 import com.stackmob.scaliak._
-import com.basho.riak.client.query.indexes.{ RiakIndexes, IntIndex, BinIndex }
-import com.basho.riak.client.http.util.{ Constants => RiakConstants }
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -43,13 +45,52 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList, inputs: AssembliesInputs)
-
-case class AssembliesInputs(id: String, assemblies_type: String, label: String) {
-  val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" +  assemblies_type + "\",\"label\" : \"" + label +"\"}"  
+case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList, inputs: AssembliesInputs) {
+  val json = "{\"name\":\"" + name + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + inputs.json + "}"
 }
 
-case class AssembliesResult(id: String, name: String, assemblies: models.tosca.AssembliesList, inputs: AssembliesInputs, created_at: String) {
+case class CloudSetting(id: String, cstype: String, cloudsettings: String, x: String, y: String, z: String, wires: models.tosca.CSWiresList) {
+  val json = "{\"id\":\"" + id + "\",\"cstype\":\"" + cstype + "\",\"cloudsettings\":\"" + cloudsettings + "\",\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"wires\":" + CSWiresList.toJson(wires, true) + "}"
+
+  def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    val preser = new models.json.tosca.CloudSettingSerialization()
+    toJSON(this)(preser.writer)
+  }
+
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
+}
+
+object CloudSetting {
+  def empty: CloudSetting = new CloudSetting(new String(), new String(), new String, new String(), new String, new String(), CSWiresList.empty)
+
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CloudSetting] = {
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    val preser = new models.json.tosca.CloudSettingSerialization()
+    fromJSON(jValue)(preser.reader)
+  }
+
+  def fromJson(json: String): Result[CloudSetting] = (Validation.fromTryCatch {
+    play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+}
+
+case class AssembliesInputs(id: String, assemblies_type: String, label: String, cloudsettings: models.tosca.CloudSettingsList) {
+  val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\",\"cloudsettings\":" + CloudSettingsList.toJson(cloudsettings, true) + "}"
+}
+
+object AssembliesInputs {
+  def empty: AssembliesInputs = new AssembliesInputs(new String(), new String(), new String, models.tosca.CloudSettingsList.emptyRR)
+}
+
+case class AssembliesResult(id: String, accounts_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -67,8 +108,6 @@ case class AssembliesResult(id: String, name: String, assemblies: models.tosca.A
 
 object AssembliesResult {
 
- // def apply = new AssembliesResult(new String(), new String(), new String(), new AssembliesInputs(new String(), new String(), new String()), new String())             
-  
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AssembliesResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.tosca.AssembliesResultSerialization
@@ -87,12 +126,11 @@ object AssembliesResult {
 object Assemblies {
 
   implicit val formats = DefaultFormats
-  private def riak: GSRiak = GSRiak(MConfig.riakurl, "assemblies")
- // implicit def CSARsSemigroup: Semigroup[CSARResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  private val riak = GWRiak("assemblies")
 
-  val metadataKey = "ASSEMBLIES"
+  val metadataKey = "assemblies"
   val metadataVal = "Assemblies Creation"
-  val bindex = BinIndex.named("assemblies")
+  val bindex = "assemblies"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -108,18 +146,25 @@ object Assemblies {
     val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatch {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    
+
     for {
       rip <- ripNel
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) 
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      req <- (Requests.createforNewNode("{\"node_id\": \"" + (uir.get._1 + uir.get._2) + "\",\"node_name\": \"" + rip.name + "\",\"req_type\": \"create\"}") leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
-      val json = new AssembliesResult(uir.get._1 + uir.get._2, rip.name, rip.assemblies, rip.inputs, Time.now.toString).toJson(false)
-
-    //  val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + rip.name + "\",\"assemblies\":" + rip.assemblies + ",\"inputs\":" + rip.inputs.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
+      var assembly_links = new ListBuffer[String]()
+      for (assembly <- aem) {
+        assembly match {
+          case Some(value) => assembly_links += value.id
+          case None        => assembly_links += ""
+        }
+      }
+      val json = new AssembliesResult(uir.get._1 + uir.get._2, aor.get.id, rip.name, assembly_links.toList, rip.inputs, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some   
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
@@ -148,73 +193,36 @@ object Assemblies {
         }
     }
   }
-  
-  /*def findLinksByName(csarslinksNameList: Option[List[String]]): ValidationNel[Throwable, CSARLinkResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findLinksByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("csarlinksList", csarslinksNameList))
-    (csarslinksNameList map {
-      _.map { csarslinksName =>
-        InMemory[ValidationNel[Throwable, CSARResults]]({
-          cname: String =>
-            {
-              play.api.Logger.debug("tosca.CSARs findLinksByName: csars:" + csarslinksName)
-              (findByName(csarsName) leftMap { t: NonEmptyList[Throwable] =>
-                new ServiceUnavailableError(csarsName, (t.list.map(m => m.getMessage)).mkString("\n"))
-              }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-                xso match {
-                  case Some(xs) => {
-                    (Validation.fromTryCatch {
-                      parse(xs.value).extract[CSARResult]
-                    } leftMap { t: Throwable =>
-                      new ResourceItemNotFound(csarsName, t.getMessage)
-                    }).toValidationNel.flatMap { j: CSARResult =>
-                      Validation.success[Throwable, CSARResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-                      //go after CSRLinknde
-                    }
-                  }
-                  case None => Validation.failure[Throwable, CSARResults](new ResourceItemNotFound(csarsName, "")).toValidationNel
-                }
-              }
-            }
-        }).get(csarsName).eval(InMemoryCache[ValidationNel[Throwable, CSARResults]]())
-      }
-    } map {
-      _.foldRight((CSARResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
-*/
-/*
-  def findByName(csarsNameList: Option[List[String]]): ValidationNel[Throwable, CSARResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("csarList", csarsNameList))
-    (csarsNameList map {
-      _.map { csarsName =>
-        InMemory[ValidationNel[Throwable, CSARResults]]({
-          cname: String =>
-            {
-              play.api.Logger.debug("tosca.CSARs findByName: csars:" + csarsName)
-              (riak.fetch(csarsName) leftMap { t: NonEmptyList[Throwable] =>
-                new ServiceUnavailableError(csarsName, (t.list.map(m => m.getMessage)).mkString("\n"))
-              }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-                xso match {
-                  case Some(xs) => {
-                    (Validation.fromTryCatch {
-                      parse(xs.value).extract[CSARResult]
-                    } leftMap { t: Throwable =>
-                      new ResourceItemNotFound(csarsName, t.getMessage)
-                    }).toValidationNel.flatMap { j: CSARResult =>
-                      Validation.success[Throwable, CSARResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
-                    }
-                  }
-                  case None => Validation.failure[Throwable, CSARResults](new ResourceItemNotFound(csarsName, "")).toValidationNel
-                }
-              }
-            }
-        }).get(csarsName).eval(InMemoryCache[ValidationNel[Throwable, CSARResults]]())
-      }
-    } map {
-      _.foldRight((CSARResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
 
+  def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Assemblies", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", assembliesID))
+    (assembliesID map {
+      _.map { asm_id =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("Assemblies ID", asm_id))
+        (riak.fetch(asm_id) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
+              (AssembliesResult.fromJson(xs.value) leftMap
+                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
+                  JSONParsingError(t)
+                }).toValidationNel.flatMap { j: AssembliesResult =>
+                  play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
+                  Validation.success[Throwable, AssembliesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                }
+            }
+            case None => {
+              Validation.failure[Throwable, AssembliesResults](new ResourceItemNotFound(asm_id, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((AssembliesResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
   }
 
   /*
@@ -223,33 +231,26 @@ object Assemblies {
    * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]] 
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
-  def findByEmail(email: String): ValidationNel[Throwable, CSARResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findByEmail:Entry"))
+  def findByEmail(email: String): ValidationNel[Throwable, AssembliesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assemblies", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, CSARResults]] {
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, AssembliesResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = BinIndex.named("")
+        val bindex = ""
         val bvalue = Set("")
-        new GunnySack("csar", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+        play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assemblies", "findByEmail" + aor.get.id))
+        new GunnySack("assemblies", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>
-        (if (!nm.isEmpty) findByName(nm.some) else
-          new ResourceItemNotFound(email, "CSAR = nothing found.").failureNel[CSARResults])
+        (if (!nm.isEmpty) findById(nm.some) else
+          new ResourceItemNotFound(email, "Assemblies = nothing found for the user.").failureNel[AssembliesResults])
       }).disjunction).pure[IO]
     }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(email, "CSAR = nothing found.").failureNel[CSARResults])
+    res.getOrElse(new ResourceItemNotFound(email, "Assemblies = nothing found for the users.").failureNel[AssembliesResults])
   }
 
-  implicit val sedimentCSARsResults = new Sedimenter[ValidationNel[Throwable, CSARResults]] {
-    def sediment(maybeASediment: ValidationNel[Throwable, CSARResults]): Boolean = {
-      val notSed = maybeASediment.isSuccess
-      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->CSR:sediment:", notSed))
-      notSed
-    }
-  }
-*/
 }

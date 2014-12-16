@@ -1,0 +1,38 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Template for deploying a single  application on one vm
+
+inputs:
+  # Admin user name and password to use with the Webserver
+  wp_admin_username:
+     type: string
+  wp_admin_password:
+     type string
+
+node_templates:
+
+  apache:
+    type: tosca.nodes.WebServer.Apache
+    properties:
+      # omitted here for sake of brevity
+    requirements:
+      - host: web_server
+      - domain: megam.co
+
+  web_server:
+    type: tosca.nodes.Compute
+    properties:
+      # omitted here for sake of brevity
+    requirements:
+      - host: web_server
+      - domain: megam.co
+
+group:
+  webserver_group:
+    members: [ web_server ]
+    policies:
+      - my_placement_policy:
+         # Specific policy definitions are considered domain specific and
+         # are not included here 
+  
+  

@@ -1,5 +1,5 @@
 /* 
-** Copyright [2013-2014] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,19 +30,15 @@ import controllers.funnel.SerializationBase
 import models.{AppRequestResult}
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 class AppRequestResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[AppRequestResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
-  protected val NodeIDKey = "node_id"
-  protected val NodeNameKey = "node_name"
-  protected val ReqTypeKey = "req_type"  
-  protected val LcApplyKey = "lc_apply"
-  protected val LcAdditionalKey = "lc_additional"
-  protected val LcWhenKey = "lc_when" 
-  protected val AppDefnsIdKey = "appdefns_id"
+  protected val AppIDKey = "app_id"
+  protected val AppNameKey = "app_name"
+  protected val ActionKey = "action"  
   protected val CreatedAtKey ="created_at" 
 
   override implicit val writer = new JSONW[AppRequestResult] {
@@ -50,14 +46,10 @@ class AppRequestResultSerialization(charset: Charset = UTF8Charset) extends Seri
     override def write(h: AppRequestResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(NodeIDKey, toJSON(h.node_id)) ::
+          JField(AppIDKey, toJSON(h.app_id)) ::
+          JField(AppNameKey, toJSON(h.app_name)) ::
           JField(JSONClazKey, toJSON("Megam::AppRequest")) ::
-          JField(NodeNameKey, toJSON(h.node_name)) ::
-          JField(ReqTypeKey, toJSON(h.req_type)) ::
-          JField(LcApplyKey, toJSON(h.lc_apply)) ::
-          JField(LcAdditionalKey, toJSON(h.lc_additional)) ::
-          JField(LcWhenKey, toJSON(h.lc_when)) ::
-          JField(AppDefnsIdKey, toJSON(h.appdefns_id)) ::
+          JField(ActionKey, toJSON(h.action)) ::        
           JField(CreatedAtKey, toJSON(h.created_at))   :: Nil)
     }
   }
@@ -66,18 +58,14 @@ class AppRequestResultSerialization(charset: Charset = UTF8Charset) extends Seri
     
     override def read(json: JValue): Result[AppRequestResult] = {
       val idField = field[String](IdKey)(json)
-      val nodeIdField = field[String](NodeIDKey)(json)
-      val nodeNameField = field[String](NodeNameKey)(json)
-      val reqtypeField = field[String](ReqTypeKey)(json)
-      val lcapplyField = field[String](LcApplyKey)(json)
-      val lcadditionalField = field[String](LcAdditionalKey)(json)
-      val lcwhenField = field[String](LcWhenKey)(json)
-      val appdefnsidField = field[String](AppDefnsIdKey)(json)
+      val appIdField = field[String](AppIDKey)(json)
+      val appNameField = field[String](AppNameKey)(json)
+      val actionField = field[String](ActionKey)(json)      
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nodeIdField |@| nodeNameField |@| appdefnsidField |@| reqtypeField |@| lcapplyField |@| lcadditionalField |@| lcwhenField |@| createdAtField) {
-        (id: String, node_id: String, node_name: String, appdefns_id: String, req_type: String, lc_apply: String, lc_additional: String, lc_when: String, created_at: String) =>
-          new AppRequestResult(id, node_id, node_name, appdefns_id, req_type, lc_apply, lc_additional, lc_when, created_at)
+      (idField |@| appIdField |@| appNameField |@| actionField |@| createdAtField) {
+        (id: String, app_id: String, app_name: String, action: String, created_at: String) =>
+          new AppRequestResult(id, app_id, app_name, action, created_at)
       }
     }
   }

@@ -15,6 +15,7 @@
 */
 package models.json.tosca
 
+
 import scalaz._
 import scalaz.NonEmptyList._
 import Scalaz._
@@ -24,7 +25,7 @@ import controllers.funnel.SerializationBase
 import models.tosca._
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 object AssembliesResultsSerialization extends SerializationBase[AssembliesResults] {
@@ -34,26 +35,13 @@ object AssembliesResultsSerialization extends SerializationBase[AssembliesResult
   implicit override val writer = new JSONW[AssembliesResults] {
     override def write(h: AssembliesResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[AssembliesResult] =>
-          (nrOpt.map { nr: AssembliesResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[AssembliesResult] =>         
+            (nrOpt.map { nr: AssembliesResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey, JString("Megam::AssembliesCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey,JString("Megam::AssembliesCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 
-  /* Read - JArray(List[RequestResult]) which translates to :
-        JArray(List(
-          JObject(
-            List(
-              JField(name,JInt(code)),
-              JField(value,JString(msg))
-              .....
-            )
-          )
-        )
-      )
-      RequestResult already has an implicit reader, hence use it.
-       */
   implicit override val reader = new JSONR[AssembliesResults] {
     override def read(json: JValue): Result[AssembliesResults] = {
       json match {
@@ -64,11 +52,11 @@ object AssembliesResultsSerialization extends SerializationBase[AssembliesResult
               case Failure(fail) => List[AssembliesResult]()
             }
           } map { x: AssembliesResult => x.some }
-          //this is screwy. Making the RequestResults as Option[NonEmptylist[RequestResult]] will solve it.
+          //this is screwy. Making the NodeResults as Option[NonEmptylist[AssembliesResult]] will solve it.
           val nrs: AssembliesResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AssembliesResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AssembliesResults]
       }
     }
   }

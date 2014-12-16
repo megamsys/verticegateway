@@ -1,5 +1,5 @@
 /* 
-** Copyright [2013-2014] [Megam Systems]
+  ** Copyright [2013-2014] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ object Application extends Controller with APIAuthElement {
 
   }
   
-   def initcloudtoolsetting = Action { implicit request =>
+   /*def initcloudtoolsetting = Action { implicit request =>
     PlatformAppPrimer.cts_prep match {
       case Success(succ) => {
         val fu = List(("success" -> "Megam CMP :Cloud provisioner is ready.")) ++ FunnelResponses.toTuple2(succ)
@@ -137,7 +137,7 @@ object Application extends Controller with APIAuthElement {
         Redirect("/").flashing(fu: _*)
       }
     }
-  }
+  }*/
 
   def initmarketplaceaddons = Action { implicit request =>
     PlatformAppPrimer.mkp_prep match {
@@ -149,6 +149,34 @@ object Application extends Controller with APIAuthElement {
         val rn: FunnelResponses = new HttpReturningError(err)
         val rnjson = FunnelResponses.toJson(rn, false)
         val fu = List(("error" -> "Duh Megam CMP :Default Market Place Addons couldn't be primed.")) ++ FunnelResponses.toTuple2(rn)
+        Redirect("/").flashing(fu: _*)
+      }
+    }
+  }
+   def initdefaultorganizations = Action { implicit request =>
+    PlatformAppPrimer.org_prep match {
+      case Success(succ) => {
+        val fu = List(("success" -> "Megam CMP :Default Organization is ready.")) ++ FunnelResponses.toTuple2(succ)
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
+      }
+      case Failure(err) => {
+        val rn: FunnelResponses = new HttpReturningError(err)
+        val rnjson = FunnelResponses.toJson(rn, false)
+        val fu = List(("error" -> "Duh Megam CMP :Default Organizations  couldn't be primed.")) ++ FunnelResponses.toTuple2(rn)
+        Redirect("/").flashing(fu: _*)
+      }
+    }
+  }
+   def initdefaultdomains = Action { implicit request =>
+    PlatformAppPrimer.dmn_prep match {
+      case Success(succ) => {
+        val fu = List(("success" -> "Megam CMP :Default Domain is ready.")) ++ FunnelResponses.toTuple2(succ)
+        Redirect("/").flashing(fu: _*) //a hack to covert List[Tuple2] to varargs of Tuple2. flashing needs it.
+      }
+      case Failure(err) => {
+        val rn: FunnelResponses = new HttpReturningError(err)
+        val rnjson = FunnelResponses.toJson(rn, false)
+        val fu = List(("error" -> "Duh Megam CMP :Default Domain couldn't be created.")) ++ FunnelResponses.toTuple2(rn)
         Redirect("/").flashing(fu: _*)
       }
     }

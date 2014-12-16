@@ -67,12 +67,17 @@ linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Li
 
 name in Docker := "megamgateway"
 
+maintainer in Docker := "Rajthilak <rajthilak@megam.co.in>"
+
 version in Docker <<= sbt.Keys.version
 
 dockerBaseImage := "dockerfile/java"
 
-dockerRepository := Some("indykish")
+dockerRepository := Some("gomegam")
 
 dockerExposedPorts in Docker := Seq(9000, 9443)
 
 dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
+
+
+

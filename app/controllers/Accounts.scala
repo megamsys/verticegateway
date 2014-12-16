@@ -28,7 +28,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-import scalaz.Validation.FlatMap._
+//import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
 /**
@@ -52,12 +52,10 @@ object Accounts extends Controller with APIAuthElement {
     val input = (request.body).toString()
     play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
     models.Accounts.create(input) match {
-      case Success(succ) =>
+      case Success(succ) =>    
         PlatformAppPrimer.clone_predefcloud(succ.get.email).flatMap { x =>
           Status(CREATED)(
-            FunnelResponse(CREATED, """Onboard successful.
-            |
-            |email '%s' and api_key '%s' is registered - @megam.""".
+            FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
               format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
         } match {
           case Success(succ_cpc) => succ_cpc
@@ -65,24 +63,27 @@ object Accounts extends Controller with APIAuthElement {
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
         }
-        PlatformAppPrimer.clone_cloudtoolsettings(succ.get.email).flatMap { x =>
+              
+        PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
           Status(CREATED)(
-            FunnelResponse(CREATED, """Onboard successful.
-            |
-            |email '%s' and api_key '%s' is registered - @megam.""".
-              format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
+            FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
+              format(succ.get.email,succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
         } match {
           case Success(succ_cpc) => succ_cpc
           case Failure(errcpc) =>
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
         }
-      case Failure(err) => {
+
+       
+  
+        case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
       }
     }
   }
+  
   /*
    * GET: findByEmail: Show a particular account by email 
    * Email provided in the URI.

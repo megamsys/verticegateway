@@ -1,5 +1,5 @@
 /* 
-** Copyright [2013-2014] [Megam Systems]
+** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import controllers.funnel.SerializationBase
 import models._
 
 /**
- * @author ram
+ * @author rajthilak
  *
  */
 object AppRequestResultsSerialization extends SerializationBase[AppRequestResults] {
@@ -56,7 +56,7 @@ object AppRequestResultsSerialization extends SerializationBase[AppRequestResult
           val nrs: AppRequestResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[AppRequestResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AppRequestResults]
       }
     }
   }
