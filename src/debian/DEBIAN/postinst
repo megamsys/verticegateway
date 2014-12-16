@@ -8,8 +8,6 @@ MEGAM_USER=megam
 
 LOG=/var/log/megam/megamgateway/megamgateway.log
 
-[ -f /var/run/megam/megamgateway/ ] &&  mkdir -p /var/run/megam/megamgateway/
-[ -f /var/log/megam/megamgateway/ ] &&  mkdir -p /var/log/megam/megamgateway/
 echo "Directory /var/run/megam/megamgateway/ created ==> " >> $LOG
 if [ "$1" = "configure" ]; then
 echo "IF CONFIGURE CHECK ==> " >> $LOG
