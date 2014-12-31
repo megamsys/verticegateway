@@ -8,9 +8,7 @@ MEGAM_USER=megam
 
 LOG=/var/log/megam/megamgateway/megamgateway.log
 
-[ -f /var/run/megam/megamgateway/ ] &&  mkdir -p /var/run/megam/megamgateway/
-[ -f /var/log/megam/megamgateway/ ] &&  mkdir -p /var/log/megam/megamgateway/
-echo "Directory /var/run/megam/megamgateway/ created ==> " >> $LOG
+
 if [ "$1" = "configure" ]; then
 echo "IF CONFIGURE CHECK ==> " >> $LOG
     # Use dpkg-statoverride instead of direct chmod/chown
@@ -38,7 +36,7 @@ fi
 
          echo "OUT of loop ==> " >> $LOG
 
-[ -f /var/run/megamgateway ] && rm -rf /var/run/megamgateway
+[ -d /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
 
 sed -i 's/^[ \t]*storage_backend .*/storage_backend = leveldb/' /etc/riak/riak.conf
