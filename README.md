@@ -10,7 +10,7 @@ mean when a customer is onboarded an api_key is generated an stored in a secure 
 ### Requirements
 
 > 
-[RabbitMQ 3.2.0 +](http://www.rabbitmq.com)
+[RabbitMQ 3.3.0 +](http://www.rabbitmq.com)
 [OpenJDK 7.0](http://openjdk.java.net/install/index.html)
 [Riak 2.0.2 +](http://docs.basho.com/riak/latest/downloads/)
 
