@@ -1,4 +1,6 @@
 [ -d /var/run/megam/megamgateway/ ] ||  mkdir -p /var/run/megam/megamgateway/
 [ -d /var/log/megam/megamgateway/ ] ||  mkdir -p /var/log/megam/megamgateway/
 
+LOG=/var/log/megam/megamgateway/megamgateway.log
+
 echo "Directory /var/run/megam/megamgateway/ created ==> " >> $LOG
