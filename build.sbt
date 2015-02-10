@@ -80,7 +80,7 @@ dockerExposedPorts in Docker := Seq(9000, 9443)
 dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
 
 
-
 rpmRequirements ++= Seq("curl", "megamcommon", "megamsnowflake", "pwgen","java-1.7.0-openjdk-headless", "bash")
-rpmLicense := Some("Apache 2.0")
+
+rpmLicense := Some("Apache")
 
