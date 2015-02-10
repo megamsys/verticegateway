@@ -7,7 +7,7 @@ object ApplicationBuild extends Build {
 
   val appName = "megamgateway"
 
-  val appVersion = "0.5.0"
+  val appVersion = "0.6.0"
 
   val organization = "Megam Systems"
 
