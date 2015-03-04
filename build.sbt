@@ -5,7 +5,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 import NativePackagerHelper._
 import NativePackagerKeys._
 
-import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart}
+import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart,Systemd}
 
 scalaVersion := "2.10.4"
 
@@ -19,7 +19,7 @@ scalacOptions := Seq(
   "-Xverify",
   "-Yinline",
   "-Yclosure-elim",
-  //"-Yconst-opt", 
+  //"-Yconst-opt",
   //"-Ybackend:GenBCode",
   //"closurify:delegating",
   "-language:implicitConversions",
@@ -65,6 +65,7 @@ linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Li
       packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
 }
 
+
 name in Docker := "megamgateway"
 
 maintainer in Docker := "Rajthilak <rajthilak@megam.co.in>"
@@ -79,5 +80,8 @@ dockerExposedPorts in Docker := Seq(9000, 9443)
 
 dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
 
+rpmRequirements ++= Seq("curl", "megamcommon", "megamsnowflake", "pwgen","java-1.7.0-openjdk-headless", "bash")
 
+rpmLicense := Some("Apache")
 
+serverLoading in Rpm := Systemd
