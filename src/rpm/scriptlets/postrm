@@ -1,3 +1,4 @@
+echo "post remove testing 1-value--> $1" >/dev/stdout
 if [ "$1" = "remove" ]; then
 [ -d /var/log/megam/megamgateway/ ] && rm -rf /var/log/megam/megamgateway/
 [ -d /var/run/megam/megamgateway/ ] && rm -rf /var/run/megam/megamgateway/
