@@ -63,12 +63,12 @@ GET    /v2/csars/:id 		     controllers.camp.CSARs.show(id: String)
 GET   /v2/csars/push/:id         controllers.camp.CSARs.push(id: String)
 
 #Assemblies
-POST   /v2/assemblies/content     controllers.camp.Assemblies.post
-GET	   /v2/assemblies	          controllers.camp.Assemblies.list
-GET    /v2/assemblies/:id         controllers.camp.Assemblies.show(id: String)
-GET    /v2/assembly/:id           controllers.camp.Assembly.show(id: String)
-POST   /v2/assembly/update        controllers.camp.Assembly.update
-GET    /v2/components/:id         controllers.camp.Components.show(id: String)
+POST   /v2/assemblies/content    	 controllers.camp.Assemblies.post
+GET	   /v2/assemblies	          	controllers.camp.Assemblies.list
+GET    /v2/assemblies/:id         	controllers.camp.Assemblies.show(id: String)
+GET    /v2/assembly/:id           	controllers.camp.Assembly.show(id: String)
+POST   /v2/assembly/update       	 controllers.camp.Assembly.update
+GET    /v2/components/:id         	controllers.camp.Components.show(id: String)
 POST   /v2/components/update        controllers.camp.Components.update
 
 # Requests for Assemblies 
@@ -80,6 +80,10 @@ POST   /v2/requests/content             controllers.Requests.post
 POST   /v2/cloudtoolsettings/content    controllers.CloudToolSettings.post
 GET    /v2/cloudtoolsettings            controllers.CloudToolSettings.list
 GET    /v2/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: String)
+
+#Continious Integration
+POST   /v2/cis/content                  controllers.camp.ContiniousIntegration.post
+#GET    /v2/cis							controllers.camp.ContiniousIntegration.list
 
 # AppRequests for Assembly
 POST   /v2/apprequests/content             controllers.AppRequests.post
