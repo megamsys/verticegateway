@@ -187,7 +187,7 @@ object CSARJson {
           new ComponentInputs(getValue("domain", lvalue), "", "", "", "", getValue("source", lvalue),
             new DesignInputs("", "", "", "", ComponentDesignInputsWires.empty), new ServiceInputs("", "")),
           "", new Artifacts("", "", ""),
-          "", new ComponentOperations("", ""))
+          "", new ComponentOperations("", ""), ComponentOthers.empty)
 
         valu
     }

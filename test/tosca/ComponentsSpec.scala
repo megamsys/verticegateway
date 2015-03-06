@@ -96,6 +96,7 @@ class ComponentsSpec extends Specification {
         "\"operation_type\":\"\"," +
         "\"target_resource\":\"\"" +
         "}," +
+        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}]," +
         "\"created_at\":\"2014-10-29 14:06:39 +0000\"" +
         "}"
 
