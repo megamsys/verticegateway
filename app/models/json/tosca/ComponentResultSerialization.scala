@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ ComponentResult, ComponentsList, ComponentInputs, ComponentOperations, Artifacts, ComponentRequirements, ComponentOthers }
+import models.tosca.{ ComponentResult, ComponentsList, ComponentInputsResult, ComponentOperations, Artifacts, ComponentRequirements, ComponentOthers }
 
 /**
  * @author rajthilak
@@ -51,7 +51,7 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
   override implicit val writer = new JSONW[ComponentResult] {
 
     import ComponentRequirementsSerialization.{ writer => ComponentRequirementsWriter }
-    import models.json.tosca.ComponentInputsSerialization.{ writer => ComponentInputsWriter }
+    import models.json.tosca.ComponentInputsResultSerialization.{ writer => ComponentInputsResultWriter }
     import models.json.tosca.ArtifactsSerialization.{ writer => ArtifactsWriter }
     import models.json.tosca.ComponentOperationsSerialization.{ writer => ComponentOperationsWriter }
     import models.json.tosca.ComponentOthersSerialization.{ writer => ComponentOthersWriter }
@@ -63,7 +63,7 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
           JField(NameKey, toJSON(h.name)) ::
           JField(ToscaTypeKey, toJSON(h.tosca_type)) ::
           JField(RequirementsKey, toJSON(h.requirements)(ComponentRequirementsWriter)) ::
-          JField(InputsKey, toJSON(h.inputs)(ComponentInputsWriter)) ::
+          JField(InputsKey, toJSON(h.inputs)(ComponentInputsResultWriter)) ::
           JField(ExternalManagementResourceKey, toJSON(h.external_management_resource)) ::
           JField(ArtifactsKey, toJSON(h.artifacts)(ArtifactsWriter)) ::
           JField(RelatedComponentsKey, toJSON(h.related_components)) ::
@@ -75,7 +75,7 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
 
   override implicit val reader = new JSONR[ComponentResult] {
     
-    import models.json.tosca.ComponentInputsSerialization.{ reader => ComponentInputsReader}
+    import models.json.tosca.ComponentInputsResultSerialization.{ reader => ComponentInputsResultReader}
     import models.json.tosca.ArtifactsSerialization.{ reader => ArtifactsReader }
     import models.json.tosca.ComponentOperationsSerialization.{ reader => ComponentOperationsReader }
     import models.json.tosca.ComponentOthersSerialization.{ reader => ComponentOthersReader }
@@ -86,7 +86,7 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
       val nameField = field[String](NameKey)(json)
       val toscaTypeField = field[String](ToscaTypeKey)(json)
       val requirementsField = field[ComponentRequirements](RequirementsKey)(json)(ComponentRequirementsReader)
-      val inputsField = field[ComponentInputs](InputsKey)(json)(ComponentInputsReader)
+      val inputsField = field[ComponentInputsResult](InputsKey)(json)(ComponentInputsResultReader)
       val externalManagementResourceField = field[String](ExternalManagementResourceKey)(json)  
       val artifactsField = field[Artifacts](ArtifactsKey)(json)(ArtifactsReader)
       val relatedComponentsField = field[String](RelatedComponentsKey)(json)
@@ -95,7 +95,7 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
       val createdAtField = field[String](CreatedAtKey)(json)
 
       (idField |@| nameField |@| toscaTypeField |@| requirementsField |@| inputsField |@| externalManagementResourceField |@| artifactsField |@| relatedComponentsField |@| operationsField |@| othersField |@| createdAtField) {
-          (id: String, name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations, others: ComponentOthers, created_at: String) =>
+          (id: String, name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputsResult, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations, others: ComponentOthers, created_at: String) =>
           new ComponentResult(id, name, tosca_type, requirements, inputs, external_management_resource, artifacts, related_components, operations, others, created_at)
       }
     }

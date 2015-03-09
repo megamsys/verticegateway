@@ -44,11 +44,11 @@ import java.nio.charset.Charset
  *
  */
 
-case class ContiniousIntegrationInput(scm: String, component_id: String) {
-  val json = "{\"scm\":\"" + scm + "\",\"component_id\":\"" + component_id + "\"}"
+case class ContiniousIntegrationInput(enable: String, scm: String, component_id: String, assembly_id: String) {
+  val json = "{\"enable\":\"" + enable + "\",\"scm\":\"" + scm + "\",\"component_id\":\"" + component_id + "\",\"assembly_id\":\"" + assembly_id + "\"}"
 }
 
-case class ContiniousIntegrationResult(id: String, scm: String, component_id: String, created_at: String) {
+case class ContiniousIntegrationResult(id: String, enable: String, scm: String, component_id: String, assembly_id: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -112,7 +112,7 @@ object ContiniousIntegration {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "cig").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(cig.scm)
-      val json = new ContiniousIntegrationResult(uir.get._1 + uir.get._2, cig.scm, cig.component_id, Time.now.toString).toJson(false)
+      val json = new ContiniousIntegrationResult(uir.get._1 + uir.get._2, cig.enable, cig.scm, cig.component_id, cig.assembly_id, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -137,7 +137,7 @@ object ContiniousIntegration {
             case Some(thatGS) => Tuple2(thatGS.key, "").some.successNel[Throwable]
             case None => {	
               play.api.Logger.warn(("%-20s -->[%s]").format("ContiniousIntegration.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.value, "").some.successNel[Throwable];
+              (gs.get.key, "").some.successNel[Throwable];
             }
           }
         }

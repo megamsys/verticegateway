@@ -37,7 +37,9 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   
      protected val ScmKey = "scm"
+     protected val EnableKey = "enable"
      protected val ComponentIDKey = "component_id"
+     protected val AssemblyIDKey = "assembly_id"
      protected val IdKey = "id"
      protected val CreatedAtKey ="created_at"
  
@@ -47,8 +49,10 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
     override def write(h: ContiniousIntegrationResult): JValue = {
       JObject(
        
+          JField(EnableKey, toJSON(h.enable)) ::
           JField(ScmKey, toJSON(h.scm)) ::
           JField(ComponentIDKey, toJSON(h.component_id)) ::
+          JField(AssemblyIDKey, toJSON(h.assembly_id)) ::
            JField(IdKey, toJSON(h.id)) ::
            JField(CreatedAtKey, toJSON(h.created_at))   ::          
           Nil)
@@ -60,13 +64,15 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
     override def read(json: JValue): Result[ContiniousIntegrationResult] = {
       
        val idField = field[String](IdKey)(json)
+       val enableField = field[String](EnableKey)(json)
       val scmField = field[String](ScmKey)(json)
       val componentIDField = field[String](ComponentIDKey)(json)
+      val assemblyIDField = field[String](AssemblyIDKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
       
-      (idField |@| scmField |@| componentIDField |@| createdAtField) {
-        (id: String, scm: String, component_id: String, created_at: String) =>
-          new ContiniousIntegrationResult(id, scm, component_id, created_at)
+      (idField |@| enableField |@| scmField |@| componentIDField |@| assemblyIDField |@| createdAtField) {
+        (id: String, enable: String, scm: String, component_id: String, assembly_id: String, created_at: String) =>
+          new ContiniousIntegrationResult(id, enable, scm, component_id, assembly_id, created_at)
       }
     }
   }

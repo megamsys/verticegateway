@@ -84,6 +84,10 @@ class ComponentsSpec extends Specification {
         "\"service_inputs\":{" +
         "\"dbname\":\"\"," +
         "\"dbpassword\":\"\"" +
+        "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"ci\":\"true\"" +
         "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +

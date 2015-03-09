@@ -40,5 +40,6 @@ object MConfig {
   val cloudper_node_exchage_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.exchange.prefix").get
   val cloudrecipe_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudrecipe.queue").get
   val cloudrecipe_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudrecipe.exchange").get   
-
+  val ci_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.ci.queue").get
+  val ci_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.ci.exchange").get       
 }

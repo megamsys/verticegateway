@@ -82,8 +82,11 @@ class AssembliesSpec extends Specification {
         "\"service_inputs\":{" +
         "\"dbname\":\"\"," +
         "\"dbpassword\":\"\"" +
-        "}" +
         "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"enable\":\"true\"" +
+        "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -95,7 +98,7 @@ class AssembliesSpec extends Specification {
         "\"operation_type\":\"\"," +
         "\"target_resource\":\"\"" +
         "}," +
-        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}]" +
+        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}, {\"otherkey\":\"ci\",\"othervalue\":\"github\"}]" +
         "}" +
         "]," +
         "\"policies\":[" +
@@ -140,8 +143,11 @@ class AssembliesSpec extends Specification {
         "\"service_inputs\":{" +
         "\"dbname\":\"\"," +
         "\"dbpassword\":\"\"" +
-        "}" +
         "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"enable\":\"true\"" +
+        "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -153,7 +159,7 @@ class AssembliesSpec extends Specification {
         "\"operation_type\":\"\"," +
         "\"target_resource\":\"\"" +
         "}," +
-        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}]," +
+        "\"others\":[]," +
         "}," +
         "{" +
         "\"name\":\"MasonHernandez\"," +
@@ -181,8 +187,11 @@ class AssembliesSpec extends Specification {
         "\"service_inputs\":{" +
         "\"dbname\":\"\"," +
         "\"dbpassword\":\"\"" +
-        "}" +
         "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"enable\":\"true\"" +
+        "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -194,7 +203,7 @@ class AssembliesSpec extends Specification {
         "\"operation_type\":\"\"," +
         "\"target_resource\":\"\"" +
         "}," +
-        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}]," +
+        "\"others\":[]," +
         "}" +
         "]," +
         "\"policies\":[" +
