@@ -91,12 +91,12 @@ object ComponentInputsResult {
   def empty: ComponentInputsResult = new ComponentInputsResult(new String(), new String(), new String, new String(), new String(), new String(), DesignInputs.empty, ServiceInputs.empty, new String())
 }
 
-case class CI(scm: String, enable: String) {
-  val json = "{\"scm\":\"" + scm + "\",\"enable\":\"" + enable + "\"}"
+case class CI(scm: String, enable: String, token: String, owner: String) {
+  val json = "{\"scm\":\"" + scm + "\",\"enable\":\"" + enable + "\",\"token\":\"" + token + "\",\"owner\":\"" + owner + "\"}"
 }
 
 object CI {
-  def empty: CI = new CI(new String(), new String())
+  def empty: CI = new CI(new String(), new String(), new String(), new String())
 }
 
 case class ExResource(url: String) {
@@ -371,7 +371,7 @@ object ComponentsList {
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })     
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "com").get leftMap { ut: NonEmptyList[Throwable] => ut })
-      cig <- (ContiniousIntegration.create(email, "{\"enable\":\"" + input.inputs.ci.enable +"\",\"scm\":\""+ input.inputs.ci.scm + "\",\"component_id\":\""+ (uir.get._1 + uir.get._2) + "\",\"assembly_id\":\""+ asm_id +"\"}") leftMap { t: NonEmptyList[Throwable] => t })
+      cig <- (ContiniousIntegration.create(email, "{\"enable\":\"" + input.inputs.ci.enable +"\",\"scm\":\""+ input.inputs.ci.scm + "\",\"token\":\"" + input.inputs.ci.token + "\",\"owner\":\""+ input.inputs.ci.owner + "\",\"component_id\":\""+ (uir.get._1 + uir.get._2) + "\",\"assembly_id\":\""+ asm_id +"\"}") leftMap { t: NonEmptyList[Throwable] => t })
       ciq <- (ContiniousIntegrationPublish((uir.get._1 + uir.get._2), cig.get._1).dop leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)

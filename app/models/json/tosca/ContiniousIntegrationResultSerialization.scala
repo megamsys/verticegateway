@@ -38,6 +38,8 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
   
      protected val ScmKey = "scm"
      protected val EnableKey = "enable"
+     protected val TokenKey = "token"
+     protected val OwnerKey = "owner"
      protected val ComponentIDKey = "component_id"
      protected val AssemblyIDKey = "assembly_id"
      protected val IdKey = "id"
@@ -51,6 +53,8 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
        
           JField(EnableKey, toJSON(h.enable)) ::
           JField(ScmKey, toJSON(h.scm)) ::
+          JField(TokenKey, toJSON(h.token)) ::
+          JField(OwnerKey, toJSON(h.owner)) ::
           JField(ComponentIDKey, toJSON(h.component_id)) ::
           JField(AssemblyIDKey, toJSON(h.assembly_id)) ::
            JField(IdKey, toJSON(h.id)) ::
@@ -66,13 +70,15 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
        val idField = field[String](IdKey)(json)
        val enableField = field[String](EnableKey)(json)
       val scmField = field[String](ScmKey)(json)
+      val tokenField = field[String](TokenKey)(json)
+      val ownerField = field[String](OwnerKey)(json)
       val componentIDField = field[String](ComponentIDKey)(json)
       val assemblyIDField = field[String](AssemblyIDKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
       
-      (idField |@| enableField |@| scmField |@| componentIDField |@| assemblyIDField |@| createdAtField) {
-        (id: String, enable: String, scm: String, component_id: String, assembly_id: String, created_at: String) =>
-          new ContiniousIntegrationResult(id, enable, scm, component_id, assembly_id, created_at)
+      (idField |@| enableField |@| scmField |@| tokenField |@| ownerField |@| componentIDField |@| assemblyIDField |@| createdAtField) {
+        (id: String, enable: String, scm: String, token: String, owner: String, component_id: String, assembly_id: String, created_at: String) =>
+          new ContiniousIntegrationResult(id, enable, scm, token, owner, component_id, assembly_id, created_at)
       }
     }
   }

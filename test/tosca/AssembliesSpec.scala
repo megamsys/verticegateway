@@ -85,7 +85,9 @@ class AssembliesSpec extends Specification {
         "}," +
         "\"ci\":{" +
         "\"scm\":\"github\"," +
-        "\"enable\":\"true\"" +
+        "\"enable\":\"true\"," +
+        "\"token\":\"token\"," +
+        "\"owner\":\"owner\"" +
         "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
@@ -146,7 +148,9 @@ class AssembliesSpec extends Specification {
         "}," +
         "\"ci\":{" +
         "\"scm\":\"github\"," +
-        "\"enable\":\"true\"" +
+        "\"enable\":\"true\"," +
+        "\"token\":\"token\"," +
+        "\"owner\":\"owner\"" +
         "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
@@ -190,7 +194,9 @@ class AssembliesSpec extends Specification {
         "}," +
         "\"ci\":{" +
         "\"scm\":\"github\"," +
-        "\"enable\":\"true\"" +
+        "\"enable\":\"true\"," +
+        "\"token\":\"token\"," +
+        "\"owner\":\"owner\"" +
         "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +

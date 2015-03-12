@@ -38,6 +38,8 @@ object CISerialization extends SerializationBase[CI] {
 
   protected val SCMKey = "scm"
   protected val EnableKey = "enable"
+  protected val TokenKey = "token"
+  protected val OwnerKey = "owner"
 
   override implicit val writer = new JSONW[CI] {
     
@@ -45,6 +47,8 @@ object CISerialization extends SerializationBase[CI] {
       JObject(
         JField(SCMKey, toJSON(h.scm)) ::
           JField(EnableKey, toJSON(h.enable)) ::    
+          JField(TokenKey, toJSON(h.token)) ::
+          JField(OwnerKey, toJSON(h.owner)) ::    
            Nil)
     }
   }
@@ -54,10 +58,12 @@ object CISerialization extends SerializationBase[CI] {
     override def read(json: JValue): Result[CI] = {
       val scmField = field[String](SCMKey)(json)
       val enableField = field[String](EnableKey)(json)  
+      val tokenField = field[String](TokenKey)(json)
+      val ownerField = field[String](OwnerKey)(json)
       
-      (scmField |@| enableField ) { 
-        (scm: String, enable: String) =>
-          new CI(scm, enable)
+      (scmField |@| enableField |@| tokenField |@| ownerField ) { 
+        (scm: String, enable: String, token: String, owner: String) =>
+          new CI(scm, enable, token, owner)
       }
     }
   }

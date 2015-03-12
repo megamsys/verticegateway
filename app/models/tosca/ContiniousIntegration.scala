@@ -44,11 +44,11 @@ import java.nio.charset.Charset
  *
  */
 
-case class ContiniousIntegrationInput(enable: String, scm: String, component_id: String, assembly_id: String) {
-  val json = "{\"enable\":\"" + enable + "\",\"scm\":\"" + scm + "\",\"component_id\":\"" + component_id + "\",\"assembly_id\":\"" + assembly_id + "\"}"
+case class ContiniousIntegrationInput(enable: String, scm: String, token: String, owner: String, component_id: String, assembly_id: String) {
+  val json = "{\"enable\":\"" + enable + "\",\"scm\":\"" + scm + "\",\"token\":\"" + token + "\",\"owner\":\"" + owner + "\",\"component_id\":\"" + component_id + "\",\"assembly_id\":\"" + assembly_id + "\"}"
 }
 
-case class ContiniousIntegrationResult(id: String, enable: String, scm: String, component_id: String, assembly_id: String, created_at: String) {
+case class ContiniousIntegrationResult(id: String, enable: String, scm: String, token: String, owner: String, component_id: String, assembly_id: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -112,7 +112,7 @@ object ContiniousIntegration {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "cig").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(cig.scm)
-      val json = new ContiniousIntegrationResult(uir.get._1 + uir.get._2, cig.enable, cig.scm, cig.component_id, cig.assembly_id, Time.now.toString).toJson(false)
+      val json = new ContiniousIntegrationResult(uir.get._1 + uir.get._2, cig.enable, cig.scm, cig.token, cig.owner, cig.component_id, cig.assembly_id, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
