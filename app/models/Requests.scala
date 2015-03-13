@@ -48,8 +48,8 @@ case class RequestInputNewNode(node_id: String, node_name: String, req_type: Str
   val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"req_type\":\"" + req_type + "\""
 }
 
-case class RequestInputExistNode(node_name: String, req_type: String) {
-  val json = "\"node_name\":\"" + node_name + "\",\"req_type\":\"" + req_type 
+case class RequestInputExistNode(node_id :String, node_name: String, req_type: String) {
+  val json = "\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"req_type\":\"" + req_type + "\""
 }
 
 case class RequestResult(id: String, node_id: String, node_name: String, req_type: String, created_at: String) {
@@ -153,14 +153,19 @@ object Requests {
       rip <- ripNel
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "rip").get leftMap { ut: NonEmptyList[Throwable] => ut })      
     } yield {
-      val node_id = Array("001change code here")
-      val bvalue = Set(node_id(0))
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"node_id\":\"" + node_id(0) + "\"," + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
+      //val node_id = Array("001change code here")
+      val bvalue = Set(rip.node_id)
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\"," + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
+       
     }    
   }  
 
+  
+  
+  
+  
   /*
    * create new Request with the new 'Nodename' of the node provide as input.
    * A index name nodeID will point to the "nodes" bucket
@@ -194,16 +199,16 @@ object Requests {
   def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple3[String,String,String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
+    
     (mkGunnySackforExistNode(input) leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { gs: Option[GunnySack] =>
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
           val req_result = parse(gs.get.value).extract[RequestResult]
-          play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully", "input", input))
+          play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully--------------------------------------------------------------", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple3(thatGS.key, req_result.node_name,req_result.req_type).some.successNel[Throwable]
+            case Some(thatGS) => Tuple3(thatGS.key, req_result.node_name, req_result.req_type).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Request.created success", "Scaliak returned => None. Thats OK."))
               (gs.get.key, req_result.node_name,req_result.req_type).some.successNel[Throwable]
@@ -246,6 +251,8 @@ object Requests {
 
   }
 
+  
+  
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
    * the nodenames are listed on the index (account.id) in bucket `Nodes`.

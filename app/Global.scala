@@ -34,37 +34,35 @@ import java.io._
  * header has "Content-length" > 5000bytes
  */
 
-
-
-
-object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) => 
-   response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
-  
-  
+object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) =>
+  response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
 
   override def onStart(app: Application) {
-    play.api.Logger.info("megamgateway - started---------------------------------------------------------")
-  
- 
-     val megamprimeddir = new File(Constants.MEGAM_PRIMED_DIR)
+    play.api.Logger.info("megamgateway - started ---------------------------------------------------------")
+
+    val megamprimeddir = new File(Constants.MEGAM_PRIMED_DIR)
     megamprimeddir.mkdirs()
-    
-   val megamprimedfile = new File(Constants.MEGAM_PRIMED_FILE)
+
+    val megamprimedfile = new File(Constants.MEGAM_PRIMED_FILE)
 
     megamprimedfile.exists() match {
-      case true => play.api.Logger.info("ALREADY INITIALIZED")
-      case false =>  play.api.Logger.info("DEFAULT INITIALIZATION ARE DONE")
-                      models.PlatformAppPrimer.acc_prep
-                      models.PlatformAppPrimer.cts_prep
-                      models.PlatformAppPrimer.mkp_prep
-                      models.PlatformAppPrimer.org_prep
-                      models.PlatformAppPrimer.dmn_prep
-                      megamprimedfile.createNewFile();
+      case true => play.api.Logger.info(">> Found megamprimed file, skip priming.")
+      case false =>
+        play.api.Logger.info(">> priming: performing priming.")
+        models.PlatformAppPrimer.acc_prep
+        play.api.Logger.info(">> priming: account..")
+        models.PlatformAppPrimer.mkp_prep
+        play.api.Logger.info(">> priming: marketplace..")
+        models.PlatformAppPrimer.org_prep
+        play.api.Logger.info(">> priming: org..")
+        models.PlatformAppPrimer.dmn_prep
+        play.api.Logger.info(">> priming: complete.")
+        megamprimedfile.createNewFile();
     }
-   }
+  }
 
   override def onStop(app: Application) {
-    play.api.Logger.info("megamgateway - going down.")
+    play.api.Logger.info("megamgateway - going down---------------------------------------------------------")
   }
 
   override def onError(request: RequestHeader, ex: Throwable): Future[play.api.mvc.Result] = {

@@ -1,0 +1,29 @@
+# generated upstart config
+
+description "REST based API server - Gateway for Megam."
+author "Rajthilak <rajthilak@megam.co.in>"
+
+start on startup
+stop on shutdown
+
+#respawn
+script
+    export HOME="/root"
+
+    cd /usr/share/megam/megamgateway/bin/
+    exec sudo ./megamgateway >> /var/log/megam/megamgateway/megamgateway.log 2>&1
+    echo $$ > /var/run/megam/megamgateway/megamgateway.pid
+end script
+
+pre-start script
+ [ -d /var/run/megam/megamnilavu ] || mkdir -p /var/run/megam/megamnilavu
+ [ -d /var/log/megam/megamnilavu ] || mkdir -p /var/log/megam/megamnilavu
+    # Date format same as (new Date()).toISOString() for consistency
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> /var/log/megam/megamgateway/megamgateway.log
+end script
+
+pre-stop script
+    rm /var/run/megam/megamgateway/megamgateway.pid
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> /var/log/megam/megamgateway/megamgateway.log
+end script
+

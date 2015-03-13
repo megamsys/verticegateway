@@ -42,8 +42,9 @@ class CSARsSpec extends Specification {
       CSARsSpec is the implementation that calls the megam_play API server with the /csars url to create csars
     """ ^ end ^
       "The Client Should" ^
-   //  "Correctly do POST requests" ! Post.succeeds ^
-     "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+    // "Correctly do POST requests" ! Post.succeeds ^
+      "Correctly do PUSH requests" ! Push.succeeds ^
+    // "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
    //  "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
    //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
@@ -54,7 +55,7 @@ class CSARsSpec extends Specification {
     protected override def urlSuffix: String = "csars/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = scala.io.Source.fromFile("./test/tosca/appplusdb.csar").mkString
+      val contentToEncode = scala.io.Source.fromFile("./test/tosca/appgroup.csar").mkString
       Some(contentToEncode)
     }
 
@@ -66,6 +67,21 @@ class CSARsSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+
+  }
+  
+  case object Push extends Context {
+
+    protected override def urlSuffix: String = "csars/push/CSR1147833510380306432"
+
+   protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds: SpecsResult = {
+      val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
 
@@ -85,7 +101,7 @@ class CSARsSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "csars/CSR1116033323106435072"
+    protected override def urlSuffix: String = "csars/CSI1147543125976285184"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

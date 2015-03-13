@@ -46,8 +46,8 @@ object Constants {
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
-  val DEFAULT_ORG_NAME = "Default_Org"
-  val DEFAULT_DOMAIN_NAME = "defaultdomain.co"
+  val DEFAULT_ORG_NAME = "org.megam"
+  val DEFAULT_DOMAIN_NAME = "megam.co"
 
   /*Look for a file /var/lib/megam/.megam_auth with fields 
   megam@mypaas.io:<randomlygenerated pw>
@@ -71,15 +71,13 @@ object Constants {
 
   val DELETE_REQUEST = "DELETE"
 
- // val MEGAM_PRIMED = (for {home <- MEGAM_HOME} 
- // yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
-  
-  
-  val MEGAM_PRIMED_DIR = (for {home <- MEGAM_HOME} 
-  yield { home + File.separator + "megamgateway" }).getOrElse("megamgateway")   
-   
-   val MEGAM_PRIMED_FILE = (for {home <- MEGAM_HOME} 
-   yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
+  val MEGAM_PRIMED_DIR = (for {home <- MEGAM_HOME}
+ yield { home + File.separator + "megamgateway" }).getOrElse("megamgateway")
+
+ val MEGAM_PRIMED_FILE = (for {home <- MEGAM_HOME}
+ yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
+
+
     
   
  

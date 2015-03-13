@@ -52,7 +52,7 @@ case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList
 case class CloudSetting(id: String, cstype: String, cloudsettings: String, x: String, y: String, z: String, wires: models.tosca.CSWiresList) {
   val json = "{\"id\":\"" + id + "\",\"cstype\":\"" + cstype + "\",\"cloudsettings\":\"" + cloudsettings + "\",\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"wires\":" + CSWiresList.toJson(wires, true) + "}"
 
-   def toJValue: JValue = {
+  def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     val preser = new models.json.tosca.CloudSettingSerialization()
     toJSON(this)(preser.writer)
@@ -84,6 +84,10 @@ object CloudSetting {
 
 case class AssembliesInputs(id: String, assemblies_type: String, label: String, cloudsettings: models.tosca.CloudSettingsList) {
   val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\",\"cloudsettings\":" + CloudSettingsList.toJson(cloudsettings, true) + "}"
+}
+
+object AssembliesInputs {
+  def empty: AssembliesInputs = new AssembliesInputs(new String(), new String(), new String, models.tosca.CloudSettingsList.emptyRR)
 }
 
 case class AssembliesResult(id: String, accounts_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
@@ -124,7 +128,7 @@ object Assemblies {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("assemblies")
 
-  val metadataKey = "ASSEMBLIES"
+  val metadataKey = "assemblies"
   val metadataVal = "Assemblies Creation"
   val bindex = "assemblies"
 
@@ -189,8 +193,8 @@ object Assemblies {
         }
     }
   }
-  
-   def findByNodeName(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
+
+  def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Assemblies", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", assembliesID))
     (assembliesID map {
@@ -219,6 +223,34 @@ object Assemblies {
     } map {
       _.foldRight((AssembliesResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
+  }
+
+  /*
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * the csarnames are listed on the index (account.id) in bucket `CSARs`.
+   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]] 
+   * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
+   */
+  def findByEmail(email: String): ValidationNel[Throwable, AssembliesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assemblies", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, AssembliesResults]] {
+      (((for {
+        aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        val bindex = ""
+        val bvalue = Set("")
+        play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assemblies", "findByEmail" + aor.get.id))
+        new GunnySack("assemblies", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
+      } map { nm: List[String] =>
+        (if (!nm.isEmpty) findById(nm.some) else
+          new ResourceItemNotFound(email, "Assemblies = nothing found for the user.").failureNel[AssembliesResults])
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new ResourceItemNotFound(email, "Assemblies = nothing found for the users.").failureNel[AssembliesResults])
   }
 
 }

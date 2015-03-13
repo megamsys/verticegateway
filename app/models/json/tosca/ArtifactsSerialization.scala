@@ -38,7 +38,7 @@ object ArtifactsSerialization extends SerializationBase[Artifacts] {
 
   protected val ArtifactTypeKey = "artifact_type"
   protected val ContentKey = "content"
-  protected val RequirementsKey = "requirements"
+  protected val ArtifactRequirementsKey = "artifact_requirements"
 
   override implicit val writer = new JSONW[Artifacts] {
 
@@ -49,7 +49,7 @@ object ArtifactsSerialization extends SerializationBase[Artifacts] {
         JField(ArtifactTypeKey, toJSON(h.artifact_type)) ::
           JField(ContentKey, toJSON(h.content)) ::
      //     JField(RequirementsKey, toJSON(h.requirements)(ArtifactRequirementsWriter)) :: 
-          JField(RequirementsKey, toJSON(h.requirements)) :: 
+          JField(ArtifactRequirementsKey, toJSON(h.artifact_requirements)) :: 
            Nil)
     }
   }
@@ -62,11 +62,11 @@ object ArtifactsSerialization extends SerializationBase[Artifacts] {
       val artifacttypeField = field[String](ArtifactTypeKey)(json)
       val contentField = field[String](ContentKey)(json)    
    //   val requirementsField = field[String](RequirementsKey)(json)(ArtifactRequirementsReader)
-      val requirementsField = field[String](RequirementsKey)(json)
+      val artifactrequirementsField = field[String](ArtifactRequirementsKey)(json)
       
-      (artifacttypeField |@| contentField |@| requirementsField) {
-        (artifacttype: String, content: String, requirements: String) =>
-          new Artifacts(artifacttype, content, requirements)
+      (artifacttypeField |@| contentField |@| artifactrequirementsField) {
+        (artifacttype: String, content: String, artifact_requirements: String) =>
+          new Artifacts(artifacttype, content, artifact_requirements)
       }
     }
   }

@@ -56,8 +56,8 @@ object Requests extends Controller with APIAuthElement {
           models.Requests.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
               val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
-
-              //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
+                
+                                                     //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
               if (email.trim.equalsIgnoreCase(DEMO_EMAIL))
                 Status(CREATED)(FunnelResponse(CREATED, """Request initiation dryrun submitted successfully.
             |
@@ -66,7 +66,7 @@ object Requests extends Controller with APIAuthElement {
               else {
                 //create delete method
                 val pubres = if (tuple_succ._3.trim.equalsIgnoreCase(DELETE_REQUEST)) {
-                   val update_json = "{\"node_name\":\"" + tuple_succ._3 + "\",\"accounts_id\":\"\",\"status\":\"DELETED\",\"appdefnsid\":\"\",\"boltdefnsid\":\"\",\"new_node_name\":\"\"}"
+                   val update_json = "{\"node_id\"" + tuple_succ._1 + "\",\"node_name\":\"" + tuple_succ._2 + "\",\"req_type\":\"DELETED\"}"
                   for {
                    // uop <-  models.Nodes.update(update_json) 
                     csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop                    
@@ -106,6 +106,9 @@ object Requests extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+  
+  
+  
   /*
    * GET: findByNodeName: Show requests for a  node name per user(by email)
    * Email grabbed from header

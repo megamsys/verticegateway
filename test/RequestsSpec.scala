@@ -38,6 +38,7 @@ class RequestsSpec extends Specification {
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
       //"Correctly do GET  (node name)requests with a invalid Node name" ! findByInvalidName.succeeds ^
       //"Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
+      "Correctly do POST request with a valid userid and api key" ! PostDel.succeeds ^
       end
 
   /**
@@ -50,6 +51,28 @@ class RequestsSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val command = "{\"req_type\":\"STOP\"}"
       val contentToEncode = "{\"req_type\":\"STOP\",\"node_name\":\"appsample1.megam.co\",\"command\":" +
+        command + "}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+  
+   case object PostDel extends Context {
+
+    protected override def urlSuffix: String = "requests/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val command = "{\"req_type\":\"DELETE\"}"
+      val contentToEncode = "{\"req_type\":\"DELETE\",\"node_name\":\"appsample1.megam.co\",\"command\":" +
         command + "}"
       Some(new String(contentToEncode))
     }

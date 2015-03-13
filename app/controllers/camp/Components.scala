@@ -68,6 +68,27 @@ object Components extends Controller with APIAuthElement {
 
   }
 
+  def update = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Components wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          models.tosca.Component.update(email, clientAPIBody) match {
+            case Success(succ) => Ok(ComponentsResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
   
   /*
    * GET: findbyEmail: List all the Assemblies per email

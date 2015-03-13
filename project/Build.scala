@@ -7,7 +7,7 @@ object ApplicationBuild extends Build {
 
   val appName = "megamgateway"
 
-  val appVersion = "0.5.0"
+  val appVersion = "0.6.0"
 
   val organization = "Megam Systems"
 
@@ -17,14 +17,14 @@ object ApplicationBuild extends Build {
 
   val description = "Megam Gateway :REST API server for the megam platform using Riak, Snowflake(UID), Memcache"
 
-  val play2AuthVersion = "0.12.0"
+  val play2AuthVersion = "0.13.0"
 
-  val megamVersion = "0.5.7"
+  val megam_commonVersion = "0.5.6"
 
   val appDependencies = Seq(
     javaCore, cache, javaEbean, filters,
     "com.stackmob" % "scaliak_2.10" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
-    "com.github.indykish" %% "megam_common" % megamVersion,
+    "com.github.indykish" %% "megam_common" % megam_commonVersion,
     "com.github.mumoshu" %% "play2-memcached" % "0.6.0",
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
     "org.yaml" % "snakeyaml" % "1.13",

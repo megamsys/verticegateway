@@ -32,7 +32,7 @@ import controllers.Constants._
 import models._
 import models.riak._
 import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.{ GSRiak, GunnySack }
 import org.megam.common.uid.UID
@@ -43,8 +43,6 @@ import scala.collection.JavaConversions._
 import models.cache._
 import org.yaml.snakeyaml.Yaml
 
-
-
 /**
  * @author rajthilak
  *
@@ -53,7 +51,7 @@ import org.yaml.snakeyaml.Yaml
 case class CSARLinkInput(kachha: String) {
   val TOSCA_DESCRIPTION = "description"
 
-  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatch[Map[String,String]] {
+  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatch[Map[String, String]] {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "kacchaMango:Entry"))
     mapAsScalaMap[String, String](new Yaml().load(kachha).asInstanceOf[java.util.Map[String, String]]).toMap
   } leftMap { t: Throwable => t
@@ -70,7 +68,7 @@ case class CSARLinkResult(id: String, desc: String)
 object CSARLinks {
 
   implicit val formats = DefaultFormats
-  private val riak = GWRiak( "csarlinks")
+  private val riak = GWRiak("csarlinks")
   implicit def CSARsSemigroup: Semigroup[CSARLinkResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
   val metadataKey = "csarlinkkey"
@@ -120,7 +118,7 @@ object CSARLinks {
           maybeGS match {
             case Some(thatGS) => CSARLinkResult(thatGS.key, thatGS.value).successNel[Throwable]
             case None => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("desc", gs._1 +"," + gs._2.get))
+              play.api.Logger.debug(("%-20s -->[%s]").format("desc", gs._1 + "," + gs._2.get))
               play.api.Logger.warn(("%-20s -->[%s]").format("CSARLink.created success", "Scaliak returned => None. Thats OK."))
               CSARLinkResult(gs._2.get.key, gs._1).successNel[Throwable]
             }
@@ -142,7 +140,7 @@ object CSARLinks {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.tosca.CSARLinkResult]  {
+              (Validation.fromTryCatch[models.tosca.CSARLinkResult] {      
                 CSARLinkResult(csarLinkName, xs.value)
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(csarLinkName, t.getMessage)

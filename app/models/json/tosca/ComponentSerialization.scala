@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Component, ComponentRequirements, Artifacts, ComponentInputs, ExResource, ComponentOperations }
+import models.tosca.{ Component, ComponentRequirements, Artifacts, ComponentInputs, ExResource, ComponentOperations, ComponentOthers }
 
 /**
  * @author rajthilak
@@ -44,12 +44,14 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
   protected val ArtifactsKey = "artifacts"
   protected val RelatedComponentsKey = "related_components"
   protected val OperationsKey = "operations"
+  protected val OthersKey = "others"
     
   override implicit val writer = new JSONW[Component] {
     
     import ComponentRequirementsSerialization.{ writer => ComponentRequirementsWriter }
     import ComponentOperationsSerialization.{ writer => ComponentOperationsWriter }
     import ComponentInputsSerialization.{ writer => ComponentInputsWriter }
+    import ComponentOthersSerialization.{ writer => ComponentOthersWriter }
  //  import ExResourceSerialization.{ writer => ExResourceWriter }
     import ArtifactsSerialization.{ writer => ArtifactsWriter }
     
@@ -65,7 +67,8 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
           JField(ExternalManagementResourceKey, toJSON(h.external_management_resource)) ::
           JField(ArtifactsKey, toJSON(h.artifacts)(ArtifactsWriter)) ::
           JField(RelatedComponentsKey, toJSON(h.related_components)) ::
-          JField(OperationsKey, toJSON(h.operations)(ComponentOperationsWriter)) :: Nil)
+          JField(OperationsKey, toJSON(h.operations)(ComponentOperationsWriter)) ::
+          JField(OthersKey, toJSON(h.others)(ComponentOthersWriter)) :: Nil)
     }
   }
 
@@ -74,6 +77,7 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
     import ComponentRequirementsSerialization.{ reader => ComponentRequirementsReader }
     import ComponentOperationsSerialization.{ reader => ComponentOperationsReader }
     import ComponentInputsSerialization.{ reader => ComponentInputsReader }
+    import ComponentOthersSerialization.{ reader => ComponentOthersReader }
  //   import ExResourceSerialization.{ reader => ExResourceReader }
     import ArtifactsSerialization.{ reader => ArtifactsReader }
 
@@ -88,11 +92,12 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
       val artifactsField = field[Artifacts](ArtifactsKey)(json)(ArtifactsReader)
       val relatedcomponentsField = field[String](RelatedComponentsKey)(json) 
       val operationsField = field[ComponentOperations](OperationsKey)(json)(ComponentOperationsReader)
+      val othersField = field[ComponentOthers](OthersKey)(json)(ComponentOthersReader)
 
-      (nameField |@| toscatypeField |@| requirementsField |@| inputsField |@| externalmanagementresourceField |@| artifactsField |@| relatedcomponentsField |@| operationsField) {
+      (nameField |@| toscatypeField |@| requirementsField |@| inputsField |@| externalmanagementresourceField |@| artifactsField |@| relatedcomponentsField |@| operationsField |@| othersField) {
  //       (name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: ExResource, artifacts: Artifacts, related_components: String, operations: ComponentOperations) =>
-        (name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations) =>
-          new Component(name, tosca_type, requirements, inputs, external_management_resource, artifacts, related_components, operations)
+        (name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations, others: ComponentOthers) =>
+          new Component(name, tosca_type, requirements, inputs, external_management_resource, artifacts, related_components, operations, others)
       }
     }
   }

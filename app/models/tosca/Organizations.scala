@@ -86,8 +86,6 @@ object Organizations {
   private val riak = GWRiak("organizations")
 
   implicit def OrganizationsResultsSemigroup: Semigroup[OrganizationsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  //implicit def OrganizationsProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
-
   
   
   val metadataKey = "Organizations"
@@ -177,5 +175,29 @@ object Organizations {
       _.foldRight((OrganizationsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
   }
+  
+  
+   def findByEmail(email: String): ValidationNel[Throwable, OrganizationsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, OrganizationsResults]] {
+      (((for {
+        aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        val bindex = ""
+        val bvalue = Set("")
+         play.api.Logger.debug(("%-20s -->[%s]").format(" Organizations result", aor.get))
+        new GunnySack("organization", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
+      } map { nm: List[String] =>
+        (if (!nm.isEmpty) findByName(nm.some) else
+          new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
+  }
+  
 }
 

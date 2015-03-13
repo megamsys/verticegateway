@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ ComponentInputs, DesignInputs, ServiceInputs }
+import models.tosca.{ ComponentInputs, DesignInputs, ServiceInputs, CI }
 
 /**
  * @author rajthilak
@@ -44,11 +44,13 @@ object ComponentInputsSerialization extends SerializationBase[ComponentInputs] {
   protected val SourceKey = "source"
   protected val DesignInputsKey = "design_inputs"
   protected val ServiceInputsKey = "service_inputs"
+  protected val CIKey = "ci"
 
   override implicit val writer = new JSONW[ComponentInputs] {
 
      import DesignInputsSerialization.{ writer => DesignInputsWriter }
      import ServiceInputsSerialization.{ writer => ServiceInputsWriter }
+     import CISerialization.{ writer => CIWriter }
     
     override def write(h: ComponentInputs): JValue = {
       JObject(       
@@ -60,6 +62,7 @@ object ComponentInputsSerialization extends SerializationBase[ComponentInputs] {
           JField(SourceKey, toJSON(h.source)) ::
            JField(DesignInputsKey, toJSON(h.design_inputs)(DesignInputsWriter)) ::
           JField(ServiceInputsKey, toJSON(h.service_inputs)(ServiceInputsWriter)) ::
+          JField(CIKey, toJSON(h.ci)(CIWriter)) ::
            Nil)
     }
   }
@@ -67,7 +70,8 @@ object ComponentInputsSerialization extends SerializationBase[ComponentInputs] {
   override implicit val reader = new JSONR[ComponentInputs] {
 
     import DesignInputsSerialization.{ reader => DesignInputsReader }
-     import ServiceInputsSerialization.{ reader => ServiceInputsReader }
+    import ServiceInputsSerialization.{ reader => ServiceInputsReader }
+    import CISerialization.{ reader => CIReader }
     
     override def read(json: JValue): Result[ComponentInputs] = {   
       val domainField = field[String](DomainKey)(json)    
@@ -78,10 +82,11 @@ object ComponentInputsSerialization extends SerializationBase[ComponentInputs] {
       val sourceField = field[String](SourceKey)(json)
       val designinputsField = field[DesignInputs](DesignInputsKey)(json)(DesignInputsReader)
       val serviceinputsField = field[ServiceInputs](ServiceInputsKey)(json)(ServiceInputsReader)
+      val ciField = field[CI](CIKey)(json)(CIReader)
       
-      (domainField |@| portField |@| usernameField |@| passwordField |@| versionField |@| sourceField |@| designinputsField |@| serviceinputsField) { 
-        (domain: String, port: String, username: String, password: String, version: String, source: String, design_inputs: DesignInputs, service_inputs: ServiceInputs) =>
-          new ComponentInputs(domain, port, username, password, version, source, design_inputs, service_inputs)
+      (domainField |@| portField |@| usernameField |@| passwordField |@| versionField |@| sourceField |@| designinputsField |@| serviceinputsField |@| ciField) { 
+        (domain: String, port: String, username: String, password: String, version: String, source: String, design_inputs: DesignInputs, service_inputs: ServiceInputs, ci: CI) =>
+          new ComponentInputs(domain, port, username, password, version, source, design_inputs, service_inputs, ci)
       }
     }
   }

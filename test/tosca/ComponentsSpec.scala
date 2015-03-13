@@ -25,7 +25,7 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.tosca._
 import models.tosca.Component
-import test.{Context}
+import test.{ Context }
 /**
  * @author rajthilak
  *
@@ -36,13 +36,13 @@ class ComponentsSpec extends Specification {
     "ComponentsSpec".title ^ end ^ """
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
-      "The Client Should" ^     
+      "The Client Should" ^
       "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-  end
+      "Correctly do POST  requests with an valid Assembly ID" ! updateApp.succeeds ^
+      end
 
-    
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "components/COM508915982664728576"
+    protected override def urlSuffix: String = "components/COM1133824040297955328"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -53,6 +53,69 @@ class ComponentsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  
+
+  case object updateApp extends Context {
+
+    protected override def urlSuffix: String = "components/update"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{" +
+        "\"id\": \"COM1139245887592202240\"," +
+        "\"name\":\"NettieMoore\"," +
+        "\"tosca_type\":\"tosca.web.redis\"," +
+        "\"requirements\":{" +
+        "\"host\":\"clouddefault1139222212843274240\"," +
+        "\"dummy\":\"\"" +
+        "}," +
+        "\"inputs\":{" +
+        "\"domain\":\"megam.co\"," +
+        "\"port\":\"6379\"," +
+        "\"username\":\"\"," +
+        "\"password\":\"\"," +
+        "\"version\":\"\"," +
+        "\"source\":\"\"," +
+        "\"design_inputs\":{" +
+        "\"id\":\"39bb18e7.c644e8\"," +
+        "\"x\":\"802\"," +
+        "\"y\":\"331\"," +
+        "\"z\":\"3f43bde9.c0bc42\"," +
+        "\"wires\":[\"cae50d7.f351af\"]" +
+        "}," +
+        "\"service_inputs\":{" +
+        "\"dbname\":\"\"," +
+        "\"dbpassword\":\"\"" +
+        "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"ci\":\"true\"" +
+        "}}," +
+        "\"external_management_resource\":\"\"," +
+        "\"artifacts\":{" +
+        "\"artifact_type\":\"\"," +
+        "\"content\":\"\"," +
+        "\"artifact_requirements\":\"\"" +
+        "}," +
+        "\"related_components\":\"AntonioMcCormick.megam.co/TimothyHenderson\"," +
+        "\"operations\":{" +
+        "\"operation_type\":\"\"," +
+        "\"target_resource\":\"\"" +
+        "}," +
+        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}]," +
+        "\"created_at\":\"2014-10-29 14:06:39 +0000\"" +
+        "}"
+
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
 
 }

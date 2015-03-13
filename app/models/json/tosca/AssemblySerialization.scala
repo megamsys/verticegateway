@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Assembly, ComponentsList, PoliciesList }
+import models.tosca.{ Assembly, ComponentsList, PoliciesList, OutputsList }
 
 /**
  * @author rajthilak
@@ -41,11 +41,14 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
   protected val PoliciesKey = "policies"
   protected val InputsKey = "inputs"
   protected val OperationsKey = "operations"
+  protected val OutputsKey = "outputs"
+  protected val StatusKey = "status"
     
   override implicit val writer = new JSONW[Assembly] {
     
  import ComponentsListSerialization.{ writer => ComponentsListWriter }
  import PoliciesListSerialization.{ writer => PoliciesListWriter }
+ import OutputsListSerialization.{ writer => OutputsListWriter }
  
     override def write(h: Assembly): JValue = {
       JObject(
@@ -54,7 +57,10 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
           JField(ComponentsKey, toJSON(h.components)(ComponentsListWriter)) ::
           JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
           JField(InputsKey, toJSON(h.inputs)) ::
-          JField(OperationsKey, toJSON(h.operations)) :: Nil)
+          JField(OperationsKey, toJSON(h.operations)) :: 
+          JField(OutputsKey, toJSON(h.outputs)(OutputsListWriter)) :: 
+          JField(StatusKey, toJSON(h.status)) :: 
+          Nil)
     }
   }
 
@@ -62,6 +68,7 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
     
      import ComponentsListSerialization.{ reader => ComponentsListReader }
      import PoliciesListSerialization.{reader => PoliciesListReader }
+     import OutputsListSerialization.{reader => OutputsListReader }
 
     override def read(json: JValue): Result[Assembly] = {
       val nameField = field[String](NameKey)(json)
@@ -69,10 +76,12 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
       val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
       val inputsField = field[String](InputsKey)(json)  
       val operationsField = field[String](OperationsKey)(json)
+      val outputsField = field[OutputsList](OutputsKey)(json)(OutputsListReader)
+      val statusField = field[String](StatusKey)(json)
 
-      (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField) {
-          (name: String, components: ComponentsList, policies: PoliciesList, inputs: String, operations: String) =>
-          new Assembly(name, components, policies, inputs, operations)
+      (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| statusField) {
+          (name: String, components: ComponentsList, policies: PoliciesList, inputs: String, operations: String, outputs: OutputsList, status: String) =>
+          new Assembly(name, components, policies, inputs, operations, outputs, status)
       }
     }
   }
