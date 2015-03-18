@@ -360,9 +360,9 @@ object AssembliesList {
     play.api.Logger.debug(("%-20s -->[%s]").format("json", rip))    
     var outlist = rip.outputs
     for {
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      com <- (ComponentsList.createLinks(email, rip.components) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })      
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "asm").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      com <- (ComponentsList.createLinks(email, rip.components, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
       var components_links = new ListBuffer[String]()
