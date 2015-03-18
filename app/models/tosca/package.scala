@@ -246,7 +246,7 @@ package object tosca {
     def empty: List[String] = emptyRR
 
   }
-
+  
   type OrganizationsResults = NonEmptyList[Option[OrganizationsResult]]
 
   object OrganizationsResults {
@@ -436,5 +436,58 @@ package object tosca {
     def empty: List[Output] = emptyRR
 
   }
+  
+  type ComponentOthers = List[ComponentOther]
+
+  object ComponentOthers {
+    val emptyRR = List(ComponentOther.empty)
+    def toJValue(nres: ComponentOthers): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.ComponentOthersSerialization.{ writer => ComponentOthersWriter }
+      toJSON(nres)(ComponentOthersWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentOthers] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.ComponentOthersSerialization.{ reader => ComponentOthersReader }
+      fromJSON(jValue)(ComponentOthersReader)
+    }
+
+    def toJson(nres: ComponentOthers, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+    
+    def apply(plansList: List[ComponentOther]): ComponentOthers = plansList
+
+    def empty: List[ComponentOther] = emptyRR
+
+  }  
+  
+  type ContiniousIntegrationResults = NonEmptyList[Option[ContiniousIntegrationResult]]
+
+  object ContiniousIntegrationResults {
+    val emptyPC = List(Option.empty[ContiniousIntegrationResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(prres: ContiniousIntegrationResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.ContiniousIntegrationResultsSerialization.{ writer => ContiniousIntegrationResultsWriter }
+      toJSON(prres)(ContiniousIntegrationResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: ContiniousIntegrationResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: ContiniousIntegrationResult): ContiniousIntegrationResults = nels(m.some)
+    def empty: ContiniousIntegrationResults = nel(emptyPC.head, emptyPC.tail)
+  }
+  
   
 }

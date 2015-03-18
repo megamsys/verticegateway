@@ -82,6 +82,10 @@ POST   /v2/cloudtoolsettings/content    controllers.CloudToolSettings.post
 GET    /v2/cloudtoolsettings            controllers.CloudToolSettings.list
 GET    /v2/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: String)
 
+#Continious Integration
+POST   /v2/cis/content                  controllers.camp.ContiniousIntegration.post
+#GET    /v2/cis							controllers.camp.ContiniousIntegration.list
+
 # AppRequests for Assembly
 POST   /v2/apprequests/content             controllers.AppRequests.post
 

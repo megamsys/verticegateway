@@ -37,9 +37,9 @@ class AssembliesSpec extends Specification {
   AssembliesSpec is the implementation that calls the megam_play API server with the /assemblies url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
+      "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
      // "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
+      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
       end
 
   /**
@@ -71,7 +71,7 @@ class AssembliesSpec extends Specification {
         "\"version\":\"2.0.0\"," +
         "\"source\":\"\"," +
         "\"design_inputs\":{" +
-        "\"did\":\"46fc26f2.b903d8\"," +
+        "\"id\":\"46fc26f2.b903d8\"," +
         "\"x\":645," +
         "\"y\":184," +
         "\"z\":\"adae6e10.52519\"," +
@@ -82,8 +82,13 @@ class AssembliesSpec extends Specification {
         "\"service_inputs\":{" +
         "\"dbname\":\"\"," +
         "\"dbpassword\":\"\"" +
-        "}" +
         "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"enable\":\"true\"," +
+        "\"token\":\"token\"," +
+        "\"owner\":\"owner\"" +
+        "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -94,7 +99,8 @@ class AssembliesSpec extends Specification {
         "\"operations\":{" +
         "\"operation_type\":\"\"," +
         "\"target_resource\":\"\"" +
-        "}" +
+        "}," +
+        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}, {\"otherkey\":\"ci\",\"othervalue\":\"github\"}]" +
         "}" +
         "]," +
         "\"policies\":[" +
@@ -128,7 +134,7 @@ class AssembliesSpec extends Specification {
         "\"version\":\"\"," +
         "\"source\":\"dfhfgjh\"," +
         "\"design_inputs\":{" +
-        "\"did\":\"e0e3651f.1f1c98\"," +
+        "\"id\":\"e0e3651f.1f1c98\"," +
         "\"x\":428," +
         "\"y\":134," +
         "\"z\":\"adae6e10.52519\"," +
@@ -139,8 +145,13 @@ class AssembliesSpec extends Specification {
         "\"service_inputs\":{" +
         "\"dbname\":\"\"," +
         "\"dbpassword\":\"\"" +
-        "}" +
         "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"enable\":\"true\"," +
+        "\"token\":\"token\"," +
+        "\"owner\":\"owner\"" +
+        "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -151,7 +162,8 @@ class AssembliesSpec extends Specification {
         "\"operations\":{" +
         "\"operation_type\":\"\"," +
         "\"target_resource\":\"\"" +
-        "}" +
+        "}," +
+        "\"others\":[]," +
         "}," +
         "{" +
         "\"name\":\"MasonHernandez\"," +
@@ -168,7 +180,7 @@ class AssembliesSpec extends Specification {
         "\"version\":\"\"," +
         "\"source\":\"dfghfh\"," +
         "\"design_inputs\":{" +
-        "\"did\":\"3ecdffaf.c132\"," +
+        "\"id\":\"3ecdffaf.c132\"," +
         "\"x\":450," +
         "\"y\":297," +
         "\"z\":\"adae6e10.52519\"," +
@@ -179,8 +191,13 @@ class AssembliesSpec extends Specification {
         "\"service_inputs\":{" +
         "\"dbname\":\"\"," +
         "\"dbpassword\":\"\"" +
-        "}" +
         "}," +
+        "\"ci\":{" +
+        "\"scm\":\"github\"," +
+        "\"enable\":\"true\"," +
+        "\"token\":\"token\"," +
+        "\"owner\":\"owner\"" +
+        "}}," +
         "\"external_management_resource\":\"\"," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -191,7 +208,8 @@ class AssembliesSpec extends Specification {
         "\"operations\":{" +
         "\"operation_type\":\"\"," +
         "\"target_resource\":\"\"" +
-        "}" +
+        "}," +
+        "\"others\":[]," +
         "}" +
         "]," +
         "\"policies\":[" +

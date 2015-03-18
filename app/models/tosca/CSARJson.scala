@@ -185,9 +185,9 @@ object CSARJson {
       case (lvalue) =>
         val valu = new Component(getValue("name", lvalue), getValue("type", lvalue), new ComponentRequirements(getValue("host", lvalue), ""),
           new ComponentInputs(getValue("domain", lvalue), "", "", "", "", getValue("source", lvalue),
-            new DesignInputs("", "", "", "", ComponentDesignInputsWires.empty), new ServiceInputs("", "")),
+            new DesignInputs("", "", "", "", ComponentDesignInputsWires.empty), new ServiceInputs("", ""), CI.empty),
           "", new Artifacts("", "", ""),
-          "", new ComponentOperations("", ""))
+          "", new ComponentOperations("", ""), ComponentOthers.empty)
 
         valu
     }

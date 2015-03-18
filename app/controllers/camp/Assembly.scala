@@ -129,7 +129,8 @@ object Assembly extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }*/
-
+  
+  
  def build(id: String, cid: String) = Action(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("Assembly ID", id))
