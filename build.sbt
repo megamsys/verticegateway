@@ -9,8 +9,15 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart,Syste
 
 scalaVersion := "2.10.4"
 
-scalacOptions := Seq(
-  "-target:jvm-1.8",
+javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
+
+initialize := {
+  val _ = initialize.value
+  if (sys.props("java.specification.version") != "1.8")
+    sys.error("Java 8 is required for this project.")
+}
+
+scalacOptions := Seq( 
   "-deprecation",
   "-feature",
   "-optimise",
