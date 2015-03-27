@@ -10,7 +10,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart,Syste
 scalaVersion := "2.10.4"
 
 scalacOptions := Seq(
-  "-target:jvm-1.7",
+  "-target:jvm-1.8",
   "-deprecation",
   "-feature",
   "-optimise",
@@ -80,7 +80,7 @@ dockerExposedPorts in Docker := Seq(9000, 9443)
 
 dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
 
-rpmRequirements ++= Seq("curl", "megamcommon", "megamsnowflake", "pwgen","java-1.7.0-openjdk-headless", "bash")
+rpmRequirements ++= Seq("curl", "megamcommon", "megamsnowflake", "pwgen","java-1.8.0-openjdk-headless", "bash")
 
 rpmLicense := Some("Apache")
 
