@@ -38,7 +38,7 @@ import scalaz.NonEmptyList._
 
 /*
  * This controller performs onboarding a customer and registers an email/api_key 
- * into riak.
+ * into riak
  * Output: FunnelResponse as JSON with the msg.  
  */
 object Accounts extends Controller with APIAuthElement {
