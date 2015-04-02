@@ -386,15 +386,18 @@ object ComponentsList {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.ComponentsList", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
-
-    val res = (input map {
-      asminp =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("component", asminp))
-        (create(email, asminp, asm_id))
-    }).foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
-
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Assembly", res))
-    res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[ComponentsResults])
+    var res = (ComponentsResults.empty).successNel[Throwable]
+    if (input.isEmpty) {
+      res = (ComponentsResults.empty).successNel[Throwable]
+    } else {
+       res = (input map {
+        asminp =>
+         play.api.Logger.debug(("%-20s -->[%s]").format("component", asminp))
+          (create(email, asminp, asm_id))
+        }).foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
+    }
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Components", res))
+    //res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[ComponentsResults])
     res
   }
 

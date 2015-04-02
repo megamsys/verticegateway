@@ -435,7 +435,7 @@ package object tosca {
 
     def empty: List[Output] = emptyRR
 
-  }
+  }  
   
   type ComponentOthers = List[ComponentOther]
 

@@ -112,7 +112,7 @@ class AssembliesSpec extends Specification {
         "]" +
         "}" +
         "]," +
-        "\"inputs\":\"\"," +
+        "\"inputs\":[]," +
         "\"operations\":\"\"," +
         "\"status\":\"Launching\"" +
         "}," +
@@ -222,7 +222,7 @@ class AssembliesSpec extends Specification {
         "]" +
         "}" +
         "]," +
-        "\"inputs\":\"\"," +
+        "\"inputs\":[]," +
         "\"operations\":\"\"," +
         "\"status\":\"Launching\"" +
         "}" +

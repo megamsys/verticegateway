@@ -69,7 +69,7 @@ class AssemblySpec extends Specification {
         "\"ptype\":\"colocated\"," +
         "\"members\":[\"calcines.megam.co/MattieGarcia\",\"calcines.megam.co/parsnip\"]" +
         "}]," +
-        "\"inputs\":\"\"," +
+        "\"inputs\":[]," +
         "\"operations\":\"\"," +
         "\"status\":\"Launching\"," +
         "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +

@@ -221,7 +221,7 @@ object CSARJson {
               }
             }
           }
-          assemblylist += new Assembly(pvalue.policykey, clist.toList, PoliciesList.empty, "", "", OutputsList.empty, "")
+          assemblylist += new Assembly(pvalue.policykey, clist.toList, PoliciesList.empty, OutputsList.empty, "", OutputsList.empty, "")
       }
       componentList foreach {
         case (cvalue) =>
@@ -234,13 +234,13 @@ object CSARJson {
             }
           }
           if (flag != true) {
-            assemblylist += new Assembly(getRandomName(), List(cvalue), PoliciesList.empty, "", "", OutputsList.empty, "")
+            assemblylist += new Assembly(getRandomName(), List(cvalue), PoliciesList.empty, OutputsList.empty, "", OutputsList.empty, "")
           }
       }
     } else {
       componentList foreach {
         case (cvalue) =>
-          assemblylist += new Assembly(getRandomName(), List(cvalue), PoliciesList.empty, "", "", OutputsList.empty, "")
+          assemblylist += new Assembly(getRandomName(), List(cvalue), PoliciesList.empty, OutputsList.empty, "", OutputsList.empty, "")
       }
     }
     return assemblylist
