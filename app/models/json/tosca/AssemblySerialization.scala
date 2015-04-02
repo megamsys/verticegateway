@@ -56,7 +56,7 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
           JField(NameKey, toJSON(h.name)) ::
           JField(ComponentsKey, toJSON(h.components)(ComponentsListWriter)) ::
           JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
-          JField(InputsKey, toJSON(h.inputs)) ::
+          JField(InputsKey, toJSON(h.inputs)(OutputsListWriter)) ::
           JField(OperationsKey, toJSON(h.operations)) :: 
           JField(OutputsKey, toJSON(h.outputs)(OutputsListWriter)) :: 
           JField(StatusKey, toJSON(h.status)) :: 
@@ -74,13 +74,13 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
       val nameField = field[String](NameKey)(json)
       val componentsField = field[ComponentsList](ComponentsKey)(json)(ComponentsListReader)
       val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
-      val inputsField = field[String](InputsKey)(json)  
+      val inputsField = field[OutputsList](InputsKey)(json)(OutputsListReader)  
       val operationsField = field[String](OperationsKey)(json)
       val outputsField = field[OutputsList](OutputsKey)(json)(OutputsListReader)
       val statusField = field[String](StatusKey)(json)
 
       (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| statusField) {
-          (name: String, components: ComponentsList, policies: PoliciesList, inputs: String, operations: String, outputs: OutputsList, status: String) =>
+          (name: String, components: ComponentsList, policies: PoliciesList, inputs: OutputsList, operations: String, outputs: OutputsList, status: String) =>
           new Assembly(name, components, policies, inputs, operations, outputs, status)
       }
     }
