@@ -76,7 +76,7 @@ object Organizations extends Controller with APIAuthElement {
 
   }
 
-  /*
+  /**
    * GET: findByName: Show a particular Organization by name 
    * Email provided in the URI.
    * Output: JSON (OrganizationsResult)
