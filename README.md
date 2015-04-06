@@ -1,18 +1,21 @@
 Megam Gateway
 ================
 
-API server for "Megam PaaS". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization, which 
-mean when a customer is onboarded an api_key is generated an stored in a secure datasource.
+API server for "[Megam CMP](https://www.megam.io)". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
 
 [![Build Status](https://travis-ci.org/megamsys/megam_gateway.png)](https://travis-ci.org/megamsys/megam_gateway)
+
+## Getting Started
+
+* Try our public service (launching on April 30, 2015)  [https://console.megam.io](https://console.megam.io)
 
 
 ### Requirements
 
 > 
 [RabbitMQ 3.3.0 +](http://www.rabbitmq.com)
-[OpenJDK 7.0](http://openjdk.java.net/install/index.html)
-[Riak 2.0.2 +](http://docs.basho.com/riak/latest/downloads/)
+[OpenJDK 8.0](http://openjdk.java.net/install/index.html)
+[Riak 2.0.5 +](http://docs.basho.com/riak/latest/downloads/)
 
 
 ### Compile from source
@@ -32,22 +35,22 @@ mean when a customer is onboarded an api_key is generated an stored in a secure 
 
 ### Documentation
 
-Refer [documentation] (http://www.gomegam.com/docs)
+Refer [documentation] (http://docs.megam.io)
 
 
 
 We are glad to help if you have questions, or request for new features..
 
-[twitter @megamsys](http://twitter.com/megamsys) [email support@megam.co.in](<support@megam.co.in>)
+[twitter @megamsys](http://twitter.com/megamsys) [email support@megam.io](<support@megam.io>)
 
 	
 # License
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
-| **Author:**          | Rajthilak (<rajthilak@megam.co.in>)
-|		       	       | KishorekumarNeelamegam (<nkishore@megam.co.in>)
-|		       	       | Yeshwanth Kumar (<getyesh@megam.co.in>)
+| **Author:**          | Rajthilak (<rajthilak@megam.io>)
+|		       	       | KishorekumarNeelamegam (<nkishore@megam.io>)
+|		       	       | Yeshwanth Kumar (<getyesh@megam.io>)
 | **Copyright:**       | Copyright (c) 2012-2014 Megam Systems.
 | **License:**         | Apache License, Version 2.0
 
