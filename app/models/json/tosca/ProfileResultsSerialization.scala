@@ -30,37 +30,37 @@ import models.tosca._
  * @author morpheyesh
  *
  */
-object OrganizationsResultsSerialization extends SerializationBase[OrganizationsResults] {
+object ProfileResultsSerialization extends SerializationBase[ProfileResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[OrganizationsResults] {
-    override def write(h: OrganizationsResults): JValue = {
+  implicit override val writer = new JSONW[ProfileResults] {
+    override def write(h: ProfileResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[OrganizationsResult] =>
-          (nrOpt.map { nr: OrganizationsResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[ProfileResult] =>
+          (nrOpt.map { nr: ProfileResult => nr.toJValue }).getOrElse(JNothing)
       }
 
-      JObject(JField(JSONClazKey, JString("Megam::OrganizationsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::ProfileCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
  
-  implicit override val reader = new JSONR[OrganizationsResults] {
-    override def read(json: JValue): Result[OrganizationsResults] = {
+  implicit override val reader = new JSONR[ProfileResults] {
+    override def read(json: JValue): Result[ProfileResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            OrganizationsResult.fromJValue(jValue) match {
+            ProfileResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[OrganizationsResult]()
+              case Failure(fail) => List[ProfileResult]()
             }
-          } map { x: OrganizationsResult => x.some }
-          //this is screwy. Making the OrganizationsResults as Option[NonEmptylist[OrganizationsResult]] will solve it.
-          val nrs: OrganizationsResults = list.toNel.getOrElse(nels(none))
+          } map { x: ProfileResult => x.some }
+          //this is screwy. Making the ProfileResults as Option[NonEmptylist[ProfileResult]] will solve it.
+          val nrs: ProfileResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[OrganizationsResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[ProfileResults]
       }
     }
   }

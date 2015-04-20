@@ -293,6 +293,29 @@ package object tosca {
     def empty: DomainsResults = nel(emptyPC.head, emptyPC.tail)
   }
 
+  type ProfileResults = NonEmptyList[Option[ProfileResult]]
+
+  object ProfileResults {
+    val emptyPC = List(Option.empty[ProfileResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(prres: ProfileResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.ProfileResultsSerialization.{ writer => ProfileResultsWriter }
+      toJSON(prres)(ProfileResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: ProfileResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: ProfileResult): ProfileResults = nels(m.some)
+    def empty: ProfileResults = nel(emptyPC.head, emptyPC.tail)
+  }
+  
   type CloudSettingsList = List[CloudSetting]
   
   object CloudSettingsList {
