@@ -46,7 +46,7 @@ class SubscriptionsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-       "\"account_id\": \"565656\"," +
+       "\"accounts_id\": \"565656\"," +
         "\"assembly_id\":\"456436\"," +      
         "\"start_date\": \"565656\"," +
         "\"end_date\":\"456436\"" +       

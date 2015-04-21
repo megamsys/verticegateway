@@ -122,8 +122,8 @@ object Availableunits {
   }
 
   /*
-   * create new events item with the 'name' of the item provide as input.
-   * Also creating index with 'events'
+   * create new static units for seperate item with the 'name' of the item provide as input.
+   * Also creating index with 'static units'
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[AvailableunitsResult]] = {

@@ -44,12 +44,12 @@ import java.nio.charset.Charset
  *
  */
 
-case class SubscriptionsInput(account_id: String, assembly_id: String, start_date: String, end_date: String) {
+case class SubscriptionsInput(accounts_id: String, assembly_id: String, start_date: String, end_date: String) {
   val json = "{\"start_date\":\"" + start_date + "\",\"end_date\":\"" + end_date + "\"}"
 
 }
 
-case class SubscriptionsResult(id: String, account_id: String, assembly_id: String, start_date: String, end_date: String, created_at: String) {
+case class SubscriptionsResult(id: String, accounts_id: String, assembly_id: String, start_date: String, end_date: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -86,8 +86,6 @@ object Subscriptions {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("subscriptions")
 
-  //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
   val metadataKey = "Subscriptions"
   val metadataVal = "Subscriptions Creation"
   val bindex = "Subscriptions"
@@ -113,17 +111,17 @@ object Subscriptions {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "sub").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //val bvalue = Set(aor.get.id)
-      val bvalue = Set(sub.account_id)
-      val json = new SubscriptionsResult(uir.get._1 + uir.get._2, sub.account_id, sub.assembly_id, sub.start_date, sub.end_date, Time.now.toString).toJson(false)
+      val bvalue = Set(sub.accounts_id)
+      val json = new SubscriptionsResult(uir.get._1 + uir.get._2, sub.accounts_id, sub.assembly_id, sub.start_date, sub.end_date, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
-  /*
-   * create new events item with the 'name' of the item provide as input.
-   * Also creating index with 'events'
-   */
+  /**
+   * create new subscriptions for user with account id and virtual machine id.
+   * This was store the starting time and ending time of virtual machines
+   **/
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[SubscriptionsResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Subscriptions", "create:Entry"))

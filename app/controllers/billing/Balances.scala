@@ -30,7 +30,7 @@ import org.megam.common.amqp._
 import play.api._
 import play.api.mvc._
 import play.api.mvc.Result
-import models.tosca._
+import models.billing._
 
 
 /**
@@ -41,10 +41,9 @@ import models.tosca._
 
 object Balances extends Controller with APIAuthElement {
   
-  /*
-   * Create or update a new event by email/json input. 
-   * Old value for the same key gets wiped out.
-   */
+  /**
+   * Create a new balance entry by email/json input. 
+   **/
   
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Balances", "post:Entry"))
@@ -75,9 +74,63 @@ object Balances extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
    }
   
- 
+ def update = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Balances wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          models.billing.Balances.update(email, clientAPIBody) match {
+            case Success(succ) => 
+              Status(CREATED)(
+                FunnelResponse(CREATED, """Balances updated successfully.
+            |
+            |You can use the the 'Balances'.""", "Megam::Balances").toJson(true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
   
-  
+  /*
+   * GET: findByName: Show a particular balance by name 
+   * Email provided in the URI.
+   * Output: JSON (BalancesResult)
+   **/
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Balances", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Balances", "request funneled."))
+
+          models.billing.Balances.findByName(List(id).some) match {
+            case Success(succ) =>
+              Ok(BalancesResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
   
   
 }

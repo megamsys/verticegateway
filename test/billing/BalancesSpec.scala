@@ -46,7 +46,7 @@ class BalancesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"account_id\": \"565656\"," +
+        "\"accounts_id\": \"565656\"," +
         "\"credit\":\"456436\"" +       
         "}"
 

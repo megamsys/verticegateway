@@ -44,12 +44,12 @@ import java.nio.charset.Charset
  *
  */
 
-case class CredithistoriesInput(account_id: String, bill_type: String, credit_amount: String, currency_type: String) {
-  val json = "{\"account_id\":\"" + account_id + "\",\"bill_type\":\"" + bill_type + "\",\"credit_amount\":\"" + credit_amount + "\",\"currency_type\":\"" + currency_type + "\"}"
+case class CredithistoriesInput(accounts_id: String, bill_type: String, credit_amount: String, currency_type: String) {
+  val json = "{\"accounts_id\":\"" + accounts_id + "\",\"bill_type\":\"" + bill_type + "\",\"credit_amount\":\"" + credit_amount + "\",\"currency_type\":\"" + currency_type + "\"}"
 
 }
 
-case class CredithistoriesResult(id: String, account_id: String, bill_type: String, credit_amount: String, currency_type: String, created_at: String) {
+case class CredithistoriesResult(id: String, accounts_id: String, bill_type: String, credit_amount: String, currency_type: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -114,16 +114,15 @@ object Credithistories {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "chs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //val bvalue = Set(aor.get.id)
-       val bvalue = Set(chi.account_id)
-      val json = new CredithistoriesResult(uir.get._1 + uir.get._2, chi.account_id, chi.bill_type, chi.credit_amount, chi.currency_type, Time.now.toString).toJson(false)
+       val bvalue = Set(chi.accounts_id)
+      val json = new CredithistoriesResult(uir.get._1 + uir.get._2, chi.accounts_id, chi.bill_type, chi.credit_amount, chi.currency_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
   /*
-   * create new events item with the 'name' of the item provide as input.
-   * Also creating index with 'events'
+   * create new credit history, this contains details of the user credit the amount of our account.
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[CredithistoriesResult]] = {

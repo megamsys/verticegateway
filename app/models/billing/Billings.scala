@@ -44,12 +44,12 @@ import java.nio.charset.Charset
  *
  */
 
-case class BillingsInput(account_id: String, line1: String, line2: String, country_code: String, postal_code: String, state: String, phone: String, bill_type: String) {
-  val json = "{\"account_id\":\"" + account_id + "\",\"line1\":\"" + line1 + "\",\"line2\":\"" + line2 + "\",\"country_code\":\"" + country_code + "\",\"postal_code\":\"" + postal_code + "\",\"state\":\"" + state + "\",\"phone\":\"" + phone + "\",\"bill_type\":\"" + bill_type + "\"}"
+case class BillingsInput(accounts_id: String, line1: String, line2: String, country_code: String, postal_code: String, state: String, phone: String, bill_type: String) {
+  val json = "{\"accounts_id\":\"" + accounts_id + "\",\"line1\":\"" + line1 + "\",\"line2\":\"" + line2 + "\",\"country_code\":\"" + country_code + "\",\"postal_code\":\"" + postal_code + "\",\"state\":\"" + state + "\",\"phone\":\"" + phone + "\",\"bill_type\":\"" + bill_type + "\"}"
 
 }
 
-case class BillingsResult(id: String, account_id: String, line1: String, line2: String, country_code: String, postal_code: String, state: String, phone: String, bill_type: String, created_at: String) {
+case class BillingsResult(id: String, accounts_id: String, line1: String, line2: String, country_code: String, postal_code: String, state: String, phone: String, bill_type: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -114,16 +114,16 @@ object Billings {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bil").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //val bvalue = Set(aor.get.id)
-       val bvalue = Set(billing.account_id)
-      val json = new BillingsResult(uir.get._1 + uir.get._2, billing.account_id, billing.line1, billing.line2, billing.country_code, billing.postal_code, billing.state, billing.phone, billing.bill_type, Time.now.toString).toJson(false)
+       val bvalue = Set(billing.accounts_id)
+      val json = new BillingsResult(uir.get._1 + uir.get._2, billing.accounts_id, billing.line1, billing.line2, billing.country_code, billing.postal_code, billing.state, billing.phone, billing.bill_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
   /*
-   * create new events item with the 'name' of the item provide as input.
-   * Also creating index with 'events'
+   * create new billing entry for user information.
+   * Also this is contain billing type and currency type of user used to pay the bill
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[BillingsResult]] = {

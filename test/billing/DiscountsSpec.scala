@@ -46,7 +46,7 @@ class DiscountsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"account_id\": \"565656\"," +
+        "\"accounts_id\": \"565656\"," +
         "\"bill_type\":\"456436\"," +    
         "\"code\": \"565656\"," +
         "\"status\":\"456436\"" +  

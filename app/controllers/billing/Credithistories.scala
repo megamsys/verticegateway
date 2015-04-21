@@ -41,10 +41,9 @@ import models.tosca._
 
 object Credithistories extends Controller with APIAuthElement {
   
-  /*
-   * Create or update a new event by email/json input. 
-   * Old value for the same key gets wiped out.
-   */
+  /**
+   * Create a new credit histories by email/json input. 
+   **/
   
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Credithistories", "post:Entry"))

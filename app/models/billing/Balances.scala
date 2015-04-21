@@ -27,6 +27,7 @@ import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
+import models._
 import models.billing._
 import models.cache._
 import models.riak._
@@ -44,12 +45,17 @@ import java.nio.charset.Charset
  *
  */
 
-case class BalancesInput(account_id: String, credit: String) {
-  val json = "{\"account_id\":\"" + account_id + "\",\"credit\":\"" + credit + "\"}"
+case class BalancesInput(credit: String) {
+  val json = "{\"credit\":\"" + credit + "\"}"
 
 }
 
-case class BalancesResult(id: String, account_id: String, credit: String, created_at: String, updated_at: String) {
+case class BalancesUpdateInput(id: String, accounts_id: String, name: String, credit: String, created_at: String, updated_at: String) {
+  val json = "{\"id\":\"" + id + "\",\"accounts_id\":\"" + accounts_id + "\",\"name\":\"" + name + "\",\"credit\":\"" + credit + "\",\"created_at\":\"" + created_at + "\",\"updated_at\":\"" + updated_at + "\"}"
+
+}
+
+case class BalancesResult(id: String, accounts_id: String, name: String, credit: String, created_at: String, updated_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -110,20 +116,19 @@ object Balances {
 
     for {
       balance <- balancesInput
-      //aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bal").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //val bvalue = Set(aor.get.id)
-       val bvalue = Set(balance.account_id)
-      val json = new BalancesResult(uir.get._1 + uir.get._2, balance.account_id, balance.credit, Time.now.toString, Time.now.toString).toJson(false)
-      new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      val bvalue = Set(aor.get.id)
+      val json = new BalancesResult(uir.get._1 + uir.get._2, aor.get.id, email, balance.credit, Time.now.toString, Time.now.toString).toJson(false)
+      new GunnySack(email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
   /*
-   * create new events item with the 'name' of the item provide as input.
-   * Also creating index with 'events'
+   * create a new balance entry for the user.
+   * 
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
@@ -145,6 +150,76 @@ object Balances {
           }
         }
     }
+  }
+  
+   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Balance Update", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatch {
+      parse(input).extract[BalancesUpdateInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      rip <- ripNel
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val bvalue = Set(aor.get.id)
+
+      val json = BalancesResult(rip.id, rip.accounts_id, rip.name, rip.credit, rip.created_at, Time.now.toString).toJson(false)
+      new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+    }
+  }
+
+  def update(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "update:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+    for {
+      gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val nrip = parse(gs.get.value).extract[BalancesResult]
+      maybeGS match {
+        case Some(thatGS) =>
+          BalancesResult(thatGS.key, nrip.accounts_id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
+        case None => {
+          play.api.Logger.warn(("%-20s -->[%s]").format("Balances.updated successfully", "Scaliak returned => None. Thats OK."))
+          BalancesResult(nrip.id, nrip.accounts_id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
+
+        }
+      }
+    }
+  }
+  
+  def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BalancesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("BalancesList", balanceList))
+    (balanceList map {
+      _.map { balanceName =>
+        play.api.Logger.debug("models.BalanceName findByName: Balances:" + balanceName)
+        (riak.fetch(balanceName) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(balanceName, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              (Validation.fromTryCatch[models.billing.BalancesResult] {
+                parse(xs.value).extract[BalancesResult]
+              } leftMap { t: Throwable =>
+                new ResourceItemNotFound(balanceName, t.getMessage)
+              }).toValidationNel.flatMap { j: BalancesResult =>
+                Validation.success[Throwable, BalancesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+              }
+            }
+            case None => Validation.failure[Throwable, BalancesResults](new ResourceItemNotFound(balanceName, "")).toValidationNel
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((BalancesResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
+
   }
   
 }

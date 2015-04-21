@@ -46,7 +46,7 @@ class BillingsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"account_id\": \"565656\"," +
+        "\"accounts_id\": \"565656\"," +
         "\"line1\":\"456436\"," +     
         "\"line2\": \"565656\"," +
         "\"country_code\":\"456436\"," +       

@@ -37,7 +37,7 @@ class SubscriptionsResultSerialization(charset: Charset = UTF8Charset) extends S
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
-  protected val AccountIdKey = "account_id"
+  protected val AccountsIdKey = "accounts_id"
   protected val AssemblyIdKey = "assembly_id"
   protected val StartDateKey = "start_date"
   protected val EndDateKey = "end_date"
@@ -48,7 +48,7 @@ class SubscriptionsResultSerialization(charset: Charset = UTF8Charset) extends S
     override def write(h: SubscriptionsResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-        JField(AccountIdKey, toJSON(h.account_id)) ::
+        JField(AccountsIdKey, toJSON(h.accounts_id)) ::
         JField(AssemblyIdKey, toJSON(h.assembly_id)) ::
           JField(StartDateKey, toJSON(h.start_date)) ::
           JField(JSONClazKey, toJSON("Megam::Subscriptions")) ::
@@ -63,15 +63,15 @@ class SubscriptionsResultSerialization(charset: Charset = UTF8Charset) extends S
     override def read(json: JValue): Result[SubscriptionsResult] = {
 
       val idField = field[String](IdKey)(json)
-      val accountidField = field[String](AccountIdKey)(json)
+      val accountsidField = field[String](AccountsIdKey)(json)
       val assemblyidField = field[String](AssemblyIdKey)(json)
       val startdateField = field[String](StartDateKey)(json)
       val enddateField = field[String](EndDateKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| accountidField |@| assemblyidField |@| startdateField |@| enddateField |@| createdAtField) {
-        (id: String, account_id: String, assembly_id: String, start_date: String, end_date: String, created_at: String) =>
-          new SubscriptionsResult(id, account_id, assembly_id, start_date, end_date, created_at)
+      (idField |@| accountsidField |@| assemblyidField |@| startdateField |@| enddateField |@| createdAtField) {
+        (id: String, accounts_id: String, assembly_id: String, start_date: String, end_date: String, created_at: String) =>
+          new SubscriptionsResult(id, accounts_id, assembly_id, start_date, end_date, created_at)
       }
     }
   }

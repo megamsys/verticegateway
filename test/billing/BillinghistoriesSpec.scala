@@ -46,7 +46,7 @@ class BillinghistoriesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"account_id\": \"565656\"," +
+        "\"accounts_id\": \"565656\"," +
         "\"assembly_id\":\"456436\"," +  
         "\"bill_type\": \"paypal\"," +
         "\"billing_amount\":\"2000\"," +   
