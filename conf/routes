@@ -33,6 +33,10 @@ GET		/v2/organizations					controllers.camp.Organizations.list()
 POST   /v2/domains/content                   controllers.camp.Domains.post
 GET    /v2/domains/:id                       controllers.camp.Domains.show(id: String)
 
+#Profile
+POST   /v2/profile/content                controllers.camp.Profile.post
+GET    /v2/profile/:id                    controllers.camp.Profile.show(id: String)
+
 #Predefs
 GET    /v2/predefs                      controllers.Predefs.list()
 GET    /v2/predefs/:predefid            controllers.Predefs.show(predefid: String)
