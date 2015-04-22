@@ -118,6 +118,7 @@ object Profile {
     for {
       profile <- profileInput
       aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      bal <- (models.billing.Balances.create(email, "{\"credit\":\"0\"}") leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "profile").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)

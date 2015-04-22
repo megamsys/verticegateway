@@ -30,7 +30,7 @@ import org.megam.common.amqp._
 import play.api._
 import play.api.mvc._
 import play.api.mvc.Result
-import models.tosca._
+import models.billing._
 
 
 /**
@@ -41,10 +41,9 @@ import models.tosca._
 
 object Billinghistories extends Controller with APIAuthElement {
   
-  /*
-   * Create or update a new event by email/json input. 
-   * Old value for the same key gets wiped out.
-   */
+  /**
+   * Create a new billing history for the user. 
+   **/
   
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billinghistories", "post:Entry"))
@@ -75,7 +74,35 @@ object Billinghistories extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
    }
   
- 
+ /**
+   * GET: findbyEmail: List all the billing histories per email
+   * Email grabbed from header.
+   * Output: JSON (BillingHistoriesResult)
+   */
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billinghistories", "list:Entry"))
+
+    (Validation.fromTryCatch[Result] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billinghistories", "request funneled."))
+          models.billing.Billinghistories.findByEmail(email) match {
+            case Success(succ) =>
+              Ok(BillinghistoriesResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
   
   
   

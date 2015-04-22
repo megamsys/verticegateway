@@ -37,7 +37,7 @@ class BillinghistoriesResultSerialization(charset: Charset = UTF8Charset) extend
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
-  protected val AccountIdKey = "account_id"
+  protected val AccountsIdKey = "accounts_id"
   protected val AssemblyIdKey = "assembly_id"
   protected val BillTypeKey = "bill_type"
   protected val BillingAmountKey = "billing_amount"
@@ -49,7 +49,7 @@ class BillinghistoriesResultSerialization(charset: Charset = UTF8Charset) extend
     override def write(h: BillinghistoriesResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(AccountIdKey, toJSON(h.account_id)) ::
+          JField(AccountsIdKey, toJSON(h.accounts_id)) ::
           JField(JSONClazKey, toJSON("Megam::Billinghistories")) ::
            JField(AssemblyIdKey, toJSON(h.assembly_id)) ::
           JField(BillTypeKey, toJSON(h.bill_type)) ::
@@ -65,16 +65,16 @@ class BillinghistoriesResultSerialization(charset: Charset = UTF8Charset) extend
     override def read(json: JValue): Result[BillinghistoriesResult] = {
 
       val idField = field[String](IdKey)(json)
-      val accountIdField = field[String](AccountIdKey)(json)
+      val accountsIdField = field[String](AccountsIdKey)(json)
       val assemblyIdField = field[String](AssemblyIdKey)(json)
       val billTypeField = field[String](BillTypeKey)(json)
       val billingamountField = field[String](BillingAmountKey)(json)
       val currencytypeField = field[String](CurrencyTypeKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| accountIdField |@| assemblyIdField |@| billTypeField |@| billingamountField |@| currencytypeField |@| createdAtField) {
-        (id: String, account_id: String, assembly_id: String, bill_type: String, billing_amount: String, currency_type: String, created_at: String) =>
-          new BillinghistoriesResult(id, account_id, assembly_id, bill_type, billing_amount, currency_type, created_at)
+      (idField |@| accountsIdField |@| assemblyIdField |@| billTypeField |@| billingamountField |@| currencytypeField |@| createdAtField) {
+        (id: String, accounts_id: String, assembly_id: String, bill_type: String, billing_amount: String, currency_type: String, created_at: String) =>
+          new BillinghistoriesResult(id, accounts_id, assembly_id, bill_type, billing_amount, currency_type, created_at)
       }
     }
   }

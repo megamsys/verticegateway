@@ -37,7 +37,7 @@ class DiscountsResultSerialization(charset: Charset = UTF8Charset) extends Seria
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
-  protected val AccountIdKey = "account_id"
+  protected val AccountsIdKey = "accounts_id"
   protected val BillTypeKey = "bill_type"
   protected val CodeKey = "code"
   protected val StatusKey = "status"
@@ -48,7 +48,7 @@ class DiscountsResultSerialization(charset: Charset = UTF8Charset) extends Seria
     override def write(h: DiscountsResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(AccountIdKey, toJSON(h.account_id)) ::
+          JField(AccountsIdKey, toJSON(h.accounts_id)) ::
           JField(JSONClazKey, toJSON("Megam::Discounts")) ::
           JField(BillTypeKey, toJSON(h.bill_type)) ::
           JField(CodeKey, toJSON(h.code)) ::
@@ -63,15 +63,15 @@ class DiscountsResultSerialization(charset: Charset = UTF8Charset) extends Seria
     override def read(json: JValue): Result[DiscountsResult] = {
 
       val idField = field[String](IdKey)(json)
-      val accountIdField = field[String](AccountIdKey)(json)
+      val accountsIdField = field[String](AccountsIdKey)(json)
       val billTypeField = field[String](BillTypeKey)(json)
       val codeField = field[String](CodeKey)(json)
       val statusField = field[String](StatusKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| accountIdField |@| billTypeField |@| codeField |@| statusField |@| createdAtField) {
-        (id: String, account_id: String, bill_type: String, code: String, status: String, created_at: String) =>
-          new DiscountsResult(id, account_id, bill_type, code, status, created_at)
+      (idField |@| accountsIdField |@| billTypeField |@| codeField |@| statusField |@| createdAtField) {
+        (id: String, accounts_id: String, bill_type: String, code: String, status: String, created_at: String) =>
+          new DiscountsResult(id, accounts_id, bill_type, code, status, created_at)
       }
     }
   }

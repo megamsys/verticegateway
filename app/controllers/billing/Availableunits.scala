@@ -42,8 +42,7 @@ import models.tosca._
 object Availableunits extends Controller with APIAuthElement {
   
   /*
-   * Create or update a new event by email/json input. 
-   * Old value for the same key gets wiped out.
+   * Create or update a new static units of megam marketplace items by email/json input. 
    */
   
   def post = StackAction(parse.tolerantText) {  implicit request =>

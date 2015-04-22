@@ -37,7 +37,7 @@ class CredithistoriesResultSerialization(charset: Charset = UTF8Charset) extends
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
-  protected val AccountIdKey = "account_id"
+  protected val AccountsIdKey = "accounts_id"
   protected val BillTypeKey = "bill_type"
   protected val CreditAmountKey = "credit_amount"
   protected val CurrencyTypeKey = "currency_type"
@@ -48,7 +48,7 @@ class CredithistoriesResultSerialization(charset: Charset = UTF8Charset) extends
     override def write(h: CredithistoriesResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(AccountIdKey, toJSON(h.account_id)) ::
+          JField(AccountsIdKey, toJSON(h.accounts_id)) ::
           JField(JSONClazKey, toJSON("Megam::Credithistories")) ::
           JField(BillTypeKey, toJSON(h.bill_type)) ::
           JField(CreditAmountKey, toJSON(h.credit_amount)) ::
@@ -63,15 +63,15 @@ class CredithistoriesResultSerialization(charset: Charset = UTF8Charset) extends
     override def read(json: JValue): Result[CredithistoriesResult] = {
 
       val idField = field[String](IdKey)(json)
-      val accountIdField = field[String](AccountIdKey)(json)
+      val accountsIdField = field[String](AccountsIdKey)(json)
       val billTypeField = field[String](BillTypeKey)(json)
       val creditamountField = field[String](CreditAmountKey)(json)
       val currencytypeField = field[String](CurrencyTypeKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| accountIdField |@| billTypeField |@| creditamountField |@| currencytypeField |@| createdAtField) {
-        (id: String, account_id: String, bill_type: String, credit_amount: String, currency_type: String, created_at: String) =>
-          new CredithistoriesResult(id, account_id, bill_type, credit_amount, currency_type, created_at)
+      (idField |@| accountsIdField |@| billTypeField |@| creditamountField |@| currencytypeField |@| createdAtField) {
+        (id: String, accounts_id: String, bill_type: String, credit_amount: String, currency_type: String, created_at: String) =>
+          new CredithistoriesResult(id, accounts_id, bill_type, credit_amount, currency_type, created_at)
       }
     }
   }

@@ -44,12 +44,12 @@ import java.nio.charset.Charset
  *
  */
 
-case class BillinghistoriesInput(account_id: String, assembly_id: String, bill_type: String, billing_amount: String, currency_type: String) {
-  val json = "{\"account_id\":\"" + account_id + "\",\"assembly_id\":\"" + assembly_id + "\",\"bill_type\":\"" + bill_type + "\",\"billing_amount\":\"" + billing_amount + "\",\"currency_type\":\"" + currency_type + "\"}"
+case class BillinghistoriesInput(accounts_id: String, assembly_id: String, bill_type: String, billing_amount: String, currency_type: String) {
+  val json = "{\"accounts_id\":\"" + accounts_id + "\",\"assembly_id\":\"" + assembly_id + "\",\"bill_type\":\"" + bill_type + "\",\"billing_amount\":\"" + billing_amount + "\",\"currency_type\":\"" + currency_type + "\"}"
 
 }
 
-case class BillinghistoriesResult(id: String, account_id: String, assembly_id: String, bill_type: String, billing_amount: String, currency_type: String, created_at: String) {
+case class BillinghistoriesResult(id: String, accounts_id: String, assembly_id: String, bill_type: String, billing_amount: String, currency_type: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -114,16 +114,16 @@ object Billinghistories {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //val bvalue = Set(aor.get.id)
-       val bvalue = Set(bhi.account_id)
-      val json = new BillinghistoriesResult(uir.get._1 + uir.get._2, bhi.account_id, bhi.assembly_id, bhi.bill_type, bhi.billing_amount, bhi.currency_type, Time.now.toString).toJson(false)
+       val bvalue = Set(bhi.accounts_id)
+      val json = new BillinghistoriesResult(uir.get._1 + uir.get._2, bhi.accounts_id, bhi.assembly_id, bhi.bill_type, bhi.billing_amount, bhi.currency_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
   /*
-   * create new events item with the 'name' of the item provide as input.
-   * Also creating index with 'events'
+   * create new billing histories for currently pay the bill of user.
+   * 
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[BillinghistoriesResult]] = {
@@ -145,6 +145,63 @@ object Billinghistories {
           }
         }
     }
+  }
+  
+   def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BillinghistoriesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billinghistories", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("BillinghistoriesList", balanceList))
+    (balanceList map {
+      _.map { balanceName =>
+        play.api.Logger.debug("models.BillinghistoriesName findByName: Billinghistories:" + balanceName)
+        (riak.fetch(balanceName) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(balanceName, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              (Validation.fromTryCatch[models.billing.BillinghistoriesResult] {
+                parse(xs.value).extract[BillinghistoriesResult]
+              } leftMap { t: Throwable =>
+                new ResourceItemNotFound(balanceName, t.getMessage)
+              }).toValidationNel.flatMap { j: BillinghistoriesResult =>
+                Validation.success[Throwable, BillinghistoriesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+              }
+            }
+            case None => Validation.failure[Throwable, BillinghistoriesResults](new ResourceItemNotFound(balanceName, "")).toValidationNel
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((BillinghistoriesResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head. 
+
+  }
+  
+  /*
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * the histories are listed on the index (account.id) in bucket `Billinghistories`.
+   * Using a "Billinghistories name" as key, return a list of ValidationNel[List[BillinghistoriesResult]] 
+   * Takes an email, and returns a Future[ValidationNel, List[Option[BillinghistoriesResult]]]
+   */
+  def findByEmail(email: String): ValidationNel[Throwable, BillinghistoriesResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billinghistories", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, BillinghistoriesResults]] {
+      (((for {
+        aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        val bindex = ""
+        val bvalue = Set("")
+         play.api.Logger.debug(("%-20s -->[%s]").format("Billinghistories result", aor.get))
+        new GunnySack("Billinghistories", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
+      } map { nm: List[String] =>
+        (if (!nm.isEmpty) findByName(nm.some) else
+          new ResourceItemNotFound(email, "Billinghistories = nothing found.").failureNel[BillinghistoriesResults])
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new ResourceItemNotFound(email, "Billinghistories = nothing found.").failureNel[BillinghistoriesResults])
   }
   
 }

@@ -37,7 +37,7 @@ class BillingsResultSerialization(charset: Charset = UTF8Charset) extends Serial
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
-  protected val AccountIdKey = "account_id"
+  protected val AccountsIdKey = "accounts_id"
   protected val Line1Key = "line1"
   protected val Line2Key = "line2"
   protected val CountryCodeKey = "country_code"
@@ -52,7 +52,7 @@ class BillingsResultSerialization(charset: Charset = UTF8Charset) extends Serial
     override def write(h: BillingsResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(AccountIdKey, toJSON(h.account_id)) ::
+          JField(AccountsIdKey, toJSON(h.accounts_id)) ::
           JField(JSONClazKey, toJSON("Megam::Billings")) ::
           JField(Line1Key, toJSON(h.line1)) ::
           JField(Line2Key, toJSON(h.line2)) ::
@@ -71,7 +71,7 @@ class BillingsResultSerialization(charset: Charset = UTF8Charset) extends Serial
     override def read(json: JValue): Result[BillingsResult] = {
 
       val idField = field[String](IdKey)(json)
-      val accountIdField = field[String](AccountIdKey)(json)
+      val accountsIdField = field[String](AccountsIdKey)(json)
       val line1Field = field[String](Line1Key)(json)
       val line2Field = field[String](Line2Key)(json)
       val countrycodeField = field[String](CountryCodeKey)(json)
@@ -81,9 +81,9 @@ class BillingsResultSerialization(charset: Charset = UTF8Charset) extends Serial
       val billTypeField = field[String](BillTypeKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| accountIdField |@| line1Field |@| line2Field |@| countrycodeField |@| postalcodeField |@| stateField |@| phoneField |@| billTypeField |@| createdAtField) {
-        (id: String, account_id: String, line1: String, line2: String, country_code: String, postal_code: String, state: String, phone: String, bill_type: String, created_at: String) =>
-          new BillingsResult(id, account_id, line1, line2, country_code, postal_code, state, phone, bill_type, created_at)
+      (idField |@| accountsIdField |@| line1Field |@| line2Field |@| countrycodeField |@| postalcodeField |@| stateField |@| phoneField |@| billTypeField |@| createdAtField) {
+        (id: String, accounts_id: String, line1: String, line2: String, country_code: String, postal_code: String, state: String, phone: String, bill_type: String, created_at: String) =>
+          new BillingsResult(id, accounts_id, line1, line2, country_code, postal_code, state, phone, bill_type, created_at)
       }
     }
   }

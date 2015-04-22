@@ -44,12 +44,12 @@ import java.nio.charset.Charset
  *
  */
 
-case class DiscountsInput(account_id: String, bill_type: String, code: String, status: String) {
-  val json = "{\"account_id\":\"" + account_id + "\",\"bill_type\":\"" + bill_type + "\",\"code\":\"" + code + "\",\"status\":\"" + status + "\"}"
+case class DiscountsInput(accounts_id: String, bill_type: String, code: String, status: String) {
+  val json = "{\"accounts_id\":\"" + accounts_id + "\",\"bill_type\":\"" + bill_type + "\",\"code\":\"" + code + "\",\"status\":\"" + status + "\"}"
 
 }
 
-case class DiscountsResult(id: String, account_id: String, bill_type: String, code: String, status: String, created_at: String) {
+case class DiscountsResult(id: String, accounts_id: String, bill_type: String, code: String, status: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -114,16 +114,15 @@ object Discounts {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "dst").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //val bvalue = Set(aor.get.id)
-       val bvalue = Set(discount.account_id)
-      val json = new DiscountsResult(uir.get._1 + uir.get._2, discount.account_id, discount.bill_type, discount.code, discount.status, Time.now.toString).toJson(false)
+       val bvalue = Set(discount.accounts_id)
+      val json = new DiscountsResult(uir.get._1 + uir.get._2, discount.accounts_id, discount.bill_type, discount.code, discount.status, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
   /*
-   * create new events item with the 'name' of the item provide as input.
-   * Also creating index with 'events'
+   * create new discount for the user.
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[DiscountsResult]] = {
