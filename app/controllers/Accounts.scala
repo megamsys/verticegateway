@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,14 +37,14 @@ import scalaz.NonEmptyList._
  */
 
 /*
- * This controller performs onboarding a customer and registers an email/api_key 
+ * This controller performs onboarding a customer and registers an email/api_key
  * into riak
- * Output: FunnelResponse as JSON with the msg.  
+ * Output: FunnelResponse as JSON with the msg.
  */
 object Accounts extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
+   * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
    */
   def post = Action(parse.tolerantText) { implicit request =>
@@ -53,17 +53,6 @@ object Accounts extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
     models.Accounts.create(input) match {
       case Success(succ) =>
-        PlatformAppPrimer.clone_predefcloud(succ.get.email).flatMap { x =>
-          Status(CREATED)(
-            FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
-              format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
-        } match {
-          case Success(succ_cpc) => succ_cpc
-          case Failure(errcpc) =>
-            val rncpc: FunnelResponse = new HttpReturningError(errcpc)
-            Status(rncpc.code)(rncpc.toJson(true))
-        }
-
         PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
@@ -83,7 +72,7 @@ object Accounts extends Controller with APIAuthElement {
   }
 
   /*
-   * GET: findByEmail: Show a particular account by email 
+   * GET: findByEmail: Show a particular account by email
    * Email provided in the URI.
    * Output: JSON (AccountsResult)
    **/
