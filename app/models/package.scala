@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,31 +34,7 @@ import controllers.Constants._
 package object models {
 
 
- type PredefResults = NonEmptyList[Option[PredefResult]]
-
-  object PredefResults {
-    val emptyPR = List(Option.empty[PredefResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(pres: PredefResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.PredefResultsSerialization.{ writer => PredefResultsWriter }
-      toJSON(pres)(PredefResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(pres: PredefResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(pres)))
-    } else {
-      compactRender(toJValue(pres))
-    }
-
-    def apply(m: PredefResult): PredefResults = nels(m.some)
-    def empty: PredefResults = nel(emptyPR.head, emptyPR.tail)
-
-  }
-
-  type PredefCloudResults = NonEmptyList[Option[PredefCloudResult]]
+ type PredefCloudResults = NonEmptyList[Option[PredefCloudResult]]
 
   object PredefCloudResults {
     val emptyPC = List(Option.empty[PredefCloudResult])
@@ -105,10 +81,9 @@ package object models {
     def empty: RequestResults = nel(emptyRR.head, emptyRR.tail)
   }
 
-  implicit def transformPredefResults2Json(pres: PredefResults): Option[String] = PredefResults.toJson(pres, true).some
   implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): Option[String] = PredefCloudResults.toJson(prres, true).some
 
-  
+
   type CloudToolSettingResults = NonEmptyList[Option[CloudToolSettingResult]]
 
   object CloudToolSettingResults {
@@ -248,13 +223,13 @@ package object models {
     } else {
       compactRender(toJValue(nres))
     }
-    
+
     def apply(plansList: List[MarketPlacePlan]): MarketPlacePlans = plansList
 
     def empty: List[MarketPlacePlan] = emptyRR
 
   }
-  
+
   type AppRequestResults = NonEmptyList[Option[AppRequestResult]]
 
   object AppRequestResults {
@@ -277,5 +252,5 @@ package object models {
     def apply(m: AppRequestResult): AppRequestResults = nels(m.some)
     def empty: AppRequestResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
+
 }

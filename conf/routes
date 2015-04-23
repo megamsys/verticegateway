@@ -7,14 +7,6 @@ GET    /assets/*file                    controllers.Assets.at(path="/public", fi
 
 # Home page
 GET    /                                controllers.Application.index
-GET    /utru                            controllers.Application.login
-POST   /session                         controllers.Application.loginauthenticate
-GET    /init                            controllers.Application.init
-GET    /initaccount                     controllers.Application.initaccount
-#GET    /initcloudtoolsetting            controllers.Application.initcloudtoolsetting
-GET    /initmarketplaceaddons           controllers.Application.initmarketplaceaddons
-GET    /initdefaultorganizations        controllers.Application.initdefaultorganizations
-GET    /initdefaultdomains              controllers.Application.initdefaultdomains
 
 # Authentication - HMAC
 POST   /v2/auth                         controllers.Application.authenticate
@@ -36,10 +28,6 @@ GET    /v2/domains/:id                       controllers.camp.Domains.show(id: S
 #Profile
 POST   /v2/profile/content                controllers.camp.Profile.post
 GET    /v2/profile/:id                    controllers.camp.Profile.show(id: String)
-
-#Predefs
-GET    /v2/predefs                      controllers.Predefs.list()
-GET    /v2/predefs/:predefid            controllers.Predefs.show(predefid: String)
 
 #PredefClouds
 POST   /v2/predefclouds/content         controllers.PredefClouds.post
@@ -76,9 +64,9 @@ POST   /v2/assembly/build/:id/:cid   	 controllers.camp.Assembly.build(id: Strin
 GET    /v2/components/:id         		controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	controllers.camp.Components.update
 
-# Requests for Assemblies 
+# Requests for Assemblies
 POST   /v2/requests/content            	 controllers.Requests.post
-#GET    /v2/requests                     controllers.Requests.list()                          
+#GET    /v2/requests                     controllers.Requests.list()
 #GET    /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
 
 # CloudToolSetting

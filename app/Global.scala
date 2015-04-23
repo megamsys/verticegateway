@@ -38,7 +38,13 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
   response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
 
   override def onStart(app: Application) {
-    play.api.Logger.info("megamgateway - started ---------------------------------------------------------")
+
+    play.api.Logger.info("""
+    ╔╦╗┌─┐┌─┐┌─┐┌┬┐  ╔═╗┌─┐┌┬┐┌─┐┬ ┬┌─┐┬ ┬
+    ║║║├┤ │ ┬├─┤│││  ║ ╦├─┤ │ ├┤ │││├─┤└┬┘
+    ╩ ╩└─┘└─┘┴ ┴┴ ┴  ╚═╝┴ ┴ ┴ └─┘└┴┘┴ ┴ ┴
+    """)
+    play.api.Logger.info("started ...")
 
     val megamprimeddir = new File(Constants.MEGAM_PRIMED_DIR)
     megamprimeddir.mkdirs()
@@ -62,7 +68,12 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
   }
 
   override def onStop(app: Application) {
-    play.api.Logger.info("megamgateway - going down---------------------------------------------------------")
+    play.api.Logger.info("""
+        ╔═╗┌─┐┌─┐  ╦ ╦┌─┐
+        ╚═╗├┤ ├┤   ╚╦╝├─┤
+   ooo  ╚═╝└─┘└─┘   ╩ ┴ ┴
+     """)
+    play.api.Logger.info("going down...")
   }
 
   override def onError(request: RequestHeader, ex: Throwable): Future[play.api.mvc.Result] = {

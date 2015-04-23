@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,21 +45,7 @@ object PlatformAppPrimer {
   def sandboxDummyAcct = models.Accounts.create(
     AccountInput(DEMO_EMAIL, DEMO_APIKEY, "demo").json)
 
-  //populate the predefinitions of the platform supported by megam.
-  def predefs = models.Predefs.create
 
-  //populate the marketplace addons
-  def marketplace_addons = models.MarketPlaces.createMany(MarketPlaceInput.toMap)
-
-  def sandbox_ec2_default = PredefCloudInput("clouddefault",
-    new PredefCloudSpec("ec2", "megam", "ami-a0074df2", "t1.micro", ""),
-    new PredefCloudAccess("megam_ec2", "cloudkeys/" + MEGAM_ADMIN_EMAIL + "/default/megam_ec2.pem", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + MEGAM_ADMIN_EMAIL + "/default", "", "", "ap-southeast-1")).json
-
-  def sandbox_google_default = PredefCloudInput("clouddefault",
-    new PredefCloudSpec("google", "", "debian-7-wheezy-v20131120", "f1-micro", ""),
-    new PredefCloudAccess("", "cloudkeys/" + MEGAM_ADMIN_EMAIL + "/id_rsa.pub", "ubuntu", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/" + MEGAM_ADMIN_EMAIL + "/gdefault", "", "europe-west1-a", "")).json
-
-  def clone_predefcloud = { ccemail: String => models.PredefClouds.create(ccemail, sandbox_google_default) }
 
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     sada <- sandboxAcct
@@ -73,26 +59,14 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-  def prep: ValidationNel[Throwable, FunnelResponses] = for {
-    lpd <- predefs
-    ccd <- clone_predefcloud(MEGAM_ADMIN_EMAIL)
-    cdsd <- clone_predefcloud(DEMO_EMAIL)
-  } yield {
-    val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Predefs created successfully. Cache gets loaded upon first fetch.
-               	|
-								|%nLoaded values are ----->%n[%s]""".format(lpd.toString).stripMargin, "Megam::Predef"),
-      FunnelResponse(CREATED, """Predefs cloud created successfully(%s,%s).
-								|
-								|You can use the the 'predefs cloud name':{%s}.""".format(MEGAM_ADMIN_EMAIL, DEMO_EMAIL, cdsd.getOrElse("none")), "Megam::PredefCloud"))
-    FunnelResponses(chainedComps)
-  }
-
+  //populate the marketplace addons
+  def marketplace_addons = models.MarketPlaces.createMany(MarketPlaceInput.toMap)
+  
   def mkp_prep: ValidationNel[Throwable, FunnelResponses] = for {
     mkp <- marketplace_addons
   } yield {
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Market Place addons created successfully. Cache gets loaded upon first fetch. 
+      FunnelResponse(CREATED, """Market Place addons created successfully. Cache gets loaded upon first fetch.
             |
             |%nLoaded results are ----->%n[%s]""".format(mkp.list.size + " addons primed.").stripMargin, "Megam::MarketPlaces"))
     FunnelResponses(chainedComps)
@@ -132,5 +106,3 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 }
-
-
