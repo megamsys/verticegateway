@@ -37,19 +37,29 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
+  protected val FirstNameKey = "first_name"
+  protected val LastNameKey = "last_name"
+  protected val PhoneKey = "phone"
   protected val EmailKey = "email"
   protected val APIKey = "api_key"
+  protected val PasswordKey = "password"
   protected val AuthorityKey = "authority"
+  protected val PasswordResetKey = "password_reset_key"
   protected val CreatedAtKey ="created_at"  
 
   override implicit val writer = new JSONW[AccountResult] {
 
     override def write(h: AccountResult): JValue = {
       JObject(
-        JField(IdKey, toJSON(h.id)) ::
+          JField(IdKey, toJSON(h.id)) ::
+          JField(FirstNameKey, toJSON(h.first_name)) ::
+          JField(LastNameKey, toJSON(h.last_name)) ::
+          JField(PhoneKey, toJSON(h.phone)) ::
           JField(EmailKey, toJSON(h.email)) ::
           JField(APIKey, toJSON(h.api_key)) ::
+          JField(PasswordKey, toJSON(h.password)) ::
           JField(AuthorityKey, toJSON(h.authority))    ::
+          JField(PasswordResetKey, toJSON(h.password_reset_key)) ::
           JField(CreatedAtKey, toJSON(h.created_at))   :: 
           JField(JSONClazKey, toJSON("Megam::Account")) :: Nil)
     }
@@ -59,14 +69,22 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
 
     override def read(json: JValue): Result[AccountResult] = {
       val idField = field[String](IdKey)(json)
+      val firstNameField = field[String](FirstNameKey)(json)
+      val lastNameField = field[String](LastNameKey)(json)
+      val phoneField = field[String](PhoneKey)(json)
+
       val emailField = field[String](EmailKey)(json)
       val apiKeyField = field[String](APIKey)(json)
+            val passwordField = field[String](PasswordKey)(json)
+
       val authorityField = field[String](AuthorityKey)(json)
+            val passwordResetField = field[String](PasswordResetKey)(json)
+
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| emailField |@| apiKeyField |@| authorityField |@| createdAtField) {
-        (id: String, email: String, apikey: String, authority: String, created_at: String) =>
-          new AccountResult(id, email, apikey, authority, created_at)
+      (idField |@| firstNameField |@| lastNameField |@| phoneField |@| emailField |@| apiKeyField |@| passwordField |@| authorityField |@| passwordResetField |@| createdAtField) {
+        (id: String, first_name: String, last_name: String, phone: String, email: String, apikey: String, password: String, authority: String, password_reset_key: String, created_at: String) =>
+          new AccountResult(id, first_name, last_name, phone, email, apikey, password, authority, password_reset_key, created_at)
       }
     }
   }

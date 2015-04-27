@@ -40,22 +40,21 @@ object PlatformAppPrimer {
 
   //on board a sandbox account during start of the play server.
   def sandboxAcct = models.Accounts.create(
-    AccountInput(MEGAM_ADMIN_EMAIL, MEGAM_ADMIN_APIKEY, "normal").json)
+    AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, MEGAM_ADMIN_EMAIL, MEGAM_ADMIN_APIKEY, SAMPLE_PASSWORD,  "normal", MEGAM_PASSWORD_RESET_KEY).json)
 
-  def sandboxDummyAcct = models.Accounts.create(
-    AccountInput(DEMO_EMAIL, DEMO_APIKEY, "demo").json)
+  def takeatourAcct = models.Accounts.create(
+    AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, DEMO_EMAIL, DEMO_APIKEY, SAMPLE_PASSWORD, "demo", MEGAM_PASSWORD_RESET_KEY).json)
 
 
 
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    sada <- sandboxAcct
-    dummy <- sandboxDummyAcct
+    dummy <- takeatourAcct
   } yield {
     val chainedComps = List[FunnelResponse](
       FunnelResponse(CREATED, """Account created successfully(%s, %s).
             |
             |Your email registered successully.""".
-        format(sada.get.email, dummy.get.email).stripMargin, "Megam::Account"))
+        format( dummy.get.email).stripMargin, "Megam::Account"))
     FunnelResponses(chainedComps)
   }
 
