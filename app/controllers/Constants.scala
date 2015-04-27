@@ -42,6 +42,12 @@ object Constants {
    * The MEGAM_HOME variable is setup during the installation of megamgateway in MEGAM_HOME/.megam_auth
    */
   val MEGAM_HOME = sys.env.get("MEGAM_HOME")
+  
+  val MEGAM_FIRST_NAME = "MegamFirstName"
+  val MEGAM_LAST_NAME = "MegamLastName"
+  val MEGAM_PHONE = "1234567890"
+  val SAMPLE_PASSWORD = "pass"
+  val MEGAM_PASSWORD_RESET_KEY = "samplekey"
 
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
@@ -68,7 +74,8 @@ object Constants {
 
   val DEMO_EMAIL = "fake@mypaas.io"
   val DEMO_APIKEY = "fakemypaas#megam"
-
+  
+ 
   val DELETE_REQUEST = "DELETE"
 
   val MEGAM_PRIMED_DIR = (for {home <- MEGAM_HOME}

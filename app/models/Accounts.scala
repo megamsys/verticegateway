@@ -40,9 +40,10 @@ import controllers.stack.MConfig
 /**
  * @author rajthilak
  * authority
+ * 
  */
 
-case class AccountResult(id: String, email: String, api_key: String, authority: String, created_at: String) {
+case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -61,9 +62,10 @@ case class AccountResult(id: String, email: String, api_key: String, authority: 
 
 object AccountResult {
 
-  def apply(id: String, email: String, api_key: String, authority: String) = new AccountResult(id, email, api_key, authority, Time.now.toString)
+  //def apply(id: String, email: String, api_key: String, authority: String) = new AccountResult(id, email, api_key, authority, Time.now.toString)
+  def apply(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String) = new AccountResult(id, first_name, last_name, phone,  email, api_key, password,  authority, password_reset_key,  Time.now.toString)
 
-  def apply(email: String): AccountResult = AccountResult("not found", email, new String(), new String())
+  def apply(email: String): AccountResult = AccountResult("not found", new String(), new String(), new String(), email, new String(), new String(),  new String(), new String() )
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -79,8 +81,8 @@ object AccountResult {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-case class AccountInput(email: String, api_key: String, authority: String) {
-  val json = "{\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"authority\":\"" + authority + "\"}"
+case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String) {
+  val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\"}"
 }
 object Accounts {
 
@@ -106,7 +108,7 @@ object Accounts {
           val metadataVal = "1002"
           val bindex = "accountId"
           val bvalue = Set(uid.get._1 + uid.get._2)
-          val acctRes = AccountResult(uid.get._1 + uid.get._2, m.email, m.api_key, m.authority)
+          val acctRes = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, Time.now.toString)
           play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))          
           val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
           storeValue match {
