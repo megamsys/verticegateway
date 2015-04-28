@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,12 +42,12 @@ object Constants {
    * The MEGAM_HOME variable is setup during the installation of megamgateway in MEGAM_HOME/.megam_auth
    */
   val MEGAM_HOME = sys.env.get("MEGAM_HOME")
-  
+
   val MEGAM_FIRST_NAME = "MegamFirstName"
   val MEGAM_LAST_NAME = "MegamLastName"
   val MEGAM_PHONE = "1234567890"
   val SAMPLE_PASSWORD = "pass"
-  val MEGAM_PASSWORD_RESET_KEY = "samplekey"
+  val MEGAM_PASSWORD_RESET_KEY = "nil"
 
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
@@ -55,7 +55,7 @@ object Constants {
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megam.co"
 
-  /*Look for a file /var/lib/megam/.megam_auth with fields 
+  /*Look for a file /var/lib/megam/.megam_auth with fields
   megam@mypaas.io:<randomlygenerated pw>
   if it doesn't exists then use the defaults
   megam@mypaas.io, IamAtlas{74}NobodyCanSeeME#07*/
@@ -72,10 +72,10 @@ object Constants {
   val MEGAM_ADMIN_EMAIL = adminAuth.email
   val MEGAM_ADMIN_APIKEY = adminAuth.api_key
 
-  val DEMO_EMAIL = "fake@mypaas.io"
-  val DEMO_APIKEY = "fakemypaas#megam"
-  
- 
+  val DEMO_EMAIL = "tour@megam.io"
+  val DEMO_APIKEY = "faketour"
+
+
   val DELETE_REQUEST = "DELETE"
 
   val MEGAM_PRIMED_DIR = (for {home <- MEGAM_HOME}
@@ -85,8 +85,8 @@ object Constants {
  yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
 
 
-    
-  
- 
+
+
+
 
 }
