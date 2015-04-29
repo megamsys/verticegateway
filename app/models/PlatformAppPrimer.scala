@@ -38,9 +38,6 @@ import models.tosca._
 
 object PlatformAppPrimer {
 
-  //on board a sandbox account during start of the play server.
-  def sandboxAcct = models.Accounts.create(
-    AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, MEGAM_ADMIN_EMAIL, MEGAM_ADMIN_APIKEY, SAMPLE_PASSWORD,  "normal", MEGAM_PASSWORD_RESET_KEY).json)
 
   def takeatourAcct = models.Accounts.create(
     AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, DEMO_EMAIL, DEMO_APIKEY, SAMPLE_PASSWORD, "demo", MEGAM_PASSWORD_RESET_KEY).json)
@@ -60,7 +57,7 @@ object PlatformAppPrimer {
 
   //populate the marketplace addons
   def marketplace_addons = models.MarketPlaces.createMany(MarketPlaceInput.toMap)
-  
+
   def mkp_prep: ValidationNel[Throwable, FunnelResponses] = for {
     mkp <- marketplace_addons
   } yield {
