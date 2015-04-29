@@ -51,7 +51,7 @@ object PlatformAppPrimer {
     dummy <- takeatourAcct
   } yield {
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Account created successfully(%s, %s).
+      FunnelResponse(CREATED, """Account created successfully(%s).
             |
             |Your email registered successully.""".
         format( dummy.get.email).stripMargin, "Megam::Account"))
