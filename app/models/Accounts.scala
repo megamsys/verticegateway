@@ -84,16 +84,23 @@ object AccountResult {
 case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String) {
   val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\"}"
 }
+
+case class updateAccountInput(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String, created_at: String) {
+  val json = "{\"id\":\"" + id + "\",\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"created_at\":\"" + created_at + "\"}"
+
+}
+
 object Accounts {
 
+         val metadataKey = "ACCOUNTS"
+          val metadataVal = "1002"
+          val bindex = "accountId"
+   
   implicit val formats = DefaultFormats
 
   private val riak = GWRiak("accounts")
   
-  val metadataKey = "Account"
-  val metadataVal = "Account"
-  val bindex = "accountId"
-  
+ 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to profile input, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -181,6 +188,78 @@ object Accounts {
 
   }*/
 
+  private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("Accounts Update", "updateGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatch {
+      parse(input).extract[updateAccountInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      rip <- ripNel
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val bvalue = Set(aor.get.id)
+
+      val json = AccountResult(rip.id, rip.first_name, rip.last_name, rip.phone, rip.email, rip.api_key, rip.password, rip.authority, rip.password_reset_key, rip.created_at ).toJson(false)
+      new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+    }
+  }
+  
+ 
+  def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Account", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
+      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+        flatMap { maybeGS: Option[GunnySack] =>
+          maybeGS match {
+            case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
+            case None => {
+              play.api.Logger.warn(("%-20s -->[%s]").format("Account.updated success", "Scaliak returned => None. Thats OK."))
+              (parse(gs.get.value).extract[AccountResult].some).successNel[Throwable];
+            }
+          }
+        }
+    }
+  }
+  
+  
+  /*
+  def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[Tuple2[Map[String, String], String]]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.account", "update:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatch {
+      parse(input).extract[updateAccountInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      rip <- ripNel
+      gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val nrip = parse(gs.get.value).extract[AccountResult]
+      maybeGS match {
+        case Some(thatGS) =>
+          Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.id).some
+        case None => {
+          play.api.Logger.warn(("%-20s -->[%s]").format("Accounts.updated successfully", "Scaliak returned => None. Thats OK."))
+          Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.id).some
+        }
+      }
+    } 
+  }
+
+
+  */
+  
   
   /**
    * Performs a fetch from Riak bucket. If there is an error then ServiceUnavailable is sent back.
@@ -241,6 +320,12 @@ object Accounts {
     }
   }
 
+  
+  
+  
+  
+  
+  
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
       val notSed = maybeASediment.isSuccess
