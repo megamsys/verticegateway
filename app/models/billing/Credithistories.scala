@@ -44,8 +44,8 @@ import java.nio.charset.Charset
  *
  */
 
-case class CredithistoriesInput(accounts_id: String, bill_type: String, credit_amount: String, currency_type: String) {
-  val json = "{\"accounts_id\":\"" + accounts_id + "\",\"bill_type\":\"" + bill_type + "\",\"credit_amount\":\"" + credit_amount + "\",\"currency_type\":\"" + currency_type + "\"}"
+case class CredithistoriesInput(bill_type: String, credit_amount: String, currency_type: String) {
+  val json = "{\"bill_type\":\"" + bill_type + "\",\"credit_amount\":\"" + credit_amount + "\",\"currency_type\":\"" + currency_type + "\"}"
 
 }
 
@@ -110,12 +110,11 @@ object Credithistories {
 
     for {
       chi <- CredithistoriesInput
-      //aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "chs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //val bvalue = Set(aor.get.id)
-       val bvalue = Set(chi.accounts_id)
-      val json = new CredithistoriesResult(uir.get._1 + uir.get._2, chi.accounts_id, chi.bill_type, chi.credit_amount, chi.currency_type, Time.now.toString).toJson(false)
+      val bvalue = Set(aor.get.id)
+      val json = new CredithistoriesResult(uir.get._1 + uir.get._2, aor.get.id, chi.bill_type, chi.credit_amount, chi.currency_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
