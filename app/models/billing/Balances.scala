@@ -50,12 +50,12 @@ case class BalancesInput(credit: String) {
 
 }
 
-case class BalancesUpdateInput(id: String, accounts_id: String, name: String, credit: String, created_at: String, updated_at: String) {
-  val json = "{\"id\":\"" + id + "\",\"accounts_id\":\"" + accounts_id + "\",\"name\":\"" + name + "\",\"credit\":\"" + credit + "\",\"created_at\":\"" + created_at + "\",\"updated_at\":\"" + updated_at + "\"}"
+case class BalancesUpdateInput(id: String, name: String, credit: String, created_at: String, updated_at: String) {
+  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"credit\":\"" + credit + "\",\"created_at\":\"" + created_at + "\",\"updated_at\":\"" + updated_at + "\"}"
 
 }
 
-case class BalancesResult(id: String, accounts_id: String, name: String, credit: String, created_at: String, updated_at: String) {
+case class BalancesResult(id: String, name: String, credit: String, created_at: String, updated_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -116,11 +116,10 @@ object Balances {
 
     for {
       balance <- balancesInput
-      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bal").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bvalue = Set(aor.get.id)
-      val json = new BalancesResult(uir.get._1 + uir.get._2, aor.get.id, email, balance.credit, Time.now.toString, Time.now.toString).toJson(false)
+      val bvalue = Set(email)
+      val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, Time.now.toString, Time.now.toString).toJson(false)
       new GunnySack(email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -167,7 +166,7 @@ object Balances {
     } yield {
       val bvalue = Set(aor.get.id)
 
-      val json = BalancesResult(rip.id, rip.accounts_id, rip.name, rip.credit, rip.created_at, Time.now.toString).toJson(false)
+      val json = BalancesResult(rip.id, rip.name, rip.credit, rip.created_at, Time.now.toString).toJson(false)
       new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -183,10 +182,10 @@ object Balances {
       val nrip = parse(gs.get.value).extract[BalancesResult]
       maybeGS match {
         case Some(thatGS) =>
-          BalancesResult(thatGS.key, nrip.accounts_id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
+          BalancesResult(thatGS.key, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
         case None => {
           play.api.Logger.warn(("%-20s -->[%s]").format("Balances.updated successfully", "Scaliak returned => None. Thats OK."))
-          BalancesResult(nrip.id, nrip.accounts_id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
+          BalancesResult(nrip.id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
 
         }
       }

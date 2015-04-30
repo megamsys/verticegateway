@@ -99,12 +99,69 @@ object Accounts {
   implicit val formats = DefaultFormats
 
   private val riak = GWRiak("accounts")
+  
+  val metadataKey = "Account"
+  val metadataVal = "Account"
+  val bindex = "accountId"
+  
+  /**
+   * A private method which chains computation to make GunnySack when provided with an input json, email.
+   * parses the json, and converts it to profile input, if there is an error during parsing, a MalformedBodyError is sent back.
+   * After that flatMap on its success and the account id information is looked up.
+   * If the account id is looked up successfully, then yield the GunnySack object.
+   */
+  private def mkGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Accounts", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    val accountInput: ValidationNel[Throwable, AccountInput] = (Validation.fromTryCatch {
+      parse(input).extract[AccountInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      m <- accountInput
+      bal <- (models.billing.Balances.create(m.email, "{\"credit\":\"0\"}") leftMap { t: NonEmptyList[Throwable] => t })
+      uid <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "accounts").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+      val bvalue = Set(uid.get._1 + uid.get._2)
+      val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, Time.now.toString).toJson(false)
+      new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+    }
+  }
+
+  /*
+   * create new account item with the 'name' of the item provide as input.
+   * A index name account id will point to the "account bucket" bucket.
+   */
+
+  def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Account", "create:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
+
+    (mkGunnySack(input) leftMap { err: NonEmptyList[Throwable] =>
+      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+        flatMap { maybeGS: Option[GunnySack] =>
+          maybeGS match {
+            case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
+            case None => {
+              play.api.Logger.warn(("%-20s -->[%s]").format("Account.created success", "Scaliak returned => None. Thats OK."))
+              (parse(gs.get.value).extract[AccountResult].some).successNel[Throwable];
+            }
+          }
+        }
+    }
+  }
+  
+  
   /**
    * Parse the input body when you start, if its ok, then we process it.
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.
    * If there is an error in the snowflake connection, we need to send one.
    */
-  def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+ /* def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("input json", input))
     (Validation.fromTryCatch[models.AccountInput] {
@@ -132,7 +189,7 @@ object Accounts {
       }
     }
 
-  }
+  }*/
 
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("Accounts Update", "mkGunnySack:Entry"))
