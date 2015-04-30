@@ -269,7 +269,7 @@ object Assembly {
           Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.name).some
         }
       }
-    }
+    } 
   }
 
 }

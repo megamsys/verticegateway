@@ -14,6 +14,7 @@ POST   /v2/auth                         controllers.Application.authenticate
 # Account
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
+POST   /v2/accounts/update       	 	controllers.Accounts.update
 
 
 #Organizations
