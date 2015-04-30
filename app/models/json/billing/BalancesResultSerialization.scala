@@ -37,7 +37,6 @@ class BalancesResultSerialization(charset: Charset = UTF8Charset) extends Serial
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
-  protected val AccountsIdKey = "accounts_id"
   protected val NameKey = "name"
   protected val CreditKey = "credit"
   protected val CreatedAtKey = "created_at"
@@ -48,7 +47,6 @@ class BalancesResultSerialization(charset: Charset = UTF8Charset) extends Serial
     override def write(h: BalancesResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(AccountsIdKey, toJSON(h.accounts_id)) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(JSONClazKey, toJSON("Megam::Balances")) ::
           JField(CreditKey, toJSON(h.credit)) ::
@@ -63,15 +61,14 @@ class BalancesResultSerialization(charset: Charset = UTF8Charset) extends Serial
     override def read(json: JValue): Result[BalancesResult] = {
 
       val idField = field[String](IdKey)(json)
-      val accountsIdField = field[String](AccountsIdKey)(json)
       val nameField = field[String](NameKey)(json)
       val creditField = field[String](CreditKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
       val updatedAtField = field[String](UpdatedAtKey)(json)
 
-      (idField |@| accountsIdField |@| nameField |@| creditField |@| createdAtField |@| updatedAtField) {
-        (id: String, accounts_id: String, name: String, credit: String, created_at: String, updated_at: String) =>
-          new BalancesResult(id, accounts_id, name, credit, created_at, updated_at)
+      (idField |@| nameField |@| creditField |@| createdAtField |@| updatedAtField) {
+        (id: String, name: String, credit: String, created_at: String, updated_at: String) =>
+          new BalancesResult(id, name, credit, created_at, updated_at)
       }
     }
   }
