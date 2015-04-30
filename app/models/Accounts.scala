@@ -100,10 +100,7 @@ object Accounts {
 
   private val riak = GWRiak("accounts")
   
-  val metadataKey = "Account"
-  val metadataVal = "Account"
-  val bindex = "accountId"
-  
+ 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to profile input, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -192,7 +189,7 @@ object Accounts {
   }*/
 
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Accounts Update", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("Accounts Update", "updateGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -207,36 +204,30 @@ object Accounts {
       val bvalue = Set(aor.get.id)
 
       val json = AccountResult(rip.id, rip.first_name, rip.last_name, rip.phone, rip.email, rip.api_key, rip.password, rip.authority, rip.password_reset_key, rip.created_at ).toJson(false)
-      new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
   
  
-  
-  
   def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.account", "update:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Account", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatch {
-      parse(input).extract[updateAccountInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
-    for {
-      rip <- ripNel
-      gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
-      maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
-    } yield {
-      val nrip = parse(gs.get.value).extract[AccountResult]
-      maybeGS match {
-        case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
+    (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
+      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
+      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
+        flatMap { maybeGS: Option[GunnySack] =>
+          maybeGS match {
+            case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Account.created success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%-20s -->[%s]").format("Account.updated success", "Scaliak returned => None. Thats OK."))
               (parse(gs.get.value).extract[AccountResult].some).successNel[Throwable];
             }
-    } 
-  }
+          }
+        }
+    }
   }
   
   
