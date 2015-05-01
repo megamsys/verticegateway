@@ -38,11 +38,15 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
   response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
 
   override def onStart(app: Application) {
-
+/* website link for banner text - http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=Megam%20gateway */ 
     play.api.Logger.info("""
-    ╔╦╗┌─┐┌─┐┌─┐┌┬┐  ╔═╗┌─┐┌┬┐┌─┐┬ ┬┌─┐┬ ┬
-    ║║║├┤ │ ┬├─┤│││  ║ ╦├─┤ │ ├┤ │││├─┤└┬┘
-    ╩ ╩└─┘└─┘┴ ┴┴ ┴  ╚═╝┴ ┴ ┴ └─┘└┴┘┴ ┴ ┴
+███╗   ███╗███████╗ ██████╗  █████╗ ███╗   ███╗     ██████╗  █████╗ ████████╗███████╗██╗    ██╗ █████╗ ██╗   ██╗
+████╗ ████║██╔════╝██╔════╝ ██╔══██╗████╗ ████║    ██╔════╝ ██╔══██╗╚══██╔══╝██╔════╝██║    ██║██╔══██╗╚██╗ ██╔╝
+██╔████╔██║█████╗  ██║  ███╗███████║██╔████╔██║    ██║  ███╗███████║   ██║   █████╗  ██║ █╗ ██║███████║ ╚████╔╝ 
+██║╚██╔╝██║██╔══╝  ██║   ██║██╔══██║██║╚██╔╝██║    ██║   ██║██╔══██║   ██║   ██╔══╝  ██║███╗██║██╔══██║  ╚██╔╝  
+██║ ╚═╝ ██║███████╗╚██████╔╝██║  ██║██║ ╚═╝ ██║    ╚██████╔╝██║  ██║   ██║   ███████╗╚███╔███╔╝██║  ██║   ██║   
+╚═╝     ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝   
+                                                                                                                
     """)
     play.api.Logger.info("started ...")
 
@@ -69,9 +73,13 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
 
   override def onStop(app: Application) {
     play.api.Logger.info("""
-        ╔═╗┌─┐┌─┐  ╦ ╦┌─┐
-        ╚═╗├┤ ├┤   ╚╦╝├─┤
-   ooo  ╚═╝└─┘└─┘   ╩ ┴ ┴
+███████╗███████╗███████╗    ██╗   ██╗ █████╗ 
+██╔════╝██╔════╝██╔════╝    ╚██╗ ██╔╝██╔══██╗
+███████╗█████╗  █████╗       ╚████╔╝ ███████║
+╚════██║██╔══╝  ██╔══╝        ╚██╔╝  ██╔══██║
+███████║███████╗███████╗       ██║   ██║  ██║
+╚══════╝╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝
+                                             
      """)
     play.api.Logger.info("going down...")
   }
