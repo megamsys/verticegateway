@@ -91,7 +91,7 @@ object Accounts extends Controller with APIAuthElement {
     }
 
   }
-  
+
   def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatch[Result] {
       reqFunneled match {
@@ -114,16 +114,9 @@ object Accounts extends Controller with APIAuthElement {
           val rn: FunnelResponse = new HttpReturningError(err)
           Status(rn.code)(rn.toJson(true))
         }
-        
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
+
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  
-  
-  
 }

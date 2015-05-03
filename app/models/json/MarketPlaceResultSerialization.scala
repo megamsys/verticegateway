@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails, MarketPlaceAppLinks, MarketPlacePlans }
+import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlaceCatalog, MarketPlacePlans }
 
 /**
  * @author rajthilak
@@ -37,29 +37,29 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NameKey = "name"
-  protected val AppDetailsKey = "appdetails"  
+  protected val CatalogKey = "catalog"
   protected val PlanKey = "plans"
-  protected val AttachKey = "attach"
-  protected val PredefNodeKey = "predefnode"
-  protected val ApprovedKey = "approved"    
+  protected val CattypeKey = "cattype"
+  protected val PredefKey = "predef"
+  protected val StatusKey = "status"
   protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[MarketPlaceResult] {
     import MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
     import MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
-    import MarketPlaceAppDetailsSerialization.{ writer => MarketPlaceAppDetailsWriter }
+    import MarketPlaceCatalogSerialization.{ writer => MarketPlaceCatalogWriter }
 
     override def write(h: MarketPlaceResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(AppDetailsKey, toJSON(h.appdetails)(MarketPlaceAppDetailsWriter)) ::
-          JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::          
+          JField(CatalogKey, toJSON(h.catalog)(MarketPlaceCatalogWriter)) ::
+          JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::
           JField(PlanKey, toJSON(h.plans)(MarketPlacePlansWriter)) ::
-          JField(AttachKey, toJSON(h.attach)) ::
-          JField(PredefNodeKey, toJSON(h.predefnode)) ::
-          JField(ApprovedKey, toJSON(h.approved)) ::
-          JField(CreatedAtKey, toJSON(h.created_at))   ::          
+          JField(CattypeKey, toJSON(h.cattype)) ::
+          JField(PredefKey, toJSON(h.predef)) ::
+          JField(StatusKey, toJSON(h.status)) ::
+          JField(CreatedAtKey, toJSON(h.created_at))   ::
            Nil)
     }
   }
@@ -67,21 +67,21 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   override implicit val reader = new JSONR[MarketPlaceResult] {
      import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
     import MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
-    import MarketPlaceAppDetailsSerialization.{ reader => MarketPlaceAppDetailsReader }
+    import MarketPlaceCatalogSerialization.{ reader => MarketPlaceCatalogReader }
 
     override def read(json: JValue): Result[MarketPlaceResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
-      val appdetailsField = field[MarketPlaceAppDetails](AppDetailsKey)(json)(MarketPlaceAppDetailsReader)      
+      val catalogField = field[MarketPlaceCatalog](CatalogKey)(json)(MarketPlaceCatalogReader)
       val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
-      val attachField = field[String](AttachKey)(json)
-      val predefnodeField = field[String](PredefNodeKey)(json)
-      val approvedField = field[String](ApprovedKey)(json)
+      val cattypeField = field[String](CattypeKey)(json)
+      val predefField = field[String](PredefKey)(json)
+      val statusField = field[String](StatusKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| appdetailsField |@| planField |@| attachField |@| predefnodeField |@| approvedField |@| createdAtField) {
-        (id: String, name: String, appdetails: MarketPlaceAppDetails, plan: MarketPlacePlans, attach: String, predefnode: String, approved: String, created_at: String) =>
-          new MarketPlaceResult(id, name, appdetails, plan, attach, predefnode, approved, created_at)
+      (idField |@| nameField |@| catalogField |@| planField |@| cattypeField |@| predefField |@| statusField |@| createdAtField) {
+        (id: String, name: String, catalog: MarketPlaceCatalog, plan: MarketPlacePlans, cattype: String, predef: String, status: String, created_at: String) =>
+          new MarketPlaceResult(id, name, catalog, plan, cattype, predef, status, created_at)
       }
     }
   }

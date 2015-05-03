@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,40 +27,40 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ MarketPlaceAppDetails }
+import models.{ MarketPlaceCatalog }
 
 /**
  * @author rajthilak
  *
  */
 
-object MarketPlaceAppDetailsSerialization extends SerializationBase[MarketPlaceAppDetails] {
+object MarketPlaceCatalogSerialization extends SerializationBase[MarketPlaceCatalog] {
 
   protected val LogoKey = "logo"
   protected val CategoryKey = "category"
-  protected val DescriptionKey = "description" 
+  protected val DescriptionKey = "description"
 
-  override implicit val writer = new JSONW[MarketPlaceAppDetails] {
+  override implicit val writer = new JSONW[MarketPlaceCatalog] {
 
-    override def write(h: MarketPlaceAppDetails): JValue = {
+    override def write(h: MarketPlaceCatalog): JValue = {
       JObject(
         JField(LogoKey, toJSON(h.logo)) ::
           JField(CategoryKey, toJSON(h.category)) ::
-          JField(DescriptionKey, toJSON(h.description)) ::           
+          JField(DescriptionKey, toJSON(h.description)) ::
            Nil)
     }
   }
 
-  override implicit val reader = new JSONR[MarketPlaceAppDetails] {
+  override implicit val reader = new JSONR[MarketPlaceCatalog] {
 
-    override def read(json: JValue): Result[MarketPlaceAppDetails] = {
+    override def read(json: JValue): Result[MarketPlaceCatalog] = {
       val logoField = field[String](LogoKey)(json)
-      val categoryField = field[String](CategoryKey)(json)    
-      val descriptionField = field[String](DescriptionKey)(json)     
-      
+      val categoryField = field[String](CategoryKey)(json)
+      val descriptionField = field[String](DescriptionKey)(json)
+
       (logoField |@| categoryField |@| descriptionField ) {
         (logo: String, category: String, description: String) =>
-          new MarketPlaceAppDetails(logo, category, description)
+          new MarketPlaceCatalog(logo, category, description)
       }
     }
   }
