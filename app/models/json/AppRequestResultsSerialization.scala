@@ -27,36 +27,36 @@ import models._
  * @author rajthilak
  *
  */
-object AppRequestResultsSerialization extends SerializationBase[AppRequestResults] {
+object CatRequestResultsSerialization extends SerializationBase[CatRequestResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[AppRequestResults] {
-    override def write(h: AppRequestResults): JValue = {
+  implicit override val writer = new JSONW[CatRequestResults] {
+    override def write(h: CatRequestResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[AppRequestResult] =>
-          (nrOpt.map { nr: AppRequestResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[CatRequestResult] =>
+          (nrOpt.map { nr: CatRequestResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey, JString("Megam::AppRequestCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::CatRequestCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
   
-  implicit override val reader = new JSONR[AppRequestResults] {
-    override def read(json: JValue): Result[AppRequestResults] = {
+  implicit override val reader = new JSONR[CatRequestResults] {
+    override def read(json: JValue): Result[CatRequestResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            AppRequestResult.fromJValue(jValue) match {
+            CatRequestResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[AppRequestResult]()
+              case Failure(fail) => List[CatRequestResult]()
             }
-          } map { x: AppRequestResult => x.some }
+          } map { x: CatRequestResult => x.some }
           //this is screwy. Making the RequestResults as Option[NonEmptylist[RequestResult]] will solve it.
-          val nrs: AppRequestResults = list.toNel.getOrElse(nels(none))
+          val nrs: CatRequestResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[AppRequestResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CatRequestResults]
       }
     }
   }

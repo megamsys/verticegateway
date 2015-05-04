@@ -25,11 +25,11 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models._
 
-class AppRequestSpec extends Specification {
+class CatRequestSpec extends Specification {
 
   def is =
-    "AppRequestSpec".title ^ end ^ """
-  AppRequestSpec is the implementation that calls the megam_play API server with the /requests url
+    "CatRequestSpec".title ^ end ^ """
+  CatRequestSpec is the implementation that calls the megam_play API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
@@ -42,7 +42,7 @@ class AppRequestSpec extends Specification {
    */
   case object Post extends Context {
 
-    protected override def urlSuffix: String = "apprequests/content"
+    protected override def urlSuffix: String = "catrequests/content"
 
     protected override def bodyToStick: Option[String] = {      
       val contentToEncode = "{\"app_id\":\"ASM1136003656177549312\",\"app_name\":\"HermanWard.megam.co\",\"action\":\"start\"}"                                 

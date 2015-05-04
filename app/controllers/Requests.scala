@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ import play.api.mvc.Result
 object Requests extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
+   * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
@@ -56,8 +56,7 @@ object Requests extends Controller with APIAuthElement {
           models.Requests.createforExistNode(clientAPIBody) match {
             case Success(succ) =>
               val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
-                
-                                                     //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
+              //This isn't correct. Revisit, as the testing progresses.We need to trap success/fialures.
               if (email.trim.equalsIgnoreCase(DEMO_EMAIL))
                 Status(CREATED)(FunnelResponse(CREATED, """Request initiation dryrun submitted successfully.
             |
@@ -68,14 +67,13 @@ object Requests extends Controller with APIAuthElement {
                 val pubres = if (tuple_succ._3.trim.equalsIgnoreCase(DELETE_REQUEST)) {
                    val update_json = "{\"node_id\"" + tuple_succ._1 + "\",\"node_name\":\"" + tuple_succ._2 + "\",\"req_type\":\"DELETED\"}"
                   for {
-                   // uop <-  models.Nodes.update(update_json) 
-                    csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop                    
+                    csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop
                     rop <-  RiakStashPublish(tuple_succ._1, tuple_succ._2).dop
-                  } yield {} 
+                  } yield {}
                 } else {
-                  for {                   
-                    csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop            
-                  } yield {} 
+                  for {
+                    csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop
+                  } yield {}
                 }
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.node.update", pubres))
                 pubres flatMap { x =>
@@ -106,66 +104,5 @@ object Requests extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  
-  
-  
-  /*
-   * GET: findByNodeName: Show requests for a  node name per user(by email)
-   * Email grabbed from header
-   * Output: JSON (RequestResults)  
-   
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
-
-    (Validation.fromTryCatch[Result] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Node", "request funneled."))
-
-          models.Requests.findByNodeName(List(id).some) match {
-            case Success(succ) =>
-              Ok(RequestResults.toJson(succ, true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-
-  }*/
-
-  /*
-   * GET: findbyEmail: List all the requests per email
-   * Email grabbed from header.
-   * Output: JSON (NodeResult)
-   
-  def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.Requests.findByEmail(email) match {
-            case Success(succ) => Ok(RequestResults.toJson(succ, true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }*/
 
 }

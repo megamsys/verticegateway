@@ -27,13 +27,13 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{AppRequestResult}
+import models.{CatRequestResult}
 
 /**
  * @author rajthilak
  *
  */
-class AppRequestResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[AppRequestResult] {
+class CatRequestResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[CatRequestResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val AppIDKey = "app_id"
@@ -41,22 +41,22 @@ class AppRequestResultSerialization(charset: Charset = UTF8Charset) extends Seri
   protected val ActionKey = "action"  
   protected val CreatedAtKey ="created_at" 
 
-  override implicit val writer = new JSONW[AppRequestResult] {
+  override implicit val writer = new JSONW[CatRequestResult] {
     
-    override def write(h: AppRequestResult): JValue = {
+    override def write(h: CatRequestResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(AppIDKey, toJSON(h.app_id)) ::
           JField(AppNameKey, toJSON(h.app_name)) ::
-          JField(JSONClazKey, toJSON("Megam::AppRequest")) ::
+          JField(JSONClazKey, toJSON("Megam::CatRequest")) ::
           JField(ActionKey, toJSON(h.action)) ::        
           JField(CreatedAtKey, toJSON(h.created_at))   :: Nil)
     }
   }
 
-  override implicit val reader = new JSONR[AppRequestResult] {
+  override implicit val reader = new JSONR[CatRequestResult] {
     
-    override def read(json: JValue): Result[AppRequestResult] = {
+    override def read(json: JValue): Result[CatRequestResult] = {
       val idField = field[String](IdKey)(json)
       val appIdField = field[String](AppIDKey)(json)
       val appNameField = field[String](AppNameKey)(json)
@@ -65,7 +65,7 @@ class AppRequestResultSerialization(charset: Charset = UTF8Charset) extends Seri
 
       (idField |@| appIdField |@| appNameField |@| actionField |@| createdAtField) {
         (id: String, app_id: String, app_name: String, action: String, created_at: String) =>
-          new AppRequestResult(id, app_id, app_name, action, created_at)
+          new CatRequestResult(id, app_id, app_name, action, created_at)
       }
     }
   }
