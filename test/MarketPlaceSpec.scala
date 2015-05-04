@@ -32,7 +32,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.HeaderConstants._
-import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceAppDetails, MarketPlaceAppLinks, MarketPlacePlans }
+import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceCatalog, MarketPlaceAppLinks, MarketPlacePlans }
 
 class MarketPlaceSpec extends Specification {
   def is =
@@ -58,7 +58,7 @@ class MarketPlaceSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = new MarketPlaceInput("test-Alfresco", 
-        new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/alfresco.png", 
+        new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/alfresco.png", 
             "ECM", 
             "Alfresco Community Edition allows organizations to manage any type of content from simple office documents to scanned images, photographs, engineering drawings and large video files. It is commonly used as a: Document management system, Content platform, CMIS-compliant repository"), 
         new MarketPlaceFeatures("Many companies have documents stored all over the place – on desktop computers, laptops, network drives, email, USB sticks and various consumer file sharing sites. And with contracts stored by customer, invoices by month, case files by case number, and consulting reports by year, it is difficult to get a 360° view of a customer’s information, which makes effective collaboration almost impossible.",
@@ -87,7 +87,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-          val contentToEncode = new MarketPlaceInput("test-Zarafa", new MarketPlaceAppDetails("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/zarafa.png", "Email", ""), new MarketPlaceFeatures("", "", "", ""), MarketPlacePlans(List(new MarketPlacePlan("0", "", "free","",""))), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false").json
+          val contentToEncode = new MarketPlaceInput("test-Zarafa", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/zarafa.png", "Email", ""), new MarketPlaceFeatures("", "", "", ""), MarketPlacePlans(List(new MarketPlacePlan("0", "", "free","",""))), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false").json
       Some(contentToEncode)
     }
 

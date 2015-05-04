@@ -43,10 +43,10 @@ object Constants {
    */
   val MEGAM_HOME = sys.env.get("MEGAM_HOME")
 
-  val MEGAM_FIRST_NAME = "MegamFirstName"
-  val MEGAM_LAST_NAME = "MegamLastName"
-  val MEGAM_PHONE = "1234567890"
-  val SAMPLE_PASSWORD = "pass"
+  val MEGAM_FIRST_NAME = "Megam Tour"
+  val MEGAM_LAST_NAME  = "Call us"
+  val MEGAM_PHONE = "18006186813"
+  val SAMPLE_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/YiBNWP2"
   val MEGAM_PASSWORD_RESET_KEY = "nil"
 
   val MEGAM_ADMIN_AUTHORITY = "admin"
@@ -54,6 +54,8 @@ object Constants {
 
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megam.co"
+
+  
 
   /*Look for a file /var/lib/megam/.megam_auth with fields
   megam@mypaas.io:<randomlygenerated pw>

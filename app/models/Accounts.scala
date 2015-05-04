@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ import controllers.stack.MConfig
 /**
  * @author rajthilak
  * authority
- * 
+ *
  */
 
 case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, created_at: String) {
@@ -95,12 +95,12 @@ object Accounts {
          val metadataKey = "ACCOUNTS"
           val metadataVal = "1002"
           val bindex = "accountId"
-   
+
   implicit val formats = DefaultFormats
 
   private val riak = GWRiak("accounts")
-  
- 
+
+
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to profile input, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -118,7 +118,7 @@ object Accounts {
     for {
       m <- accountInput
       bal <- (models.billing.Balances.create(m.email, "{\"credit\":\"0\"}") leftMap { t: NonEmptyList[Throwable] => t })
-      uid <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "accounts").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uid <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(uid.get._1 + uid.get._2)
       val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, Time.now.toString).toJson(false)
@@ -151,8 +151,8 @@ object Accounts {
         }
     }
   }
-  
-  
+
+
   /**
    * Parse the input body when you start, if its ok, then we process it.
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.
@@ -173,7 +173,7 @@ object Accounts {
           val bindex = "accountId"
           val bvalue = Set(uid.get._1 + uid.get._2)
           val acctRes = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, Time.now.toString)
-          play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))          
+          play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))
           val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
           storeValue match {
             case Success(succ) => acctRes.some.successNel[Throwable]
@@ -208,8 +208,8 @@ object Accounts {
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
-  
- 
+
+
   def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Account", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
@@ -229,8 +229,8 @@ object Accounts {
         }
     }
   }
-  
-  
+
+
   /*
   def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[Tuple2[Map[String, String], String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.account", "update:Entry"))
@@ -254,13 +254,13 @@ object Accounts {
           Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.id).some
         }
       }
-    } 
+    }
   }
 
 
   */
-  
-  
+
+
   /**
    * Performs a fetch from Riak bucket. If there is an error then ServiceUnavailable is sent back.
    * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
@@ -320,12 +320,12 @@ object Accounts {
     }
   }
 
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
       val notSed = maybeASediment.isSuccess

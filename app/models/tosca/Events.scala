@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,7 +55,7 @@ case class EventsResult(id: String, a_id: String, a_name: String, command: Strin
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.EventsResultSerialization
     val preser = new EventsResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -87,8 +87,8 @@ object Events {
   private val riak = GWRiak("events")
 
   //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  
-  
+
+
   val metadataKey = "Events"
   val metadataVal = "Events Creation"
   val bindex = "events"
@@ -111,7 +111,7 @@ object Events {
     for {
       event <- eventsInput
       //aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "event").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "evt").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //val bvalue = Set(aor.get.id)
        val bvalue = Set(event.a_id)
@@ -146,6 +146,5 @@ object Events {
         }
     }
   }
-  
-}
 
+}
