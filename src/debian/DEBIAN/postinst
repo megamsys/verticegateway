@@ -54,10 +54,10 @@ ip
 
 
 
-sed -i 's/^[ \t]*storage_backend .*/storage_backend = leveldb/' /etc/riak/riak.conf
-sed -i 's/^[ \t]*nodename = riak.*/nodename = riak@$ipaddr/' /etc/riak/riak.conf
-sed -i 's/^[ \t]*listener.http.internal =.*/listener.http.internal = $ipaddr:8098/' /etc/riak/riak.conf
-sed -i 's/^[ \t]*listener.protobuf.internal =.*/listener.protobuf.internal = $ipaddr:8087/' /etc/riak/riak.conf
+sed -i "s/^[ \t]*storage_backend .*/storage_backend = leveldb/" /etc/riak/riak.conf
+sed -i "s/^[ \t]*nodename = riak.*/nodename = riak@$ipaddr/" /etc/riak/riak.conf
+sed -i "s/^[ \t]*listener.http.internal =.*/listener.http.internal = $ipaddr:8098/" /etc/riak/riak.conf
+sed -i "s/^[ \t]*listener.protobuf.internal =.*/listener.protobuf.internal = $ipaddr:8087/" /etc/riak/riak.conf
 
 
          echo "before reload configuration ==> " >> $LOG
