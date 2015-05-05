@@ -20,43 +20,40 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import scala.collection.mutable.ListBuffer
 import controllers.funnel.SerializationBase
 import models.tosca._
-import models.json.tosca._
 import java.nio.charset.Charset
 /**
  * @author rajthilak
  *
  */
-object ComponentDesignInputsWiresSerialization extends SerializationBase[ComponentDesignInputsWires] {
-  implicit val formats = DefaultFormats
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "components"
+object OperationListSerialization extends SerializationBase[OperationList] {
 
-  implicit override val writer = new JSONW[ComponentDesignInputsWires] {
-    override def write(h: ComponentDesignInputsWires): JValue = {
+  implicit override val writer = new JSONW[OperationList] {
+    override def write(h: OperationList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
-        nrOpt: String => toJSON(nrOpt)
+        nrOpt: Operation => nrOpt.toJValue
       }.some
       
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }
 
-  implicit override val reader = new JSONR[ComponentDesignInputsWires] {
-    override def read(json: JValue): Result[ComponentDesignInputsWires] = {
-      var list = new ListBuffer[String]()
+  implicit override val reader = new JSONR[OperationList] {
+    override def read(json: JValue): Result[OperationList] = {
       json match {
         case JArray(jObjectList) => {
-         jObjectList.foreach { jValue: JValue =>
-            list += jValue.extract[String]
+          val list = jObjectList.flatMap { jValue: JValue =>
+            Operation.fromJValue(jValue) match {
+              case Success(nr) => List(nr)
+              case Failure(fail) => List[Operation]()
+            }
           }.some
 
-          val nrs: ComponentDesignInputsWires = list.toList
+          val nrs: OperationList = OperationList(list.getOrElse(OperationList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[ComponentDesignInputsWires]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[OperationList]
       }
     }
   }

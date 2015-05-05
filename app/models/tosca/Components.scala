@@ -46,128 +46,32 @@ import java.nio.charset.Charset
  *
  */
 
-case class ComponentRequirements(host: String, dummy: String) {
-  val json = "{\"host\":\"" + host + "\",\"dummy\":\"" + dummy + "\"}"
-}
+// The component inputs field have following fields
+//    1.domain
+//    2.port
+//    3.username
+//    4.password
+//    5.version
+//    6.version
+//    7.source
+//    8.id
+//    10.x
+//    11.y
+//    12.z
+//    13.wires
+//    14.dbname
+//    15.dbpassword
+// These fields are presents at inputs array for APP or SERVICE components
 
-object ComponentRequirements {
-  def empty: ComponentRequirements = new ComponentRequirements(new String(), new String())
-}
-
-case class DesignInputs(id: String, x: String, y: String, z: String, wires: models.tosca.ComponentDesignInputsWires) {
-  val json = "{\"id\":\"" + id + "\",\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z +
-    "\",\"wires\":" + ComponentDesignInputsWires.toJson(wires, true) + "}"
-}
-
-object DesignInputs {
-  def empty: DesignInputs = new DesignInputs(new String(), new String(), new String(), new String(), ComponentDesignInputsWires.empty)
-}
-
-case class ServiceInputs(dbname: String, dbpassword: String) {
-  val json = "{\"dbname\":\"" + dbname + "\",\"dbpassword\":\"" + dbpassword + "\"}"
-}
-
-object ServiceInputs {
-  def empty: ServiceInputs = new ServiceInputs(new String(), new String())
-}
-
-case class ComponentInputs(domain: String, port: String, username: String, password: String, version: String, source: String, design_inputs: DesignInputs, service_inputs: ServiceInputs, ci: CI) {
-  val json = "{\"domain\":\"" + domain + "\",\"port\":\"" + port + "\",\"username\":\"" + username +
-    "\",\"password\":\"" + password + "\",\"version\":\"" + version + "\",\"source\":\"" + source +
-    "\",\"design_inputs\":" + design_inputs.json + ",\"service_inputs\":" + service_inputs.json + ",\"ci\":" + ci.json + "}"
-}
-
-object ComponentInputs {
-  def empty: ComponentInputs = new ComponentInputs(new String(), new String(), new String, new String(), new String(), new String(), DesignInputs.empty, ServiceInputs.empty, CI.empty)
-}
-
-case class ComponentInputsResult(domain: String, port: String, username: String, password: String, version: String, source: String, design_inputs: DesignInputs, service_inputs: ServiceInputs, ci_id: String) {
-  val json = "{\"domain\":\"" + domain + "\",\"port\":\"" + port + "\",\"username\":\"" + username +
-    "\",\"password\":\"" + password + "\",\"version\":\"" + version + "\",\"source\":\"" + source +
-    "\",\"design_inputs\":" + design_inputs.json + ",\"service_inputs\":" + service_inputs.json + ",\"ci_id\":\"" + ci_id + "\"}"
-}
-
-object ComponentInputsResult {
-  def empty: ComponentInputsResult = new ComponentInputsResult(new String(), new String(), new String, new String(), new String(), new String(), DesignInputs.empty, ServiceInputs.empty, new String())
-}
-
-case class CI(scm: String, enable: String, token: String, owner: String) {
-  val json = "{\"scm\":\"" + scm + "\",\"enable\":\"" + enable + "\",\"token\":\"" + token + "\",\"owner\":\"" + owner + "\"}"
-}
-
-object CI {
-  def empty: CI = new CI(new String(), new String(), new String(), new String())
-}
-
-case class ExResource(url: String) {
-  val json = "{\"url\":\"" + url + "\"}"
-}
-
-object ExResource {
-  def empty: ExResource = new ExResource(new String())
-}
-
-//case class Artifacts(artifact_type: String, content: String, requirements: ArtifactRequirements) {
-case class Artifacts(artifact_type: String, content: String, artifact_requirements: String) {
-  val json = "{\"artifact_type\":\"" + artifact_type + "\",\"content\":\"" + content + "\",\"artifact_requirements\":\"" + artifact_requirements + "\"}"
+case class Artifacts(artifact_type: String, content: String, artifact_requirements: KeyValueList) {
+  val json = "{\"artifact_type\":\"" + artifact_type + "\",\"content\":\"" + content + "\",\"artifact_requirements\":" + KeyValueList.toJson(artifact_requirements, true) + "}"
 }
 
 object Artifacts {
-  //  def empty: Artifacts = new Artifacts(new String(), new String(), ArtifactRequirements.empty)  
-  def empty: Artifacts = new Artifacts(new String(), new String(), new String())
+   def empty: Artifacts = new Artifacts(new String(), new String(), KeyValueList.empty)  
 }
 
-case class ArtifactRequirements(requirement_type: String) {
-  val json = "{\"requirement_type\":\"" + requirement_type + "\"}"
-}
-
-object ArtifactRequirements {
-  def empty: ArtifactRequirements = new ArtifactRequirements(new String())
-}
-
-case class ComponentOperations(operation_type: String, target_resource: String) {
-  val json = "{\"operation_type\":\"" + operation_type + "\",\"target_resource\":\"" + target_resource + "\"}"
-}
-
-object ComponentOperations {
-  def empty: ComponentOperations = new ComponentOperations(new String(), new String())
-}
-
-case class ComponentOther(otherkey: String, othervalue: String) {
-  val json = "{\"otherkey\":\"" + otherkey + "\",\"othervalue\":\"" + othervalue + "\"}"
-
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.tosca.ComponentOtherSerialization.{ writer => ComponentOtherWriter }
-    toJSON(this)(ComponentOtherWriter)
-  }
-
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
-  } else {
-    compactRender(toJValue)
-  }
-}
-
-object ComponentOther {
-  def empty: ComponentOther = new ComponentOther(new String(), new String())
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentOther] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.tosca.ComponentOtherSerialization.{ reader => ComponentOtherReader }
-    fromJSON(jValue)(ComponentOtherReader)
-  }
-
-  def fromJson(json: String): Result[ComponentOther] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
-    play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
-
-case class ComponentResult(id: String, name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputsResult, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations, others: ComponentOthers, created_at: String) {
+case class ComponentResult(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: String, operations: models.tosca.OperationList, status: String, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.ComponentResultSerialization
@@ -199,17 +103,14 @@ object ComponentResult {
 
 }
 
-case class ComponentUpdateInput(id: String, name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputsResult, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations, others: models.tosca.ComponentOthers, created_at: String) {
-  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"requirements\":" + requirements.json +
-    ",\"inputs\":" + inputs.json + ",\"external_management_resource\":\"" + external_management_resource + "\",\"artifacts\":" + artifacts.json +
-    ",\"related_components\":\"" + related_components + "\",\"operations\":" + operations.json + ",\"others\":" + ComponentOthers.toJson(others, true) + ",\"created_at\":\"" + created_at + "\"}"
+case class ComponentUpdateInput(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: String, operations: models.tosca.OperationList, status: String, created_at: String) {
+  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"outputs\":" + models.tosca.KeyValueList.toJson(outputs, true) + ",\"artifacts\":" + artifacts.json +
+    ",\"related_components\":\"" + related_components + "\",\"operations\":" + models.tosca.OperationList.toJson(operations, true) + ",\"status\":\"" + status + "\",\"created_at\":\"" + created_at + "\"}"
 }
 
-//case class Component(name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: ExResource, artifacts: Artifacts, related_components: String, operations: ComponentOperations) {
-case class Component(name: String, tosca_type: String, requirements: ComponentRequirements, inputs: ComponentInputs, external_management_resource: String, artifacts: Artifacts, related_components: String, operations: ComponentOperations, others: models.tosca.ComponentOthers) {
-  val json = "{\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"requirements\":" + requirements.json +
-    ",\"inputs\":" + inputs.json + ",\"external_management_resource\":\"" + external_management_resource + "\",\"artifacts\":" + artifacts.json +
-    ",\"related_components\":\"" + related_components + "\",\"operations\":" + operations.json + ",\"others\":" + ComponentOthers.toJson(others, true) + "}"
+case class Component(name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: String, operations: models.tosca.OperationList, status: String) {
+  val json = "{\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"outputs\":" + models.tosca.KeyValueList.toJson(outputs, true) + ",\"artifacts\":" + artifacts.json +
+    ",\"related_components\":\"" + related_components + "\",\"operations\":" + models.tosca.OperationList.toJson(operations, true) + ",\"status\":\"" + status + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -232,8 +133,7 @@ object Component {
   val metadataVal = "Component Creation"
   val bindex = "component"
 
-  // def empty: Component = new Component(new String(), new String(), ComponentRequirements.empty, ComponentInputs.empty, ExResource.empty, Artifacts.empty, new String(), ComponentOperations.empty)
-  def empty: Component = new Component(new String(), new String(), ComponentRequirements.empty, ComponentInputs.empty, new String(), Artifacts.empty, new String(), ComponentOperations.empty, ComponentOthers.empty)
+  def empty: Component = new Component(new String(), new String(), KeyValueList.empty, KeyValueList.empty, Artifacts.empty, new String(), OperationList.empty, new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Component] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -294,7 +194,7 @@ object Component {
     } yield {
       val bvalue = Set(aor.get.id)
 
-      val json = ComponentResult(rip.id, rip.name, rip.tosca_type, rip.requirements, rip.inputs, rip.external_management_resource, rip.artifacts, rip.related_components, rip.operations, rip.others, rip.created_at).toJson(false)
+      val json = ComponentResult(rip.id, rip.name, rip.tosca_type, rip.inputs, rip.outputs, rip.artifacts, rip.related_components, rip.operations, rip.status, rip.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -310,10 +210,10 @@ object Component {
       val nrip = parse(gs.get.value).extract[ComponentResult]
       maybeGS match {
         case Some(thatGS) =>
-          nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.requirements, nrip.inputs, nrip.external_management_resource, nrip.artifacts, nrip.related_components, nrip.operations, nrip.others, nrip.created_at).some)
+          nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.created_at).some)
         case None => {
           play.api.Logger.warn(("%-20s -->[%s]").format("Component.updated successfully", "Scaliak returned => None. Thats OK."))
-          nels(ComponentResult(nrip.id, nrip.name, nrip.tosca_type, nrip.requirements, nrip.inputs, nrip.external_management_resource, nrip.artifacts, nrip.related_components, nrip.operations, nrip.others, nrip.created_at).some)
+          nels(ComponentResult(nrip.id, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.created_at).some)
 
         }
       }
@@ -371,12 +271,12 @@ object ComponentsList {
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })     
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "com").get leftMap { ut: NonEmptyList[Throwable] => ut })
-      cig <- (ContiniousIntegration.create(email, "{\"enable\":\"" + input.inputs.ci.enable +"\",\"scm\":\""+ input.inputs.ci.scm + "\",\"token\":\"" + input.inputs.ci.token + "\",\"owner\":\""+ input.inputs.ci.owner + "\",\"component_id\":\""+ (uir.get._1 + uir.get._2) + "\",\"assembly_id\":\""+ asm_id +"\",\"action\":\"webhook\"}") leftMap { t: NonEmptyList[Throwable] => t })
-      ciq <- (ContiniousIntegrationPublish((uir.get._1 + uir.get._2), cig.get._1).dop leftMap { ut: NonEmptyList[Throwable] => ut })
+     // cig <- (ContiniousIntegration.create(email, "{\"enable\":\"" + input.inputs.ci.enable +"\",\"scm\":\""+ input.inputs.ci.scm + "\",\"token\":\"" + input.inputs.ci.token + "\",\"owner\":\""+ input.inputs.ci.owner + "\",\"component_id\":\""+ (uir.get._1 + uir.get._2) + "\",\"assembly_id\":\""+ asm_id +"\",\"action\":\"webhook\"}") leftMap { t: NonEmptyList[Throwable] => t })
+     // ciq <- (ContiniousIntegrationPublish((uir.get._1 + uir.get._2), cig.get._1).dop leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
-      val inputsResult = "{\"domain\":\"" + input.inputs.domain + "\",\"port\":\""+ input.inputs.port + "\",\"username\":\"" +input.inputs.username + "\",\"password\":\"" + input.inputs.password + "\",\"version\":\"" + input.inputs.version + "\",\"source\":\"" + input.inputs.source +"\",\"design_inputs\":" + input.inputs.design_inputs.json + ",\"service_inputs\":" + input.inputs.service_inputs.json + ",\"ci_id\":\"" + cig.get._1 +"\"}"
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"requirements\":" + input.requirements.json + ",\"inputs\":" + inputsResult + ",\"external_management_resource\":\"" + input.external_management_resource + "\",\"artifacts\":" + input.artifacts.json + ",\"related_components\":\"" + input.related_components + "\",\"operations\":" + input.operations.json + ",\"others\":" + ComponentOthers.toJson(input.others, true) + ",\"created_at\":\"" + Time.now.toString + "\"}"
+     // val inputsResult = "{\"domain\":\"" + input.inputs.domain + "\",\"port\":\""+ input.inputs.port + "\",\"username\":\"" +input.inputs.username + "\",\"password\":\"" + input.inputs.password + "\",\"version\":\"" + input.inputs.version + "\",\"source\":\"" + input.inputs.source +"\",\"design_inputs\":" + input.inputs.design_inputs.json + ",\"service_inputs\":" + input.inputs.service_inputs.json + ",\"ci_id\":\"" + cig.get._1 +"\"}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) + ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":\"" + input.related_components + "\",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status + "\",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -418,11 +318,11 @@ object ComponentsList {
       play.api.Logger.debug(("%-20s -->[%s],riak returned: %s").format("Component.created successfully", email, ogsr))
       ogsr match {
         case Some(thatGS) => {
-          nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.requirements, nrip.inputs, nrip.external_management_resource, nrip.artifacts, nrip.related_components, nrip.operations, nrip.others, Time.now.toString()).some)
+          nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, Time.now.toString()).some)
         }
         case None => {
           play.api.Logger.warn(("%-20s -->[%s]").format("Node.created successfully", "Scaliak returned => None. Thats OK."))
-          nels(ComponentResult(ogsi.get.key, nrip.name, nrip.tosca_type, nrip.requirements, nrip.inputs, nrip.external_management_resource, nrip.artifacts, nrip.related_components, nrip.operations, nrip.others, Time.now.toString()).some)
+          nels(ComponentResult(ogsi.get.key, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, Time.now.toString()).some)
         }
       }
     }

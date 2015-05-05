@@ -32,7 +32,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.HeaderConstants._
-import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceFeatures, MarketPlaceCatalog, MarketPlaceAppLinks, MarketPlacePlans }
+import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceCatalog, MarketPlacePlans }
 
 class MarketPlaceSpec extends Specification {
   def is =

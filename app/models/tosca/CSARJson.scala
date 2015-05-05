@@ -183,12 +183,14 @@ object CSARJson {
     val duplicateComponentList: scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]] = componentList
     val cc: scala.collection.mutable.MutableList[Component] = componentList.map {
       case (lvalue) =>
-        val valu = new Component(getValue("name", lvalue), getValue("type", lvalue), new ComponentRequirements(getValue("host", lvalue), ""),
+       /* val valu = new Component(getValue("name", lvalue), getValue("type", lvalue), new ComponentRequirements(getValue("host", lvalue), ""),
           new ComponentInputs(getValue("domain", lvalue), "", "", "", "", getValue("source", lvalue),
             new DesignInputs("", "", "", "", ComponentDesignInputsWires.empty), new ServiceInputs("", ""), CI.empty),
           "", new Artifacts("", "", ""),
-          "", new ComponentOperations("", ""), ComponentOthers.empty)
-
+          "", new ComponentOperations("", ""), ComponentOthers.empty) */
+          val valu = new Component(getValue("name", lvalue), getValue("type", lvalue),
+          KeyValueList.empty, KeyValueList.empty, new Artifacts("", "", KeyValueList.empty),
+          "", OperationList.empty, "")
         valu
     }
     return cc
@@ -221,7 +223,7 @@ object CSARJson {
               }
             }
           }
-          assemblylist += new Assembly(pvalue.policykey, clist.toList, PoliciesList.empty, OutputsList.empty, "", OutputsList.empty, "")
+          assemblylist += new Assembly(pvalue.policykey, clist.toList, "", KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
       }
       componentList foreach {
         case (cvalue) =>
@@ -234,13 +236,13 @@ object CSARJson {
             }
           }
           if (flag != true) {
-            assemblylist += new Assembly(getRandomName(), List(cvalue), PoliciesList.empty, OutputsList.empty, "", OutputsList.empty, "")
+            assemblylist += new Assembly(getRandomName(), List(cvalue), "", KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
           }
       }
     } else {
       componentList foreach {
         case (cvalue) =>
-          assemblylist += new Assembly(getRandomName(), List(cvalue), PoliciesList.empty, OutputsList.empty, "", OutputsList.empty, "")
+          assemblylist += new Assembly(getRandomName(), List(cvalue), "", KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
       }
     }
     return assemblylist
@@ -251,8 +253,9 @@ object CSARJson {
     for (assembly <- assemblyList) {
       assembly_lists += assembly
     }
-    val cc: String = new AssembliesInput(getRandomName(), assembly_lists.toList, AssembliesInputs.empty).json
-    return cc
+    //val cc: String = new AssembliesInput(getRandomName(), assembly_lists.toList, AssembliesInputs.empty).json
+    //return cc
+    return ""
   }
 
   def parseLinkedHashMap(checkKey: String, mapvalue: Any, resultList: scala.collection.mutable.MutableList[String]): scala.collection.mutable.MutableList[String] = {

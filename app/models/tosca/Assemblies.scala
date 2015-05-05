@@ -45,16 +45,31 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList, inputs: AssembliesInputs) {
-  val json = "{\"name\":\"" + name + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + inputs.json + "}"
+
+//The inputs field has contain any of the key and values
+//If request comes from varai application then the inputs array must have following fields
+//    1.varai-id
+//    2.type
+//    3.label
+//    4.settings
+//        1.id
+//        2.type
+//        3.cloudsettings
+//        4.x
+//        5.y
+//        6.z
+//        7.wires
+//  These fields are varai properties of assemblies
+case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList, inputs: KeyValueList) {
+  val json = "{\"name\":\"" + name + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + KeyValueList.toJson(inputs, true) + "}"
 }
 
-case class CloudSetting(id: String, cstype: String, cloudsettings: String, x: String, y: String, z: String, wires: models.tosca.CSWiresList) {
-  val json = "{\"id\":\"" + id + "\",\"cstype\":\"" + cstype + "\",\"cloudsettings\":\"" + cloudsettings + "\",\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"wires\":" + CSWiresList.toJson(wires, true) + "}"
+case class KeyValueField(key: String, value: String) {
+  val json = "{\"key\":\"" + key + "\",\"value\":\"" + value + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    val preser = new models.json.tosca.CloudSettingSerialization()
+    val preser = new models.json.tosca.KeyValueFieldSerialization()
     toJSON(this)(preser.writer)
   }
 
@@ -63,34 +78,29 @@ case class CloudSetting(id: String, cstype: String, cloudsettings: String, x: St
   } else {
     compactRender(toJValue)
   }
+
 }
 
-object CloudSetting {
-  def empty: CloudSetting = new CloudSetting(new String(), new String(), new String, new String(), new String, new String(), CSWiresList.empty)
+object KeyValueField {
+  def empty: KeyValueField = new KeyValueField(new String(), new String())
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CloudSetting] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[KeyValueField] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    val preser = new models.json.tosca.CloudSettingSerialization()
+    val preser = new models.json.tosca.KeyValueFieldSerialization()
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CloudSetting] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[KeyValueField] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+
 }
 
-case class AssembliesInputs(id: String, assemblies_type: String, label: String, cloudsettings: models.tosca.CloudSettingsList) {
-  val json = "{\"id\": \"" + id + "\", \"assemblies_type\":\"" + assemblies_type + "\",\"label\" : \"" + label + "\",\"cloudsettings\":" + CloudSettingsList.toJson(cloudsettings, true) + "}"
-}
 
-object AssembliesInputs {
-  def empty: AssembliesInputs = new AssembliesInputs(new String(), new String(), new String, models.tosca.CloudSettingsList.emptyRR)
-}
-
-case class AssembliesResult(id: String, accounts_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: AssembliesInputs, created_at: String) {
+case class AssembliesResult(id: String, accounts_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON

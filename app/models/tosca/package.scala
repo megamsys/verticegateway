@@ -217,35 +217,7 @@ package object tosca {
     def apply(m: ComponentResult): ComponentsResults = ComponentsResults(m.some)
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
   }
-  
-  type ComponentDesignInputsWires = List[String]
-
-  object ComponentDesignInputsWires {
-    val emptyRR = List("")
-    def toJValue(nres: ComponentDesignInputsWires): JValue = {
-
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.ComponentDesignInputsWiresSerialization.{ writer => ComponentDesignInputsWiresWriter }
-      toJSON(nres)(ComponentDesignInputsWiresWriter)
-    }
-
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentLinks] = {
-      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.ComponentDesignInputsWiresSerialization.{ reader => ComponentDesignInputsWiresReader }
-      fromJSON(jValue)(ComponentDesignInputsWiresReader)
-    }
-
-    def toJson(nres: ComponentLinks, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(plansList: List[String]): ComponentDesignInputsWires = plansList
-
-    def empty: List[String] = emptyRR
-
-  }
+   
   
   type OrganizationsResults = NonEmptyList[Option[OrganizationsResult]]
 
@@ -315,63 +287,7 @@ package object tosca {
     def apply(m: ProfileResult): ProfileResults = nels(m.some)
     def empty: ProfileResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
-  type CloudSettingsList = List[CloudSetting]
-  
-  object CloudSettingsList {
-
-     val emptyRR = List(CloudSetting.empty)
-     def toJValue(nres: CloudSettingsList): JValue = {
-          import net.liftweb.json.scalaz.JsonScalaz.toJSON
-          import models.json.tosca.CloudSettingsListSerialization.{ writer => CloudSettingsListWriter }
-          toJSON(nres)(CloudSettingsListWriter)
-     }
-
-     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CloudSettingsList] = {
-         import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-         import models.json.tosca.CloudSettingsListSerialization.{ reader => CloudSettingsListReader }
-         fromJSON(jValue)(CloudSettingsListReader)
-     }
-
-    def toJson(nres: CloudSettingsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-        pretty(render(toJValue(nres)))
-      } else {
-     compactRender(toJValue(nres))
-    }
-
-    def apply(csList: List[CloudSetting]): CloudSettingsList = { println(csList); csList }
-
-    def empty: List[CloudSetting] = emptyRR
-  }
-  
-  type CSWiresList = List[String]
-  
-  object CSWiresList {
-    val emptyRR = List("")
-    def toJValue(nres: CSWiresList): JValue = {
-
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.CSWiresListSerialization.{ writer => CSWiresListWriter }
-      toJSON(nres)(CSWiresListWriter)
-    }
-
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CSWiresList] = {
-      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.CSWiresListSerialization.{ reader => CSWiresListReader }
-      fromJSON(jValue)(CSWiresListReader)
-    }
-
-    def toJson(nres: CSWiresList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(plansList: List[String]): CSWiresList = plansList
-
-    def empty: List[String] = emptyRR
-
-  }
+   
   
   type PoliciesList = List[Policy]
 
@@ -431,61 +347,62 @@ package object tosca {
 
   }
   
-  type OutputsList = List[Output]
+ 
+  type KeyValueList = List[KeyValueField]
 
-  object OutputsList {
-    val emptyRR = List(Output.empty)
-    def toJValue(nres: OutputsList): JValue = {
+  object KeyValueList {
+    val emptyRR = List(KeyValueField.empty)
+    def toJValue(nres: KeyValueList): JValue = {
 
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.OutputsListSerialization.{ writer => OutputsListWriter }
-      toJSON(nres)(OutputsListWriter)
+      import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
+      toJSON(nres)(KeyValueListWriter)
     }
 
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OutputsList] = {
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[KeyValueList] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.OutputsListSerialization.{ reader => OutputsListReader }
-      fromJSON(jValue)(OutputsListReader)
+      import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
+      fromJSON(jValue)(KeyValueListReader)
     }
 
-    def toJson(nres: OutputsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    def toJson(nres: KeyValueList, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(nres)))
     } else {
       compactRender(toJValue(nres))
     }
     
-    def apply(plansList: List[Output]): OutputsList = plansList
+    def apply(plansList: List[KeyValueField]): KeyValueList = plansList
 
-    def empty: List[Output] = emptyRR
+    def empty: List[KeyValueField] = emptyRR
 
   }  
   
-  type ComponentOthers = List[ComponentOther]
+  type OperationList = List[Operation]
 
-  object ComponentOthers {
-    val emptyRR = List(ComponentOther.empty)
-    def toJValue(nres: ComponentOthers): JValue = {
+  object OperationList {
+    val emptyRR = List(Operation.empty)
+    def toJValue(nres: OperationList): JValue = {
 
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.ComponentOthersSerialization.{ writer => ComponentOthersWriter }
-      toJSON(nres)(ComponentOthersWriter)
+      import models.json.tosca.OperationListSerialization.{ writer => OperationListWriter }
+      toJSON(nres)(OperationListWriter)
     }
 
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentOthers] = {
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OperationList] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.ComponentOthersSerialization.{ reader => ComponentOthersReader }
-      fromJSON(jValue)(ComponentOthersReader)
+      import models.json.tosca.OperationListSerialization.{ reader => OperationListReader }
+      fromJSON(jValue)(OperationListReader)
     }
 
-    def toJson(nres: ComponentOthers, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    def toJson(nres: OperationList, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(nres)))
     } else {
       compactRender(toJValue(nres))
     }
     
-    def apply(plansList: List[ComponentOther]): ComponentOthers = plansList
+    def apply(plansList: List[Operation]): OperationList = plansList
 
-    def empty: List[ComponentOther] = emptyRR
+    def empty: List[Operation] = emptyRR
 
   }  
   

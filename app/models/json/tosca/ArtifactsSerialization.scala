@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Artifacts }
+import models.tosca.{ Artifacts, KeyValueList }
 
 /**
  * @author rajthilak
@@ -42,30 +42,28 @@ object ArtifactsSerialization extends SerializationBase[Artifacts] {
 
   override implicit val writer = new JSONW[Artifacts] {
 
-  //  import ArtifactRequirementsSerialization.{ writer => ArtifactRequirementsWriter }
+    import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
     
     override def write(h: Artifacts): JValue = {
       JObject(
         JField(ArtifactTypeKey, toJSON(h.artifact_type)) ::
           JField(ContentKey, toJSON(h.content)) ::
-     //     JField(RequirementsKey, toJSON(h.requirements)(ArtifactRequirementsWriter)) :: 
-          JField(ArtifactRequirementsKey, toJSON(h.artifact_requirements)) :: 
+          JField(ArtifactRequirementsKey, toJSON(h.artifact_requirements)(KeyValueListWriter)) :: 
            Nil)
     }
   }
 
   override implicit val reader = new JSONR[Artifacts] {
     
-  //   import ArtifactRequirementsSerialization.{ reader => ArtifactRequirementsReader }
+    import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
 
     override def read(json: JValue): Result[Artifacts] = {
       val artifacttypeField = field[String](ArtifactTypeKey)(json)
       val contentField = field[String](ContentKey)(json)    
-   //   val requirementsField = field[String](RequirementsKey)(json)(ArtifactRequirementsReader)
-      val artifactrequirementsField = field[String](ArtifactRequirementsKey)(json)
+      val artifactrequirementsField = field[KeyValueList](ArtifactRequirementsKey)(json)(KeyValueListReader)
       
       (artifacttypeField |@| contentField |@| artifactrequirementsField) {
-        (artifacttype: String, content: String, artifact_requirements: String) =>
+        (artifacttype: String, content: String, artifact_requirements: KeyValueList) =>
           new Artifacts(artifacttype, content, artifact_requirements)
       }
     }

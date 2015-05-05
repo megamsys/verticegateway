@@ -27,37 +27,36 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ ServiceInputs }
+import models.tosca.{ KeyValueField}
 
 /**
  * @author rajthilak
  *
  */
+class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends SerializationBase[KeyValueField] {
 
-object ServiceInputsSerialization extends SerializationBase[ServiceInputs] {
+  protected val NameKey = "key"
+  protected val ValueKey = "value"
+ 
+  override implicit val writer = new JSONW[KeyValueField] {
 
-  protected val DBNameKey = "dbname"
-  protected val DBPasswordKey = "dbpassword" 
-
-  override implicit val writer = new JSONW[ServiceInputs] {
-
-    override def write(h: ServiceInputs): JValue = {
-      JObject(    
-          JField(DBNameKey, toJSON(h.dbname)) ::
-          JField(DBPasswordKey, toJSON(h.dbpassword)) ::         
-           Nil)
+    override def write(h: KeyValueField): JValue = {
+      JObject(
+          JField(NameKey, toJSON(h.key)) ::
+          JField(ValueKey, toJSON(h.value)) ::
+          Nil)
     }
   }
 
-  override implicit val reader = new JSONR[ServiceInputs] {
+  override implicit val reader = new JSONR[KeyValueField] {    
 
-    override def read(json: JValue): Result[ServiceInputs] = {  
-      val dbnameField = field[String](DBNameKey)(json)    
-      val dbpasswordField = field[String](DBPasswordKey)(json) 
-      
-      (dbnameField |@| dbpasswordField ) { 
-        (dbname: String, dbpassword: String) =>
-          new ServiceInputs(dbname, dbpassword)
+    override def read(json: JValue): Result[KeyValueField] = {
+      val nameField = field[String](NameKey)(json)
+      val valueField = field[String](ValueKey)(json)
+    
+      (nameField |@| valueField ) {
+          (name: String, value: String) =>
+          new KeyValueField(name, value)
       }
     }
   }

@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ AssembliesResult, AssembliesInputs, AssemblyLinks}
+import models.tosca.{ AssembliesResult, KeyValueList, AssemblyLinks}
 
 /**
  * @author ram
@@ -45,7 +45,7 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends Seri
     
   override implicit val writer = new JSONW[AssembliesResult] {
 
-    import AssembliesInputsSerialization.{ writer => AssembliesInputsWriter }
+    import KeyValueListSerialization.{ writer => KeyValueListWriter }
     import AssemblyLinksSerialization.{ writer => AssemblyLinksWriter }
     
 
@@ -56,14 +56,14 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends Seri
         JField(JSONClazKey, toJSON("Megam::Assemblies")) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(AssembliesKey, toJSON(h.assemblies)(AssemblyLinksWriter)) ::
-          JField(InputsKey, toJSON(h.inputs)(AssembliesInputsWriter)) ::          
+          JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::          
           JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
 
   override implicit val reader = new JSONR[AssembliesResult] {
 
-    import AssembliesInputsSerialization.{ reader => AssembliesInputsReader }
+    import KeyValueListSerialization.{ reader => KeyValueListReader }
     import AssemblyLinksSerialization.{ reader => AssemblyLinksReader }
     
 
@@ -72,11 +72,11 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends Seri
       val accountIdField = field[String](AccountIdKey)(json)
       val nameField = field[String](NameKey)(json)
       val assembliesField = field[AssemblyLinks](AssembliesKey)(json)(AssemblyLinksReader)
-      val inputsField = field[AssembliesInputs](InputsKey)(json)(AssembliesInputsReader)        
+      val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)        
       val createdAtField = field[String](CreatedAtKey)(json)
 
       (idField |@| accountIdField |@| nameField |@| assembliesField |@| inputsField |@| createdAtField) {
-        (id: String, accountId: String, name: String, assemblies: AssemblyLinks, inputs: AssembliesInputs, created_at: String) =>
+        (id: String, accountId: String, name: String, assemblies: AssemblyLinks, inputs: KeyValueList, created_at: String) =>
           new AssembliesResult(id, accountId, name, assemblies, inputs, created_at)
       }
     }
