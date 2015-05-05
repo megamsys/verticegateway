@@ -203,12 +203,21 @@ object Accounts {
     } yield {
       val bvalue = Set(aor.get.id)
 
-      val json = AccountResult(rip.id, rip.first_name, rip.last_name, rip.phone, rip.email, rip.api_key, rip.password, rip.authority, rip.password_reset_key, rip.created_at ).toJson(false)
+      //val json = AccountResult(rip.id, rip.first_name, rip.last_name, rip.phone, rip.email, rip.api_key, rip.password, rip.authority, rip.password_reset_key, rip.created_at ).toJson(false)
+     val json = AccountResult(NilorNot(rip.id, aor.get.id), NilorNot(rip.first_name, aor.get.first_name),NilorNot(rip.last_name, aor.get.last_name), NilorNot(rip.phone, aor.get.phone), NilorNot(rip.email, aor.get.email), NilorNot(rip.api_key, aor.get.api_key), NilorNot(rip.password, aor.get.password), NilorNot(rip.authority, aor.get.authority), NilorNot(rip.password_reset_key, aor.get.password_reset_key), NilorNot(rip.created_at, aor.get.created_at) ).toJson(false)
       new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
+  def NilorNot(rip: String, aor: String): String = {
+    if (rip == null) {
+      return aor
+    }
+    else {
+      return rip
+    }
+  }
 
   def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Account", "create:Entry"))
