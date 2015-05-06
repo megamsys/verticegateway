@@ -17,7 +17,7 @@ object ApplicationBuild extends Build {
 
   val description = "Megam Gateway :REST API server for the megam platform using Riak, Snowflake(UID), Memcache"
 
-  val play2AuthVersion = "0.13.0"
+  val play2AuthVersion = "0.13.2"
 
   val megam_commonVersion = "0.5.6"
 
