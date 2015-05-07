@@ -62,45 +62,32 @@ class ComponentsSpec extends Specification {
       val contentToEncode = "{" +
         "\"id\": \"COM1139245887592202240\"," +
         "\"name\":\"NettieMoore\"," +
-        "\"tosca_type\":\"tosca.web.redis\"," +
-        "\"requirements\":{" +
-        "\"host\":\"clouddefault1139222212843274240\"," +
-        "\"dummy\":\"\"" +
-        "}," +
-        "\"inputs\":{" +
-        "\"domain\":\"megam.co\"," +
-        "\"port\":\"6379\"," +
-        "\"username\":\"\"," +
-        "\"password\":\"\"," +
-        "\"version\":\"\"," +
-        "\"source\":\"\"," +
-        "\"design_inputs\":{" +
+        "\"tosca_type\":\"tosca.web.redis\"," +        
+        "\"inputs\":[" +
+        "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
+        "{\"key\":\"port\",\"value\":\"6379\"}," +
+        "{\"key\":\"design_inputs\",\"value\":{" +
         "\"id\":\"39bb18e7.c644e8\"," +
         "\"x\":\"802\"," +
         "\"y\":\"331\"," +
         "\"z\":\"3f43bde9.c0bc42\"," +
         "\"wires\":[\"cae50d7.f351af\"]" +
-        "}," +
-        "\"service_inputs\":{" +
-        "\"dbname\":\"\"," +
-        "\"dbpassword\":\"\"" +
-        "}," +
-        "\"ci\":{" +
-        "\"scm\":\"github\"," +
-        "\"ci\":\"true\"" +
-        "}}," +
-        "\"external_management_resource\":\"\"," +
+        "}}]," +
+        "\"outputs\":[]," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"\"," +
         "\"content\":\"\"," +
         "\"artifact_requirements\":\"\"" +
         "}," +
         "\"related_components\":\"AntonioMcCormick.megam.co/TimothyHenderson\"," +
-        "\"operations\":{" +
-        "\"operation_type\":\"\"," +
-        "\"target_resource\":\"\"" +
-        "}," +
-        "\"others\":[{\"otherkey\":\"ci\",\"othervalue\":\"github\"}]," +
+        "\"operations\":[" +
+        "{\"key\":\"ci\",\"value\":{" +
+        "\"scm\":\"github\"," +
+        "\"enable\":\"true\"," +
+        "\"token\":\"token\"," +
+        "\"owner\":\"owner\"" +
+        "}}]," +
+        "\"status\":\"\"" +
         "\"created_at\":\"2014-10-29 14:06:39 +0000\"" +
         "}"
 

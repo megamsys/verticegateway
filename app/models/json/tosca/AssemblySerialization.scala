@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Assembly, ComponentsList, PoliciesList, OutputsList }
+import models.tosca.{ Assembly, ComponentsList, PoliciesList, KeyValueList, OperationList }
 
 /**
  * @author rajthilak
@@ -38,6 +38,8 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
 //  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val NameKey = "name"
   protected val ComponentsKey = "components"
+  protected val ToscaTypeKey = "tosca_type"
+  protected val RequirementsKey = "requirements"
   protected val PoliciesKey = "policies"
   protected val InputsKey = "inputs"
   protected val OperationsKey = "operations"
@@ -48,17 +50,20 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
     
  import ComponentsListSerialization.{ writer => ComponentsListWriter }
  import PoliciesListSerialization.{ writer => PoliciesListWriter }
- import OutputsListSerialization.{ writer => OutputsListWriter }
+ import KeyValueListSerialization.{ writer => KeyValueListWriter }
+ import OperationListSerialization.{ writer => OperationListWriter }
  
     override def write(h: Assembly): JValue = {
       JObject(
    //     JField(JSONClazKey, toJSON("Megam::Assembly")) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(ComponentsKey, toJSON(h.components)(ComponentsListWriter)) ::
+          JField(ToscaTypeKey, toJSON(h.tosca_type)) ::
+          JField(RequirementsKey, toJSON(h.requirements)(KeyValueListWriter)) ::
           JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
-          JField(InputsKey, toJSON(h.inputs)(OutputsListWriter)) ::
-          JField(OperationsKey, toJSON(h.operations)) :: 
-          JField(OutputsKey, toJSON(h.outputs)(OutputsListWriter)) :: 
+          JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::
+          JField(OperationsKey, toJSON(h.operations)(OperationListWriter)) :: 
+          JField(OutputsKey, toJSON(h.outputs)(KeyValueListWriter)) :: 
           JField(StatusKey, toJSON(h.status)) :: 
           Nil)
     }
@@ -68,20 +73,23 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
     
      import ComponentsListSerialization.{ reader => ComponentsListReader }
      import PoliciesListSerialization.{reader => PoliciesListReader }
-     import OutputsListSerialization.{reader => OutputsListReader }
+     import KeyValueListSerialization.{reader => KeyValueListReader }
+     import OperationListSerialization.{reader => OperationListReader }
 
     override def read(json: JValue): Result[Assembly] = {
       val nameField = field[String](NameKey)(json)
       val componentsField = field[ComponentsList](ComponentsKey)(json)(ComponentsListReader)
+      val toscatypeField = field[String](ToscaTypeKey)(json)
+      val requirementsField = field[KeyValueList](RequirementsKey)(json)(KeyValueListReader)
       val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
-      val inputsField = field[OutputsList](InputsKey)(json)(OutputsListReader)  
-      val operationsField = field[String](OperationsKey)(json)
-      val outputsField = field[OutputsList](OutputsKey)(json)(OutputsListReader)
+      val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)  
+      val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
+      val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader)
       val statusField = field[String](StatusKey)(json)
 
-      (nameField |@| componentsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| statusField) {
-          (name: String, components: ComponentsList, policies: PoliciesList, inputs: OutputsList, operations: String, outputs: OutputsList, status: String) =>
-          new Assembly(name, components, policies, inputs, operations, outputs, status)
+      (nameField |@| componentsField |@| toscatypeField |@| requirementsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| statusField) {
+          (name: String, components: ComponentsList, tosca_type: String, requirements: KeyValueList, policies: PoliciesList, inputs: KeyValueList, operations: OperationList, outputs: KeyValueList, status: String) =>
+          new Assembly(name, components, tosca_type, requirements, policies, inputs, operations, outputs, status)
       }
     }
   }

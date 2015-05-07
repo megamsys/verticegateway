@@ -20,42 +20,40 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import scala.collection.mutable.ListBuffer
 import controllers.funnel.SerializationBase
 import models.tosca._
-import models.json.tosca._
 import java.nio.charset.Charset
 /**
  * @author rajthilak
  *
  */
-object CSWiresListSerialization extends SerializationBase[CSWiresList] {
-  implicit val formats = DefaultFormats
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
- 
-  implicit override val writer = new JSONW[CSWiresList] {
-    override def write(h: CSWiresList): JValue = {
+object KeyValueListSerialization extends SerializationBase[KeyValueList] {
+
+  implicit override val writer = new JSONW[KeyValueList] {
+    override def write(h: KeyValueList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
-        nrOpt: String => toJSON(nrOpt)
+        nrOpt: KeyValueField => nrOpt.toJValue
       }.some
       
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }
 
-  implicit override val reader = new JSONR[CSWiresList] {
-    override def read(json: JValue): Result[CSWiresList] = {
-      var list = new ListBuffer[String]()
+  implicit override val reader = new JSONR[KeyValueList] {
+    override def read(json: JValue): Result[KeyValueList] = {
       json match {
         case JArray(jObjectList) => {
-         jObjectList.foreach { jValue: JValue =>
-            list += jValue.extract[String]
+          val list = jObjectList.flatMap { jValue: JValue =>
+            KeyValueField.fromJValue(jValue) match {
+              case Success(nr) => List(nr)
+              case Failure(fail) => List[KeyValueField]()
+            }
           }.some
 
-          val nrs: CSWiresList = list.toList
+          val nrs: KeyValueList = KeyValueList(list.getOrElse(KeyValueList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CSWiresList]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[KeyValueList]
       }
     }
   }

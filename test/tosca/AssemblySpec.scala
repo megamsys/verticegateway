@@ -38,7 +38,7 @@ class AssemblySpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
        "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-     // "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
+      "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
@@ -64,6 +64,10 @@ class AssemblySpec extends Specification {
         "\"json_claz\":\"Megam::Assembly\"," +
         "\"name\":\"calcines\"," +
         "\"components\":[\"COM1139235178934304768\",\"\"]," +
+        "\"tosca_type\":\"ubuntu\"," +
+         "\"requirements\":[" +
+        "{\"key\":\"host\",\"value\":\"aws516887611449540608\"}," +
+        "]," +
         "\"policies\":[{ " +
         "\"name\":\"bind policy\"," +
         "\"ptype\":\"colocated\"," +
@@ -71,6 +75,7 @@ class AssemblySpec extends Specification {
         "}]," +
         "\"inputs\":[]," +
         "\"operations\":\"\"," +
+        "\"outputs\":[]," +
         "\"status\":\"Launching\"," +
         "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
         "}"

@@ -27,37 +27,44 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ ComponentOperations }
+import models.tosca.{ Operation, KeyValueList }
 
 /**
  * @author rajthilak
  *
  */
 
-object ComponentOperationsSerialization extends SerializationBase[ComponentOperations] {
+class OperationSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Operation] {
 
   protected val OperationTypeKey = "operation_type"
-  protected val TargetResourceKey = "target_resource"
+  protected val DescriptionKey = "content"
+  protected val OperationRequirementsKey = "operation_requirements"
 
-  override implicit val writer = new JSONW[ComponentOperations] {
+  override implicit val writer = new JSONW[Operation] {
 
-    override def write(h: ComponentOperations): JValue = {
+    import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
+    
+    override def write(h: Operation): JValue = {
       JObject(
         JField(OperationTypeKey, toJSON(h.operation_type)) ::
-          JField(TargetResourceKey, toJSON(h.target_resource)) ::
+          JField(DescriptionKey, toJSON(h.description)) ::
+          JField(OperationRequirementsKey, toJSON(h.operation_requirements)(KeyValueListWriter)) :: 
            Nil)
     }
   }
 
-  override implicit val reader = new JSONR[ComponentOperations] {
+  override implicit val reader = new JSONR[Operation] {
+    
+     import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
 
-    override def read(json: JValue): Result[ComponentOperations] = {
+    override def read(json: JValue): Result[Operation] = {
       val operationtypeField = field[String](OperationTypeKey)(json)
-      val targetresourceField = field[String](TargetResourceKey)(json)
+      val descriptionField = field[String](DescriptionKey)(json)    
+      val operationrequirementsField = field[KeyValueList](OperationRequirementsKey)(json)(KeyValueListReader)
       
-      (operationtypeField |@| targetresourceField) {
-        (operation_type: String, target_resource: String) =>
-          new ComponentOperations(operation_type, target_resource)
+      (operationtypeField |@| descriptionField |@| operationrequirementsField) {
+        (operationtype: String, description: String, operation_requirements: KeyValueList) =>
+          new Operation(operationtype, description, operation_requirements)
       }
     }
   }
