@@ -43,7 +43,7 @@ import controllers.stack.MConfig
  *
  */
 
-case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, created_at: String) {
+case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -63,9 +63,9 @@ case class AccountResult(id: String, first_name: String, last_name: String, phon
 object AccountResult {
 
   //def apply(id: String, email: String, api_key: String, authority: String) = new AccountResult(id, email, api_key, authority, Time.now.toString)
-  def apply(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String) = new AccountResult(id, first_name, last_name, phone,  email, api_key, password,  authority, password_reset_key,  Time.now.toString)
+  def apply(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) = new AccountResult(id, first_name, last_name, phone,  email, api_key, password,  authority, password_reset_key, password_reset_sent_at, Time.now.toString)
 
-  def apply(email: String): AccountResult = AccountResult("not found", new String(), new String(), new String(), email, new String(), new String(),  new String(), new String() )
+  def apply(email: String): AccountResult = AccountResult("not found", new String(), new String(), new String(), new String(), email, new String(), new String(),  new String(), new String() )
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -81,18 +81,18 @@ object AccountResult {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String) {
-  val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\"}"
+case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String, password_reset_sent_at: String) {
+  val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
 }
 
-case class updateAccountInput(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String, created_at: String) {
-  val json = "{\"id\":\"" + id + "\",\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"created_at\":\"" + created_at + "\"}"
+case class updateAccountInput(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) {
+  val json = "{\"id\":\"" + id + "\",\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\",\"created_at\":\"" + created_at + "\"}"
 
 }
 
 object Accounts {
 
-         val metadataKey = "ACCOUNTS"
+         val metadataKey = "ACC"
           val metadataVal = "1002"
           val bindex = "accountId"
 
@@ -121,7 +121,7 @@ object Accounts {
       uid <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(uid.get._1 + uid.get._2)
-      val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, Time.now.toString).toJson(false)
+      val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString).toJson(false)
       new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -203,8 +203,7 @@ object Accounts {
     } yield {
       val bvalue = Set(aor.get.id)
 
-      //val json = AccountResult(rip.id, rip.first_name, rip.last_name, rip.phone, rip.email, rip.api_key, rip.password, rip.authority, rip.password_reset_key, rip.created_at ).toJson(false)
-     val json = AccountResult(NilorNot(rip.id, aor.get.id), NilorNot(rip.first_name, aor.get.first_name),NilorNot(rip.last_name, aor.get.last_name), NilorNot(rip.phone, aor.get.phone), NilorNot(rip.email, aor.get.email), NilorNot(rip.api_key, aor.get.api_key), NilorNot(rip.password, aor.get.password), NilorNot(rip.authority, aor.get.authority), NilorNot(rip.password_reset_key, aor.get.password_reset_key), NilorNot(rip.created_at, aor.get.created_at) ).toJson(false)
+     val json = AccountResult(NilorNot(rip.id, aor.get.id), NilorNot(rip.first_name, aor.get.first_name),NilorNot(rip.last_name, aor.get.last_name), NilorNot(rip.phone, aor.get.phone), NilorNot(rip.email, aor.get.email), NilorNot(rip.api_key, aor.get.api_key), NilorNot(rip.password, aor.get.password), NilorNot(rip.authority, aor.get.authority), NilorNot(rip.password_reset_key, aor.get.password_reset_key), NilorNot(rip.password_reset_sent_at, aor.get.password_reset_sent_at), NilorNot(rip.created_at, aor.get.created_at) ).toJson(false)
       new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
