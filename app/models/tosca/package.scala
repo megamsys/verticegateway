@@ -429,5 +429,34 @@ package object tosca {
     def empty: ContiniousIntegrationResults = nel(emptyPC.head, emptyPC.tail)
   }
   
+  type BindLinks = List[String]
+
+  object BindLinks {
+    val emptyRR = List("")
+    def toJValue(nres: BindLinks): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.BindLinksSerialization.{ writer => BindLinksWriter }
+      toJSON(nres)(BindLinksWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[BindLinks] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.BindLinksSerialization.{ reader => BindLinksReader }
+      fromJSON(jValue)(BindLinksReader)
+    }
+
+    def toJson(nres: BindLinks, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(plansList: List[String]): BindLinks = plansList
+
+    def empty: List[String] = emptyRR
+
+  }
+  
   
 }
