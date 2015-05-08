@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Component, Artifacts, KeyValueList, OperationList }
+import models.tosca.{ Component, Artifacts, KeyValueList, OperationList, BindLinks }
 
 /**
  * @author rajthilak
@@ -50,6 +50,7 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
     import KeyValueListSerialization.{ writer => KeyValueListWriter }
     import ArtifactsSerialization.{ writer => ArtifactsWriter }
     import OperationListSerialization.{ writer => OperationListWriter }
+    import BindLinksSerialization.{ writer => BindLinksWriter }
     
     override def write(h: Component): JValue = {
       JObject(
@@ -59,7 +60,7 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
           JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::
           JField(OutputsKey, toJSON(h.outputs)(KeyValueListWriter)) ::
           JField(ArtifactsKey, toJSON(h.artifacts)(ArtifactsWriter)) ::
-          JField(RelatedComponentsKey, toJSON(h.related_components)) ::
+          JField(RelatedComponentsKey, toJSON(h.related_components)(BindLinksWriter)) ::
           JField(OperationsKey, toJSON(h.operations)(OperationListWriter)) ::
           JField(StatusKey, toJSON(h.status)) :: Nil)
     }
@@ -70,6 +71,7 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
     import KeyValueListSerialization.{ reader => KeyValueListReader }
     import ArtifactsSerialization.{ reader => ArtifactsReader }
     import OperationListSerialization.{ reader => OperationListReader }
+    import BindLinksSerialization.{ reader => BindLinksReader }
 
     override def read(json: JValue): Result[Component] = {
       val nameField = field[String](NameKey)(json)
@@ -77,12 +79,12 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
       val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)  
       val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader) 
       val artifactsField = field[Artifacts](ArtifactsKey)(json)(ArtifactsReader)
-      val relatedcomponentsField = field[String](RelatedComponentsKey)(json) 
+      val relatedcomponentsField = field[BindLinks](RelatedComponentsKey)(json)(BindLinksReader) 
       val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
       val statusField = field[String](StatusKey)(json)
 
       (nameField |@| toscatypeField |@| inputsField |@| outputsField |@| artifactsField |@| relatedcomponentsField |@| operationsField |@| statusField) {
-        (name: String, tosca_type: String, inputs: KeyValueList, outputs: KeyValueList, artifacts: Artifacts, related_components: String, operations: OperationList, status: String) =>
+        (name: String, tosca_type: String, inputs: KeyValueList, outputs: KeyValueList, artifacts: Artifacts, related_components: BindLinks, operations: OperationList, status: String) =>
           new Component(name, tosca_type, inputs, outputs, artifacts, related_components, operations, status)
       }
     }

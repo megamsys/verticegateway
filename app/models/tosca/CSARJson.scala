@@ -190,7 +190,7 @@ object CSARJson {
           "", new ComponentOperations("", ""), ComponentOthers.empty) */
           val valu = new Component(getValue("name", lvalue), getValue("type", lvalue),
           KeyValueList.empty, KeyValueList.empty, new Artifacts("", "", KeyValueList.empty),
-          "", OperationList.empty, "")
+          BindLinks.empty, OperationList.empty, "")
         valu
     }
     return cc

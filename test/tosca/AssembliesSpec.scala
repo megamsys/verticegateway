@@ -74,7 +74,7 @@ class AssembliesSpec extends Specification {
         "\"content\":\"\"," +
         "\"artifact_requirements\":[]" +
         "}," +
-        "\"related_components\":\"VernonDennis.megam.co/MasonHernandez\"," +
+        "\"related_components\":[\"VernonDennis.megam.co/MasonHernandez\"]," +
         "\"operations\":[" +
         "{" +
         "\"operation_type\":\"CI\"," +
@@ -127,7 +127,7 @@ class AssembliesSpec extends Specification {
         "\"content\":\"\"," +
         "\"artifact_requirements\":[]" +
         "}," +
-        "\"related_components\":\"PaulineHarper.megam.co/GussieMathis\"," +
+        "\"related_components\":[\"PaulineHarper.megam.co/GussieMathis\"]," +
         "\"operations\":[" +
         "{" +
         "\"operation_type\":\"CI\"," +
@@ -153,7 +153,7 @@ class AssembliesSpec extends Specification {
         "\"content\":\"\"," +
         "\"artifact_requirements\":[]" +
         "}," +
-        "\"related_components\":\"PaulineHarper.megam.co/GussieMathis\"," +
+        "\"related_components\":[\"PaulineHarper.megam.co/GussieMathis\"]," +
         "\"operations\":[" +
         "{" +
         "\"operation_type\":\"CI\"," +
