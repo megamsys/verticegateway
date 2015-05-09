@@ -30,6 +30,8 @@ import controllers.funnel.FunnelErrors._
 import models._
 import models.riak._
 import models.cache._
+import models.utils._
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
@@ -92,30 +94,7 @@ case class MarketPlaceInput(name: String, catalog: MarketPlaceCatalog, plans: mo
 //init the default market place addons
 object MarketPlaceInput {
 
-  val ACTIVE  = "ACTIVE"
-
-  val APP     = "APP"
-  val SERVICE = "SERVICE"
-  val DEW     = "DEW"
-
-
-   val toMap = Map[String, MarketPlaceInput](
-"1-Ubuntu" -> MarketPlaceInput("1-Ubuntu", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/ubuntu.png", "Dew", "Ubuntu Server"), MarketPlacePlans(List(new MarketPlacePlan("0", "Ubuntu 12.04 LTS (Precise Pangolin) is the Ubuntu's sixteenth release and its fourth Long Term Support (LTS) release.", "Free", "12.04", "", "Ubuntu 12.04 +"), new MarketPlacePlan("0", "Shuttleworth indicated that the focus in this development cycle would be a release characterized by 'performance, refinement, maintainability, technical debt' and encouraged the developers to make conservative choices.", "Free", "14.04", "", "Ubuntu 14.04 +"))), DEW, "ubuntu", ACTIVE),
-"2-CoreOS" -> MarketPlaceInput("2-CoreOS", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/coreos.png", "Dew", "CoreOS"), MarketPlacePlans(List(new MarketPlacePlan("0", "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers.", "Free", "633.1.0", "", "CoreOS 633.1.0"))), DEW, "coreos", ACTIVE),
-"3-Debian" -> MarketPlaceInput("3-Debian", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/debian.png", "Dew", "Debian"), MarketPlacePlans(List(new MarketPlacePlan("0", "Debian wheezy.", "Free", "7", "", "Debian wheezy"), new MarketPlacePlan("0", "Debian Jessie.", "Free", "8", "", "Debian Jessie"))), DEW, "debian", ACTIVE),
-"4-CentOS" -> MarketPlaceInput("4-CentOS", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/centos.png", "Dew", "CentOS"), MarketPlacePlans(List(new MarketPlacePlan("0", "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat.", "Free", "7", "", "CentOS 7"))), DEW, "centos", ACTIVE),
-"5-Java" -> MarketPlaceInput("5-Java", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/java.png", "Starter packs", "Java Web Starter"), MarketPlacePlans(List(new MarketPlacePlan("0", "Quickly get started with J2EE Spring framework app and a light-weight database.", "Free", "0.5", "", "Ubuntu 14.04 +"))), APP, "java", ACTIVE),
-"6-Rails" -> MarketPlaceInput("6-Rails", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/rails.png", "Starter packs", "Rails App"), MarketPlacePlans(List(new MarketPlacePlan("0", "Quickly get started with rails app and a light-weight database.", "Free", "0.5", "", "Ubuntu 14.04 +"))), APP, "rails", ACTIVE),
-"7-Play" -> MarketPlaceInput("7-Play", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/play.png", "Starter packs", "RESTful API Server"), MarketPlacePlans(List(new MarketPlacePlan("0", "Build robust RESTful API server using NoSQL(Riak).", "Free", "0.5", "", "Ubuntu 14.04 +"))), APP, "play", ACTIVE),
-"8-Nodejs" -> MarketPlaceInput("8-Nodejs", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/nodejs.png", "Starter packs", "Realtime App"), MarketPlacePlans(List(new MarketPlacePlan("0", "Build fast, scalable, and incredibly efficient blogging platform with light weight database.", "Free", "0.5", "", "Ubuntu 14.04 +"))), APP, "nodejs", ACTIVE),
-"9-Docker" -> MarketPlaceInput("9-Docker", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/docker.png", "Platform", "Container"), MarketPlacePlans(List(new MarketPlacePlan("0", "Docker that automates the deployment of applications inside software containers.", "Free", "0.5", "", "Ubuntu 14.04 +"))), "false", "docker", ACTIVE),
-"10-PostgreSQL" -> MarketPlaceInput("10-PostgreSQL", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/postgres.png", "App Boilers", "Object Relational DBMS"), MarketPlacePlans(List(new MarketPlacePlan("0", "PostgreSQL is a powerful, open source object-relational database system.", "Free", "9.3", "", "Ubuntu 14.04 +"))), SERVICE, "postgresql", ACTIVE),
-"11-Riak" -> MarketPlaceInput("11-Riak", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/riak.png", "App Boilers", "Scalable Distributed Database"),
-MarketPlacePlans(List(new MarketPlacePlan("0", "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers.", "Free", "2.1.0", "http://s3.amazonaws.com/downloads.basho.com/riak/2.0/2.0.5/ubuntu/trusty/riak_2.0.5-1_amd64.deb", "Ubuntu 14.04 +"))), SERVICE, "riak", ACTIVE),
-"12-Redis" -> MarketPlaceInput("12-Redis", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/redis.png", "App Boilers", "Key Value Store"), MarketPlacePlans(List(new MarketPlacePlan("0", "Redis is a key-value store which acts as a data structure server with keys containing strings, hashes, lists, sets and sorted sets.", "Free", "2.8.4", "", "Ubuntu 14.04 +"))), SERVICE, "redis", ACTIVE),
-"13-RabbitMQ" -> MarketPlaceInput("13-RabbitMQ", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/rabbitmq.png", "App Boilers", "Message Broker"), MarketPlacePlans(List(new MarketPlacePlan("0", "RabbitMQ is a message broker software  that implements the Advanced Message Queuing Protocol (AMQP).", "Free", "3.3.5", "", "Ubuntu 14.04 +"))), SERVICE, "rabbitmq", ACTIVE),
-"14-Hadoop" -> MarketPlaceInput("14-Hadoop", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/hadoop.png", "Analytics", "Plumbing your big data is easy"), MarketPlacePlans(List(new MarketPlacePlan("0", "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware", "Free", "2.6.0", "", "Ubuntu 14.04 +"))), SERVICE, "hadoop", ACTIVE)
-)
+  val toMap = MKPData.mkMap
 
   val toStream = toMap.keySet.toStream
 

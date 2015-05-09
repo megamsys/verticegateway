@@ -56,7 +56,9 @@ object Constants {
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megam.co"
 
-  
+  val VERSION = "0.8"
+
+
 
   /*Look for a file /var/lib/megam/.megam_auth with fields
   megam@mypaas.io:<randomlygenerated pw>
