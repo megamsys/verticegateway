@@ -21,7 +21,7 @@ resolvers += "JBoss repository" at "https://repository.jboss.org/nexus/content/r
 resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.8")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.9")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.8.0")
 
