@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,7 @@ case class DomainsResult(id: String, name: String, created_at: String) {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.DomainsResultSerialization
     val preser = new DomainsResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -86,7 +86,6 @@ object Domains {
   private val riak = GWRiak("domains")
 
   implicit def DomainsResultsSemigroup: Semigroup[DomainsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  //implicit def DomainsProcessedResultsSemigroup: Semigroup[NodeProcessedResults] = Semigroup.instance((f3, f4) => f3.append(f4))
 
   val metadataKey = "Domains"
   val metadataVal = "Domains Creation"
@@ -135,7 +134,7 @@ object Domains {
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[DomainsResult].some).successNel[Throwable]
-            case None => {	
+            case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Domains.created success", "Scaliak returned => None. Thats OK."))
               (parse(gs.get.value).extract[DomainsResult].some).successNel[Throwable];
             }
@@ -143,7 +142,7 @@ object Domains {
         }
     }
   }
-  
+
 
   def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Domains", "findByName:Entry"))
@@ -162,7 +161,7 @@ object Domains {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: DomainsResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("domainsresult", j))
-                  Validation.success[Throwable, DomainsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, DomainsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -173,8 +172,8 @@ object Domains {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
-  
-  
+
+
 }
