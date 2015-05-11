@@ -85,20 +85,20 @@ object MKPData {
 
    private val C5 =  ("5-Java",   BYOC("java.png", "Java Web starter"),
    List(Plan(FIVE, "Quickly get started with J2EE Spring framework app.",
-   SAMBAR, Constants.VERSION, "http://oracle.com", CATOS_UBUNTU)))
+   SAMBAR, Constants.VERSION, "https://github.com/megamsys/spring-mvc-fulfillment-base.git", CATOS_UBUNTU)))
 
 
    private val C6 =  ("6-Rails",  BYOC("rails.png", "Rails App"),
    List(Plan(FIVE, "Quickly get started with rails 4.x app.",
-   SAMBAR, Constants.VERSION, "http://guides.rubyonrails.org/index.html", CATOS_UBUNTU)))
+   SAMBAR, Constants.VERSION, "https://github.com/megamsys/aryabhata.git", CATOS_UBUNTU)))
 
    private val C7 =  ("7-Play",   BYOC("play.png", "Play App"),
    List(Plan(FIVE, "Build robust RESTful API server using Scala.",
-   SAMBAR, Constants.VERSION, "https://playframework.com/", CATOS_UBUNTU)))
+   SAMBAR, Constants.VERSION, "https://github.com/megamsys/modern-web-template.git", CATOS_UBUNTU)))
 
    private val C8 =  ("8-Nodejs", BYOC("nodejs.png", "Realtime App"),
    List(Plan(FIVE, "Build fast, scalable, and incredibly efficient realtime app in second.",
-   SAMBAR, Constants.VERSION, "https://nodejs.org", CATOS_UBUNTU)))
+   SAMBAR, Constants.VERSION, "https://github.com/megamsys/Ghost.git", CATOS_UBUNTU)))
 
    private val C9 =  ("9-Docker", Plat("docker.png", "Container"),
    List(Plan(FIVE, "Docker that automates the deployment of applications inside software containers.",
