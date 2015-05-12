@@ -158,36 +158,7 @@ object Accounts {
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.
    * If there is an error in the snowflake connection, we need to send one.
    */
- /* def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Accounts", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("input json", input))
-    (Validation.fromTryCatch[models.AccountInput] {
-      parse(input).extract[AccountInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage)
-    }).toValidationNel.flatMap { m: AccountInput =>
-      play.api.Logger.debug(("%-20s -->[%s]").format("AccountInput", m))
-      UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get match {
-        case Success(uid) => {
-          val metadataKey = "Field"
-          val metadataVal = "1002"
-          val bindex = "accountId"
-          val bvalue = Set(uid.get._1 + uid.get._2)
-          val acctRes = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, Time.now.toString)
-          play.api.Logger.debug(("%-20s -->[%s]").format("json with uid", acctRes.toJson(false)))
-          val storeValue = riak.store(new GunnySack(m.email, acctRes.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-          storeValue match {
-            case Success(succ) => acctRes.some.successNel[Throwable]
-            case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
-              new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
-          }
-        }
-        case Failure(err) => Validation.failure[Throwable, Option[AccountResult]](
-          new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
-      }
-    }
-
-  }*/
-
+ 
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("Accounts Update", "updateGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
@@ -237,36 +208,6 @@ object Accounts {
         }
     }
   }
-
-
-  /*
-  def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[Tuple2[Map[String, String], String]]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.account", "update:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
-    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatch {
-      parse(input).extract[updateAccountInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
-    for {
-      rip <- ripNel
-      gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
-      maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
-    } yield {
-      val nrip = parse(gs.get.value).extract[AccountResult]
-      maybeGS match {
-        case Some(thatGS) =>
-          Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.id).some
-        case None => {
-          play.api.Logger.warn(("%-20s -->[%s]").format("Accounts.updated successfully", "Scaliak returned => None. Thats OK."))
-          Tuple2(Map[String, String](("Id" -> nrip.id), ("Action" -> "bind policy"), ("Args" -> "Nah")), nrip.id).some
-        }
-      }
-    }
-  }
-
-
-  */
 
 
   /**
