@@ -167,7 +167,7 @@ object Balances {
     } yield {
       val bvalue = Set(aor.get.id)
       val bal = bals.head
-      val json = BalancesResult(NilorNot(rip.id, bal.get.id), NilorNot(rip.name, bal.get.name), NilorNot(rip.credit, bal.get.credit), NilorNot(rip.created_at, bal.get.created_at), Time.now.toString).toJson(false)
+      val json = BalancesResult(bal.get.id, bal.get.name, NilorNot(rip.credit, bal.get.credit), bal.get.created_at, Time.now.toString).toJson(false)
       new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
