@@ -63,9 +63,9 @@ case class AccountResult(id: String, first_name: String, last_name: String, phon
 object AccountResult {
 
   //def apply(id: String, email: String, api_key: String, authority: String) = new AccountResult(id, email, api_key, authority, Time.now.toString)
-  def apply(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) = new AccountResult(id, first_name, last_name, phone,  email, api_key, password,  authority, password_reset_key, password_reset_sent_at, Time.now.toString)
+  def apply(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) = new AccountResult(id, first_name, last_name, phone, email, api_key, password, authority, password_reset_key, password_reset_sent_at, Time.now.toString)
 
-  def apply(email: String): AccountResult = AccountResult("not found", new String(), new String(), new String(), new String(), email, new String(), new String(),  new String(), new String() )
+  def apply(email: String): AccountResult = AccountResult("not found", new String(), new String(), new String(), new String(), email, new String(), new String(), new String(), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -81,25 +81,24 @@ object AccountResult {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String, password_reset_sent_at: String) {
+case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) {
   val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
 }
 
-case class updateAccountInput(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String,  authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) {
+case class updateAccountInput(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) {
   val json = "{\"id\":\"" + id + "\",\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\",\"created_at\":\"" + created_at + "\"}"
 
 }
 
 object Accounts {
 
-         val metadataKey = "ACC"
-          val metadataVal = "1002"
-          val bindex = "accountId"
+  val metadataKey = "ACC"
+  val metadataVal = "1002"
+  val bindex = "accountId"
 
   implicit val formats = DefaultFormats
 
   private val riak = GWRiak("accounts")
-
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -121,7 +120,7 @@ object Accounts {
       uid <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(uid.get._1 + uid.get._2)
-      val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password,  m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString).toJson(false)
+      val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString).toJson(false)
       new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -152,13 +151,12 @@ object Accounts {
     }
   }
 
-
   /**
    * Parse the input body when you start, if its ok, then we process it.
    * Or else send back a bad return code saying "the body contains invalid character, with the message received.
    * If there is an error in the snowflake connection, we need to send one.
    */
- 
+
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("Accounts Update", "updateGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
@@ -174,7 +172,7 @@ object Accounts {
     } yield {
       val bvalue = Set(aor.get.id)
 
-     val json = AccountResult(NilorNot(rip.id, aor.get.id), NilorNot(rip.first_name, aor.get.first_name),NilorNot(rip.last_name, aor.get.last_name), NilorNot(rip.phone, aor.get.phone), NilorNot(rip.email, aor.get.email), NilorNot(rip.api_key, aor.get.api_key), NilorNot(rip.password, aor.get.password), NilorNot(rip.authority, aor.get.authority), NilorNot(rip.password_reset_key, aor.get.password_reset_key), NilorNot(rip.password_reset_sent_at, aor.get.password_reset_sent_at), NilorNot(rip.created_at, aor.get.created_at) ).toJson(false)
+      val json = AccountResult(NilorNot(rip.id, aor.get.id), NilorNot(rip.first_name, aor.get.first_name), NilorNot(rip.last_name, aor.get.last_name), NilorNot(rip.phone, aor.get.phone), NilorNot(rip.email, aor.get.email), NilorNot(rip.api_key, aor.get.api_key), NilorNot(rip.password, aor.get.password), NilorNot(rip.authority, aor.get.authority), NilorNot(rip.password_reset_key, aor.get.password_reset_key), NilorNot(rip.password_reset_sent_at, aor.get.password_reset_sent_at), NilorNot(rip.created_at, aor.get.created_at)).toJson(false)
       new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -183,8 +181,7 @@ object Accounts {
   def NilorNot(rip: String, aor: String): String = {
     if (rip == null) {
       return aor
-    }
-    else {
+    } else {
       return rip
     }
   }
@@ -209,7 +206,6 @@ object Accounts {
     }
   }
 
-
   /**
    * Performs a fetch from Riak bucket. If there is an error then ServiceUnavailable is sent back.
    * If not, if there a GunnySack value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
@@ -228,7 +224,7 @@ object Accounts {
             xso match {
               case Some(xs) => {
                 (Validation.fromTryCatch[models.AccountResult] {
-                //  initiate_default_cloud(email)
+                  //  initiate_default_cloud(email)
                   parse(xs.value).extract[AccountResult]
                 } leftMap { t: Throwable =>
                   new ResourceItemNotFound(email, t.getMessage)
@@ -268,12 +264,6 @@ object Accounts {
         new ServiceUnavailableError(id, (err.list.map(m => m.getMessage)).mkString("\n"))).toValidationNel
     }
   }
-
-
-
-
-
-
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {

@@ -244,7 +244,8 @@ object Assembly {
       _.foldRight((AssemblyResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head. 
   }
-
+  
+  
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assembly Update", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
@@ -257,15 +258,17 @@ object Assembly {
     for {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      asm_collection <- (Assembly.findByNodeName(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
-
-      val json = AssemblyResult(rip.id, rip.name, rip.components, rip.tosca_type, rip.requirements, rip.policies, rip.inputs, rip.operations, rip.outputs, rip.status, rip.created_at).toJson(false)
+      val asm = asm_collection.head
+      val json = AssemblyResult(rip.id, asm.get.name, asm.get.components, asm.get.tosca_type, asm.get.requirements, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, rip.operations ::: asm.get.operations, asm.get.outputs, asm.get.status, asm.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+       Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some        
+    
     }
   }
-
+ 
   def update(email: String, input: String): ValidationNel[Throwable, Option[Tuple2[Map[String, String], String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Assembly", "update:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
@@ -278,7 +281,6 @@ object Assembly {
       rip <- ripNel
       gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
-      com <- (Component.findByNodeName(List(rip.components(0)).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val nrip = parse(gs.get.value).extract[AssemblyResult]
       maybeGS match {
