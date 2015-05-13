@@ -178,13 +178,13 @@ object Accounts {
     }
   }
 
-  def NilorNot(rip: String, aor: String): String = {
-    if (rip == null) {
-      return aor
-    } else {
-      return rip
+ def NilorNot(rip: String, aor: String): String = {
+    rip == null match {
+      case true => return aor
+      case false => return rip
     }
   }
+   
 
   def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Account", "create:Entry"))
