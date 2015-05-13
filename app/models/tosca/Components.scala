@@ -191,10 +191,11 @@ object Component {
     for {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      com_collection <- (Component.findByNodeName(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
-
-      val json = ComponentResult(rip.id, rip.name, rip.tosca_type, rip.inputs, rip.outputs, rip.artifacts, rip.related_components, rip.operations, rip.status, rip.created_at).toJson(false)
+       val com = com_collection.head
+      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations, com.get.status, com.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
