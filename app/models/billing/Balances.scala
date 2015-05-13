@@ -163,15 +163,24 @@ object Balances {
     for {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      bals <- (Balances.findByName(List(email).some) leftMap {t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
-
-      val json = BalancesResult(rip.id, rip.name, rip.credit, rip.created_at, Time.now.toString).toJson(false)
+      val bal = bals.head
+      val json = BalancesResult(NilorNot(rip.id, bal.get.id), NilorNot(rip.name, bal.get.name), NilorNot(rip.credit, bal.get.credit), NilorNot(rip.created_at, bal.get.created_at), Time.now.toString).toJson(false)
       new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
+    def NilorNot(rip: String, bal: String): String = {
+    rip == null match {
+      case true => return bal
+      case false => return rip
+    }
+  }
+   
+   
   def update(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "update:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
