@@ -98,3 +98,6 @@ GET	    /v2/balances/:id                  controllers.billing.Balances.show(id: 
 
 POST    /v2/billinghistories/content	  controllers.billing.Billinghistories.post
 GET     /v2/billinghistories              controllers.billing.Billinghistories.list
+
+#promos
+GET     /v2/promos/:id                    controllers.billing.Promos.show(id: String)
