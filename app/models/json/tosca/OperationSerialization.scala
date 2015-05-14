@@ -37,7 +37,7 @@ import models.tosca.{ Operation, KeyValueList }
 class OperationSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Operation] {
 
   protected val OperationTypeKey = "operation_type"
-  protected val DescriptionKey = "content"
+  protected val DescriptionKey = "description"
   protected val OperationRequirementsKey = "operation_requirements"
 
   override implicit val writer = new JSONW[Operation] {
