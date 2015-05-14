@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,11 +37,11 @@ object CatRequestResultsSerialization extends SerializationBase[CatRequestResult
         nrOpt: Option[CatRequestResult] =>
           (nrOpt.map { nr: CatRequestResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey, JString("Megam::CatRequestCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::CatRequestsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
-  
+
   implicit override val reader = new JSONR[CatRequestResults] {
     override def read(json: JValue): Result[CatRequestResults] = {
       json match {

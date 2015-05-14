@@ -62,14 +62,14 @@ object CatRequests extends Controller with APIAuthElement {
                   play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CatRequests", "published successfully."))
                   Status(CREATED)(FunnelResponse(CREATED, """CatRequest initiation instruction submitted successfully.
             |
-            |The CatRequest is processed by our engine. It will be ready shortly.""", "Megam::CatRequest").toJson(true)).successNel[Throwable]
+            |The CatRequest is processed by our engine. It will be ready shortly.""", "Megam::CatRequests").toJson(true)).successNel[Throwable]
                 } match {
                   //this is only a temporary hack.
                   case Success(succ_cpc) => succ_cpc
                   case Failure(err) =>
                     Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """CatRequest initiation submission failed.
             |
-            |Retry again, our queue servers are crowded""", "Megam::CatRequest").toJson(true))
+            |Retry again, our queue servers are crowded""", "Megam::CatRequests").toJson(true))
                 }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)

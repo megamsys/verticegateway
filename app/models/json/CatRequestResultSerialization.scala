@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,36 +36,36 @@ import models.{CatRequestResult}
 class CatRequestResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[CatRequestResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
-  protected val AppIDKey = "app_id"
-  protected val AppNameKey = "app_name"
-  protected val ActionKey = "action"  
-  protected val CreatedAtKey ="created_at" 
+  protected val CatIDKey = "cat_id"
+  protected val NameKey = "name"
+  protected val ActionKey = "action"
+  protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[CatRequestResult] {
-    
+
     override def write(h: CatRequestResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(AppIDKey, toJSON(h.app_id)) ::
-          JField(AppNameKey, toJSON(h.app_name)) ::
-          JField(JSONClazKey, toJSON("Megam::CatRequest")) ::
-          JField(ActionKey, toJSON(h.action)) ::        
+          JField(CatIDKey, toJSON(h.cat_id)) ::
+          JField(NameKey, toJSON(h.name)) ::
+          JField(JSONClazKey, toJSON("Megam::CatRequests")) ::
+          JField(ActionKey, toJSON(h.action)) ::
           JField(CreatedAtKey, toJSON(h.created_at))   :: Nil)
     }
   }
 
   override implicit val reader = new JSONR[CatRequestResult] {
-    
+
     override def read(json: JValue): Result[CatRequestResult] = {
       val idField = field[String](IdKey)(json)
-      val appIdField = field[String](AppIDKey)(json)
-      val appNameField = field[String](AppNameKey)(json)
-      val actionField = field[String](ActionKey)(json)      
+      val catIdField = field[String](CatIDKey)(json)
+      val nameField = field[String](NameKey)(json)
+      val actionField = field[String](ActionKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| appIdField |@| appNameField |@| actionField |@| createdAtField) {
-        (id: String, app_id: String, app_name: String, action: String, created_at: String) =>
-          new CatRequestResult(id, app_id, app_name, action, created_at)
+      (idField |@| catIdField |@| nameField |@| actionField |@| createdAtField) {
+        (id: String, cat_id: String, name: String, action: String, created_at: String) =>
+          new CatRequestResult(id, cat_id, name, action, created_at)
       }
     }
   }
