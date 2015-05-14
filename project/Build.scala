@@ -21,6 +21,7 @@ object ApplicationBuild extends Build {
 
   val megam_commonVersion = "0.5.6"
 
+
   val appDependencies = Seq(
     javaCore, cache,  filters,
     "com.stackmob" % "scaliak_2.10" % "0.10.0-SNAPSHOT" from "https://s3-ap-southeast-1.amazonaws.com/megampub/0.5/jars/scaliak_2.10-0.10.0-SNAPSHOT.jar",
@@ -29,6 +30,8 @@ object ApplicationBuild extends Build {
     "jp.t2v" %% "play2-auth" % play2AuthVersion,
     "org.yaml" % "snakeyaml" % "1.15",
     "com.stackmob" %% "newman" % "1.3.5" % "test")
+    //"io.megam" % "newman" % "1.3.8" % "test"
+
 
   val root = Project(appName, file(".")).enablePlugins(play.PlayScala).settings(
     version := appVersion,
@@ -40,7 +43,9 @@ object ApplicationBuild extends Build {
     sbt.Keys.resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots",
     sbt.Keys.resolvers += "Twitter Repo" at "http://maven.twttr.com", // finagle
     sbt.Keys.resolvers += "Spray repo" at "http://repo.spray.io", //spray client used in newman.
-    sbt.Keys.resolvers += "Spy Repository" at "http://files.couchbase.com/maven2" // required to resolve `spymemcached`, the plugin's dependency.
+    sbt.Keys.resolvers += "Spy Repository" at "http://files.couchbase.com/maven2", // required to resolve `spymemcached`, the plugin's dependency.
+    sbt.Keys.resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
     )
+
 
 }

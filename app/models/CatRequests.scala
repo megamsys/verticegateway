@@ -41,13 +41,13 @@ import java.nio.charset.Charset
 /**
  * @author rajthilak
  */
- 
-case class CatRequestInput(app_id: String, app_name: String, action: String) {
-  val json = "\"app_id\":\"" + app_id + "\",\"app_name\":\"" + app_name + "\",\"action\":\"" + action + "\""
+
+case class CatRequestInput(cat_id: String, name: String, action: String) {
+  val json = "\"cat_id\":\"" + cat_id + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\""
 }
 
-case class CatRequestResult(id: String, app_id: String, app_name: String, action: String, created_at: String) {
-  val json = "{\"id\": \"" + id + "\",\"app_id\": \"" + app_id + "\",\"app_name\":\"" + app_name + "\",\"action\":\"" + action + "\",\"created_at\":\"" + created_at + "\"}"
+case class CatRequestResult(id: String, cat_id: String, name: String, action: String, created_at: String) {
+  val json = "{\"id\": \"" + id + "\",\"cat_id\": \"" + cat_id + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"created_at\":\"" + created_at + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -114,7 +114,7 @@ object CatRequests {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "cat").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
 
-      val bvalue = Set(rip.app_id)
+      val bvalue = Set(rip.cat_id)
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\"," + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
@@ -137,10 +137,10 @@ object CatRequests {
           val req_result = parse(gs.get.value).extract[CatRequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("CatRequest.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.app_name).some.successNel[Throwable]
+            case Some(thatGS) => Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.name).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("CatRequest.created success", "Scaliak returned => None. Thats OK."))
-              Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.app_name).some.successNel[Throwable]
+              Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.name).some.successNel[Throwable]
             }
           }
         }
