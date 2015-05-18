@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,14 @@
 package models.billing
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
@@ -55,7 +56,7 @@ case class SubscriptionsResult(id: String, accounts_id: String, assembly_id: Str
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.billing.SubscriptionsResultSerialization
     val preser = new SubscriptionsResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -74,7 +75,7 @@ object SubscriptionsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[SubscriptionsResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[SubscriptionsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -101,7 +102,7 @@ object Subscriptions {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val SubscriptionsInput: ValidationNel[Throwable, SubscriptionsInput] = (Validation.fromTryCatch {
+    val SubscriptionsInput: ValidationNel[Throwable, SubscriptionsInput] = (Validation.fromTryCatchThrowable[SubscriptionsInput,Throwable] {
       parse(input).extract[SubscriptionsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -145,4 +146,3 @@ object Subscriptions {
   }
 
 }
-

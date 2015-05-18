@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,15 +40,15 @@ import models.billing._
 
 
 object Balances extends Controller with APIAuthElement {
-  
+
   /**
-   * Create a new balance entry by email/json input. 
+   * Create a new balance entry by email/json input.
    **/
-  
+
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Balances", "post:Entry"))
-    
-    (Validation.fromTryCatch[Result] {
+
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -73,16 +73,16 @@ object Balances extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
    }
-  
+
  def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Balances wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.billing.Balances.update(email, clientAPIBody) match {
-            case Success(succ) => 
+            case Success(succ) =>
               Status(CREATED)(
                 FunnelResponse(CREATED, """Balances updated successfully.
             |
@@ -99,9 +99,9 @@ object Balances extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
+
   /*
-   * GET: findByName: Show a particular balance by name 
+   * GET: findByName: Show a particular balance by name
    * Email provided in the URI.
    * Output: JSON (BalancesResult)
    **/
@@ -109,7 +109,7 @@ object Balances extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Balances", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -131,6 +131,6 @@ object Balances extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
-  
+
+
 }

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.stack._
@@ -41,13 +41,13 @@ import scala.collection.immutable.Map
 object MarketPlaceAddons extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
+   * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaceAddons", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -116,36 +116,5 @@ object MarketPlaceAddons extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  /*
-   * GET: findByAppDefnsName: Show the MarketPlaceAddons for a  node name per user(by email)
-   * Email grabbed from header
-   * Output: JSON (MarketPlaceAddonsResults)   
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaceAddons", "show:Entry"))
-
-    (Validation.fromTryCatch[Result] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("MarketPlaceAddons wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaceAddons", "request funneled."))
-
-          models.MarketPlaceAddons.findByNodeName(List(id).some) match {
-            case Success(succ) =>
-              Ok(MarketPlaceAddonsResults.toJson(succ, true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-
-  }
-  */
-
+  
 }

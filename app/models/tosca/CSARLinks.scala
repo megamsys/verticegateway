@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
@@ -51,7 +51,7 @@ import org.yaml.snakeyaml.Yaml
 case class CSARLinkInput(kachha: String) {
   val TOSCA_DESCRIPTION = "description"
 
-  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatch[Map[String, String]] {
+  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatchThrowable[Map[String, String],Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "kacchaMango:Entry"))
     mapAsScalaMap[String, String](new Yaml().load(kachha).asInstanceOf[java.util.Map[String, String]]).toMap
   } leftMap { t: Throwable => t
@@ -140,12 +140,12 @@ object CSARLinks {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.tosca.CSARLinkResult] {      
+              (Validation.fromTryCatchThrowable[models.tosca.CSARLinkResult,Throwable] {
                 CSARLinkResult(csarLinkName, xs.value)
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(csarLinkName, t.getMessage)
               }).toValidationNel.flatMap { j: CSARLinkResult =>
-                Validation.success[Throwable, CSARLinkResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Throwable, CSARLinkResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
               }
             }
             case None => Validation.failure[Throwable, CSARLinkResults](new ResourceItemNotFound(csarLinkName, "")).toValidationNel
@@ -154,14 +154,14 @@ object CSARLinks {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((CSARLinkResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the csarlinknames are listed on the index (account.id) in bucket `CSARLinks`.
-   * Using a "csarlinkname" as key, return a list of ValidationNel[List[CSARLinkResult]] 
+   * Using a "csarlinkname" as key, return a list of ValidationNel[List[CSARLinkResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARLinkResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, CSARLinkResults] = {

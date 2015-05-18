@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,22 +36,22 @@ import play.api.mvc.Result
 object Components extends Controller with APIAuthElement {
 
    /*
-   * GET: findByNodeName: Show requests for a  node name per user(by email)
+   * GET: findById: Show component for a compid per user(by email)
    * Email grabbed from header
-   * Output: JSON (AssembliesResults)  
+   * Output: JSON (ComponentsResults)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Components", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
+    play.api.Logger.debug(("%-20s -->[%s]").format("id", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Components wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Components", "request funneled."))
 
-          models.tosca.Component.findByNodeName(List(id).some) match {
+          models.tosca.Component.findById(List(id).some) match {
             case Success(succ) =>
               Ok(ComponentsResults.toJson(succ, true))
             case Failure(err) =>
@@ -69,7 +69,7 @@ object Components extends Controller with APIAuthElement {
   }
 
   def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Components wasn't funneled. Verify the header."))
@@ -89,14 +89,14 @@ object Components extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
+
   /*
    * GET: findbyEmail: List all the Assemblies per email
    * Email grabbed from header.
    * Output: JSON (AssembliesResult)
    */
  /* def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))

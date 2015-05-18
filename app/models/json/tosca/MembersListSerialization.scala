@@ -55,7 +55,7 @@ object MembersListSerialization extends SerializationBase[MembersList] {
           val nrs: MembersList = list.toList
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[MembersList]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[MembersList]
       }
     }
   }

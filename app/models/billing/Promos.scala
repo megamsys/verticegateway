@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,12 @@
 package models.billing
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import org.megam.util.Time
 import Scalaz._
 import controllers.stack._
@@ -57,7 +58,7 @@ case class PromosResult(id: String, code: String, amount: String, created_at: St
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.billing.PromosResultSerialization
     val preser = new PromosResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -76,7 +77,7 @@ object PromosResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[PromosResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[PromosResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -85,13 +86,13 @@ object PromosResult {
 }
 
 object Promos {
-  
-  
+
+
   implicit val formats = DefaultFormats
   private val riak = GWRiak("promos")
 
-  
-  
+
+
   val metadataKey = "Promos"
   val metadataVal = "Promos Creation"
   val bindex = "promos"
@@ -114,7 +115,7 @@ object Promos {
           }).toValidationNel.flatMap { xso: Option[GunnySack] =>
             xso match {
               case Some(xs) => {
-                (Validation.fromTryCatch[models.billing.PromosResult] {
+                (Validation.fromTryCatchThrowable[models.billing.PromosResult,Throwable] {
                   parse(xs.value).extract[PromosResult]
                 } leftMap { t: Throwable =>
                   new ResourceItemNotFound(name, t.getMessage)
@@ -137,6 +138,5 @@ object Promos {
       notSed
     }
   }
-  
-}
 
+}

@@ -56,7 +56,7 @@ object CatRequestResultsSerialization extends SerializationBase[CatRequestResult
           val nrs: CatRequestResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[CatRequestResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[CatRequestResults]
       }
     }
   }

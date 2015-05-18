@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,15 +40,15 @@ import models.tosca._
 
 
 object Availableunits extends Controller with APIAuthElement {
-  
+
   /*
-   * Create or update a new static units of megam marketplace items by email/json input. 
+   * Create or update a new static units of megam marketplace items by email/json input.
    */
-  
+
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Availableunits", "post:Entry"))
-    
-    (Validation.fromTryCatch[Result] {
+
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -73,10 +73,10 @@ object Availableunits extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
    }
-  
- 
-  
-  
-  
-  
+
+
+
+
+
+
 }

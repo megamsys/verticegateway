@@ -1,4 +1,4 @@
-/* 
+/*
  ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,13 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.effect.IO
-import scalaz.Validation._
-import scalaz.EitherT._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import scala.collection.mutable.ListBuffer
 import controllers.stack._
@@ -90,7 +91,7 @@ object KeyValueField {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[KeyValueField] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[KeyValueField] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -125,7 +126,7 @@ object AssembliesResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[AssembliesResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[AssembliesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -153,7 +154,7 @@ object Assemblies {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput,Throwable] {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -185,7 +186,7 @@ object Assemblies {
   def create(email: String, input: String): ValidationNel[Throwable, Option[AssembliesResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assemblies", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
@@ -220,8 +221,8 @@ object Assemblies {
                 { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: AssembliesResult =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
-                  Validation.success[Throwable, AssembliesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  play.api.Logger.debug(("%-20s -->[%s]").format("AssembliesResult", j))
+                  Validation.success[Throwable, AssembliesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -232,13 +233,13 @@ object Assemblies {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((AssembliesResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]] 
+   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, AssembliesResults] = {

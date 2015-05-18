@@ -56,7 +56,7 @@ object BindLinksSerialization extends SerializationBase[BindLinks] {
           val nrs: BindLinks = list.toList
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failNel[BindLinks]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[BindLinks]
       }
     }
   }

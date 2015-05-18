@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.scaliak._
 import org.megam.common.riak.{ GSRiak, GunnySack }
@@ -74,7 +74,7 @@ object AccountResult {
     fromJSON(jValue)(acctser.reader)
   }
 
-  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -110,7 +110,7 @@ object Accounts {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Accounts", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val accountInput: ValidationNel[Throwable, AccountInput] = (Validation.fromTryCatch {
+    val accountInput: ValidationNel[Throwable, AccountInput] = (Validation.fromTryCatchThrowable[AccountInput,Throwable] {
       parse(input).extract[AccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -162,7 +162,7 @@ object Accounts {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatchThrowable[updateAccountInput,Throwable] {
       parse(input).extract[updateAccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -184,7 +184,7 @@ object Accounts {
       case false => return rip
     }
   }
-   
+
 
   def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Account", "create:Entry"))
@@ -223,7 +223,7 @@ object Accounts {
           }).toValidationNel.flatMap { xso: Option[GunnySack] =>
             xso match {
               case Some(xs) => {
-                (Validation.fromTryCatch[models.AccountResult] {
+                (Validation.fromTryCatchThrowable[models.AccountResult,Throwable] {
                   //  initiate_default_cloud(email)
                   parse(xs.value).extract[AccountResult]
                 } leftMap { t: Throwable =>

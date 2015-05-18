@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,15 +40,15 @@ import models.billing._
 
 
 object Billinghistories extends Controller with APIAuthElement {
-  
+
   /**
-   * Create a new billing history for the user. 
+   * Create a new billing history for the user.
    **/
-  
+
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billinghistories", "post:Entry"))
-    
-    (Validation.fromTryCatch[Result] {
+
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -73,7 +73,7 @@ object Billinghistories extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
    }
-  
+
  /**
    * GET: findbyEmail: List all the billing histories per email
    * Email grabbed from header.
@@ -82,7 +82,7 @@ object Billinghistories extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billinghistories", "list:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -103,8 +103,8 @@ object Billinghistories extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
-  
-  
-  
+
+
+
+
 }
