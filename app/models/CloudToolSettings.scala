@@ -149,7 +149,7 @@ object CloudToolSettings {
   }
 
   def findByName(cloudtoolsettingList: Option[List[String]]): ValidationNel[Throwable, CloudToolSettingResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.CloudToolSettings", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.CloudToolSettings", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("CloudToolSettingsList", cloudtoolsettingList))
     (cloudtoolsettingList map {
       _.map { CloudToolSettingName =>
@@ -184,7 +184,7 @@ object CloudToolSettings {
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, CloudToolSettingResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.CloudToolSettings", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.CloudToolSettings", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, CloudToolSettingResults]] {
       (((for {

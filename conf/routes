@@ -14,17 +14,17 @@ POST   /v2/auth                         controllers.Application.authenticate
 # Account
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
-POST   /v2/accounts/update       	 	controllers.Accounts.update
+POST   /v2/accounts/update       	 	    controllers.Accounts.update
 
 
 #Organizations
-POST    /v2/organizations/content           controllers.camp.Organizations.post
-GET     /v2/organizations/:id               controllers.camp.Organizations.show(id: String)
-GET		/v2/organizations					controllers.camp.Organizations.list()
+POST   /v2/organizations/content        controllers.camp.Organizations.post
+GET    /v2/organizations/:id            controllers.camp.Organizations.show(id: String)
+GET		 /v2/organizations				        controllers.camp.Organizations.list()
 
 #Domains
-POST   /v2/domains/content                   controllers.camp.Domains.post
-GET    /v2/domains/:id                       controllers.camp.Domains.show(id: String)
+POST   /v2/domains/content              controllers.camp.Domains.post
+GET    /v2/domains/:id                  controllers.camp.Domains.show(id: String)
 
 #PredefClouds
 POST   /v2/predefclouds/content         controllers.PredefClouds.post
@@ -32,39 +32,39 @@ GET    /v2/predefclouds                 controllers.PredefClouds.list
 GET    /v2/predefclouds/:pre_name       controllers.PredefClouds.show(pre_name: String)
 
 #SshKeys
-POST   /v2/sshkeys/content         controllers.SshKeys.post
-GET    /v2/sshkeys                 controllers.SshKeys.list
-GET    /v2/sshkeys/:pre_name       controllers.SshKeys.show(pre_name: String)
+POST   /v2/sshkeys/content              controllers.SshKeys.post
+GET    /v2/sshkeys                      controllers.SshKeys.list
+GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
 
 #MarketPlaces
 POST   /v2/marketplaces/content         controllers.MarketPlaces.post
 GET    /v2/marketplaces                 controllers.MarketPlaces.list
-GET    /v2/marketplaces/:id       controllers.MarketPlaces.show(id: String)
+GET    /v2/marketplaces/:id             controllers.MarketPlaces.show(id: String)
 
 #MarketPlaceAddons
-POST   /v2/marketplaceaddons/content         controllers.MarketPlaceAddons.post
-#GET    /v2/marketplaceaddons/:id             controllers.MarketPlaceAddons.show(id: String)
+POST   /v2/marketplaceaddons/content    controllers.MarketPlaceAddons.post
+#GET   /v2/marketplaceaddons/:id        controllers.MarketPlaceAddons.show(id: String)
 
 #CSARs
-POST   /v2/csars/content         controllers.camp.CSARs.post
-GET    /v2/csars                 controllers.camp.CSARs.list
-GET    /v2/csars/:id 		     controllers.camp.CSARs.show(id: String)
-GET   /v2/csars/push/:id         controllers.camp.CSARs.push(id: String)
+POST   /v2/csars/content                controllers.camp.CSARs.post
+GET    /v2/csars                        controllers.camp.CSARs.list
+GET    /v2/csars/:id 		                controllers.camp.CSARs.show(id: String)
+GET    /v2/csars/push/:id               controllers.camp.CSARs.push(id: String)
 
 #Assemblies
-POST   /v2/assemblies/content    		 controllers.camp.Assemblies.post
-GET	   /v2/assemblies	          		controllers.camp.Assemblies.list
-GET    /v2/assemblies/:id         		controllers.camp.Assemblies.show(id: String)
-GET    /v2/assembly/:id           		controllers.camp.Assembly.show(id: String)
-POST   /v2/assembly/update       	 	controllers.camp.Assembly.update
-POST   /v2/assembly/build/:id/:cid   	 controllers.camp.Assembly.build(id: String, cid: String)
-GET    /v2/components/:id         		controllers.camp.Components.show(id: String)
-POST   /v2/components/update        	controllers.camp.Components.update
+POST   /v2/assemblies/content    		    controllers.camp.Assemblies.post
+GET	   /v2/assemblies	          		    controllers.camp.Assemblies.list
+GET    /v2/assemblies/:id         		  controllers.camp.Assemblies.show(id: String)
+GET    /v2/assembly/:id           		  controllers.camp.Assembly.show(id: String)
+POST   /v2/assembly/update       	 	    controllers.camp.Assembly.update
+POST   /v2/assembly/build/:id/:cid   	  controllers.camp.Assembly.build(id: String, cid: String)
+GET    /v2/components/:id         		  controllers.camp.Components.show(id: String)
+POST   /v2/components/update        	  controllers.camp.Components.update
 
 # Requests for Assemblies
-POST   /v2/requests/content            	 controllers.Requests.post
-#GET    /v2/requests                     controllers.Requests.list()
-#GET    /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
+POST   /v2/requests/content            	controllers.Requests.post
+#GET   /v2/requests                     controllers.Requests.list()
+#GET   /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
 
 # CloudToolSetting
 POST   /v2/cloudtoolsettings/content    controllers.CloudToolSettings.post
@@ -73,27 +73,27 @@ GET    /v2/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: S
 
 #Continious Integration
 POST   /v2/cis/content                  controllers.camp.ContiniousIntegration.post
-#GET    /v2/cis							controllers.camp.ContiniousIntegration.list
+#GET   /v2/cis							            controllers.camp.ContiniousIntegration.list
 
 #CatRequests for Assembly
-POST   /v2/catrequests/content            controllers.CatRequests.post
+POST   /v2/catrequests/content          controllers.CatRequests.post
 
 #Events
-POST    /v2/events/content                controllers.camp.Events.post
+POST   /v2/events/content               controllers.camp.Events.post
 
 #billings
-POST    /v2/subscriptions/content		  controllers.billing.Subscriptions.post
-POST	/v2/credithistories/content		  controllers.billing.Credithistories.post
-POST 	/v2/billings/content			  controllers.billing.Billings.post
-POST	/v2/availableunits/content	 	  controllers.billing.Availableunits.post
-POST	/v2/discounts/content			  controllers.billing.Discounts.post
+POST   /v2/subscriptions/content		    controllers.billing.Subscriptions.post
+POST	 /v2/credithistories/content		  controllers.billing.Credithistories.post
+POST 	 /v2/billings/content			        controllers.billing.Billings.post
+POST	 /v2/availableunits/content	 	    controllers.billing.Availableunits.post
+POST	 /v2/discounts/content			      controllers.billing.Discounts.post
 
-POST	/v2/balances/content			  controllers.billing.Balances.post
-POST	/v2/balances/update			      controllers.billing.Balances.update
-GET	    /v2/balances/:id                  controllers.billing.Balances.show(id: String)
+POST	 /v2/balances/content			        controllers.billing.Balances.post
+POST	 /v2/balances/update			        controllers.billing.Balances.update
+GET	   /v2/balances/:id                 controllers.billing.Balances.show(id: String)
 
-POST    /v2/billinghistories/content	  controllers.billing.Billinghistories.post
-GET     /v2/billinghistories              controllers.billing.Billinghistories.list
+POST   /v2/billinghistories/content	    controllers.billing.Billinghistories.post
+GET    /v2/billinghistories             controllers.billing.Billinghistories.list
 
 #promos
-GET     /v2/promos/:id                    controllers.billing.Promos.show(id: String)
+GET    /v2/promos/:id                   controllers.billing.Promos.show(id: String)

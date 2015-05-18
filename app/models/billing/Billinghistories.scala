@@ -150,7 +150,7 @@ object Billinghistories {
   }
 
    def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BillinghistoriesResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billinghistories", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billinghistories", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("BillinghistoriesList", balanceList))
     (balanceList map {
       _.map { balanceName =>

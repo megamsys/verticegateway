@@ -110,7 +110,7 @@ object Assemblies extends Controller with APIAuthElement {
   }
 
   /*
-   * GET: findByNodeName: Show requests for a  node name per user(by email)
+   * GET: findById: Show requests for a  node name per user(by email)
    * Email grabbed from header
    * Output: JSON (AssembliesResults)
    **/

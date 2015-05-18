@@ -214,9 +214,9 @@ object Assembly {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-  def findByNodeName(assemblyID: Option[List[String]]): ValidationNel[Throwable, AssemblyResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Assembly", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", assemblyID))
+  def findById(assemblyID: Option[List[String]]): ValidationNel[Throwable, AssemblyResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Assembly", "findById:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("id", assemblyID))
     (assemblyID map {
       _.map { asm_id =>
         play.api.Logger.debug(("%-20s -->[%s]").format("Assembly ID", asm_id))
@@ -230,7 +230,7 @@ object Assembly {
                 { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: AssemblyResult =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
+                  play.api.Logger.debug(("%-20s -->[%s]").format("AssemblyResult", j))
                   Validation.success[Throwable, AssemblyResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
@@ -258,7 +258,7 @@ object Assembly {
     for {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      asm_collection <- (Assembly.findByNodeName(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
+      asm_collection <- (Assembly.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
       val asm = asm_collection.head

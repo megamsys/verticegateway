@@ -164,8 +164,8 @@ object MarketPlaceAddonsConfiguration {
    * List all the app defns for a list of appdefns id for a particular node.
    */
   def findByAddonConfigId(addonconfigidList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsConfigurationResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddonsConfiguration", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", addonconfigidList))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddonsConfiguration", "findByAddonConfigId:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("addonconfigList", addonconfigidList))
     (addonconfigidList map {
       _.map { addonconfigid =>
         play.api.Logger.debug(("%-20s -->[%s]").format("Add on id", addonconfigid))
@@ -194,37 +194,5 @@ object MarketPlaceAddonsConfiguration {
     }).head //return the folded element in the head.
   }
 
-  /*def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsConfigurationResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddonsConfiguration", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", nodeNameList))
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, MarketPlaceAddonsConfigurationResults]] {
-      ((((for {
-        nelnr <- (Nodes.findByNodeName(nodeNameList) leftMap { t: NonEmptyList[Throwable] => t })
-      } yield {
-        //this is ugly, since what we receive from Nodes always contains one None. We need to filter
-        //that. This is justa  hack for now. It calls for much more elegant soln.
-        (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
-          (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-            val bindex = ""
-            val bvalue = Set("")
-            val metadataVal = "Nodes-name"
-            play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddonsConfiguration", nelnor))
-            new GunnySack("nodesId", nelnor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-              None, Map(metadataKey -> metadataVal), Map((bindex, bvalue)))
-          }).asInstanceOf[GunnySack]
-        })
-      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap (({ gs: List[GunnySack] =>
-        gs.map { ngso: GunnySack => riak.fetchIndexByValue(ngso) }
-      }) map {
-        _.foldRight((List[String]()).successNel[Throwable])(_ +++ _)
-      })) map { nm: List[String] =>
-        play.api.Logger.debug("------------->" + nm)
-        (if (!nm.isEmpty) findByAddonConfigId(nm.some) else
-          new ResourceItemNotFound(nodeNameList.map(m => m.mkString("[", ",", "]")).get, "application MarketPlaceAddonsConfiguration = nothing found.").failureNel[MarketPlaceAddonsConfigurationResults])
-      }).disjunction).pure[IO]
-    }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(nodeNameList.map(m => m.mkString("[", ",", "]")).get, "application MarketPlaceAddonsConfiguration = nothing found.").failureNel[MarketPlaceAddonsConfigurationResults])
 
-  }
- */
 }

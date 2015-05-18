@@ -186,7 +186,7 @@ object Assemblies {
   def create(email: String, input: String): ValidationNel[Throwable, Option[AssembliesResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assemblies", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
@@ -221,7 +221,7 @@ object Assemblies {
                 { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: AssembliesResult =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
+                  play.api.Logger.debug(("%-20s -->[%s]").format("AssembliesResult", j))
                   Validation.success[Throwable, AssembliesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }

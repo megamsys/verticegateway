@@ -116,36 +116,5 @@ object MarketPlaceAddons extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  /*
-   * GET: findByAppDefnsName: Show the MarketPlaceAddons for a  node name per user(by email)
-   * Email grabbed from header
-   * Output: JSON (MarketPlaceAddonsResults)
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaceAddons", "show:Entry"))
-
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("MarketPlaceAddons wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaceAddons", "request funneled."))
-
-          models.MarketPlaceAddons.findByNodeName(List(id).some) match {
-            case Success(succ) =>
-              Ok(MarketPlaceAddonsResults.toJson(succ, true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-
-  }
-  */
-
+  
 }

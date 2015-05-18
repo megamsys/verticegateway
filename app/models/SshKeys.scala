@@ -151,7 +151,7 @@ object SshKeys {
   }
 
   def findByName(sshKeysNameList: Option[List[String]]): ValidationNel[Throwable, SshKeyResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.SshKeys", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.SshKeys", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("SshKeysList", sshKeysNameList))
     (sshKeysNameList map {
       _.map { sshKeysName =>
@@ -186,7 +186,7 @@ object SshKeys {
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, SshKeyResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.SshKeys", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.SshKeys", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, SshKeyResults]] {
       (((for {

@@ -245,7 +245,7 @@ object MarketPlaces {
   }
 
   def findByName(marketPlacesNameList: Option[Stream[String]]): ValidationNel[Throwable, MarketPlaceResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaces", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaces", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("marketPlaceList", marketPlacesNameList))
     (marketPlacesNameList map {
       _.map { marketplacesName =>

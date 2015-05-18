@@ -36,13 +36,13 @@ import play.api.mvc.Result
 object Assembly extends Controller with APIAuthElement {
 
   /*
-   * GET: findByNodeName: Show requests for a  node name per user(by email)
+   * GET: findById: Show assembly information from assembly_id per user(by email)
    * Email grabbed from header
-   * Output: JSON (AssembliesResults)
+   * Output: JSON (AssemblyResults)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
+    play.api.Logger.debug(("%-20s -->[%s]").format("id", id))
 
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
@@ -51,7 +51,7 @@ object Assembly extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "request funneled."))
 
-          models.tosca.Assembly.findByNodeName(List(id).some) match {
+          models.tosca.Assembly.findById(List(id).some) match {
             case Success(succ) =>
               Ok(AssemblyResults.toJson(succ, true))
             case Failure(err) =>

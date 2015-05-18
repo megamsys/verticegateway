@@ -160,7 +160,7 @@ object PredefClouds {
   }
 
   def findByName(predefCloudsNameList: Option[List[String]]): ValidationNel[Throwable, PredefCloudResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByNodeName:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.PredefClouds", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("predefCloudsList", predefCloudsNameList))
     (predefCloudsNameList map {
       _.map { predefcloudsName =>
