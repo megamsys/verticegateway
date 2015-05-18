@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -74,7 +74,7 @@ object CloudToolSettingResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CloudToolSettingResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[CloudToolSettingResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -103,7 +103,7 @@ object CloudToolSettings {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val CloudToolSettingInput: ValidationNel[Throwable, CloudToolSettingInput] = (Validation.fromTryCatch[models.CloudToolSettingInput] {
+    val CloudToolSettingInput: ValidationNel[Throwable, CloudToolSettingInput] = (Validation.fromTryCatchThrowable[models.CloudToolSettingInput,Throwable] {
       parse(input).extract[CloudToolSettingInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -159,12 +159,12 @@ object CloudToolSettings {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.CloudToolSettingResult] {
+              (Validation.fromTryCatchThrowable[models.CloudToolSettingResult,Throwable] {
                 parse(xs.value).extract[CloudToolSettingResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(CloudToolSettingName, t.getMessage)
               }).toValidationNel.flatMap { j: CloudToolSettingResult =>
-                Validation.success[Throwable, CloudToolSettingResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Throwable, CloudToolSettingResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
               }
             }
             case None => Validation.failure[Throwable, CloudToolSettingResults](new ResourceItemNotFound(CloudToolSettingName, "")).toValidationNel
@@ -173,14 +173,14 @@ object CloudToolSettings {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((CloudToolSettingResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the nodenames are listed on the index (account.id) in bucket `Nodes`.
-   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]] 
+   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, CloudToolSettingResults] = {

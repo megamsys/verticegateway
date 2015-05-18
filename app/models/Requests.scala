@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import controllers.stack._
@@ -81,7 +81,7 @@ object RequestResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[RequestResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[RequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -113,7 +113,7 @@ object Requests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, RequestInputNewNode] = (Validation.fromTryCatch[models.RequestInputNewNode] {
+    val ripNel: ValidationNel[Throwable, RequestInputNewNode] = (Validation.fromTryCatchThrowable[models.RequestInputNewNode,Throwable] {
       parse(input).extract[RequestInputNewNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -144,28 +144,28 @@ object Requests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, RequestInputExistNode] = (Validation.fromTryCatch[models.RequestInputExistNode] {
+    val ripNel: ValidationNel[Throwable, RequestInputExistNode] = (Validation.fromTryCatchThrowable[models.RequestInputExistNode,Throwable] {
       parse(input).extract[RequestInputExistNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests:rip", ripNel))
     for {
       rip <- ripNel
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "rip").get leftMap { ut: NonEmptyList[Throwable] => ut })      
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //val node_id = Array("001change code here")
       val bvalue = Set(rip.node_id)
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\"," + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
-       
-    }    
-  }  
 
-  
-  
-  
-  
+    }
+  }
+
+
+
+
+
   /*
    * create new Request with the new 'Nodename' of the node provide as input.
    * A index name nodeID will point to the "nodes" bucket
@@ -199,7 +199,7 @@ object Requests {
   def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple3[String,String,String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-    
+
     (mkGunnySackforExistNode(input) leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { gs: Option[GunnySack] =>
@@ -217,8 +217,8 @@ object Requests {
         }
     }
   }
-  
-  
+
+
   /**
    * List all the requests for the requestlist.
    */
@@ -233,12 +233,12 @@ object Requests {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.RequestResult] {
+              (Validation.fromTryCatchThrowable[models.RequestResult,Throwable] {
                 parse(xs.value).extract[RequestResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(reqName, t.getMessage)
               }).toValidationNel.flatMap { j: RequestResult =>
-                Validation.success[Error, RequestResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Error, RequestResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
               }
             }
             case None => Validation.failure[Error, RequestResults](new ResourceItemNotFound(reqName, "")).toValidationNel
@@ -247,18 +247,18 @@ object Requests {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((RequestResults.empty).successNel[Error])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
 
-  
-  
+
+
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the nodenames are listed on the index (account.id) in bucket `Nodes`.
-   * Using a "nodename" as key, return a list of ValidationNel[List[RequestResult]] 
+   * Using a "nodename" as key, return a list of ValidationNel[List[RequestResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[RequestResult]]]
-   
+
   def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, RequestResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Request", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", nodeNameList))
@@ -293,9 +293,9 @@ object Requests {
   }*/
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the node results for an email, 
+   * An IO wrapped finder using an email. Upon fetching the node results for an email,
    * the nodeids are listed in bucket `Requests`.
-   * Using a "requestid" as key, return a list of ValidationNel[List[RequestResult]] 
+   * Using a "requestid" as key, return a list of ValidationNel[List[RequestResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[RequestResult]]]
    *
   def findByEmail(email: String): ValidationNel[Throwable, RequestResults] = {

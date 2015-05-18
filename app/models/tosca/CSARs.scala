@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -72,7 +72,7 @@ object CSARResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -162,9 +162,9 @@ object CSARs {
       }
     } map {
       _.foldRight((CSARLinkResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
-  
+
   def getYaml(input: CSARLinkResults): ValidationNel[Throwable, String] = {
     (input map {
       _.map { links =>
@@ -178,7 +178,7 @@ object CSARs {
       }
     } map {
       _.foldRight(("").successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
 
   def push(email: String, input: String): ValidationNel[Throwable, AMQPResponse] = {
@@ -194,7 +194,7 @@ object CSARs {
       amqp
     }
   }
-  
+
 
   def findLinksByName(csarslinksNameList: Option[List[String]]): ValidationNel[Throwable, CSARLinkResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findLinksByNodeName:Entry"))
@@ -211,7 +211,7 @@ object CSARs {
       }
     } map {
       _.foldRight((CSARLinkResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
 
   def findByName(csarsNameList: Option[List[String]]): ValidationNel[Throwable, CSARResults] = {
@@ -228,12 +228,12 @@ object CSARs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatch[models.tosca.CSARResult] {
+                    (Validation.fromTryCatchThrowable[models.tosca.CSARResult,Throwable] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)
                     }).toValidationNel.flatMap { j: CSARResult =>
-                      Validation.success[Throwable, CSARResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                      Validation.success[Throwable, CSARResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                     }
                   }
                   case None => Validation.failure[Throwable, CSARResults](new ResourceItemNotFound(csarsName, "")).toValidationNel
@@ -244,14 +244,14 @@ object CSARs {
       }
     } map {
       _.foldRight((CSARResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]] 
+   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, CSARResults] = {
@@ -283,7 +283,7 @@ object CSARs {
       notSed
     }
   }
-  
+
   implicit val sedimentStrings = new Sedimenter[ValidationNel[Throwable, String]] {
     def sediment(maybeASediment: ValidationNel[Throwable, String]): Boolean = {
       val notSed = maybeASediment.isSuccess

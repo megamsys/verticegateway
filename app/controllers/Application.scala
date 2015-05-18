@@ -27,13 +27,14 @@ import Scalaz._
 import scalaz.Validation._
 import play.api.data._
 import play.api.data.Form._
-import play.api.data.Forms._
+import play.api.cache._
+import play.api.mvc._
 /**
  * @author rajthilak
  *
  */
-
-object Application extends Controller with APIAuthElement {
+//class Application @Inject() (cache: CacheApi) extends Controller with APIAuthElement {
+object  Application  extends Controller with APIAuthElement {
 
   //Shows welcome page.
   def index = Action { implicit request =>

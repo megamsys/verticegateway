@@ -17,9 +17,10 @@ package controllers.camp
 
 import scalaz._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-
-import scalaz.Validation._
 import models._
 import models.tosca._
 import controllers.Constants.DEMO_EMAIL
@@ -43,7 +44,7 @@ object Assembly extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assembly wasn't funneled. Verify the header."))
@@ -68,7 +69,7 @@ object Assembly extends Controller with APIAuthElement {
   }
 
   def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
@@ -111,7 +112,7 @@ object Assembly extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("Assembly ID", id))
     play.api.Logger.debug(("%-20s -->[%s]").format("Component ID", cid))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
          ContiniousIntegrationNotifyPublish(id, cid, "notify").dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CINotify", "published successfully."))
                 Status(CREATED)(FunnelResponse(CREATED, """CI notify initiation instruction submitted successfully.

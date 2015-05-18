@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,13 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
@@ -54,7 +54,7 @@ case class OrganizationsResult(id: String, accounts_id: String, name: String, cr
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -73,7 +73,7 @@ object OrganizationsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[OrganizationsResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[OrganizationsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -86,8 +86,8 @@ object Organizations {
   private val riak = GWRiak("organizations")
 
   implicit def OrganizationsResultsSemigroup: Semigroup[OrganizationsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  
-  
+
+
   val metadataKey = "Organizations"
   val metadataVal = "Organizations Creation"
   val bindex = "organization"
@@ -103,7 +103,7 @@ object Organizations {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val organizationsInput: ValidationNel[Throwable, OrganizationsInput] = (Validation.fromTryCatch {
+    val organizationsInput: ValidationNel[Throwable, OrganizationsInput] = (Validation.fromTryCatchThrowable[OrganizationsInput,Throwable] {
       parse(input).extract[OrganizationsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -162,7 +162,7 @@ object Organizations {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: OrganizationsResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("organizationsresult", j))
-                  Validation.success[Throwable, OrganizationsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, OrganizationsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -173,10 +173,10 @@ object Organizations {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((OrganizationsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
-  
-  
+
+
    def findByEmail(email: String): ValidationNel[Throwable, OrganizationsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
@@ -198,6 +198,5 @@ object Organizations {
     }.run.map(_.validation).unsafePerformIO
     res.getOrElse(new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
   }
-  
-}
 
+}

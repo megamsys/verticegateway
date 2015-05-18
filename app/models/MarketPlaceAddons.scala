@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -74,7 +74,7 @@ object MarketPlaceAddonsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceAddonsResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[MarketPlaceAddonsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -103,7 +103,7 @@ object MarketPlaceAddons {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val addonInput: ValidationNel[Throwable, MarketPlaceAddonsInput] = (Validation.fromTryCatch[models.MarketPlaceAddonsInput] {
+    val addonInput: ValidationNel[Throwable, MarketPlaceAddonsInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceAddonsInput,Throwable] {
       parse(input).extract[MarketPlaceAddonsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     play.api.Logger.debug(("%-20s -->[%s]").format("json-------->", addonInput))
@@ -180,7 +180,7 @@ object MarketPlaceAddons {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: MarketPlaceAddonsResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("MarketPlaceAddonsresult", j))
-                  Validation.success[Throwable, MarketPlaceAddonsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, MarketPlaceAddonsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -191,7 +191,7 @@ object MarketPlaceAddons {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((MarketPlaceAddonsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
 
   /*def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsResults] = {
@@ -228,9 +228,9 @@ object MarketPlaceAddons {
   }*/
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the node results for an email, 
+   * An IO wrapped finder using an email. Upon fetching the node results for an email,
    * the nodeids are listed in bucket `Requests`.
-   * Using a "requestid" as key, return a list of ValidationNel[List[RequestResult]] 
+   * Using a "requestid" as key, return a list of ValidationNel[List[RequestResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[RequestResult]]]
    */
   /*def findByEmail(email: String): ValidationNel[Throwable, MarketPlaceAddonsResults] = {

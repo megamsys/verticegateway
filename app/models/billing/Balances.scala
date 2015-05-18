@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,13 @@
 package models.billing
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import Scalaz._
 import controllers.stack._
@@ -61,7 +63,7 @@ case class BalancesResult(id: String, name: String, credit: String, created_at: 
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.billing.BalancesResultSerialization
     val preser = new BalancesResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -80,7 +82,7 @@ object BalancesResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[BalancesResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[BalancesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -93,8 +95,8 @@ object Balances {
   private val riak = GWRiak("balances")
 
   //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  
-  
+
+
   val metadataKey = "Balances"
   val metadataVal = "Balances Creation"
   val bindex = "balances"
@@ -110,7 +112,7 @@ object Balances {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatch {
+    val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatchThrowable[BalancesInput,Throwable] {
       parse(input).extract[BalancesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -127,7 +129,7 @@ object Balances {
 
   /*
    * create a new balance entry for the user.
-   * 
+   *
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
@@ -150,13 +152,13 @@ object Balances {
         }
     }
   }
-  
+
    private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Balance Update", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatchThrowable[BalancesUpdateInput,Throwable] {
       parse(input).extract[BalancesUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -179,8 +181,8 @@ object Balances {
       case false => return rip
     }
   }
-   
-   
+
+
   def update(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "update:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
@@ -200,7 +202,7 @@ object Balances {
       }
     }
   }
-  
+
   def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BalancesResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("BalancesList", balanceList))
@@ -212,12 +214,12 @@ object Balances {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.billing.BalancesResult] {
+              (Validation.fromTryCatchThrowable[models.billing.BalancesResult,Throwable] {
                 parse(xs.value).extract[BalancesResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(balanceName, t.getMessage)
               }).toValidationNel.flatMap { j: BalancesResult =>
-                Validation.success[Throwable, BalancesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Throwable, BalancesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
               }
             }
             case None => Validation.failure[Throwable, BalancesResults](new ResourceItemNotFound(balanceName, "")).toValidationNel
@@ -226,9 +228,8 @@ object Balances {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((BalancesResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
-  
-}
 
+}

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,16 +39,16 @@ import models.tosca._
  */
 
 
-object Discounts extends Controller with APIAuthElement {
-  
+object  Discounts extends Controller with APIAuthElement {
+
   /**
-   * Create a new discount of user by email/json input. 
+   * Create a new discount of user by email/json input.
    **/
-  
+
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Discounts", "post:Entry"))
-    
-    (Validation.fromTryCatch[Result] {
+
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -73,10 +73,10 @@ object Discounts extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
    }
-  
- 
-  
-  
-  
-  
+
+
+
+
+
+
 }

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,12 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.effect.IO
-import scalaz.Validation._
-import scalaz.EitherT._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import org.megam.util.Time
 import controllers.stack._
 import controllers.Constants._
@@ -68,7 +68,7 @@ case class Artifacts(artifact_type: String, content: String, artifact_requiremen
 }
 
 object Artifacts {
-   def empty: Artifacts = new Artifacts(new String(), new String(), KeyValueList.empty)  
+   def empty: Artifacts = new Artifacts(new String(), new String(), KeyValueList.empty)
 }
 
 case class ComponentResult(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, status: String, created_at: String) {
@@ -92,10 +92,12 @@ object ComponentResult {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.tosca.ComponentResultSerialization
     val preser = new ComponentResultSerialization()
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.ComponentResult", "findJValue:Entry"))
+
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[ComponentResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[ComponentResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -141,8 +143,7 @@ object Component {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Component] = (Validation.fromTryCatch {
-    play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
+  def fromJson(json: String): Result[Component] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -165,7 +166,7 @@ object Component {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: ComponentResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("Component result", j))
-                  Validation.success[Throwable, ComponentsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, ComponentsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -176,15 +177,15 @@ object Component {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
 
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Component Update", "mkGunnySack:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Component Update", "upGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, ComponentUpdateInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, ComponentUpdateInput] = (Validation.fromTryCatchThrowable[ComponentUpdateInput,Throwable] {
       parse(input).extract[ComponentUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -267,17 +268,19 @@ object ComponentsList {
    */
   private def mkGunnySack(email: String, input: Component, asm_id: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Component", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))    
+    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
     for {
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })     
+      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "com").get leftMap { ut: NonEmptyList[Throwable] => ut })
      // cig <- (ContiniousIntegration.create(email, "{\"enable\":\"" + input.inputs.ci.enable +"\",\"scm\":\""+ input.inputs.ci.scm + "\",\"token\":\"" + input.inputs.ci.token + "\",\"owner\":\""+ input.inputs.ci.owner + "\",\"component_id\":\""+ (uir.get._1 + uir.get._2) + "\",\"assembly_id\":\""+ asm_id +"\",\"action\":\"webhook\"}") leftMap { t: NonEmptyList[Throwable] => t })
      // ciq <- (ContiniousIntegrationPublish((uir.get._1 + uir.get._2), cig.get._1).dop leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
+
       val bvalue = Set(aor.get.id)
      // val inputsResult = "{\"domain\":\"" + input.inputs.domain + "\",\"port\":\""+ input.inputs.port + "\",\"username\":\"" +input.inputs.username + "\",\"password\":\"" + input.inputs.password + "\",\"version\":\"" + input.inputs.version + "\",\"source\":\"" + input.inputs.source +"\",\"design_inputs\":" + input.inputs.design_inputs.json + ",\"service_inputs\":" + input.inputs.service_inputs.json + ",\"ci_id\":\"" + cig.get._1 +"\"}"
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) + ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) + ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status + "\",\"created_at\":\"" + Time.now.toString + "\"}"
+
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -312,10 +315,12 @@ object ComponentsList {
     play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
 
     for {
-      ogsi <- mkGunnySack(email, input, asm_id) leftMap { err: NonEmptyList[Throwable] => err }
-      nrip <- ComponentResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => println("osgi\n" + ogsi.get.value); play.api.Logger.debug(JSONParsingError(t).toString); nels(JSONParsingError(t)) }
-      ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => play.api.Logger.debug("--------> ooo"); t }
+      ogsi <- mkGunnySack(email, input, asm_id) leftMap { err: NonEmptyList[Throwable] => play.api.Logger.debug("--------> aaa"); err }
+      nrip <- {play.api.Logger.debug(("%-20s -->[%s],riak storing: %s").format("Component0. to be created", email, ogsi.get.value)); ComponentResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => println("osgi\n" + ogsi.get.value); play.api.Logger.debug(JSONParsingError(t).toString); nels(JSONParsingError(t)) }}
+      ogsr <- { play.api.Logger.debug(("%-20s -->[%s],riak storing: %s").format("Component1. to be created", email, ogsi.get.value)); riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => play.api.Logger.debug("--------> ooo"); t }}
     } yield {
+      play.api.Logger.debug(("%-20s -->[%s],riak returned:").format("Component.created successfully", email))
+
       play.api.Logger.debug(("%-20s -->[%s],riak returned: %s").format("Component.created successfully", email, ogsr))
       ogsr match {
         case Some(thatGS) => {
@@ -330,4 +335,3 @@ object ComponentsList {
   }
 
 }
- 

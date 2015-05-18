@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.stack._
@@ -38,20 +38,20 @@ import org.megam.common.amqp._
  */
 
 /*
- * 
+ *
  * If HMAC authentication is true then post or list the CloudToolSettings are executed
- *  
+ *
  */
 object CloudToolSettings extends Controller with APIAuthElement {
 
   /*
-   * Create or update a new CloudToolSetting by email/json input. 
+   * Create or update a new CloudToolSetting by email/json input.
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CloudToolSettings", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -66,7 +66,7 @@ object CloudToolSettings extends Controller with APIAuthElement {
                 Status(CREATED)(
                   FunnelResponse(CREATED, """CloudToolSettings created successfully.
             |
-            |You can use the the 'CloudToolSetting name':{%s}.""".format(succ.getOrElse("none")), "Megam::CloudToolSetting").toJson(true)).successNel[Throwable]   
+            |You can use the the 'CloudToolSetting name':{%s}.""".format(succ.getOrElse("none")), "Megam::CloudToolSetting").toJson(true)).successNel[Throwable]
               } match {
                 //this is only a temporary hack.
                 case Success(succ_cpc) => succ_cpc
@@ -91,7 +91,7 @@ object CloudToolSettings extends Controller with APIAuthElement {
   }
 
   /*
-   * GET: findByName: Show a particular CloudToolSetting by name 
+   * GET: findByName: Show a particular CloudToolSetting by name
    * Email provided in the URI.
    * Output: JSON (CloudToolSettingResult)
    **/
@@ -99,7 +99,7 @@ object CloudToolSettings extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CloudToolSettings", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -130,7 +130,7 @@ object CloudToolSettings extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CloudToolSettings", "list:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable]{
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

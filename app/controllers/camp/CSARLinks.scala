@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,14 +37,14 @@ import play.api.libs.iteratee._
  */
 
 /*
- * 
+ *
  * If HMAC authentication is true then post or list the CSAR will be stored
- *  
+ *
  */
 object CSARLinks extends Controller with APIAuthElement {
 
   /*
-   * GET: findByName: Show a particular csar  by name 
+   * GET: findByName: Show a particular csar  by name
    * Email provided in the URI.
    * Output: This is a special case, we need to return the yaml stored inside riak.
    * and in case of error, a json needs to be sent back.
@@ -53,7 +53,7 @@ object CSARLinks extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARLinks", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -75,6 +75,6 @@ object CSARLinks extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  } 
+  }
 
 }

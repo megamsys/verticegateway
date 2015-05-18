@@ -17,13 +17,13 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
@@ -74,7 +74,7 @@ object EventsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[EventsResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[EventsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -104,7 +104,7 @@ object Events {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val eventsInput: ValidationNel[Throwable, EventsInput] = (Validation.fromTryCatch {
+    val eventsInput: ValidationNel[Throwable, EventsInput] = (Validation.fromTryCatchThrowable[EventsInput,Throwable] {
       parse(input).extract[EventsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 

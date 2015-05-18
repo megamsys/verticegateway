@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,15 +40,15 @@ import models.billing._
 
 
 object Promos extends Controller with APIAuthElement {
-  
+
   /**
    * Create a new balance entry by email/json input. ***NOT USED AS OF NOW***
    **/
-  
+
   def post = StackAction(parse.tolerantText) {  implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("billing.Promos", "post:Entry"))
-    
-    (Validation.fromTryCatch[Result] {
+
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -73,13 +73,13 @@ object Promos extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
    }
- 
+
   /*
-   * GET: findByName: Show a particular promo by name 
+   * GET: findByName: Show a particular promo by name
    * Email provided in the URI.
    * Output: JSON (PromosResult)
    **/
-  
+
     def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Promos", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
@@ -93,8 +93,8 @@ object Promos extends Controller with APIAuthElement {
       }
     }
   }
-  
-  
-  
-  
+
+
+
+
 }

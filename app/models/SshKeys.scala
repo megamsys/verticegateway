@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -67,7 +67,7 @@ case class SshKeyResult(id: String, name: String, accounts_id: String, path: Str
 }
 
 object SshKeyResult {
-  
+
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[SshKeyResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -76,13 +76,13 @@ object SshKeyResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[SshKeyResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[SshKeyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   
+
 }
 
 object SshKeys {
@@ -106,7 +106,7 @@ object SshKeys {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val sshKeyInput: ValidationNel[Throwable, SshKeyInput] = (Validation.fromTryCatch[models.SshKeyInput] {
+    val sshKeyInput: ValidationNel[Throwable, SshKeyInput] = (Validation.fromTryCatchThrowable[models.SshKeyInput,Throwable] {
       parse(input).extract[SshKeyInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -161,12 +161,12 @@ object SshKeys {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.SshKeyResult] {
+              (Validation.fromTryCatchThrowable[models.SshKeyResult,Throwable] {
                 parse(xs.value).extract[SshKeyResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(sshKeysName, t.getMessage)
               }).toValidationNel.flatMap { j: SshKeyResult =>
-                Validation.success[Throwable, SshKeyResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Throwable, SshKeyResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
               }
             }
             case None => Validation.failure[Throwable, SshKeyResults](new ResourceItemNotFound(sshKeysName, "")).toValidationNel
@@ -175,14 +175,14 @@ object SshKeys {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((SshKeyResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the nodenames are listed on the index (account.id) in bucket `Nodes`.
-   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]] 
+   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, SshKeyResults] = {

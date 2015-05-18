@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,9 @@ package controllers.camp
 
 import scalaz._
 import Scalaz._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-
-import scalaz.Validation._
 import models._
 import models.tosca._
 import controllers.Constants.DEMO_EMAIL
@@ -35,13 +35,13 @@ import play.api.mvc.Result
 object Assemblies extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
+   * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
@@ -51,7 +51,7 @@ object Assemblies extends Controller with APIAuthElement {
           models.tosca.Assemblies.create(email, clientAPIBody) match {
             case Success(asm_succ) => {
               if (email.trim.equalsIgnoreCase(DEMO_EMAIL)) {
-                Status(CREATED)(FunnelResponse(CREATED, """Assemblies initiation dry run submitted successfully.   
+                Status(CREATED)(FunnelResponse(CREATED, """Assemblies initiation dry run submitted successfully.
             |
             |
             |No actual launch in cloud. Signup for a new account to get started.""", "Megam::Assemblies").toJson(true))
@@ -112,13 +112,13 @@ object Assemblies extends Controller with APIAuthElement {
   /*
    * GET: findByNodeName: Show requests for a  node name per user(by email)
    * Email grabbed from header
-   * Output: JSON (AssembliesResults)  
+   * Output: JSON (AssembliesResults)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
@@ -148,7 +148,7 @@ object Assemblies extends Controller with APIAuthElement {
    * Output: JSON (AssembliesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
@@ -167,5 +167,5 @@ object Assemblies extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
+
 }

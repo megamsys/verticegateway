@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,20 +35,20 @@ import play.api.mvc.Result
  */
 
 /*
- * 
+ *
  * If HMAC authentication is true then post or list the predefs clouds are executed
- *  
+ *
  */
 object PredefClouds extends Controller with APIAuthElement {
 
   /*
-   * Create or update a new Predefcloud by email/json input. 
+   * Create or update a new Predefcloud by email/json input.
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -76,7 +76,7 @@ object PredefClouds extends Controller with APIAuthElement {
   }
 
   /*
-   * GET: findByName: Show a particular predef cloud by name 
+   * GET: findByName: Show a particular predef cloud by name
    * Email provided in the URI.
    * Output: JSON (PredefCloudsResult)
    **/
@@ -84,7 +84,7 @@ object PredefClouds extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -115,7 +115,7 @@ object PredefClouds extends Controller with APIAuthElement {
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.PredefClouds", "list:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -85,7 +85,7 @@ case class Operation(operation_type: String, description: String, operation_requ
 
 object Operation {
   def empty: Operation = new Operation(new String(), new String(), KeyValueList.empty)
-  
+
    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Operation] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.tosca.OperationSerialization
@@ -93,13 +93,13 @@ object Operation {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Operation] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
-    play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
+  def fromJson(json: String): Result[Operation] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+    play.api.Logger.debug(("%-20s -->[%s]").format("---json--->", json))
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-  
+
 }
 
 case class AssemblyResult(id: String, name: String, components: models.tosca.ComponentLinks, tosca_type: String, requirements: models.tosca.KeyValueList, policies: models.tosca.PoliciesList, inputs: models.tosca.KeyValueList, operations: OperationList, outputs: models.tosca.KeyValueList, status: String, created_at: String) {
@@ -126,7 +126,7 @@ object AssemblyResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[AssemblyResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[AssemblyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -160,7 +160,7 @@ object Policy {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Policy] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[Policy] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -207,7 +207,7 @@ object Assembly {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Assembly] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[Assembly] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -231,7 +231,7 @@ object Assembly {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: AssemblyResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("assemblies result", j))
-                  Validation.success[Throwable, AssemblyResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, AssemblyResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -242,16 +242,16 @@ object Assembly {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((AssemblyResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
-  
-  
+
+
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assembly Update", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput,Throwable] {
       parse(input).extract[AssemblyUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -264,16 +264,16 @@ object Assembly {
       val asm = asm_collection.head
       val json = AssemblyResult(rip.id, asm.get.name, asm.get.components, asm.get.tosca_type, asm.get.requirements, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, rip.operations ::: asm.get.operations, asm.get.outputs, asm.get.status, asm.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-       Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some        
-    
+       Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+
     }
   }
- 
+
   def update(email: String, input: String): ValidationNel[Throwable, Option[Tuple2[Map[String, String], String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Assembly", "update:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput,Throwable] {
       parse(input).extract[AssemblyUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -387,7 +387,7 @@ object AssembliesList {
     } yield {
       val bvalue = Set(aor.get.id)
       var components_links = new ListBuffer[String]()
-      if (com.length > 1) {
+      if (com.size > 1) {
         for (component <- com) {
           component match {
             case Some(value) => components_links += value.id
@@ -409,4 +409,3 @@ object AssembliesList {
   }
 
 }
- 

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,13 @@
 package models.billing
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import Scalaz._
 import controllers.stack._
@@ -55,7 +57,7 @@ case class BillinghistoriesResult(id: String, accounts_id: String, assembly_id: 
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.billing.BillinghistoriesResultSerialization
     val preser = new BillinghistoriesResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -74,7 +76,7 @@ object BillinghistoriesResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[BillinghistoriesResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[BillinghistoriesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -87,8 +89,8 @@ object Billinghistories {
   private val riak = GWRiak("billinghistories")
 
   //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  
-  
+
+
   val metadataKey = "Billinghistories"
   val metadataVal = "Billinghistories Creation"
   val bindex = "Billinghistories"
@@ -104,7 +106,7 @@ object Billinghistories {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val BillinghistoriesInput: ValidationNel[Throwable, BillinghistoriesInput] = (Validation.fromTryCatch {
+    val BillinghistoriesInput: ValidationNel[Throwable, BillinghistoriesInput] = (Validation.fromTryCatchThrowable[BillinghistoriesInput, Throwable] {
       parse(input).extract[BillinghistoriesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -123,7 +125,7 @@ object Billinghistories {
 
   /*
    * create new billing histories for currently pay the bill of user.
-   * 
+   *
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[BillinghistoriesResult]] = {
@@ -146,7 +148,7 @@ object Billinghistories {
         }
     }
   }
-  
+
    def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BillinghistoriesResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Billinghistories", "findByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("BillinghistoriesList", balanceList))
@@ -158,12 +160,12 @@ object Billinghistories {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.billing.BillinghistoriesResult] {
+              (Validation.fromTryCatchThrowable[models.billing.BillinghistoriesResult,Throwable] {
                 parse(xs.value).extract[BillinghistoriesResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(balanceName, t.getMessage)
               }).toValidationNel.flatMap { j: BillinghistoriesResult =>
-                Validation.success[Throwable, BillinghistoriesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Throwable, BillinghistoriesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
               }
             }
             case None => Validation.failure[Throwable, BillinghistoriesResults](new ResourceItemNotFound(balanceName, "")).toValidationNel
@@ -172,14 +174,14 @@ object Billinghistories {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((BillinghistoriesResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
-  
+
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the histories are listed on the index (account.id) in bucket `Billinghistories`.
-   * Using a "Billinghistories name" as key, return a list of ValidationNel[List[BillinghistoriesResult]] 
+   * Using a "Billinghistories name" as key, return a list of ValidationNel[List[BillinghistoriesResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[BillinghistoriesResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, BillinghistoriesResults] = {
@@ -203,6 +205,5 @@ object Billinghistories {
     }.run.map(_.validation).unsafePerformIO
     res.getOrElse(new ResourceItemNotFound(email, "Billinghistories = nothing found.").failureNel[BillinghistoriesResults])
   }
-  
-}
 
+}

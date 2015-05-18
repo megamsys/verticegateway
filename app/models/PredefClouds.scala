@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -51,7 +51,7 @@ case class PredefCloudSpec(type_name: String, groups: String, image: String, fla
 }
 
 case class PredefCloudAccess(ssh_key: String, identity_file: String, ssh_user: String, vault_location: String, sshpub_location: String, zone: String, region: String) {
-  val json = "\"ssh_key\":\"" + ssh_key + "\",\"identity_file\":\"" + identity_file + "\",\"ssh_user\":\"" + ssh_user + "\",\"vault_location\":\"" + vault_location + "\",\"sshpub_location\":\"" + sshpub_location + "\",\"zone\":\"" + zone + "\",\"region\":\"" + region + "\""            
+  val json = "\"ssh_key\":\"" + ssh_key + "\",\"identity_file\":\"" + identity_file + "\",\"ssh_user\":\"" + ssh_user + "\",\"vault_location\":\"" + vault_location + "\",\"sshpub_location\":\"" + sshpub_location + "\",\"zone\":\"" + zone + "\",\"region\":\"" + region + "\""
 }
 
 case class PredefCloudInput(name: String, spec: PredefCloudSpec, access: PredefCloudAccess) {
@@ -76,7 +76,7 @@ case class PredefCloudResult(id: String, name: String, accounts_id: String, spec
 }
 
 object PredefCloudResult {
-  
+
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PredefCloudResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -85,13 +85,13 @@ object PredefCloudResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[PredefCloudResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[PredefCloudResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   
+
 }
 
 object PredefClouds {
@@ -115,7 +115,7 @@ object PredefClouds {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val predefCloudInput: ValidationNel[Throwable, PredefCloudInput] = (Validation.fromTryCatch[models.PredefCloudInput] {
+    val predefCloudInput: ValidationNel[Throwable, PredefCloudInput] = (Validation.fromTryCatchThrowable[models.PredefCloudInput,Throwable] {
       parse(input).extract[PredefCloudInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -170,12 +170,12 @@ object PredefClouds {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatch[models.PredefCloudResult] {
+              (Validation.fromTryCatchThrowable[models.PredefCloudResult,Throwable] {
                 parse(xs.value).extract[PredefCloudResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(predefcloudsName, t.getMessage)
               }).toValidationNel.flatMap { j: PredefCloudResult =>
-                Validation.success[Throwable, PredefCloudResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                Validation.success[Throwable, PredefCloudResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
               }
             }
             case None => Validation.failure[Throwable, PredefCloudResults](new ResourceItemNotFound(predefcloudsName, "")).toValidationNel
@@ -184,14 +184,14 @@ object PredefClouds {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((PredefCloudResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
 
   }
 
   /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email, 
+   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the nodenames are listed on the index (account.id) in bucket `Nodes`.
-   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]] 
+   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, PredefCloudResults] = {

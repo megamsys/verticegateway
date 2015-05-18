@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -95,7 +95,7 @@ object MarketPlaceAddonsConfigurationResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceAddonsConfigurationResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[MarketPlaceAddonsConfigurationResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -113,12 +113,12 @@ object MarketPlaceAddonsConfiguration {
   val metadataVal = "MarketPlaceAddonsconfig Creation"
   val bindex = "nodesId"
 
- 
+
   private def mkGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddonsConfiguration", "mkGunnySack:Entry")) 
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddonsConfiguration", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val configInput: ValidationNel[Throwable, MarketPlaceAddonsConfigurationInput] = (Validation.fromTryCatch[MarketPlaceAddonsConfigurationInput] {
+    val configInput: ValidationNel[Throwable, MarketPlaceAddonsConfigurationInput] = (Validation.fromTryCatchThrowable[MarketPlaceAddonsConfigurationInput,Throwable] {
       parse(input).extract[MarketPlaceAddonsConfigurationInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -140,7 +140,7 @@ object MarketPlaceAddonsConfiguration {
    * A index name accountID will point to the "accounts" bucket
    */
   def create(input: String): ValidationNel[Throwable, Option[MarketPlaceAddonsConfigurationResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "create:Entry"))   
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
     (mkGunnySack(input) leftMap { err: NonEmptyList[Throwable] =>
@@ -180,7 +180,7 @@ object MarketPlaceAddonsConfiguration {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: MarketPlaceAddonsConfigurationResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("MarketPlaceAddonsConfigurationresult", j))
-                  Validation.success[Throwable, MarketPlaceAddonsConfigurationResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, MarketPlaceAddonsConfigurationResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -191,7 +191,7 @@ object MarketPlaceAddonsConfiguration {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((MarketPlaceAddonsConfigurationResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
 
   /*def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsConfigurationResults] = {
