@@ -163,7 +163,7 @@ object Assemblies {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
-      req <- (Requests.createforNewNode("{\"node_id\": \"" + (uir.get._1 + uir.get._2) + "\",\"node_name\": \"" + rip.name + "\",\"req_type\": \"create\"}") leftMap { t: NonEmptyList[Throwable] => t })
+      req <- (Requests.createforNewNode("{\"cat_id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\": \"" + rip.name + "\",\"cattype\": \"create\"}") leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
       var assembly_links = new ListBuffer[String]()
