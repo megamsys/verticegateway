@@ -44,17 +44,17 @@ import java.nio.charset.Charset
  * @author ram
  * This would actually be a link to the Nodes bucket. which would allow us to use link-walking
  */
-case class RequestInputNewNode(node_id: String, node_name: String, req_type: String) {
-  val json = "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"req_type\":\"" + req_type + "\""
+case class RequestInputNewNode(cat_id: String, name: String, cattype: String) {
+  val json = "\",\"cat_id\":\"" + cat_id + "\",\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\""
 }
 
-case class RequestInputExistNode(node_id :String, node_name: String, req_type: String) {
-  val json = "\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name + "\",\"req_type\":\"" + req_type + "\""
+case class RequestInputExistNode(cat_id :String, name: String, cattype: String) {
+  val json = "\"cat_id\":\"" + cat_id + "\",\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\""
 }
 
-case class RequestResult(id: String, node_id: String, node_name: String, req_type: String, created_at: String) {
-  val json = "{\"id\": \"" + id + "\",\"node_id\":\"" + node_id + "\",\"node_name\":\"" + node_name +
-    "\",\"req_type\":\"" + req_type + ",\"created_at\":\"" + created_at + "\"}"
+case class RequestResult(id: String, cat_id: String, name: String, cattype: String, created_at: String) {
+  val json = "{\"id\": \"" + id + "\",\"cat_id\":\"" + cat_id + "\",\"name\":\"" + name +
+    "\",\"cattype\":\"" + cattype + ",\"created_at\":\"" + created_at + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -102,10 +102,10 @@ object Requests {
   val newnode_bindex = "nodeId"
 
   /**
-   * A private method which chains computation to make GunnySack for new nodewhen provided with an input json, Option[node_name].
+   * A private method which chains computation to make GunnySack for new nodewhen provided with an input json, Option[name].
    * parses the json, and converts it to requestinput, if there is an error during parsing, a MalformedBodyError is sent back.
    * After that flatMap on its success and the GunnySack object is built.
-   * If the node_name is send by the Node model. It then yield the GunnySack object.
+   * If the name is send by the Node model. It then yield the GunnySack object.
    */
   private def mkGunnySackforNewNode(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "mkGunnySack:Entry"))
@@ -124,7 +124,7 @@ object Requests {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       //TO-DO: do we need a match for aor, and uir to filter the None case. confirm it during function testing.
-      val bvalue = Set(rip.node_id)
+      val bvalue = Set(rip.cat_id)
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
 
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
@@ -133,10 +133,10 @@ object Requests {
   }
 
   /**
-   * A private method which chains computation to make GunnySack for existing node when provided with an input json, Option[node_name].
+   * A private method which chains computation to make GunnySack for existing node when provided with an input json, Option[name].
    * parses the json, and converts it to requestinput, if there is an error during parsing, a MalformedBodyError is sent back.
    * After that flatMap on its success and the GunnySack object is built.
-   * If the node_name is send by the Node model. It then yield the GunnySack object.
+   * If the name is send by the Node model. It then yield the GunnySack object.
    */
   private def mkGunnySackforExistNode(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "mkGunnySack:Entry"))
@@ -153,8 +153,8 @@ object Requests {
       rip <- ripNel
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //val node_id = Array("001change code here")
-      val bvalue = Set(rip.node_id)
+      //val cat_id = Array("001change code here")
+      val bvalue = Set(rip.cat_id)
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\"," + rip.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> newnode_metadataVal), Map((newnode_bindex, bvalue))).some
@@ -182,10 +182,10 @@ object Requests {
           val req_result = parse(gs.get.value).extract[RequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple3(thatGS.key, req_result.node_name,req_result.req_type).some.successNel[Throwable]
+            case Some(thatGS) => Tuple3(thatGS.key, req_result.name,req_result.cattype).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Request.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, req_result.node_name, req_result.req_type).some.successNel[Throwable]
+              (gs.get.key, req_result.name, req_result.cattype).some.successNel[Throwable]
             }
           }
         }
@@ -208,10 +208,10 @@ object Requests {
           val req_result = parse(gs.get.value).extract[RequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully--------------------------------------------------------------", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple3(thatGS.key, req_result.node_name, req_result.req_type).some.successNel[Throwable]
+            case Some(thatGS) => Tuple3(thatGS.key, req_result.name, req_result.cattype).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Request.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, req_result.node_name,req_result.req_type).some.successNel[Throwable]
+              (gs.get.key, req_result.name,req_result.cattype).some.successNel[Throwable]
             }
           }
         }
