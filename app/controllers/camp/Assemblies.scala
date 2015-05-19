@@ -61,7 +61,7 @@ object Assemblies extends Controller with APIAuthElement {
                */
                 asm_succ match {
                   case Some(asm) =>
-                    val req = "{\"node_id\": \"" + asm.id + "\",\"node_name\": \"" + asm.name + "\",\"req_type\": \"create\"}"
+                    val req = "{\"cat_id\": \"" + asm.id + "\",\"name\": \"" + asm.name + "\",\"cattype\": \"create\"}"
                     models.Requests.createforNewNode(req) match {
                       case Success(succ) =>
                         val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))

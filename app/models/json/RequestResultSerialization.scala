@@ -36,9 +36,9 @@ import models.{RequestResult}
 class RequestResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[RequestResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
-  protected val NodeIDKey = "node_id"
-  protected val NodeNameKey = "node_name"
-  protected val ReqTypeKey = "req_type"
+  protected val CatIDKey = "cat_id"
+  protected val NameKey = "name"
+  protected val CatTypeKey = "cattype"
   protected val CreatedAtKey ="created_at" 
 
   override implicit val writer = new JSONW[RequestResult] {
@@ -46,10 +46,10 @@ class RequestResultSerialization(charset: Charset = UTF8Charset) extends Seriali
     override def write(h: RequestResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(NodeIDKey, toJSON(h.node_id)) ::
+          JField(CatIDKey, toJSON(h.cat_id)) ::
           JField(JSONClazKey, toJSON("Megam::Request")) ::
-          JField(NodeNameKey, toJSON(h.node_name)) ::
-          JField(ReqTypeKey, toJSON(h.req_type)) ::
+          JField(NameKey, toJSON(h.name)) ::
+          JField(CatTypeKey, toJSON(h.cattype)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
     }
   }
@@ -58,14 +58,14 @@ class RequestResultSerialization(charset: Charset = UTF8Charset) extends Seriali
 
     override def read(json: JValue): Result[RequestResult] = {
       val idField = field[String](IdKey)(json)
-      val nodeIdField = field[String](NodeIDKey)(json)
-      val nodeNameField = field[String](NodeNameKey)(json)
-      val reqtypeField = field[String](ReqTypeKey)(json)
+      val catIdField = field[String](CatIDKey)(json)
+      val NameField = field[String](NameKey)(json)
+      val cattypeField = field[String](CatTypeKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nodeIdField |@| nodeNameField |@| reqtypeField |@| createdAtField) {
-        (id: String, node_id: String, node_name: String, req_type: String, created_at: String) =>
-          new RequestResult(id, node_id, node_name, req_type, created_at)
+      (idField |@| catIdField |@| NameField |@| cattypeField |@| createdAtField) {
+        (id: String, cat_id: String, name: String, cattype: String, created_at: String) =>
+          new RequestResult(id, cat_id, name, cattype, created_at)
       }
     }
   }
