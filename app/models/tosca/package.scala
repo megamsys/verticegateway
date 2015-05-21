@@ -241,6 +241,8 @@ package object tosca {
     def apply(m: OrganizationsResult): OrganizationsResults = nels(m.some)
     def empty: OrganizationsResults = nel(emptyPC.head, emptyPC.tail)
   }
+  
+  
 
   type DomainsResults = NonEmptyList[Option[DomainsResult]]
 
@@ -435,5 +437,7 @@ package object tosca {
 
   }
 
+  
+  
 
 }

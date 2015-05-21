@@ -28,6 +28,7 @@ import org.megam.util.Time
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
+import models._
 import models.billing._
 import models.cache._
 import models.riak._
@@ -147,4 +148,59 @@ object Discounts {
     }
   }
 
+  
+  def findById(discID: Option[List[String]]): ValidationNel[Throwable, DiscountsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Discounts", "findByAccId:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("discountsID", discID))
+    (discID map {
+      _.map { dis_id =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("disc ID", dis_id))
+        (riak.fetch(dis_id) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(dis_id, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+          xso match {
+            case Some(xs) => {
+              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
+               (Validation.fromTryCatchThrowable[DiscountsResult,Throwable] {
+                parse(xs.value).extract[DiscountsResult]
+              } leftMap { t: Throwable => new MalformedBodyError(xs.value, t.getMessage) }).toValidationNel.flatMap { j: DiscountsResult =>
+                play.api.Logger.debug(("%-20s -->[%s]").format("Discounts result", j))
+                Validation.success[Throwable, DiscountsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
+              }
+            }
+            case None => {
+              Validation.failure[Throwable, DiscountsResults](new ResourceItemNotFound(dis_id, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((DiscountsResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head.
+  }
+
+  
+  
+   def findByEmail(email: String): ValidationNel[Throwable, DiscountsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Discounts", "findByEmail:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, DiscountsResults]] {
+      (((for {
+        aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+      } yield {
+        val bindex = ""
+        val bvalue = Set("")
+        play.api.Logger.debug(("%-20s -->[%s]").format("billing.Discounts", "findByEmail" + aor.get.id))
+        new GunnySack("discounts", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
+        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
+      } map { nm: List[String] =>
+        (if (!nm.isEmpty) findById(nm.some) else
+          new ResourceItemNotFound(email, "Discounts = nothing found for the user.").failureNel[DiscountsResults])
+      }).disjunction).pure[IO]
+    }.run.map(_.validation).unsafePerformIO
+    res.getOrElse(new ResourceItemNotFound(email, "Discounts = nothing found for the users.").failureNel[DiscountsResults])
+  }
+  
 }
