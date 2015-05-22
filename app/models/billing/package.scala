@@ -81,4 +81,30 @@ package object billing {
 
   }
   
+  
+  type DiscountsResults = NonEmptyList[Option[DiscountsResult]]
+
+  object DiscountsResults {
+    val emptyPC = List(Option.empty[DiscountsResult])
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(prres: DiscountsResults): JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.DiscountsResultsSerialization.{ writer => DiscountsResultsWriter }
+      toJSON(prres)(DiscountsResultsWriter)
+    }
+
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: DiscountsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(m: DiscountsResult): DiscountsResults = nels(m.some)
+    def empty: DiscountsResults = nel(emptyPC.head, emptyPC.tail)
+  }
+  
+  
+  
 }

@@ -37,7 +37,8 @@ class DiscountsSpec extends Specification {
   DiscountsSpec is the implementation that calls the megam_play API server with the /discounts url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+      //"Correctly do POST  requests with an valid datas" ! create.succeeds ^
+       "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       end
 
     case object create extends Context {
@@ -66,4 +67,18 @@ class DiscountsSpec extends Specification {
     }
   }
 
+  case object List extends Context {
+    protected override def urlSuffix: String = "discounts"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+  
+  
 }
