@@ -1,13 +1,21 @@
 import sbt._
 import Process._
-import com.typesafe.sbt.SbtNativePackager._
-import com.typesafe.sbt.packager.archetypes.ServerLoader
-import NativePackagerHelper._
-import NativePackagerKeys._
 
-import com.typesafe.sbt.packager.archetypes.ServerLoader.{SystemV, Upstart,Systemd}
+name := "megamgateway"
 
-scalaVersion := "2.10.4"
+version := "0.8"
+
+scalaVersion := "2.11.6"
+
+organization := "Megam Systems"
+
+homepage := Some(url("https://www.megam.io"))
+
+description := """Megam Gateway : RESTful API server for the megam built using
+                  Riak, Snowflake(UID), Memcache
+                  try: https://console.megam.io
+                  web: https://www.megam.io"""
+
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
 
@@ -17,7 +25,7 @@ initialize := {
     sys.error("Java 8 is required for this project.")
 }
 
-scalacOptions := Seq( 
+scalacOptions := Seq(
   "-deprecation",
   "-feature",
   "-optimise",
@@ -26,9 +34,8 @@ scalacOptions := Seq(
   "-Xverify",
   "-Yinline",
   "-Yclosure-elim",
-  //"-Yconst-opt",
-  //"-Ybackend:GenBCode",
-  //"closurify:delegating",
+  "-Yconst-opt",
+  "-Ybackend:GenBCode",
   "-language:implicitConversions",
   "-language:higherKinds",
   "-language:reflectiveCalls",
@@ -39,16 +46,35 @@ scalacOptions := Seq(
 
 incOptions := incOptions.value.withNameHashing(true)
 
-name := "megamgateway"
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-defaultLinuxInstallLocation := "/usr/share/megam/"
+resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
+resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases"
+resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
+resolvers += "Spray repo" at "http://repo.spray.io"
+resolvers += "Spy Repository" at "http://files.couchbase.com/maven2"
+resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
+resolvers += "Bintray scalaz" at "https://dl.bintray.com/scalaz/releases/"
 
-defaultLinuxLogsLocation := "/var/log/megam"
+libraryDependencies ++= Seq(filters, cache,
+  "com.github.mumoshu" %% "play2-memcached" % "0.6.0",
+  "jp.t2v" %% "play2-auth" % "0.13.2",
+  "org.yaml" % "snakeyaml" % "1.15",
+  "io.megam" %% "libcommon" % "0.8.2",
+  "io.megam" %% "newman" % "1.3.9" % "test")
 
-com.typesafe.sbt.packager.debian.Keys.version in Debian <<= (com.typesafe.sbt.packager.debian.Keys.version, sbt.Keys.version) apply { (v, sv) =>
+//routesGenerator := InjectedRoutesGenerator
+
+enablePlugins(DebianPlugin)
+
+NativePackagerKeys.defaultLinuxInstallLocation := "/usr/share/megam/"
+
+NativePackagerKeys.defaultLinuxLogsLocation := "/var/log/megam"
+
+version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
       val nums = (v split "[^\\d]")
       "%s" format (sv)
-    }
+}
 
 maintainer in Linux := "Rajthilak <rajthilak@megam.co.in>"
 
@@ -64,31 +90,6 @@ debianPackageDependencies in Debian ++= Seq("curl", "megamcommon", "megamsnowfla
 
 debianPackageRecommends in Debian += "riak"
 
-serverLoading in Debian := Upstart
-
-rpmVendor := "Megam Systems"
-
 linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
       packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
 }
-
-
-name in Docker := "megamgateway"
-
-maintainer in Docker := "Rajthilak <rajthilak@megam.co.in>"
-
-version in Docker <<= sbt.Keys.version
-
-dockerBaseImage := "dockerfile/java"
-
-dockerRepository := Some("gomegam")
-
-dockerExposedPorts in Docker := Seq(9000, 9443)
-
-dockerExposedVolumes in Docker := Seq("/opt/docker/logs")
-
-rpmRequirements ++= Seq("curl", "megamcommon", "megamsnowflake", "pwgen","java-1.8.0-openjdk-headless", "bash")
-
-rpmLicense := Some("Apache")
-
-serverLoading in Rpm := Systemd

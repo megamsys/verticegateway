@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@ package models.cache
 import scalaz.State
 import models.cache._
 import play.api.Play.current
+import play.api.cache._
 import models.Accounts._
 
 /**
@@ -36,13 +37,13 @@ case class Timestamped[A](value: A, timestamp: Long)
  * - getAs a type from play.api.cache.Cache
  */
 case class InMemoryCache[A]() {
-  def update[A](u: String, s: Timestamped[A]): InMemoryCache[A] = {
+  def update(u: String, s: Timestamped[A]): InMemoryCache[A] = {
     play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "update"))
     play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", u + "=" + s))
     play.api.cache.Cache.set(u, s)
     new InMemoryCache[A]
   }
-  def getAs[A](c: String): Option[Timestamped[A]] = {
+  def getAs(c: String): Option[Timestamped[A]] = {
     play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs"))
     play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs ?" + c))
     play.api.cache.Cache.getAs[Timestamped[A]](c)
@@ -84,7 +85,7 @@ class InMemoryImpl[A](f: String => A)(implicit sedv: Sedimenter[A]) extends InMe
   private def checkMem(u: String)(implicit sed: Sedimenter[A]): StateCacheO[A] = for {
     ofs <- State.gets { c: InMemoryCache[A] =>
       play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->checkMem:", u))
-      c.getAs[A](u).collect {
+      c.getAs(u).collect {
         case Timestamped(fs, ts) if (sed.sediment(fs) && !stale(ts)) => fs
       }
     }

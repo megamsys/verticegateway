@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,13 @@
 package models.tosca
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
 import Scalaz._
 import controllers.stack._
@@ -54,7 +56,7 @@ case class ContiniousIntegrationResult(id: String, enable: String, scm: String, 
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.ContiniousIntegrationResultSerialization
     val preser = new ContiniousIntegrationResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -73,7 +75,7 @@ object ContiniousIntegrationResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[ContiniousIntegrationResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[ContiniousIntegrationResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -103,7 +105,7 @@ object ContiniousIntegration {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val cigInput: ValidationNel[Throwable, ContiniousIntegrationInput] = (Validation.fromTryCatch {
+    val cigInput: ValidationNel[Throwable, ContiniousIntegrationInput] = (Validation.fromTryCatchThrowable[ContiniousIntegrationInput, Throwable] {
       parse(input).extract[ContiniousIntegrationInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -135,7 +137,7 @@ object ContiniousIntegration {
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
             case Some(thatGS) => Tuple2(thatGS.key, "").some.successNel[Throwable]
-            case None => {	
+            case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("ContiniousIntegration.created success", "Scaliak returned => None. Thats OK."))
               (gs.get.key, "").some.successNel[Throwable];
             }
@@ -143,7 +145,7 @@ object ContiniousIntegration {
         }
     }
   }
-  
+
 
  /* def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Domains", "findByName:Entry"))
@@ -162,7 +164,7 @@ object ContiniousIntegration {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: DomainsResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("domainsresult", j))
-                  Validation.success[Throwable, DomainsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, DomainsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -173,8 +175,8 @@ object ContiniousIntegration {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
   */
-  
+
 }

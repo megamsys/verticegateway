@@ -28,7 +28,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
 /**
@@ -93,7 +93,7 @@ object Accounts extends Controller with APIAuthElement {
   }
 
   def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Accounts wasn't funneled. Verify the header."))

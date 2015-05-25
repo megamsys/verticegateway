@@ -38,7 +38,7 @@ object MKPData {
     private val ADDON   = "ADDON"
 
     private val CATEGORY_DEW        = "1-Dew"
-    private val CATEGORY_BYOC       = "2-BYOC"
+    private val CATEGORY_BYOC       = "2-Bring Your Own Code"
     private val CATEGORY_APPBOILERS = "3-App Boilers"
     private val CATEGORY_PLATFORM   = "4-Platform"
     private val CATEGORY_ANALYTICS  = "5-Analytics"

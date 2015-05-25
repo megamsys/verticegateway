@@ -17,9 +17,10 @@ package controllers.camp
 
 import scalaz._
 import Scalaz._
+import scalaz.effect.IO
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-
-import scalaz.Validation._
 import models._
 import models.tosca._
 import controllers.Constants.DEMO_EMAIL
@@ -35,22 +36,22 @@ import play.api.mvc.Result
 object Assembly extends Controller with APIAuthElement {
 
   /*
-   * GET: findByNodeName: Show requests for a  node name per user(by email)
+   * GET: findById: Show assembly information from assembly_id per user(by email)
    * Email grabbed from header
-   * Output: JSON (AssembliesResults)
+   * Output: JSON (AssemblyResults)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
+    play.api.Logger.debug(("%-20s -->[%s]").format("id", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assembly wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "request funneled."))
 
-          models.tosca.Assembly.findByNodeName(List(id).some) match {
+          models.tosca.Assembly.findById(List(id).some) match {
             case Success(succ) =>
               Ok(AssemblyResults.toJson(succ, true))
             case Failure(err) =>
@@ -68,7 +69,7 @@ object Assembly extends Controller with APIAuthElement {
   }
 
   def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
@@ -111,7 +112,7 @@ object Assembly extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("Assembly ID", id))
     play.api.Logger.debug(("%-20s -->[%s]").format("Component ID", cid))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
          ContiniousIntegrationNotifyPublish(id, cid, "notify").dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CINotify", "published successfully."))
                 Status(CREATED)(FunnelResponse(CREATED, """CI notify initiation instruction submitted successfully.

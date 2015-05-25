@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
@@ -74,7 +74,7 @@ object MarketPlaceAddonsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceAddonsResult] = (Validation.fromTryCatch[net.liftweb.json.JValue] {
+  def fromJson(json: String): Result[MarketPlaceAddonsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -103,7 +103,7 @@ object MarketPlaceAddons {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val addonInput: ValidationNel[Throwable, MarketPlaceAddonsInput] = (Validation.fromTryCatch[models.MarketPlaceAddonsInput] {
+    val addonInput: ValidationNel[Throwable, MarketPlaceAddonsInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceAddonsInput,Throwable] {
       parse(input).extract[MarketPlaceAddonsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     play.api.Logger.debug(("%-20s -->[%s]").format("json-------->", addonInput))
@@ -164,8 +164,8 @@ object MarketPlaceAddons {
    * List all the app defns for a list of appdefns id for a particular node.
    */
   def findByAddonId(addonidList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", addonidList))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "findByAddonId:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("addonIdList", addonidList))
     (addonidList map {
       _.map { addonid =>
         play.api.Logger.debug(("%-20s -->[%s]").format("Add on id", addonid))
@@ -180,7 +180,7 @@ object MarketPlaceAddons {
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: MarketPlaceAddonsResult =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("MarketPlaceAddonsresult", j))
-                  Validation.success[Throwable, MarketPlaceAddonsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ? 
+                  Validation.success[Throwable, MarketPlaceAddonsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
@@ -191,77 +191,8 @@ object MarketPlaceAddons {
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((MarketPlaceAddonsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head. 
+    }).head //return the folded element in the head.
   }
 
-  /*def findByNodeName(nodeNameList: Option[List[String]]): ValidationNel[Throwable, MarketPlaceAddonsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodeNameList", nodeNameList))
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, MarketPlaceAddonsResults]] {
-      ((((for {
-        nelnr <- (Nodes.findByNodeName(nodeNameList) leftMap { t: NonEmptyList[Throwable] => t })
-      } yield {
-        //this is ugly, since what we receive from Nodes always contains one None. We need to filter
-        //that. This is justa  hack for now. It calls for much more elegant soln.
-        (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
-          (if (nelnor.isDefined) { //we only want to use the Some, ignore None. Hence a pattern match wasn't used here.
-            val bindex = ""
-            val bvalue = Set("")
-            val metadataVal = "Nodes-name"
-            play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", nelnor))
-            new GunnySack("marketplaceaddons", nelnor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-              None, Map(metadataKey -> metadataVal), Map((bindex, bvalue)))
-          }).asInstanceOf[GunnySack]
-        })
-      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap (({ gs: List[GunnySack] =>
-        gs.map { ngso: GunnySack => riak.fetchIndexByValue(ngso) }
-      }) map {
-        _.foldRight((List[String]()).successNel[Throwable])(_ +++ _)
-      })) map { nm: List[String] =>
-        play.api.Logger.debug("------------->" + nm)
-        (if (!nm.isEmpty) findByAddonId(nm.some) else
-          new ResourceItemNotFound(nodeNameList.map(m => m.mkString("[", ",", "]")).get, "application MarketPlaceAddons = nothing found.").failureNel[MarketPlaceAddonsResults])
-      }).disjunction).pure[IO]
-    }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(nodeNameList.map(m => m.mkString("[", ",", "]")).get, "application MarketPlaceAddons = nothing found.").failureNel[MarketPlaceAddonsResults])
-
-  }*/
-
-  /*
-   * An IO wrapped finder using an email. Upon fetching the node results for an email, 
-   * the nodeids are listed in bucket `Requests`.
-   * Using a "requestid" as key, return a list of ValidationNel[List[RequestResult]] 
-   * Takes an email, and returns a Future[ValidationNel, List[Option[RequestResult]]]
-   */
-  /*def findByEmail(email: String): ValidationNel[Throwable, MarketPlaceAddonsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "findByEmail:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, MarketPlaceAddonsResults]] {
-      ((((for {
-        nelnr <- (Nodes.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-      } yield {
-        play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", "fetched nodes by email"))
-        //this is ugly, since what we receive from Nodes always contains one None. We need to filter
-        //that. This is justa  hack for now. It calls for much more elegant soln.
-        (nelnr.list filter (nelwop => nelwop.isDefined) map { nelnor: Option[NodeResult] =>
-          val bindex = ""
-          val bvalue = Set("")
-          val metadataVal = "Nodes-name"
-          play.api.Logger.debug(("%-20s -->[%s]").format("models.Definition", nelnor))
-          new GunnySack("nodeId", nelnor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-            None, Map(metadataKey -> metadataVal), Map((bindex, bvalue)))
-        })
-      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap (({ gs: List[GunnySack] =>
-        gs.map { ngso: GunnySack => riak.fetchIndexByValue(ngso) }
-      }) map {
-        _.foldLeft((List[String]()).successNel[Throwable])(_ +++ _)
-      })) map { nm: List[String] =>
-        (if (!nm.isEmpty) findByAddonId(nm.some) else
-          new ResourceItemNotFound(email, "definitions = nothing found.").failureNel[MarketPlaceAddonsResults])
-      }).disjunction).pure[IO]
-    }.run.map(_.validation).unsafePerformIO
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.MarketPlaceAddons", res))
-    res.getOrElse(new ResourceItemNotFound(email, "definitions = nothing found.").failureNel[MarketPlaceAddonsResults])
-  }*/
-
+  
 }

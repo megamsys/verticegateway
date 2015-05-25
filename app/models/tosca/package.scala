@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,7 +113,7 @@ package object tosca {
     def apply(m: AssembliesResult): AssembliesResults = AssembliesResults(m.some)
     def empty: AssembliesResults = nel(emptyNR.head, emptyNR.tail)
   }
-  
+
   type AssemblyLinks = List[String]
 
   object AssemblyLinks {
@@ -165,7 +165,7 @@ package object tosca {
     def apply(m: AssemblyResult): AssemblyResults = AssemblyResults(m.some)
     def empty: AssemblyResults = nel(emptyNR.head, emptyNR.tail)
   }
-  
+
   type ComponentLinks = List[String]
 
   object ComponentLinks {
@@ -217,8 +217,8 @@ package object tosca {
     def apply(m: ComponentResult): ComponentsResults = ComponentsResults(m.some)
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
   }
-   
-  
+
+
   type OrganizationsResults = NonEmptyList[Option[OrganizationsResult]]
 
   object OrganizationsResults {
@@ -242,6 +242,8 @@ package object tosca {
     def empty: OrganizationsResults = nel(emptyPC.head, emptyPC.tail)
   }
   
+  
+
   type DomainsResults = NonEmptyList[Option[DomainsResult]]
 
   object DomainsResults {
@@ -265,29 +267,6 @@ package object tosca {
     def empty: DomainsResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-  type ProfileResults = NonEmptyList[Option[ProfileResult]]
-
-  object ProfileResults {
-    val emptyPC = List(Option.empty[ProfileResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: ProfileResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.ProfileResultsSerialization.{ writer => ProfileResultsWriter }
-      toJSON(prres)(ProfileResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: ProfileResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: ProfileResult): ProfileResults = nels(m.some)
-    def empty: ProfileResults = nel(emptyPC.head, emptyPC.tail)
-  }
-   
   
   type PoliciesList = List[Policy]
 
@@ -311,15 +290,15 @@ package object tosca {
     } else {
       compactRender(toJValue(nres))
     }
-    
+
     def apply(plansList: List[Policy]): PoliciesList = plansList
 
     def empty: List[Policy] = emptyRR
 
   }
-  
+
   type MembersList = List[String]
-  
+
   object MembersList {
     val emptyRR = List("")
     def toJValue(nres: MembersList): JValue = {
@@ -346,8 +325,8 @@ package object tosca {
     def empty: List[String] = emptyRR
 
   }
-  
- 
+
+
   type KeyValueList = List[KeyValueField]
 
   object KeyValueList {
@@ -370,13 +349,13 @@ package object tosca {
     } else {
       compactRender(toJValue(nres))
     }
-    
+
     def apply(plansList: List[KeyValueField]): KeyValueList = plansList
 
     def empty: List[KeyValueField] = emptyRR
 
-  }  
-  
+  }
+
   type OperationList = List[Operation]
 
   object OperationList {
@@ -399,13 +378,13 @@ package object tosca {
     } else {
       compactRender(toJValue(nres))
     }
-    
+
     def apply(plansList: List[Operation]): OperationList = plansList
 
     def empty: List[Operation] = emptyRR
 
-  }  
-  
+  }
+
   type ContiniousIntegrationResults = NonEmptyList[Option[ContiniousIntegrationResult]]
 
   object ContiniousIntegrationResults {
@@ -428,7 +407,7 @@ package object tosca {
     def apply(m: ContiniousIntegrationResult): ContiniousIntegrationResults = nels(m.some)
     def empty: ContiniousIntegrationResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
+
   type BindLinks = List[String]
 
   object BindLinks {
@@ -457,6 +436,8 @@ package object tosca {
     def empty: List[String] = emptyRR
 
   }
+
   
   
+
 }

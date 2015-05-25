@@ -20,7 +20,7 @@ import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
 import scalaz.Validation
-//import scalaz.Validation.FlatMap._
+import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.scaliak._
 import org.megam.common.riak.{ GSRiak, GunnySack }
@@ -74,7 +74,7 @@ object CatRequestResult {
     fromJSON(jValue)(nrsser.reader)
   }
 
-  def fromJson(json: String): Result[CatRequestResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[CatRequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -104,7 +104,7 @@ object CatRequests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, CatRequestInput] = (Validation.fromTryCatch {
+    val ripNel: ValidationNel[Throwable, CatRequestInput] = (Validation.fromTryCatchThrowable[CatRequestInput,Throwable] {
       parse(input).extract[CatRequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 

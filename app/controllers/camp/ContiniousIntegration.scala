@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,13 +35,13 @@ import play.api.mvc.Result
 object ContiniousIntegration extends Controller with APIAuthElement {
 
   /*
-   * parse.tolerantText to parse the RawBody 
+   * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.ContiniousIntegration", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Application ContiniousIntegration wasn't funneled. Verify the header."))
@@ -49,7 +49,7 @@ object ContiniousIntegration extends Controller with APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.ContiniousIntegration", "request funneled."))
           models.tosca.ContiniousIntegration.create(email, clientAPIBody) match {
-            case Success(succ) =>             
+            case Success(succ) =>
                 /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/failures.
                */
@@ -67,7 +67,7 @@ object ContiniousIntegration extends Controller with APIAuthElement {
             |
             |Retry again, our queue servers are crowded""", "Megam::ContiniousIntegration").toJson(true))
                 } */
-              
+
               Status(CREATED)(FunnelResponse(CREATED, """ContiniousIntegration initiation instruction submitted successfully.
             |
             |The ContiniousIntegration is working for you. It will be ready shortly.""", "Megam::ContiniousIntegration").toJson(true))
@@ -84,7 +84,7 @@ object ContiniousIntegration extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
- 
- 
-  
+
+
+
 }

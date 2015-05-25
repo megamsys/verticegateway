@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,16 +36,16 @@ import models.tosca._
  *
  */
 
-object Domains extends Controller with APIAuthElement {
+object  Domains extends Controller with APIAuthElement {
 
   /*
-   * Create or update a new domains by email/json input. 
+   * Create or update a new domains by email/json input.
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Domains", "post:Entry"))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -73,7 +73,7 @@ object Domains extends Controller with APIAuthElement {
   }
 
   /*
-   * GET: findByName: Show a particular domain by name 
+   * GET: findByName: Show a particular domain by name
    * Email provided in the URI.
    * Output: JSON (DomainsResult)
    **/
@@ -82,7 +82,7 @@ object Domains extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Domains", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
-    (Validation.fromTryCatch[Result] {
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))

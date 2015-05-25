@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,15 +45,15 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
   protected val RelatedComponentsKey ="related_components"
   protected val OperationsKey = "operations"
   protected val StatusKey = "status"
-  protected val CreatedAtKey ="created_at" 
-    
+  protected val CreatedAtKey ="created_at"
+
   override implicit val writer = new JSONW[ComponentResult] {
 
     import models.json.tosca.ArtifactsSerialization.{ writer => ArtifactsWriter }
     import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
     import models.json.tosca.OperationListSerialization.{ writer => OperationListWriter }
     import models.json.tosca.BindLinksSerialization.{ writer => BindLinksWriter }
-    
+
     override def write(h: ComponentResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
@@ -71,7 +71,7 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
   }
 
   override implicit val reader = new JSONR[ComponentResult] {
-    
+
     import models.json.tosca.ArtifactsSerialization.{ reader => ArtifactsReader }
     import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
     import models.json.tosca.OperationListSerialization.{ reader => OperationListReader }
@@ -82,12 +82,13 @@ class ComponentResultSerialization(charset: Charset = UTF8Charset) extends Seria
       val nameField = field[String](NameKey)(json)
       val toscaTypeField = field[String](ToscaTypeKey)(json)
       val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
-      val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader)  
+      val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader)
       val artifactsField = field[Artifacts](ArtifactsKey)(json)(ArtifactsReader)
       val relatedComponentsField = field[BindLinks](RelatedComponentsKey)(json)(BindLinksReader)
       val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
       val statusField = field[String](StatusKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
+
 
       (idField |@| nameField |@| toscaTypeField |@| inputsField |@| outputsField |@| artifactsField |@| relatedComponentsField |@| operationsField |@| statusField |@| createdAtField) {
           (id: String, name: String, tosca_type: String, inputs: KeyValueList, outputs: KeyValueList, artifacts: Artifacts, related_components: BindLinks, operations: OperationList, status: String, created_at: String) =>

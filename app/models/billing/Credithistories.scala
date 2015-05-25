@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,14 @@
 package models.billing
 
 import scalaz._
-import scalaz.syntax.SemigroupOps
-import scalaz.NonEmptyList._
-import scalaz.Validation._
+import Scalaz._
 import scalaz.effect.IO
 import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
-import Scalaz._
 import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
@@ -55,7 +56,7 @@ case class CredithistoriesResult(id: String, accounts_id: String, bill_type: Str
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.billing.CredithistoriesResultSerialization
     val preser = new CredithistoriesResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from? 
+    toJSON(this)(preser.writer) //where does this JSON from?
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -74,7 +75,7 @@ object CredithistoriesResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CredithistoriesResult] = (Validation.fromTryCatch {
+  def fromJson(json: String): Result[CredithistoriesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -87,8 +88,8 @@ object Credithistories {
   private val riak = GWRiak("credithistories")
 
   //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  
-  
+
+
   val metadataKey = "Credithistories"
   val metadataVal = "Credithistories Creation"
   val bindex = "Credithistories"
@@ -104,7 +105,7 @@ object Credithistories {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val CredithistoriesInput: ValidationNel[Throwable, CredithistoriesInput] = (Validation.fromTryCatch {
+    val CredithistoriesInput: ValidationNel[Throwable, CredithistoriesInput] = (Validation.fromTryCatchThrowable[CredithistoriesInput,Throwable] {
       parse(input).extract[CredithistoriesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -144,6 +145,5 @@ object Credithistories {
         }
     }
   }
-  
-}
 
+}

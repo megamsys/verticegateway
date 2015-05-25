@@ -49,8 +49,11 @@ memcachedplugin=disabled
 
 # Riak
 # ~~~~~
+<<<<<<< HEAD
 riak.url="192.168.2.12"
-
+=======
+riak.url="localhost"
+>>>>>>> origin/0.8
 
 #SnowFlake
 #~~~~~~~~~

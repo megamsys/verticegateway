@@ -37,7 +37,7 @@ import java.io._
 object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response) =>
   response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
 
-  override def onStart(app: Application) {
+  override def onStart(app: play.api.Application) {
 /* website link for banner text - http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=Megam%20gateway */
     play.api.Logger.info("""
         /^\       ██████╗  █████╗ ████████╗███████╗██╗    ██╗ █████╗ ██╗   ██╗
@@ -70,7 +70,7 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
     }
   }
 
-  override def onStop(app: Application) {
+  override def onStop(app: play.api.Application) {
     play.api.Logger.info("""
 ███████╗███████╗███████╗    ██╗   ██╗ █████╗
 ██╔════╝██╔════╝██╔════╝    ╚██╗ ██╔╝██╔══██╗
