@@ -63,7 +63,7 @@ sed -i "s/^[ \t]*listener.protobuf.internal =.*/listener.protobuf.internal = $ip
          echo "before reload configuration ==> " >> $LOG
 
 initctl reload-configuration
-
+#Node is already running Error
 riak start
 
 service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
