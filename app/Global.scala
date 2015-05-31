@@ -38,7 +38,7 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
   response.headers.get(CONTENT_TYPE).exists(_.startsWith(application_gzip)))) with GlobalSettings {
 
   override def onStart(app: play.api.Application) {
-/* website link for banner text - http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=Megam%20gateway */
+    /* website link for banner text - http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=Megam%20gateway */
     play.api.Logger.info("""
         /^\       ██████╗  █████╗ ████████╗███████╗██╗    ██╗ █████╗ ██╗   ██╗
         |#|      ██╔════╝ ██╔══██╗╚══██╔══╝██╔════╝██║    ██║██╔══██╗╚██╗ ██╔╝
@@ -60,11 +60,10 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
         play.api.Logger.info(">> priming: performing priming.")
         models.PlatformAppPrimer.acc_prep
         play.api.Logger.info(">> priming: account..")
+        models.PlatformAppPrimer.clone_organizations(controllers.Constants.DEMO_EMAIL)
+        play.api.Logger.info(">> priming: orgs..")
         models.PlatformAppPrimer.mkp_prep
         play.api.Logger.info(">> priming: marketplace..")
-        models.PlatformAppPrimer.org_prep
-        play.api.Logger.info(">> priming: org..")
-        models.PlatformAppPrimer.dmn_prep
         play.api.Logger.info(">> priming: complete.")
         megamprimedfile.createNewFile();
     }
@@ -80,7 +79,7 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
 ╚══════╝╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝
 
      """)
-    play.api.Logger.info("going down...")
+    play.api.Logger.info("Shark bait...")
   }
 
   override def onError(request: RequestHeader, ex: Throwable): Future[play.api.mvc.Result] = {

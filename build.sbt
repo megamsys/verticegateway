@@ -35,6 +35,7 @@ scalacOptions := Seq(
   "-Yinline",
   "-Yclosure-elim",
   "-Yconst-opt",
+  "-Ydelambdafy:method" ,
   "-Ybackend:GenBCode",
   "-language:implicitConversions",
   "-language:higherKinds",

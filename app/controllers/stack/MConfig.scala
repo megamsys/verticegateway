@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,24 +24,25 @@ package controllers.stack
  * getString() method return the current configuration file value
  */
 object MConfig {
-
+  val baseurl = play.api.Play.application(play.api.Play.current).configuration.getString("application.baseUrl")
   val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get
-  val amqpuri = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.url").get
+  val amqpurl = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.url").get
   val routing_key = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.routing.key").get
   val snowflakeHost = play.api.Play.application(play.api.Play.current).configuration.getString("sf.host").get
   val snowflakePort: Int = play.api.Play.application(play.api.Play.current).configuration.getInt("sf.port").get
+  val snowflakeurl = snowflakeHost + ":" + snowflakePort
   val cloudstandup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.queue").get
-  val cloudstandup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.exchange").get       
+  val cloudstandup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.exchange").get
   val riakstash_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.riakstash.queue").get
-  val riakstash_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.riakstash.exchange").get     
+  val riakstash_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.riakstash.exchange").get
   val postlaunched_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.postlaunched.queue").get
-  val postlaunched_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.postlaunched.exchange").get     
+  val postlaunched_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.postlaunched.exchange").get
   val cloudper_node_queue_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.queue.prefix").get
   val cloudper_node_exchage_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.exchange.prefix").get
   val cloudrecipe_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudrecipe.queue").get
-  val cloudrecipe_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudrecipe.exchange").get   
+  val cloudrecipe_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudrecipe.exchange").get
   val ci_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.ci.queue").get
-  val ci_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.ci.exchange").get  
+  val ci_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.ci.exchange").get
   val event_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.event.queue").get
-  val event_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.event.exchange").get       
+  val event_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.event.exchange").get
 }
