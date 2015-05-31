@@ -5,8 +5,10 @@
 # Map static resources from the /public folder to the /public path
 GET    /assets/*file                    controllers.Assets.at(path="/public", file)
 
-# Home page
+# Home page, static routes
 GET    /                                controllers.Application.index
+GET    /iluvapis                        controllers.Application.iluvapis
+GET    /avastye                         controllers.Application.avastye
 
 # Authentication - HMAC
 POST   /v2/auth                         controllers.Application.authenticate
@@ -97,4 +99,3 @@ POST   /v2/billinghistories/content	    controllers.billing.Billinghistories.pos
 GET    /v2/billinghistories             controllers.billing.Billinghistories.list
 
 GET    /v2/promos/:id                   controllers.billing.Promos.show(id: String)
-

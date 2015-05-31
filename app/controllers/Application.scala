@@ -34,14 +34,23 @@ import play.api.mvc._
  *
  */
 //class Application @Inject() (cache: CacheApi) extends Controller with APIAuthElement {
-object  Application  extends Controller with APIAuthElement {
+object Application extends Controller with APIAuthElement {
 
-  //Shows welcome page.
+  //Shows index page. with all the status.
   def index = Action { implicit request =>
-    Ok(views.html.index("Megam CMP. Lets kick the tyres."))
+    Ok(views.html.index("Megam CMP. Lets kick the tyres.", Hellow.buccaneer))
   }
 
-   /**
+  def iluvapis = Action { implicit request =>
+    Ok(views.html.apiPage())
+  }
+
+  //does a list of the events.
+  def avastye = Action { implicit request =>
+    Ok(views.html.eventsPage(Hellow.events))
+  }
+
+  /**
    * POST : Authenticate, verifies if the auth setup is OK.
    * Output: FunnelResponse as JSON with the msg.
    * Accessed via API

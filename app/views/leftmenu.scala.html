@@ -1,3 +1,4 @@
+@import controllers.stack.Hellow
 <!--
 ** Copyright [2013-2015] [Megam Systems]
 **
@@ -13,69 +14,112 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 -->
-<div class="api-toc ">
-	</br>
-	<a  href="http://www.gomegam.com" > <img src="@routes.Assets.at("images/logo-megam160x43.png")"/> </a>
-	</br>
-	</br>
-	<div class="">
-		<a href="http://docs.megam.io" target="_blank"  class="btn btn-primary btn-sm" role="button">docs</a>
-		<a href="http://docs.megam.io/v1.0/discuss" class="btn btn-primary btn-sm" target="_blank">support</a>
-		<a href="https://www.megam.io" class="btn btn-default btn-sm active" target="_blank">megam.io</a>
-	</div>
-	<ul id="pagetoc">
+<!-- start: Main Menu -->
+<div class="sidebar">
+  <div class="row">
+  @if(Hellow.sharkBite.isEmpty) {
+    <div class="info-box success">
+      <i class="fa fa-asterisk"></i>
+      <div class="count">@(Hellow.sharks.size)</div>
+      <div class="title">Up </div>
+      <div class="desc">Aye ! Aye! captain.</div>
+    </div>
+  } else {
+    <div class="info-box danger">
+      <i class="fa fa-asterisk"></i>
+      <div class="count">@(Hellow.sharkBite.size)</div>
+      <div class="title">Down</div>
+      <div class="desc">Arrgh ! Yellow jack.</div>
+    </div>
+  }
+  </div>
+  <div class="sidebar-collapse">
+    <div class="sidebar-menu">
+      <ul class="nav nav-sidebar">
+        <li><a href="/"><i class="icon-speedometer"></i><span class="text"> Dashboard<span class="label label-info">NEW</span></span></a></li>
+        <li>
+        </i><a href="#"><span class="text"> API</span> <span class="indicator"></span></a>
+          <ul>
+            <li><a href="/iluvapis"><i class="icon-magic-wand"></i><span class="text"> Accounts</span></a></li>
+            <li><a href="/iluvapis"><i class="icon-magic-wand"></i><span class="text"> SSHKeys</span></a></li>
+            <li><a href="/iluvapis"><i class="icon-magic-wand"></i><span class="text"> Assemblies</span></a></li>
+            <li><a href="/iluvapis"><i class="icon-magic-wand"></i><span class="text"> CSARS <span class="label label-info">NEW</span></span></a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <ul class="sidebar-actions">
+      <li class="action">
+        <div class="btn-group dropup">
+          <button type="button" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="icon-speedometer"></i>
+            <span>Infrastructure</span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li class="header">Infrastructure <i class="icon-settings"></i></li>
+            <li>
+              <div class="title">CPU
+                <span>@Hellow.infra.get(Hellow.CPU_CORES).getOrElse("0").toDouble Cores</span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 25%"></div>
+              </div>
+            </li>
+            <li>
+              <div class="title">Memory
+                <span>@(Hellow.infra.get(Hellow.FREE_MEMORY).getOrElse("Arr!") + " of " +  Hellow.infra.get(Hellow.TOTAL_MEMORY).getOrElse("Arr!"))</span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+              </div>
+            </li>
+            <li>
+              <div class="title">HDD
+                <span>@(Hellow.infra.get(Hellow.SPACE))</span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width: 30%"></div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="action">
+        <div class="btn-group dropup">
+          <button type="button" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="icon-users"></i>
+            <span>Support</span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li class="header">Support<i class="icon-settings"></i></li>
+            <li>
+              <a href="http://support.megam.io" target="_blank">
+                <span class="status status-success"></span> support.megam.io</a>
+            </li>
+            <li>
+              <a href="http://bit.ly/megamchat" target="_blank">
+                <span class="status status-success"></span> Support chat</a>
+            </li>
+            <li>
+              <a href="http://docs.megam.io/v1.0/discuss" target="_blank">
+                <span class="status status-success"></span> Forumns</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
 
-		<li class="contentlevel contentlevel_1">
-			Accounts
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET
-		</li>
-		<li class="contentlevel contentlevel_2">
-			POST
-		</li>
-		<li class="contentlevel contentlevel_1">
-			Organizations
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /organizations
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /organizations/:id
-		</li>
-		<li class="contentlevel contentlevel_2">
-			POST
-		</li>
+    <ul class="sidebar-terms">
+      <li><a href="http://devcenter.megam.io" target="_blank">Devcenter</a></li>
+      <li><a href="http://docs.megam.io" target="_blank">Docs</a></li>
+      <li><a href="http://bit.ly/megamchat" target="_blank">Help</a></li>
+      <li><a href="https://www.megam.io" target="_blank">About</a></li>
+    </ul>
 
-		<li class="contentlevel contentlevel_1">
-			Assemblies
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /assemblies
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /assemblies/:id
-		</li>
-		<li class="contentlevel contentlevel_2">
-			POST
-		</li>
-		<li class="contentlevel contentlevel_1">
-			Predef Clouds
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /predefclouds
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /predefclouds/:id
-		</li>
-		<li class="contentlevel contentlevel_1">
-			Marketplaces
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /marketplaces
-		</li>
-		<li class="contentlevel contentlevel_2">
-			GET - /marketplacess/:id
-		</li>
-	</ul>
+  </div>
 </div>
+<!-- end: Main Menu -->

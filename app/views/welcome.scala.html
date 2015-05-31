@@ -1,7 +1,5 @@
-
-@(message: String, style: String = "Scala",
-playhome:String="http://www.playframework.org")(implicit flash:
-play.api.mvc.Flash)
+@(message:String, tres: controllers.stack.Hellow.Treasure)
+@import controllers.stack.Hellow
 
 <!--
 ** Copyright [2013-2015] [Megam Systems]
@@ -18,160 +16,177 @@ play.api.mvc.Flash)
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 -->
-<div class="api-doc">
-	<div class="mddoc margin-top-large">
-		@flash.get("success").map { suc=>
-		<div class="alert alert-success">
-			<button type="button" class="close" data-dismiss="alert">
-				&times;</button>
-			<h1 align="center">
-				<span class="glyphicon glyphicon-ok"></span>
-			</h1>
-			<div class="progress">
-				<div class="progress-bar" role="progressbar" aria-valuenow="100"
-					aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
-					<span class="sr-only">100% Complete</span>
-				</div>
-			</div>
-			<div class="panel-group" id="accordion">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<a class="accordion-toggle" data-toggle="collapse"
-								data-parent="#accordion" href="#collapseOne"> <span
-								class="glyphicon glyphicon-cloud"></span> Detail
-							</a>
-						</h4>
-					</div>
-					<div id="collapseOne" class="panel-collapse collapse in">
-						<div class="panel-body pre-scrollable nopadding">
-							<table class="table table-striped">
-								<thead>
-									<tr>
-										<th>HTTP status code</th>
-										<th>Message</th>
-									</tr>
-								</thead>
-								<tbody>
-									@for(sm <- flash.data) {
-									<tr>
-										<td>@if(sm._1 == "success") { <span
-											class="label label-success">@sm._1</span> } else { <span
-											class="badge badge-success">@sm._1</span> }
-										</td>
-										<td>@sm._2</td>
-									</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		} @flash.get("error").map { err =>
-		<div class="alert alert-warning">
-			<button type="button" class="close" data-dismiss="alert">
-				&times;</button>
-			<h1 align="center">
-				<span class="glyphicon glyphicon-remove"></span>
-			</h1>
-			<div class="progress">
-				<div class="progress-bar progress-bar-warning" role="progressbar"
-					aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"
-					style="width: 50%;">
-					<span class="sr-only">50% Complete</span>
-				</div>
-			</div>
-			<div class="panel-group" id="accordion">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<a class="accordion-toggle" data-toggle="collapse"
-								data-parent="#accordion" href="#collapseOne"> <span
-								class="glyphicon glyphicon-cloud"></span> Detail
-							</a>
-						</h4>
-					</div>
-					<div id="collapseOne" class="panel-collapse collapse in">
-						<div class="panel-body pre-scrollable nopadding">
-							<table class="table table-striped">
-								<thead>
-									<tr>
-										<th>HTTP status code</th>
-										<th>Message</th>
-									</tr>
-								</thead>
-								<tbody>
-									@for(em <- flash.data) {
-									<tr>
-										<td>@if(em._1 == "error") { <span
-											class="label label-error">@em._1</span> } else { <span
-											class="badge bade-error">@em._1</span> }
-										</td>
-										<td>@em._2</td>
-									</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
-			</br>
-			<p>
-				<a class="btn btn-danger" href="http:\\support.megam.co"
-					target="_blank">Contact Support</a>
-			</p>
-		</div>
+<!-- start: Content -->
+@if(!Hellow.sharkBite.isEmpty) {
+	<!--/.row-->
+	<div class="row">
+	  <div class="col-lg-12">
+	    <div class="panel panel-default">
 
+	      <div class="panel-heading">
+	        <h2><i class="fa fa-bullhorn"></i>
+	          <span class="break"></span>Alerts</h2>
+	        <div class="panel-actions">
+	          <a href="ui-elements.html#" class="btn-setting"><i class="icon-settings"></i></a>
+	          <a href="ui-elements.html#" class="btn-minimize"><i class="icon-arrow-up"></i></a>
+	          <a href="ui-elements.html#" class="btn-close"><i class="icon-close"></i></a>
+	        </div>
+	      </div>
+	      <div class="panel-body alerts">
+	        <div class="alert alert-warning">
+	          <button type="button" class="close" data-dismiss="alert">×</button>
+	          <h4 class="alert-heading">Warning!</h4>
+	          <p>Check out the servers, some of the sharks are sleeping.
+						Read our <a href="http://docs.megam.io/v1.0/docs/frequently-asked-questions">troubeshooting guide</a> for more info.</p>
+	        </div>
+	      </div>
+
+	    </div>
+	  </div>
+	  <!--/col-->
+	</div>
+	<!--/row-->
+}
+<ul class="statistics">
+		@for(hunt	<- controllers.stack.Hellow.What2Hunts) {
+			<li>
+			@tres.hunts.get(hunt).map { ri=>
+				@ri._2 match {
+
+					case Some(a) => {
+						<i class="icon-check"></i>
+						<div class="number">@hunt</div>
+						<div class="title">@ri._1</div>
+						<div class="progress thin">
+							<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+						<span class="sr-only">@a</span>
+					}
+
+					case None => {
+							@if(hunt.equals(Hellow.MEMCACHE)) {
+								<i class="icon-ban"></i>
+								<div class="number">@hunt</div>
+								<div class="title">@ri._1</div>
+								<div class="progress thin">
+								<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+								<span class="sr-only">Not installed</span>
+							} else {
+								<i class="icon-close"></i>
+								<div class="number">@hunt</div>
+								<div class="title">@ri._1</div>
+								<div class="progress thin">
+								<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+								<span class="sr-only">Dead</span>
+							}
+						}
+
+					}
+
+					</div>
+				</div>
+				}
+			</li>
+			}
+</ul>
+<div class="row">
+	<div class="col-lg-12 activity">
+		<ul>
+			@tres.cansail.map { cs =>
+			<li>
+				<div class="author">
+					<img src="@routes.Assets.at("images/pirate.png ")"/>
+				</div>
+				<div class="header">
+					<span class="label label-success">TASK</span>
+					<strong>Pirate</strong> added this task:
+					@if(cs._2) {
+						<a href=@cs._3 target="_blank">@cs._1</a>
+					} else {
+						@cs._3
+					}
+					<span class="location"> <i class="icon-clock"></i>&nbsp;@cs._4.getOrElse("n/a")</span>
+					<span class="time"> <i class="icon-pointer"></i> @controllers.stack.MConfig.baseurl</span>
+				</div>
+			</li>
 		}
+		</ul>
+	</div>
+	<!--/col-->
 
-		<h1>
-			<a name="rest_docs" href="#a-rest_docs">REST API</a>
-		</h1>
-		<p>
-			Megam Gateway is a stateless REST based cloud server. Our SDKs
-			abstract away the REST interface and provide a set of handy methods
-			you can interact with when creating, updating, deleting. We've also
-			provided information on how we use HMAC to create authorization
-			headers for use when accessing Megam. <a
-				href="http://docs.megam.io"
-				target="_blank">For more information.</a>
-		</p>
-		<section id="auth">
-			<div class="page-header">
-				<h1>Get API Key</h1>
-			</div>
-			<p class="lead">
-				Before you start using the Megam API, be sure to have an
-				<code> API Key </code>
-				and
-				<code> Email </code>
-				registered with us.
-			<div class="bs-callout bs-callout-info">
-				<p>
-					Click <a href="https://www.megam.co" target="_blank">here</a>
-					to access to our
-					<code> free sandbox </code>
-					</code>
-				</p>
-			</div>
-			</p>
+</div>
+<!--/row-->
 
-			</code>
-			</pre>
-			<section id="gomegam">
-				<div class="tab-content">
-					<h2>Documentation</h2>
-					<p>
-					<div class="bs-callout bs-callout-info">
-						<p>
-							Click <a href="http://docs.megam.io"
-								target="_blank">here</a> to get access to our
-							<code> REST API documentation </code>
-							</code>
-						</p>
-					</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-heading" data-original-title>
+				<h2><i class="fa fa-user"></i>
+					<span class="break"></span>Marketplaces</h2>
+				<div class="panel-actions">
+					<a href="table.html#" class="btn-setting"><i class="icon-settings"></i></a>
+					<a href="table.html#" class="btn-minimize"><i class="icon-arrow-up"></i></a>
+					<a href="table.html#" class="btn-close"><i class="icon-close"></i></a>
 				</div>
-			</section>
+			</div>
+			<div class="panel-body">
+				<table class="table table-striped table-bordered datatable">
+					<thead>
+						<tr>
+							<th>Id</th>
+							<th>Cattype</th>
+							<th>Name</th>
+							<th>Image</th>
+							<th>Plan</th>
+							<th>Tosca</th>
+							<th class="center">Status</th>
+							<th>Created at</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for(mk <- tres.mkps.list.flatten)  {
+						<tr>
+							<td>@mk.id</td>
+							<td>@mk.cattype</td>
+							<td>@mk.name</td>
+							<td><a href=@mk.catalog.logo target="_blank">@mk.catalog.description</a></td>
+							<td>@mk.plans.map { p =>
+								[@p.version
+								<a href=@p.source target="_blank">source</a>
+								@p.os]
+							</br>
+							}
+							</td>
+							<td>@mk.predef</td>
+							<td>
+								<span class="label label-success">Active</span>
+							</td>
+							<td class="text-center text-info">
+								@mk.created_at
+							</td>
+							<td>
+								<a class="btn btn-info" href="#" disabled>
+									<i class="fa fa-edit "></i>
+								</a>
+								<a class="btn btn-danger" href="#" disabled>
+									<i class="fa fa-trash-o "></i>
+								</a>
+							</td>
+						</tr>
+					}
+					</tbody>
+
+					<tbody>
+						<tr>
+
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!--/col-->
+
+</div>
+<!--/row-->
+<!-- end: Content -->
