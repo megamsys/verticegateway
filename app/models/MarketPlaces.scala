@@ -157,12 +157,12 @@ object MarketPlaces {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val marketPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput,Throwable] {
+    val mktPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput,Throwable] {
       parse(input).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
-      mkp <- marketPlaceInput
+      mkp <- mktPlaceInput
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(mkp.name)
@@ -218,10 +218,10 @@ object MarketPlaces {
     }
   }
 
-  def createMany(marketPlaceInput: Map[String, MarketPlaceInput]): ValidationNel[Throwable, MarketPlaceResults] = {
+  def createMany(mktPlaceInput: Map[String, MarketPlaceInput]): ValidationNel[Throwable, MarketPlaceResults] = {
     play.api.Logger.debug("models.MarketPlaces create: entry")
-    play.api.Logger.debug(("%-20s -->[%s]").format("value", marketPlaceInput))
-    (marketPlaceInput.toMap.some map {
+    play.api.Logger.debug(("%-20s -->[%s]").format("value", mktPlaceInput))
+    (mktPlaceInput.toMap.some map {
       _.map { p =>
         play.api.Logger.debug(("%-20s -->[%s]").format("value", p))
         (mkGunnySack_init(p._2) leftMap { t: NonEmptyList[Throwable] => t

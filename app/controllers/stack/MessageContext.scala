@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,8 +35,8 @@ import play.api.Play._
 
 /*
  * Used it to perform rate limiting
- * TO-DO: Yet to me implemented. 
- * 
+ * TO-DO: Yet to me implemented.
+ *
  */
 trait MessageContext {
 
@@ -49,8 +49,8 @@ trait MessageContext {
   def exchangeName: String
 
   def rmqClient = {
-    play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ" + MConfig.amqpuri))
-    new RabbitMQClient(MConfig.amqpuri, exchangeName, queueName)
+    play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Setting up RMQ" + MConfig.amqpurl))
+    new RabbitMQClient(MConfig.amqpurl, exchangeName, queueName)
   }
 
   protected def execute(ampq_request: AMQPRequest, duration: Duration = org.megam.common.concurrent.duration) = {

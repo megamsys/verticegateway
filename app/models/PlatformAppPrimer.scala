@@ -55,16 +55,16 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-  //populate the marketplace addons
-  def marketplace_addons = models.MarketPlaces.createMany(MarketPlaceInput.toMap)
+  //populate the marketplace catalogue
+  def marketplace_catalogs = models.MarketPlaces.createMany(MarketPlaceInput.toMap)
 
   def mkp_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    mkp <- marketplace_addons
+    mkp <- marketplace_catalogs
   } yield {
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Market Place addons created successfully. Cache gets loaded upon first fetch.
+      FunnelResponse(CREATED, """Marketpace catalogs created successfully. Cache gets loaded upon first fetch.
             |
-            |%nLoaded results are ----->%n[%s]""".format(mkp.list.size + " addons primed.").stripMargin, "Megam::MarketPlaces"))
+            |%nLoaded results are ----->%n[%s]""".format(mkp.list.size + " catalogs primed.").stripMargin, "Megam::MarketPlaces"))
     FunnelResponses(chainedComps)
   }
 
@@ -73,32 +73,4 @@ object PlatformAppPrimer {
       OrganizationsInput(DEFAULT_ORG_NAME).json)
   }
 
-  def organizations_default = models.tosca.Organizations.create(MEGAM_ADMIN_EMAIL,
-    OrganizationsInput(DEFAULT_ORG_NAME).json)
-
-  def org_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    org <- organizations_default
-  } yield {
-
-    val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Organization created successfully(%s).
-            |
-            |Your email registered successully.""".format(org.get.name).stripMargin, "Megam::Organizations"))
-    FunnelResponses(chainedComps)
-  }
-
-  def domains_default = models.tosca.Domains.create(MEGAM_ADMIN_EMAIL,
-    DomainsInput(DEFAULT_DOMAIN_NAME).json)
-
-  def dmn_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    dmn <- domains_default
-  } yield {
-
-    val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Domains created successfully(%s).
-            |
-            |Your email registered successully.""".
-        format(dmn.get.name).stripMargin, "Megam::Domains"))
-    FunnelResponses(chainedComps)
-  }
 }
