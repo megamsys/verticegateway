@@ -39,32 +39,7 @@ fi
 [ -d /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
 
-ip() {
-while read Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT; do
-		[ "$Mask" = "00000000" ] && \
-		interface="$Iface" && \
-		ipaddr=$(LC_ALL=C /sbin/ip -4 addr list dev "$interface" scope global) && \
-		ipaddr=${ipaddr#* inet } && \
-		ipaddr=${ipaddr%%/*} && \
-		break
-	done < /proc/net/route
-}
-
-ip
-
-
-
-sed -i "s/^[ \t]*storage_backend .*/storage_backend = leveldb/" /etc/riak/riak.conf
-sed -i "s/^[ \t]*nodename = riak.*/nodename = riak@$ipaddr/" /etc/riak/riak.conf
-sed -i "s/^[ \t]*listener.http.internal =.*/listener.http.internal = $ipaddr:8098/" /etc/riak/riak.conf
-sed -i "s/^[ \t]*listener.protobuf.internal =.*/listener.protobuf.internal = $ipaddr:8087/" /etc/riak/riak.conf
-
-
-         echo "before reload configuration ==> " >> $LOG
-
 initctl reload-configuration
-#Node is already running Error
-riak start
 
 service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
 
