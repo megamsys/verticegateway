@@ -74,7 +74,7 @@ class CSARsSpec extends Specification {
   
   case object Push extends Context {
 
-    protected override def urlSuffix: String = "csars/push/CSR1147833510380306432"
+    protected override def urlSuffix: String = "csars/push/CSR1217821599709921280"
 
    protected override def headersOpt: Option[Map[String, String]] = None
 
