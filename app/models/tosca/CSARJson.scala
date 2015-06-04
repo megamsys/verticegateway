@@ -248,7 +248,7 @@ object CSARJson {
           }
           if (flag != true) {
             
-            assemblylist += new Assembly(getRandomName(), List(cvalue), value.tosca_type, KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
+            assemblylist += new Assembly(getRandomName(), List(cvalue), cvalue.tosca_type, KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
           }
       }
     } else {
@@ -260,11 +260,7 @@ object CSARJson {
     return assemblylist
   }
   
- // def toscaType(tosca_type: Unit): String = {
- //    println(tosca_type)
- // }
- // 
-  
+ 
 
   def assembliesBuilder(assemblyList: scala.collection.mutable.MutableList[Assembly]): String = {
     var assembly_lists = new ListBuffer[Assembly]()
