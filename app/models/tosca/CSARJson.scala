@@ -131,11 +131,11 @@ object CSARJson {
         }
       case None => play.api.Logger.debug("-------***************None case--------------")
     }
-
+   
     val afterFitComponents: scala.collection.mutable.MutableList[Component] = componentInputsBuilder(inputsList, componentList)
     val afterFitAssembly: scala.collection.mutable.MutableList[Assembly] = assemblyBuilder(afterFitComponents, policylist)
-    val afterFitAssemblies: String = assembliesBuilder(afterFitAssembly)
-
+    val afterFitAssemblies: String = assembliesBuilder(afterFitAssembly)    
+    
     Validation.success[Throwable, String](afterFitAssemblies).toValidationNel
   }
 
@@ -181,16 +181,27 @@ object CSARJson {
 
   def componentInputsBuilder(inputsList: scala.collection.mutable.MutableList[String], componentList: scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]]): scala.collection.mutable.MutableList[Component] = {
     val duplicateComponentList: scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]] = componentList
+    var component_inputs_lists = new ListBuffer[KeyValueField]()
+   
     val cc: scala.collection.mutable.MutableList[Component] = componentList.map {
-      case (lvalue) =>
-       /* val valu = new Component(getValue("name", lvalue), getValue("type", lvalue), new ComponentRequirements(getValue("host", lvalue), ""),
-          new ComponentInputs(getValue("domain", lvalue), "", "", "", "", getValue("source", lvalue),
-            new DesignInputs("", "", "", "", ComponentDesignInputsWires.empty), new ServiceInputs("", ""), CI.empty),
-          "", new Artifacts("", "", ""),
-          "", new ComponentOperations("", ""), ComponentOthers.empty) */
-          val valu = new Component(getValue("name", lvalue), getValue("type", lvalue),
-          KeyValueList.empty, KeyValueList.empty, new Artifacts("", "", KeyValueList.empty),
-          BindLinks.empty, OperationList.empty, "")
+      case (lvalue) =>              
+
+          if (getValue("domain", lvalue) != "") {
+              component_inputs_lists += KeyValueField("domain", getValue("domain", lvalue))
+           }
+
+	  if (getValue("version", lvalue) != "") {
+              component_inputs_lists += KeyValueField("version", getValue("version", lvalue))
+           }
+
+	 if (getValue("source", lvalue) != "") {
+              component_inputs_lists += KeyValueField("source", getValue("source", lvalue))
+           }
+
+	val valu = new Component(getValue("name", lvalue), getValue("type", lvalue),
+          component_inputs_lists.toList, KeyValueList.empty, new Artifacts("", "", KeyValueList.empty),
+          BindLinks.empty, OperationList.empty, "LAUNCHING")
+
         valu
     }
     return cc
@@ -223,7 +234,7 @@ object CSARJson {
               }
             }
           }
-          assemblylist += new Assembly(pvalue.policykey, clist.toList, "", KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
+          assemblylist += new Assembly(pvalue.policykey, clist.toList, "", KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "LAUNCHING")
       }
       componentList foreach {
         case (cvalue) =>
@@ -253,9 +264,9 @@ object CSARJson {
     for (assembly <- assemblyList) {
       assembly_lists += assembly
     }
-    //val cc: String = new AssembliesInput(getRandomName(), assembly_lists.toList, AssembliesInputs.empty).json
-    //return cc
-    return ""
+    val cc: String = new AssembliesInput(getRandomName(), assembly_lists.toList, KeyValueList.empty).json
+    return cc
+
   }
 
   def parseLinkedHashMap(checkKey: String, mapvalue: Any, resultList: scala.collection.mutable.MutableList[String]): scala.collection.mutable.MutableList[String] = {
@@ -290,74 +301,7 @@ object CSARJson {
     val s = Stream.continually(random.nextInt(alphabet.size)).map(alphabet).take(10).mkString
     return s
   }
-
-  /* def createComponent(key: String, value: Any): String = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs create component", "CSAR to JSON"))
-
-    val csarInput1: Map[String, String] = mapAsScalaMap[String, String](value.asInstanceOf[java.util.Map[String, String]]).toMap
-  
-   val valu = new Component(key, parseOption(csarInput1.get("type")), new ComponentRequirements(parseHash("host", csarInput1.get("requirements")), ""),
-      new ComponentInputs(parseHash("domain", csarInput1.get("requirements")), "port", "username", "password", "version", "source",
-        new DesignInputs("id", "x", "y", "z", ComponentDesignInputsWires.empty), new ServiceInputs("dbname", "dbpassword")),
-      "external_management_resource", new Artifacts("artifact_type", "content", "artifact_requirements"),
-      "related_components", new ComponentOperations("operation_type", "target_resource")).json
-    valu
-
-  }
-
-  def parseArrayList(key: String, value: String): String = {
-    play.api.Logger.debug("-------value--------------" + value.asInstanceOf[AnyRef].getClass.getSimpleName)
-    val tlist = value.asInstanceOf[java.util.ArrayList[String]].toList.size()
-    for (i <- 0 to tlist) {
-      //  play.api.Logger.debug("---------------------" + parseLinkedHashMap(key, value.asInstanceOf[java.util.ArrayList[String]].toList(i)))
-      play.api.Logger.debug("---------------------" + value.asInstanceOf[java.util.ArrayList[String]].toList(i).asInstanceOf[AnyRef].getClass.getSimpleName)
-    }
-    play.api.Logger.debug("---------------------" + value.asInstanceOf[java.util.ArrayList[String]].toList.size())
-    ""
-    //  case None => ""
-  }
-  // }
-
-  def parseHash(key: String, value: Option[String]): String = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs Parse Hash", "CSAR to JSON"))
-    parseOptionAny(key, value)
-    val csarInput1: Map[String, String] = mapAsScalaMap[String, String](value.asInstanceOf[java.util.Map[String, String]]).toMap
-    parseOption(csarInput1.get(key))
-  }
-
-  def parseOption(value: Option[String]): String = {
-    value match {
-      case Some(thatGS) => thatGS
-      case None => ""
-    }
-  }
-
-  /* def parseLinkedHashMap(checkKey: String, value: Any): String = {
-    val csarInput1: Map[String, String] = mapAsScalaMap[String, String](value.asInstanceOf[java.util.Map[String, String]]).toMap
-    val cc = csarInput1 foreach {
-          case (key, value) =>
-            if (checkKey == key) {
-              return value
-            }
-        }
-    return ""
-  }*/
-
-  def parseOptionAny(key: String, value: Option[String]): String = {
-    play.api.Logger.debug("-------value--------------" + value.asInstanceOf[AnyRef].getClass.getSimpleName)
-    value match {
-      case Some(thatGS) =>
-        val tlist = thatGS.asInstanceOf[java.util.ArrayList[String]].toList.size()
-        for (i <- 0 to tlist) {
-          //    play.api.Logger.debug("---------------------" + parseLinkedHashMap(key, thatGS.asInstanceOf[java.util.ArrayList[String]].toList(i)))
-          play.api.Logger.debug("---------------------" + thatGS.asInstanceOf[java.util.ArrayList[String]].toList(i).asInstanceOf[AnyRef].getClass.getSimpleName)
-        }
-        play.api.Logger.debug("---------------------" + thatGS.asInstanceOf[java.util.ArrayList[String]].toList.size())
-        ""
-      case None => ""
-    }
-  } */
-
+ 
 }
 
 

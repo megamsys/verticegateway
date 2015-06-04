@@ -187,7 +187,7 @@ object CSARs {
       csir <- (getCsarLink(csar) leftMap { err: NonEmptyList[Throwable] => err })
       json <- (getYaml(csir) leftMap { err: NonEmptyList[Throwable] => err })
       asm <- (Assemblies.create(email, json) leftMap { err: NonEmptyList[Throwable] => err })
-      request <- (models.Requests.createforNewNode("{\"node_id\": \"" + asm.get.id + "\",\"node_name\": \"" + asm.get.name + "\",\"req_type\": \"create\"}") leftMap { err: NonEmptyList[Throwable] => err })
+      request <- (models.Requests.createforNewNode("{\"cat_id\": \"" + asm.get.id + "\",\"name\": \"" + asm.get.name + "\",\"cattype\": \"create\"}") leftMap { err: NonEmptyList[Throwable] => err })
       amqp <- (CloudStandUpPublish(request.get._2, request.get._1).dop leftMap { err: NonEmptyList[Throwable] => err })
     } yield {
       play.api.Logger.debug("tosca.CSARs Pushed: csars:" + json)
