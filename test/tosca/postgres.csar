@@ -3,14 +3,6 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 description: Template for deploying a two-tier application servers on two
 
 node_templates:
- orion:
-  type: tosca.app.java
-  properties:
-    # omitted here for sake of brevity
-  requirements:
-    - domain: megambox.com
-    - source: https://github.com/megamsys/spring-mvc-fulfillment-base.git
-    - sshkey: samplekey
 
  postgres:
   type: tosca.service.postgres
@@ -23,5 +15,3 @@ node_templates:
     - dbname: databasename
     - dbpassword: databasepassword
  
-
-      

@@ -87,13 +87,13 @@ object CSARJson {
       case None => ""
     }
 
-    val componentList = scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]]()
+    val templateList = scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]]()
     csarInput.get("node_templates") match {
       case Some(thatGS) =>
         val csarInput1: Map[String, String] = mapAsScalaMap[String, String](thatGS.asInstanceOf[java.util.Map[String, String]]).toMap
         csarInput1 foreach {
           case (key, value) =>
-            componentList += createComponentArray(key, value)
+            templateList += createTemplateArray(key, value)
         }
       case None => ""
     }
@@ -131,15 +131,14 @@ object CSARJson {
         }
       case None => play.api.Logger.debug("-------***************None case--------------")
     }
-   
-    val afterFitComponents: scala.collection.mutable.MutableList[Component] = componentInputsBuilder(inputsList, componentList)
-    val afterFitAssembly: scala.collection.mutable.MutableList[Assembly] = assemblyBuilder(afterFitComponents, policylist)
-    val afterFitAssemblies: String = assembliesBuilder(afterFitAssembly)    
-    
+
+    val afterFitAssembly: scala.collection.mutable.MutableList[Assembly] = assemblyBuilder(inputsList, policylist, templateList)
+    val afterFitAssemblies: String = assembliesBuilder(afterFitAssembly)
+
     Validation.success[Throwable, String](afterFitAssemblies).toValidationNel
   }
 
-  def createComponentArray(key: String, value: Any): scala.collection.mutable.MutableList[String] = {
+  def createTemplateArray(key: String, value: Any): scala.collection.mutable.MutableList[String] = {
     var i = 0;
     var j = 0;
     val list = scala.collection.mutable.MutableList[String]()
@@ -179,95 +178,51 @@ object CSARJson {
     list
   }
 
-  def componentInputsBuilder(inputsList: scala.collection.mutable.MutableList[String], componentList: scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]]): scala.collection.mutable.MutableList[Component] = {
-    val duplicateComponentList: scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]] = componentList
-    var component_inputs_lists = new ListBuffer[KeyValueField]()
-   
-    val cc: scala.collection.mutable.MutableList[Component] = componentList.map {
-      case (lvalue) =>              
+  def assemblyBuilder(inputsList: scala.collection.mutable.MutableList[String], policyList: scala.collection.mutable.MutableList[CSARPolicyOutput], templateList: scala.collection.mutable.MutableList[scala.collection.mutable.MutableList[String]]): scala.collection.mutable.MutableList[Assembly] = {
+    val assemblylist = scala.collection.mutable.MutableList[Assembly]()
+    var assembly_inputs_lists = new ListBuffer[KeyValueField]()
+    val cc: scala.collection.mutable.MutableList[Assembly] = templateList.map {
+      case (template) =>
+        val clist = new ListBuffer[Component]()
+        if (getValue("type", template).split('.')(1) != "torpedo") {
+          clist += componentbuilder(inputsList, template)
+        }
 
-          if (getValue("domain", lvalue) != "") {
-              component_inputs_lists += KeyValueField("domain", getValue("domain", lvalue))
-           }
+        if (getValue("domain", template) != "") {
+          assembly_inputs_lists += KeyValueField("domain", getValue("domain", template))
+        }
 
-	  if (getValue("version", lvalue) != "") {
-              component_inputs_lists += KeyValueField("version", getValue("version", lvalue))
-           }
+        if (getValue("sshkey", template) != "") {
+          assembly_inputs_lists += KeyValueField("sshkey", getValue("sshkey", template))
+        }
 
-	 if (getValue("source", lvalue) != "") {
-              component_inputs_lists += KeyValueField("source", getValue("source", lvalue))
-           }
-
-	val valu = new Component(getValue("name", lvalue), getValue("type", lvalue),
-          component_inputs_lists.toList, KeyValueList.empty, new Artifacts("", "", KeyValueList.empty),
-          BindLinks.empty, OperationList.empty, "LAUNCHING")
-
-        valu
+        new Assembly(getValue("name", template), clist.toList, get_tosca_type(getValue("type", template), "ASSEMBLY"), List[KeyValueField](), List[Policy](), assembly_inputs_lists.toList, List[Operation](), List[KeyValueField](), "LAUNCHING")
     }
     return cc
   }
 
-  def assemblyBuilder(componentList: scala.collection.mutable.MutableList[Component], policyList: scala.collection.mutable.MutableList[CSARPolicyOutput]): scala.collection.mutable.MutableList[Assembly] = {
-    val assemblylist = scala.collection.mutable.MutableList[Assembly]()
-    if (policyList.size() > 0) {
-      val plist = new ListBuffer[String]()
-      policyList foreach {
-        case (plistvalue) =>
-          val tlist = plistvalue.policyvalue.asInstanceOf[java.util.ArrayList[String]].toList.size()
-          for (i <- 0 to tlist) {
-            if (i < tlist) {
-              plist += plistvalue.policyvalue.asInstanceOf[java.util.ArrayList[String]].toList(i)
-            }
-          }
-      }
-      policyList foreach {
-        case (pvalue) =>
-          val clist = new ListBuffer[Component]()
-          val tlist = pvalue.policyvalue.asInstanceOf[java.util.ArrayList[String]].toList.size()
-          for (i <- 0 to tlist) {
-            if (i < tlist) {
-              componentList foreach {
-                case (component) =>
-                  if (component.name == pvalue.policyvalue.asInstanceOf[java.util.ArrayList[String]].toList(i)) {
-                    clist += component
-                  }
-              }
-            }
-          }
-          assemblylist += new Assembly(pvalue.policykey, clist.toList, "", KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "LAUNCHING")
-      }
-      componentList foreach {
-        case (cvalue) =>
-          var flag = false
-          for (i <- 0 to plist.size()) {
-            if (i < plist.size()) {
-              if (plist(i) == cvalue.name) {
-                flag = true
-              }
-            }
-          }
-          if (flag != true) {
-            
-            assemblylist += new Assembly(getRandomName(), List(cvalue), cvalue.tosca_type, KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
-          }
-      }
-    } else {
-      componentList foreach {
-        case (cvalue) =>
-          assemblylist += new Assembly(getRandomName(), List(cvalue), cvalue.tosca_type , KeyValueList.empty, PoliciesList.empty, KeyValueList.empty, OperationList.empty, KeyValueList.empty, "")
+  def componentbuilder(inputsList: scala.collection.mutable.MutableList[String], template: scala.collection.mutable.MutableList[String]): Component = {
+    var component_inputs_lists = new ListBuffer[KeyValueField]()
+    val fruits: List[String] = List("domain", "version", "source", "dbusername", "dbuserpassword", "dbname", "dbpassword")
+
+    for (name <- fruits) {
+      if (getValue(name, template) != "") {
+        component_inputs_lists += KeyValueField(name, getValue(name, template))
       }
     }
-    return assemblylist
+
+    val valu = new Component(getValue("name", template), getValue("type", template),
+      component_inputs_lists.toList, List[KeyValueField](), new Artifacts("", "", List[KeyValueField]()),
+      List[String](), List[Operation](), "LAUNCHING")
+    return valu
   }
-  
- 
 
   def assembliesBuilder(assemblyList: scala.collection.mutable.MutableList[Assembly]): String = {
     var assembly_lists = new ListBuffer[Assembly]()
     for (assembly <- assemblyList) {
       assembly_lists += assembly
     }
-    val cc: String = new AssembliesInput(getRandomName(), assembly_lists.toList, KeyValueList.empty).json
+    val cc: String = new AssembliesInput(getRandomName(), assembly_lists.toList, List[KeyValueField]()).json
     return cc
 
   }
@@ -284,6 +239,20 @@ object CSARJson {
         }
     }
     return resultList
+  }
+
+  def get_tosca_type(key: String, camptype: String): String = {
+    val split_key: Array[String] = key.split('.')
+    camptype match {
+      case "ASSEMBLY" => {
+        if (split_key(1) != "torpedo") {
+          return "tosca.torpedo.ubuntu"
+        } else {
+          return key
+        }
+      }
+      case "COMPONENT" => return key
+    }
   }
 
   def getValue(key: String, value: scala.collection.mutable.MutableList[String]): String = {
@@ -304,7 +273,5 @@ object CSARJson {
     val s = Stream.continually(random.nextInt(alphabet.size)).map(alphabet).take(10).mkString
     return s
   }
- 
+
 }
-
-
