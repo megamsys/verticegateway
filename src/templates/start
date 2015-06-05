@@ -13,8 +13,8 @@ stop on (stopping networking)
 stop on (stopped megamgateway)
 
 # Automatically restart process if crashed. Tries 0 times every 60 seconds
-#respawn
-#respawn limit 0 60
+respawn
+respawn limit 0 60
 
 script
     export HOME="/root"
