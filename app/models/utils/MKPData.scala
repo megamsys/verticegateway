@@ -5,7 +5,7 @@ import models.{MarketPlaceInput, MarketPlacePlans, MarketPlacePlan, MarketPlaceC
 /**
 -- name: 1-Ubuntu
    catalog:
-           category: 1-Dew
+           category: 1-Torpedo
            image: ubuntu.png
            description: Ubuntu Server
    plan:
@@ -20,7 +20,7 @@ import models.{MarketPlaceInput, MarketPlacePlans, MarketPlacePlan, MarketPlaceC
                   OTHERS : link to the
                   BYOC   : https://github.com/megamsys/nilavu.git
            os: ubuntu [runs on any operating system or container]
-  cattype: DEW
+  cattype: TORPEDO
   predef : ubuntu
   status :
           ACTIVE
@@ -34,10 +34,10 @@ object MKPData {
 
     private val APP     = "APP"
     private val SERVICE = "SERVICE"
-    private val DEW     = "DEW"
+    private val TORPEDO     = "TORPEDO"
     private val ADDON   = "ADDON"
 
-    private val CATEGORY_DEW        = "1-Dew"
+    private val CATEGORY_TORPEDO    = "1-Torpedo"
     private val CATEGORY_BYOC       = "2-Bring Your Own Code"
     private val CATEGORY_APPBOILERS = "3-App Boilers"
     private val CATEGORY_PLATFORM   = "4-Platform"
@@ -56,7 +56,7 @@ object MKPData {
 
    private def CatImage(image_file: String): String = CATIMAGE_PREFIX + image_file
    private def Cat(image: String, category: String, summary: String): MarketPlaceCatalog = new MarketPlaceCatalog(CatImage(image), category,summary)
-   private def Dew(image: String,  summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_DEW, summary)
+   private def Torpedo(image: String,  summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_TORPEDO, summary)
    private def BYOC(image: String, summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_BYOC, summary)
    private def Appb(image: String, summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_APPBOILERS, summary)
    private def Plat(image: String, summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_PLATFORM, summary)
@@ -64,21 +64,21 @@ object MKPData {
 
    private def Plan(price: String, desc: String, plantype: String, version: String, source:  String, os: String): MarketPlacePlan  = MarketPlacePlan(price, desc, plantype, version, source, os)
    //This can go to an autoupdatable yaml file. So when the server starts it will sync the new marketplace items.
-   private val C1 =  ("1-Ubuntu", Dew("ubuntu.png", "Ubuntu"),
+   private val C1 =  ("1-Ubuntu", Torpedo("ubuntu.png", "Ubuntu"),
     List(Plan(FIVE, "Scale out with Ubuntu Server. The leading platform for scale-out computing, Ubuntu Server helps you make the most of your infrastructure.",
     SAMBAR, "14.04", "http://ubuntu.com", CATOS_UBUNTU)))
 
-   private val C2 =  ("2-CoreOS", Dew("coreos.png", "CoreOS"),
+   private val C2 =  ("2-CoreOS", Torpedo("coreos.png", "CoreOS"),
    List(Plan(FIVE, "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers.",
      SAMBAR, "633.1.0", "http://coreos.com", "KVM")))
 
-   private val C3 =  ("3-Debian", Dew("debian.png", "Debian"),
+   private val C3 =  ("3-Debian", Torpedo("debian.png", "Debian"),
    List(Plan(FIVE, "Debian is a free operating system (OS) for your computer. Wheezy is the codename for 7.0 Debian.",
    SAMBAR, "7", "http://debian.com", "Debian wheezy"),
    Plan(FIVE, "Debian is a free operating system (OS) for your computer. Jessie is the codename for 8.0 Debian.",
    SAMBAR, "8", "http://debian.com", "Debian jessie")))
 
-   private val C4 =  ("4-CentOS", Dew("centos.png", "CentOS"),
+   private val C4 =  ("4-CentOS", Torpedo("centos.png", "CentOS"),
    List(Plan(FIVE, "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat.",
    SAMBAR, "7", "http://centos.org", "CentOS 7")))
 
@@ -125,10 +125,10 @@ object MKPData {
    SAMBAR, "2.6.0", "https://hadoop.apache.org/", CATOS_UBUNTU)))
 
   val mkMap = Map[String, MarketPlaceInput](
-      C1._1  -> MarketPlaceInput(C1._1,  C1._2,  MarketPlacePlans(C1._3),  DEW,     "ubuntu",  ACTIVE),
-      C2._1  -> MarketPlaceInput(C2._1,  C2._2,  MarketPlacePlans(C2._3),  DEW,     "coreos",  ACTIVE),
-      C3._1  -> MarketPlaceInput(C3._1,  C3._2,  MarketPlacePlans(C3._3),  DEW,     "debian",  ACTIVE),
-      C4._1  -> MarketPlaceInput(C4._1,  C4._2,  MarketPlacePlans(C4._3),  DEW,     "centos",  ACTIVE),
+      C1._1  -> MarketPlaceInput(C1._1,  C1._2,  MarketPlacePlans(C1._3),  TORPEDO,     "ubuntu",  ACTIVE),
+      C2._1  -> MarketPlaceInput(C2._1,  C2._2,  MarketPlacePlans(C2._3),  TORPEDO,     "coreos",  ACTIVE),
+      C3._1  -> MarketPlaceInput(C3._1,  C3._2,  MarketPlacePlans(C3._3),  TORPEDO,     "debian",  ACTIVE),
+      C4._1  -> MarketPlaceInput(C4._1,  C4._2,  MarketPlacePlans(C4._3),  TORPEDO,     "centos",  ACTIVE),
       C5._1  -> MarketPlaceInput(C5._1,  C5._2,  MarketPlacePlans(C5._3),  APP,     "java",    ACTIVE),
       C6._1  -> MarketPlaceInput(C6._1,  C6._2,  MarketPlacePlans(C6._3),  APP,     "rails",   ACTIVE),
       C7._1  -> MarketPlaceInput(C7._1,  C7._2,  MarketPlacePlans(C7._3),  APP,     "play",    ACTIVE),
