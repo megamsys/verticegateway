@@ -13,28 +13,22 @@ if [ "$1" = "configure" ]; then
 echo "IF CONFIGURE CHECK ==> " >> $LOG
     # Use dpkg-statoverride instead of direct chmod/chown
     if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then
-        echo "IF dpkg-statoverride --list /var/log/megam ==> " >> $LOG
          dpkg-statoverride --update --add $MEGAM_USER root 755 /var/log/megam
     fi
 
     if ! dpkg-statoverride --list $MEGAMAUTH >/dev/null 2>&1; then
-        echo "IF dpkg-statoverride --list $MEGAMAUTH ==> " >> $LOG
          dpkg-statoverride --update --add $MEGAM_USER $MEGAM_GROUP 700 $MEGAMAUTH
     fi
 
     if [ ! -f $MEGAMAUTH ]; then
-         echo "IF if [ ! -f $MEGAMAUTH ] ==> " >> $LOG
         MEGAM_PASSWORD=`apg -m 12 -M cNl -n 1`
         if [ -n "${MEGAM_PASSWORD}" ]; then
-         echo "IF if [ ! -f $MEGAM-password ] ==> " >> $LOG
-            echo "${MEGAM_USER}@mypaas.io:${MEGAM_PASSWORD}" > $MEGAMAUTH
             chown $MEGAM_USER:$MEGAM_GROUP $MEGAMAUTH
             chmod 600 $MEGAMAUTH
         fi
     fi
 fi
 
-         echo "OUT of loop ==> " >> $LOG
 
 [ -d /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
@@ -42,5 +36,3 @@ fi
 initctl reload-configuration
 
 service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
-
-
