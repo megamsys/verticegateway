@@ -112,12 +112,12 @@ object Discounts {
 
     for {
       discount <- DiscountsInput
-      //aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "dst").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //val bvalue = Set(aor.get.id)
-       val bvalue = Set(discount.accounts_id)
-      val json = new DiscountsResult(uir.get._1 + uir.get._2, discount.accounts_id, discount.bill_type, discount.code, discount.status, Time.now.toString).toJson(false)
+      val bvalue = Set(aor.get.id)
+      // val bvalue = Set(discount.accounts_id)
+      val json = new DiscountsResult(uir.get._1 + uir.get._2, aor.get.id, discount.bill_type, discount.code, discount.status, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
