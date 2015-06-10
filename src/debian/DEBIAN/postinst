@@ -22,10 +22,6 @@ echo "IF CONFIGURE CHECK ==> " >> $LOG
 
     if [ ! -f $MEGAMAUTH ]; then
         MEGAM_PASSWORD=`apg -m 12 -M cNl -n 1`
-        if [ -n "${MEGAM_PASSWORD}" ]; then
-            chown $MEGAM_USER:$MEGAM_GROUP $MEGAMAUTH
-            chmod 600 $MEGAMAUTH
-        fi
     fi
 fi
 
