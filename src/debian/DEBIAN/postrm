@@ -12,6 +12,7 @@ if [ -d "/var/log/megam/megamgateway" ]; then
   rm -r /var/log/megam/megamgateway
 fi
 
+
 if [ -d "/var/run/megam/megamgateway" ]; then
   rm -r /var/run/megam/megamgateway
 fi
