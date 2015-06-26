@@ -103,26 +103,33 @@ object MKPData {
    private val C9 =  ("9-Docker", Plat("docker.png", "Container"),
    List(Plan(FIVE, "Docker that automates the deployment of applications inside software containers.",
    SAMBAR, Constants.VERSION, "https://www.docker.com", "baremetal")))
+   
+     private val C10 = ("10-Containers", Plat("containers.png", "Launch microservices"),
+   List(Plan(FIVE, "Launch containers both in VM and as baremetal",
+   SAMBAR, "0.1.0", "https://www.docker.com", "baremetal")))
 
-   private val C10 = ("10-PostgreSQL", Appb("postgres.png", "Object Relational DBMS"),
+   private val C11 = ("11-PostgreSQL", Appb("postgres.png", "Object Relational DBMS"),
    List(Plan(FIVE, "PostgreSQL is a powerful, open source object-relational database system.",
    SAMBAR, "9.3", "https://postgresql.org", CATOS_UBUNTU)))
 
-   private val C11 = ("11-Riak", Appb("riak.png", "Scalable Distributed Database"),
+   private val C12 = ("12-Riak", Appb("riak.png", "Scalable Distributed Database"),
    List(Plan(FIVE, "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers.",
    SAMBAR, "2.1.1", "http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb", CATOS_UBUNTU)))
 
-   private val C12 = ("12-Redis", Appb("redis.png", "Key Value Store"),
+   private val C13 = ("13-Redis", Appb("redis.png", "Key Value Store"),
    List(Plan(FIVE, "Redis is a key-value store which acts as a data structure server with keys containing strings, hashes, lists, sets and sorted sets.",
    SAMBAR, "2.8.4", "https://redis.org", CATOS_UBUNTU)))
 
-   private val C13 = ("13-RabbitMQ", Appb("rabbitmq.png", "Message Broker"),
+   private val C14 = ("14-RabbitMQ", Appb("rabbitmq.png", "Message Broker"),
    List(Plan(FIVE, "RabbitMQ is a message broker software  that implements the Advanced Message Queuing Protocol (AMQP).",
    SAMBAR, "3.3.5", "https://www.rabbitmq.com", CATOS_UBUNTU)))
 
-   private val C14 = ("14-Hadoop", BigD("hadoop.png", "Plumbing your big data is easy"),
+   private val C15 = ("15-Hadoop", BigD("hadoop.png", "Plumbing your big data is easy"),
    List(Plan(FIVE, "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware",
    SAMBAR, "2.6.0", "https://hadoop.apache.org/", CATOS_UBUNTU)))
+   
+   
+
 
   val mkMap = Map[String, MarketPlaceInput](
       C1._1  -> MarketPlaceInput(C1._1,  C1._2,  MarketPlacePlans(C1._3),  TORPEDO,     "ubuntu",  ACTIVE),
@@ -134,11 +141,12 @@ object MKPData {
       C7._1  -> MarketPlaceInput(C7._1,  C7._2,  MarketPlacePlans(C7._3),  APP,     "play",    ACTIVE),
       C8._1  -> MarketPlaceInput(C8._1,  C8._2,  MarketPlacePlans(C8._3),  APP,     "nodejs",  ACTIVE),
       C9._1  -> MarketPlaceInput(C9._1,  C9._2,  MarketPlacePlans(C9._3),  ADDON,   "docker",  ACTIVE),
-      C10._1 -> MarketPlaceInput(C10._1, C10._2, MarketPlacePlans(C10._3), SERVICE, "postgresql", ACTIVE),
-      C11._1 -> MarketPlaceInput(C11._1, C11._2, MarketPlacePlans(C11._3), SERVICE, "riak",    ACTIVE),
-      C12._1 -> MarketPlaceInput(C12._1, C12._2, MarketPlacePlans(C12._3), SERVICE, "redis",   ACTIVE),
-      C13._1 -> MarketPlaceInput(C13._1, C13._2, MarketPlacePlans(C13._3), SERVICE, "rabbitmq",ACTIVE),
-      C14._1 -> MarketPlaceInput(C14._1, C14._2, MarketPlacePlans(C14._3), SERVICE, "hadoop",  ACTIVE)
+      C10._1 -> MarketPlaceInput(C10._1, C10._2, MarketPlacePlans(C10._3), ADDON, "containers", ACTIVE),
+      C11._1 -> MarketPlaceInput(C11._1, C11._2, MarketPlacePlans(C11._3), SERVICE, "postgresql", ACTIVE),
+      C12._1 -> MarketPlaceInput(C12._1, C12._2, MarketPlacePlans(C12._3), SERVICE, "riak",    ACTIVE),
+      C13._1 -> MarketPlaceInput(C13._1, C13._2, MarketPlacePlans(C13._3), SERVICE, "redis",   ACTIVE),
+      C14._1 -> MarketPlaceInput(C14._1, C14._2, MarketPlacePlans(C14._3), SERVICE, "rabbitmq",ACTIVE),
+      C15._1 -> MarketPlaceInput(C15._1, C15._2, MarketPlacePlans(C15._3), SERVICE, "hadoop",  ACTIVE)
     )
 
 
