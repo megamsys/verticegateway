@@ -89,7 +89,7 @@ POST	 /v2/credithistories/content		  controllers.billing.Credithistories.post
 POST 	 /v2/billings/content			        controllers.billing.Billings.post
 POST	 /v2/availableunits/content	 	    controllers.billing.Availableunits.post
 POST	 /v2/discounts/content			      controllers.billing.Discounts.post
-GET      /v2/discounts                        controllers.billing.Discounts.list
+GET      /v2/discounts                  controllers.billing.Discounts.list
 
 POST	 /v2/balances/content			        controllers.billing.Balances.post
 POST	 /v2/balances/update			        controllers.billing.Balances.update
