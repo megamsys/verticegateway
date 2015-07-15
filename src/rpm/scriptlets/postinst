@@ -11,8 +11,7 @@ LOG=/var/log/megam/megamgateway/megamgateway.log
 echo "post initial 1-value--> $1" >/dev/stdout
 
 if [ "$1" = 1 ]; then
-echo "IF CONFIGURE CHECK ==> " >> $LOG
-    
+
     if [ ! -f $MEGAMAUTH ]; then
          echo "IF if [ ! -f $MEGAMAUTH ] ==> " >> $LOG
         MEGAM_PASSWORD=`pwgen -s 12 1`
@@ -25,19 +24,11 @@ echo "IF CONFIGURE CHECK ==> " >> $LOG
     fi
 fi
 
-         echo "OUT of loop ==> " >> $LOG
 
 [ -d /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
 
-sed -i 's/^[ \t]*storage_backend .*/storage_backend = leveldb/' /etc/riak/riak.conf
-
-         echo "before reload configuration ==> " >> $LOG
 
 initctl reload-configuration
 
-riak start
-
-service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
-
-
+service megamgateway start || echo "megamgateway arrgh!."

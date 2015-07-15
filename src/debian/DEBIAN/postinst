@@ -10,8 +10,6 @@ LOG=/var/log/megam/megamgateway/megamgateway.log
 
 
 if [ "$1" = "configure" ]; then
-echo "IF CONFIGURE CHECK ==> " >> $LOG
-    # Use dpkg-statoverride instead of direct chmod/chown
     if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then
          dpkg-statoverride --update --add $MEGAM_USER root 755 /var/log/megam
     fi
@@ -31,4 +29,4 @@ fi
 
 initctl reload-configuration
 
-service megamgateway start || echo "megamgateway could not be started. Try manually with service megamgateway start"
+service megamgateway start || echo "megamgateway arrgh!. "

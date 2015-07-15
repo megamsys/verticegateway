@@ -3,9 +3,9 @@ import Process._
 
 name := "megamgateway"
 
-version := "0.8"
+version := "0.9"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 organization := "Megam Systems"
 
@@ -58,11 +58,10 @@ resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
 resolvers += "Bintray scalaz" at "https://dl.bintray.com/scalaz/releases/"
 
 libraryDependencies ++= Seq(filters, cache,
-  "com.github.mumoshu" %% "play2-memcached" % "0.6.0",
-  "jp.t2v" %% "play2-auth" % "0.13.2",
+  "jp.t2v" %% "play2-auth" % "0.14.0",
   "org.yaml" % "snakeyaml" % "1.15",
-  "io.megam" %% "libcommon" % "0.8.2",
-  "io.megam" %% "newman" % "1.3.9" % "test")
+  "io.megam" %% "libcommon" % "0.9",
+  "io.megam" %% "newman" % "1.3.10" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 

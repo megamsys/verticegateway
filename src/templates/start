@@ -17,6 +17,7 @@ respawn limit 0 60
 script
     export HOME="/root"
     cd /usr/share/megam/megamgateway/bin/
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) megamgateway daemonizing" >> /var/log/megam/megamgateway/megamgateway.log
     exec sudo ./megamgateway -Dconfig.file=/usr/share/megam/megamgateway/conf/application-production.conf >> /var/log/megam/megamgateway/megamgateway.log 2>&1
 end script
 
@@ -26,10 +27,10 @@ pre-start script
  if [ -f "/usr/share/megam/megamgateway/RUNNING_PID" ]; then
         rm /usr/share/megam/megamgateway/RUNNING_PID
  fi
- echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> /var/log/megam/megamgateway/megamgateway.log
+ echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) starting" >> /var/log/megam/megamgateway/megamgateway.log
 end script
 
 pre-stop script
     rm /usr/share/megam/megamgateway/RUNNING_PID
-    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> /var/log/megam/megamgateway/megamgateway.log
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) megamgateway tata bye!" >> /var/log/megam/megamgateway/megamgateway.log
 end script

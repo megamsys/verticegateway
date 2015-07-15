@@ -103,8 +103,8 @@ object MKPData {
    private val C9 =  ("9-Docker", Plat("docker.png", "Container", ""),
    List(Plan(FIVE, "Docker that automates the deployment of applications inside software containers.",
    SAMBAR, Constants.VERSION, "https://www.docker.com", "baremetal")))
-   
-     private val C10 = ("10-Containers", Plat("containers.png", "Launch microservices", ""),
+ 
+   private val C10 = ("10-Containers", Plat("containers.png", "Launch microservices", ""),
    List(Plan(FIVE, "Launch containers both in VM and as baremetal",
    SAMBAR, "0.1.0", "https://www.docker.com", "baremetal")))
 
@@ -140,7 +140,7 @@ object MKPData {
       C6._1  -> MarketPlaceInput(C6._1,  C6._2,  MarketPlacePlans(C6._3),  APP,     "rails",   ACTIVE),
       C7._1  -> MarketPlaceInput(C7._1,  C7._2,  MarketPlacePlans(C7._3),  APP,     "play",    ACTIVE),
       C8._1  -> MarketPlaceInput(C8._1,  C8._2,  MarketPlacePlans(C8._3),  APP,     "nodejs",  ACTIVE),
-      C9._1  -> MarketPlaceInput(C9._1,  C9._2,  MarketPlacePlans(C9._3),  ADDON,   "docker",  ACTIVE),
+   //   C9._1  -> MarketPlaceInput(C9._1,  C9._2,  MarketPlacePlans(C9._3),  ADDON,   "docker",  ACTIVE),
       C10._1 -> MarketPlaceInput(C10._1, C10._2, MarketPlacePlans(C10._3), ADDON, "containers", ACTIVE),
       C11._1 -> MarketPlaceInput(C11._1, C11._2, MarketPlacePlans(C11._3), SERVICE, "postgresql", ACTIVE),
       C12._1 -> MarketPlaceInput(C12._1, C12._2, MarketPlacePlans(C12._3), SERVICE, "riak",    ACTIVE),
