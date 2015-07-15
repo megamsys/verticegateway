@@ -55,76 +55,76 @@ object MKPData {
 
 
    private def CatImage(image_file: String): String = CATIMAGE_PREFIX + image_file
-   private def Cat(image: String, category: String, summary: String): MarketPlaceCatalog = new MarketPlaceCatalog(CatImage(image), category,summary)
-   private def Torpedo(image: String,  summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_TORPEDO, summary)
-   private def BYOC(image: String, summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_BYOC, summary)
-   private def Appb(image: String, summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_APPBOILERS, summary)
-   private def Plat(image: String, summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_PLATFORM, summary)
-   private def BigD(image: String, summary: String): MarketPlaceCatalog = Cat(image, CATEGORY_ANALYTICS, summary)
+   private def Cat(image: String, category: String, summary: String, port: String): MarketPlaceCatalog = new MarketPlaceCatalog(CatImage(image), category,summary, port)
+   private def Torpedo(image: String,  summary: String, port: String): MarketPlaceCatalog = Cat(image, CATEGORY_TORPEDO, summary, port)
+   private def BYOC(image: String, summary: String, port: String): MarketPlaceCatalog = Cat(image, CATEGORY_BYOC, summary, port)
+   private def Appb(image: String, summary: String, port: String): MarketPlaceCatalog = Cat(image, CATEGORY_APPBOILERS, summary, port)
+   private def Plat(image: String, summary: String, port: String): MarketPlaceCatalog = Cat(image, CATEGORY_PLATFORM, summary, port)
+   private def BigD(image: String, summary: String, port: String): MarketPlaceCatalog = Cat(image, CATEGORY_ANALYTICS, summary, port)
 
    private def Plan(price: String, desc: String, plantype: String, version: String, source:  String, os: String): MarketPlacePlan  = MarketPlacePlan(price, desc, plantype, version, source, os)
    //This can go to an autoupdatable yaml file. So when the server starts it will sync the new marketplace items.
-   private val C1 =  ("1-Ubuntu", Torpedo("ubuntu.png", "Ubuntu"),
+   private val C1 =  ("1-Ubuntu", Torpedo("ubuntu.png", "Ubuntu", ""),
     List(Plan(FIVE, "Scale out with Ubuntu Server. The leading platform for scale-out computing, Ubuntu Server helps you make the most of your infrastructure.",
     SAMBAR, "14.04", "http://ubuntu.com", CATOS_UBUNTU)))
 
-   private val C2 =  ("2-CoreOS", Torpedo("coreos.png", "CoreOS"),
+   private val C2 =  ("2-CoreOS", Torpedo("coreos.png", "CoreOS", ""),
    List(Plan(FIVE, "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers.",
      SAMBAR, "633.1.0", "http://coreos.com", "KVM")))
 
-   private val C3 =  ("3-Debian", Torpedo("debian.png", "Debian"),
+   private val C3 =  ("3-Debian", Torpedo("debian.png", "Debian", ""),
    List(Plan(FIVE, "Debian is a free operating system (OS) for your computer. Wheezy is the codename for 7.0 Debian.",
    SAMBAR, "7", "http://debian.com", "Debian wheezy"),
    Plan(FIVE, "Debian is a free operating system (OS) for your computer. Jessie is the codename for 8.0 Debian.",
    SAMBAR, "8", "http://debian.com", "Debian jessie")))
 
-   private val C4 =  ("4-CentOS", Torpedo("centos.png", "CentOS"),
+   private val C4 =  ("4-CentOS", Torpedo("centos.png", "CentOS", ""),
    List(Plan(FIVE, "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat.",
    SAMBAR, "7", "http://centos.org", "CentOS 7")))
 
 
-   private val C5 =  ("5-Java",   BYOC("java.png", "Java Web starter"),
+   private val C5 =  ("5-Java",   BYOC("java.png", "Java Web starter", ""),
    List(Plan(FIVE, "Quickly get started with J2EE Spring framework app.",
    SAMBAR, Constants.VERSION, "https://github.com/megamsys/spring-mvc-fulfillment-base.git", CATOS_UBUNTU)))
 
 
-   private val C6 =  ("6-Rails",  BYOC("rails.png", "Rails App"),
+   private val C6 =  ("6-Rails",  BYOC("rails.png", "Rails App", ""),
    List(Plan(FIVE, "Quickly get started with rails 4.x app.",
    SAMBAR, Constants.VERSION, "https://github.com/megamsys/aryabhata.git", CATOS_UBUNTU)))
 
-   private val C7 =  ("7-Play",   BYOC("play.png", "Play App"),
+   private val C7 =  ("7-Play",   BYOC("play.png", "Play App", ""),
    List(Plan(FIVE, "Build robust RESTful API server using Scala.",
    SAMBAR, Constants.VERSION, "https://github.com/megamsys/modern-web-template.git", CATOS_UBUNTU)))
 
-   private val C8 =  ("8-Nodejs", BYOC("nodejs.png", "Realtime App"),
+   private val C8 =  ("8-Nodejs", BYOC("nodejs.png", "Realtime App", ""),
    List(Plan(FIVE, "Build fast, scalable, and incredibly efficient realtime app in second.",
    SAMBAR, Constants.VERSION, "https://github.com/megamsys/Ghost.git", CATOS_UBUNTU)))
 
-   private val C9 =  ("9-Docker", Plat("docker.png", "Container"),
+   private val C9 =  ("9-Docker", Plat("docker.png", "Container", ""),
    List(Plan(FIVE, "Docker that automates the deployment of applications inside software containers.",
    SAMBAR, Constants.VERSION, "https://www.docker.com", "baremetal")))
    
-     private val C10 = ("10-Containers", Plat("containers.png", "Launch microservices"),
+     private val C10 = ("10-Containers", Plat("containers.png", "Launch microservices", ""),
    List(Plan(FIVE, "Launch containers both in VM and as baremetal",
    SAMBAR, "0.1.0", "https://www.docker.com", "baremetal")))
 
-   private val C11 = ("11-PostgreSQL", Appb("postgres.png", "Object Relational DBMS"),
+   private val C11 = ("11-PostgreSQL", Appb("postgres.png", "Object Relational DBMS", "5432"),
    List(Plan(FIVE, "PostgreSQL is a powerful, open source object-relational database system.",
    SAMBAR, "9.3", "https://postgresql.org", CATOS_UBUNTU)))
 
-   private val C12 = ("12-Riak", Appb("riak.png", "Scalable Distributed Database"),
+   private val C12 = ("12-Riak", Appb("riak.png", "Scalable Distributed Database", ""),
    List(Plan(FIVE, "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers.",
    SAMBAR, "2.1.1", "http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb", CATOS_UBUNTU)))
 
-   private val C13 = ("13-Redis", Appb("redis.png", "Key Value Store"),
+   private val C13 = ("13-Redis", Appb("redis.png", "Key Value Store", ""),
    List(Plan(FIVE, "Redis is a key-value store which acts as a data structure server with keys containing strings, hashes, lists, sets and sorted sets.",
    SAMBAR, "2.8.4", "https://redis.org", CATOS_UBUNTU)))
 
-   private val C14 = ("14-RabbitMQ", Appb("rabbitmq.png", "Message Broker"),
+   private val C14 = ("14-RabbitMQ", Appb("rabbitmq.png", "Message Broker", ""),
    List(Plan(FIVE, "RabbitMQ is a message broker software  that implements the Advanced Message Queuing Protocol (AMQP).",
    SAMBAR, "3.3.5", "https://www.rabbitmq.com", CATOS_UBUNTU)))
 
-   private val C15 = ("15-Hadoop", BigD("hadoop.png", "Plumbing your big data is easy"),
+   private val C15 = ("15-Hadoop", BigD("hadoop.png", "Plumbing your big data is easy", ""),
    List(Plan(FIVE, "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware",
    SAMBAR, "2.6.0", "https://hadoop.apache.org/", CATOS_UBUNTU)))
    

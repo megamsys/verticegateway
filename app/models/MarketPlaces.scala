@@ -82,8 +82,8 @@ object MarketPlacePlan {
 }
 
 
-case class MarketPlaceCatalog(logo: String, category: String, description: String) {
-  val json = "\"logo\":\"" + logo + "\",\"category\":\"" + category + "\",\"description\":\"" + description + "\""
+case class MarketPlaceCatalog(logo: String, category: String, description: String, port: String) {
+  val json = "\"logo\":\"" + logo + "\",\"category\":\"" + category + "\",\"description\":\"" + description + "\",\"port\":\"" + port + "\""
 }
 
 case class MarketPlaceInput(name: String, catalog: MarketPlaceCatalog, plans: models.MarketPlacePlans, cattype: String, predef: String, status: String) {
