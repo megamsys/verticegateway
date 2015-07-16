@@ -39,6 +39,7 @@ object MarketPlaceCatalogSerialization extends SerializationBase[MarketPlaceCata
   protected val LogoKey = "logo"
   protected val CategoryKey = "category"
   protected val DescriptionKey = "description"
+  protected val PortKey = "port"
 
   override implicit val writer = new JSONW[MarketPlaceCatalog] {
 
@@ -47,6 +48,7 @@ object MarketPlaceCatalogSerialization extends SerializationBase[MarketPlaceCata
         JField(LogoKey, toJSON(h.logo)) ::
           JField(CategoryKey, toJSON(h.category)) ::
           JField(DescriptionKey, toJSON(h.description)) ::
+          JField(PortKey, toJSON(h.port)) ::
            Nil)
     }
   }
@@ -57,10 +59,11 @@ object MarketPlaceCatalogSerialization extends SerializationBase[MarketPlaceCata
       val logoField = field[String](LogoKey)(json)
       val categoryField = field[String](CategoryKey)(json)
       val descriptionField = field[String](DescriptionKey)(json)
+      val portField = field[String](PortKey)(json)
 
-      (logoField |@| categoryField |@| descriptionField ) {
-        (logo: String, category: String, description: String) =>
-          new MarketPlaceCatalog(logo, category, description)
+      (logoField |@| categoryField |@| descriptionField |@| portField ) {
+        (logo: String, category: String, description: String, port: String) =>
+          new MarketPlaceCatalog(logo, category, description, port)
       }
     }
   }
