@@ -33,6 +33,9 @@ API server for "[Megam cloud platform](https://www.megam.io)". The API server pr
 
 ```
 
+![Gateway Dashboard](https://github.com/megamsys/megam_gateway/blob/0.9/conf/megam_gateway.png)
+
+
 ### Documentation
 
 Refer [documentation] (http://docs.megam.io)
