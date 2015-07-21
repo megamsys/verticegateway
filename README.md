@@ -1,21 +1,21 @@
 Megam Gateway
 ================
 
-API server for "[Megam CMP](https://www.megam.io)". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
+API server for "[Megam cloud platform](https://www.megam.io)". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
 
 [![Build Status](https://travis-ci.org/megamsys/megam_gateway.png)](https://travis-ci.org/megamsys/megam_gateway)
 
 ## Getting Started
 
-* Try our public service (launching on April 30, 2015)  [https://console.megam.io](https://console.megam.io)
+* Try our developer edition [https://console.megam.io](https://console.megam.io)
 
 
 ### Requirements
 
-> 
+>
 [RabbitMQ 3.3.0 +](http://www.rabbitmq.com)
 [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
-[Riak 2.0.5 +](http://docs.basho.com/riak/latest/downloads/)
+[Riak 2.1.1 +](http://docs.basho.com/riak/latest/downloads/)
 
 
 ### Compile from source
@@ -25,7 +25,7 @@ API server for "[Megam CMP](https://www.megam.io)". The API server protectes the
 
 * sbt
 
-* clean 
+* clean
 
 * compile
 
@@ -43,7 +43,7 @@ We are glad to help if you have questions, or request for new features..
 
 [twitter @megamsys](http://twitter.com/megamsys) [email support@megam.io](<support@megam.io>)
 
-	
+
 # License
 
 |                      |                                          |
@@ -65,4 +65,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
- 
