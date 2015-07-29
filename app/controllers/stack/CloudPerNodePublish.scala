@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,15 +38,15 @@ object CloudPerNodePublish {
   def apply = new CloudPerNodePublish(new String(), Map.empty[String, String])
 }
 
-case class CloudPerNodePublish(name: String, messages: Map[String,String]) extends MessageContext {  
-  
+case class CloudPerNodePublish(name: String, messages: Map[String,String]) extends MessageContext {
+
   def queueName = cloudFarm + "_" + name + "_queue"
   def exchangeName = cloudFarm + "_" + name + "_exchange"
 
   val cnp_pubMsg = Messages(messages.toList)
   
+
   play.api.Logger.debug("%-20s -->[%s]".format("Publish:"+ queueName, cnp_pubMsg))
-  
+
   def dop(): ValidationNel[Throwable, AMQPResponse] = execute(rmqClient.publish(cnp_pubMsg, MConfig.routing_key))
 }
-

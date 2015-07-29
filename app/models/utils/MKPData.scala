@@ -35,7 +35,7 @@ object MKPData {
     private val APP     = "APP"
     private val SERVICE = "SERVICE"
     private val TORPEDO     = "TORPEDO"
-    private val ADDON   = "ADDON"
+    private val MICROSERVICES = "MICROSERVICES"
 
     private val CATEGORY_TORPEDO    = "1-Torpedo"
     private val CATEGORY_BYOC       = "2-Bring Your Own Code"
@@ -141,7 +141,7 @@ object MKPData {
       C7._1  -> MarketPlaceInput(C7._1,  C7._2,  MarketPlacePlans(C7._3),  APP,     "play",    ACTIVE),
       C8._1  -> MarketPlaceInput(C8._1,  C8._2,  MarketPlacePlans(C8._3),  APP,     "nodejs",  ACTIVE),
    //   C9._1  -> MarketPlaceInput(C9._1,  C9._2,  MarketPlacePlans(C9._3),  ADDON,   "docker",  ACTIVE),
-      C10._1 -> MarketPlaceInput(C10._1, C10._2, MarketPlacePlans(C10._3), ADDON, "containers", ACTIVE),
+      C10._1 -> MarketPlaceInput(C10._1, C10._2, MarketPlacePlans(C10._3), MICROSERVICES, "containers", ACTIVE),
       C11._1 -> MarketPlaceInput(C11._1, C11._2, MarketPlacePlans(C11._3), SERVICE, "postgresql", ACTIVE),
       C12._1 -> MarketPlaceInput(C12._1, C12._2, MarketPlacePlans(C12._3), SERVICE, "riak",    ACTIVE),
       C13._1 -> MarketPlaceInput(C13._1, C13._2, MarketPlacePlans(C13._3), SERVICE, "redis",   ACTIVE),

@@ -78,6 +78,7 @@ object Assembly extends Controller with APIAuthElement {
           models.tosca.Assembly.update(email, clientAPIBody) match {
             case Success(succ) =>
               //Ok(AssemblyResults.toJson(succ, true))
+              
               val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
               CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "published successfully."))

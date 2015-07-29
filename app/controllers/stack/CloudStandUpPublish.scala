@@ -44,7 +44,6 @@ case class CloudStandUpPublish(name: String, messages: String) extends MessageCo
   def exchangeName = cloudFarm + "_" + MConfig.cloudstandup_exchange
 
   val csp_pubMsg = Messages("id" -> messages)
-
   play.api.Logger.debug("%-20s -->[%s]".format("Publish:" + queueName, csp_pubMsg))
   
   def dop(): ValidationNel[Throwable, AMQPResponse] = execute(rmqClient.publish(csp_pubMsg, MConfig.routing_key))
