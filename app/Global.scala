@@ -18,6 +18,12 @@
  *
  */
 
+ import scalaz._
+ import Scalaz._
+ import scalaz.effect.IO
+ import scalaz.EitherT._
+ import scalaz.Validation
+ import scalaz.Validation.FlatMap._
 import play.api._
 import play.api.http.Status._
 import play.api.http.HeaderNames._
@@ -58,14 +64,16 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
       case true => play.api.Logger.info(">> Found megamprimed file, skip priming.")
       case false =>
         play.api.Logger.info(">> priming: performing priming.")
-        models.PlatformAppPrimer.acc_prep
-        play.api.Logger.info(">> priming: account..")
-        models.PlatformAppPrimer.clone_organizations(controllers.Constants.DEMO_EMAIL)
-        play.api.Logger.info(">> priming: orgs..")
-        models.PlatformAppPrimer.mkp_prep
-        play.api.Logger.info(">> priming: marketplace..")
+        for {
+          m <- models.PlatformAppPrimer.acc_prep
+          dorg <- models.PlatformAppPrimer.clone_organizations(controllers.Constants.DEMO_EMAIL)
+          mkp <- models.PlatformAppPrimer.mkp_prep
+        } yield {
+          play.api.Logger.info(">> priming: successful.")
+          megamprimedfile.createNewFile();
+          play.api.Logger.info(">> priming: created .megamprimedfile [%s].".format(megamprimedfile.getAbsolutePath))
+        }
         play.api.Logger.info(">> priming: complete.")
-        megamprimedfile.createNewFile();
     }
   }
 

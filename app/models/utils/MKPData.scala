@@ -85,7 +85,7 @@ object MKPData {
 
    private val C5 =  ("5-Java",   BYOC("java.png", "Java Web starter", ""),
    List(Plan(FIVE, "Quickly get started with J2EE Spring framework app.",
-   SAMBAR, Constants.VERSION, "https://github.com/megamsys/spring-mvc-fulfillment-base.git", CATOS_UBUNTU)))
+   SAMBAR, Constants.VERSION, "https://github.com/megamsys/java-spring-petclinic.git", CATOS_UBUNTU)))
 
 
    private val C6 =  ("6-Rails",  BYOC("rails.png", "Rails App", ""),
@@ -98,15 +98,15 @@ object MKPData {
 
    private val C8 =  ("8-Nodejs", BYOC("nodejs.png", "Realtime App", ""),
    List(Plan(FIVE, "Build fast, scalable, and incredibly efficient realtime app in second.",
-   SAMBAR, Constants.VERSION, "https://github.com/megamsys/Ghost.git", CATOS_UBUNTU)))
+   SAMBAR, Constants.VERSION, "https://github.com/megamsys/etherpad-lite.git", CATOS_UBUNTU)))
 
    private val C9 =  ("9-Docker", Plat("docker.png", "Container", ""),
    List(Plan(FIVE, "Docker that automates the deployment of applications inside software containers.",
    SAMBAR, Constants.VERSION, "https://www.docker.com", "baremetal")))
- 
-   private val C10 = ("10-Containers", Plat("containers.png", "Launch microservices", ""),
-   List(Plan(FIVE, "Launch containers both in VM and as baremetal",
-   SAMBAR, "0.1.0", "https://www.docker.com", "baremetal")))
+
+   private val C10 = ("10-DockerBox", Plat("docker.png", "Launch a vm with docker", ""),
+   List(Plan(FIVE, "Launch a vm with docker in detached model.",
+   SAMBAR, "0.9.0", "https://www.docker.com", "vm")))
 
    private val C11 = ("11-PostgreSQL", Appb("postgres.png", "Object Relational DBMS", "5432"),
    List(Plan(FIVE, "PostgreSQL is a powerful, open source object-relational database system.",
@@ -127,8 +127,8 @@ object MKPData {
    private val C15 = ("15-Hadoop", BigD("hadoop.png", "Plumbing your big data is easy", ""),
    List(Plan(FIVE, "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware",
    SAMBAR, "2.6.0", "https://hadoop.apache.org/", CATOS_UBUNTU)))
-   
-   
+
+
 
 
   val mkMap = Map[String, MarketPlaceInput](
