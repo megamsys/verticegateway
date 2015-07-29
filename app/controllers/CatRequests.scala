@@ -38,6 +38,10 @@ import play.api.mvc.Result
  */
 object CatRequests extends Controller with APIAuthElement {
 
+  
+  
+  val DOCKERQUEUE = "dockerstate"
+  
   /*
    * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
@@ -56,9 +60,15 @@ object CatRequests extends Controller with APIAuthElement {
             case Success(succ) =>
                 /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/failures.
-               */
-                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
-                CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
+               */                           
+                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah"))
+                var qName = ""
+                   if (tuple_succ._3 != "Microservices") {
+                          qName = tuple_succ._2
+                    } else {
+                        qName = DOCKERQUEUE
+                    }         
+                CloudPerNodePublish(qName, tuple_succ._1).dop.flatMap { x =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CatRequests", "published successfully."))
                   Status(CREATED)(FunnelResponse(CREATED, """CatRequest initiation instruction submitted successfully.
             |

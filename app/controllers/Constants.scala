@@ -59,7 +59,6 @@ object Constants {
   val VERSION = "0.8"
 
 
-
   /*Look for a file /var/lib/megam/.megam_auth with fields
   megam@mypaas.io:<randomlygenerated pw>
   if it doesn't exists then use the defaults

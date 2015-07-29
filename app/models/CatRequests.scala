@@ -42,12 +42,12 @@ import java.nio.charset.Charset
  * @author rajthilak
  */
 
-case class CatRequestInput(cat_id: String, name: String, action: String) {
-  val json = "\"cat_id\":\"" + cat_id + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\""
+case class CatRequestInput(cat_id: String, cattype: String, name: String, action: String) {
+  val json = "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\""
 }
 
-case class CatRequestResult(id: String, cat_id: String, name: String, action: String, created_at: String) {
-  val json = "{\"id\": \"" + id + "\",\"cat_id\": \"" + cat_id + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"created_at\":\"" + created_at + "\"}"
+case class CatRequestResult(id: String, cat_id: String, cattype: String, name: String, action: String, created_at: String) {
+  val json = "{\"id\": \"" + id + "\",\"cat_id\": \"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"created_at\":\"" + created_at + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -65,7 +65,7 @@ case class CatRequestResult(id: String, cat_id: String, name: String, action: St
 
 object CatRequestResult {
 
-  def apply = new CatRequestResult(new String(), new String(), new String(), new String(), new String())
+  def apply = new CatRequestResult(new String(), new String(), new String(), new String(), new String(), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CatRequestResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -125,7 +125,7 @@ object CatRequests {
    * create new CatRequest with the 'Nodename' of the node provide as input.
    * A index name appreqID will point to the "appreqs" bucket
    */
-  def create(input: String): ValidationNel[Throwable, Option[Tuple2[Map[String,String], String]]] = {
+  def create(input: String): ValidationNel[Throwable, Option[Tuple3[Map[String,String], String, String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.CatRequests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -137,16 +137,14 @@ object CatRequests {
           val req_result = parse(gs.get.value).extract[CatRequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("CatRequest.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.name).some.successNel[Throwable]
+            case Some(thatGS) => Tuple3(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.name, req_result.cattype).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("CatRequest.created success", "Scaliak returned => None. Thats OK."))
-              Tuple2(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.name).some.successNel[Throwable]
+              Tuple3(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Args" -> "Nah")), req_result.name, req_result.cattype).some.successNel[Throwable]
             }
           }
         }
     }
   }
-
-
 
 }
