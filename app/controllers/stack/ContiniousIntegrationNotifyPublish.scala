@@ -43,7 +43,7 @@ case class ContiniousIntegrationNotifyPublish(id: String, name: String, event: S
   def queueName = cloudFarm + "_" + name + "_queue"
   def exchangeName = cloudFarm + "_" + name + "_exchange"
 
-  val csp_pubMsg = Messages("assembly_id" -> id, "name" -> name, "event" -> event)
+  val csp_pubMsg = Messages("Id" -> id, "Action" -> "redeploy", "Args" -> name)
 
   play.api.Logger.debug("%-20s -->[%s]".format("Publish:" + queueName, csp_pubMsg))
   
