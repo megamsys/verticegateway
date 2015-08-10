@@ -108,13 +108,11 @@ object Assembly extends Controller with APIAuthElement {
 
 
 
- def build(id: String, cid: String) = Action(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("Assembly ID", id))
-    play.api.Logger.debug(("%-20s -->[%s]").format("Component ID", cid))
+ def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "buildCI:Entry"))
 
     (Validation.fromTryCatchThrowable[Result,Throwable] {
-         ContiniousIntegrationNotifyPublish(id, cid, "notify").dop.flatMap { x =>
+         ContiniousIntegrationNotifyPublish(id, name, "notify").dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CINotify", "published successfully."))
                 Status(CREATED)(FunnelResponse(CREATED, """CI notify initiation instruction submitted successfully.
             |
