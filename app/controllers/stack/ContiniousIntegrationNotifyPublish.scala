@@ -38,12 +38,12 @@ object ContiniousIntegrationNotifyPublish {
 
 }
 
-case class ContiniousIntegrationNotifyPublish(id: String, cid: String, event: String) extends MessageContext {
+case class ContiniousIntegrationNotifyPublish(id: String, name: String, event: String) extends MessageContext {
 
-  def queueName = cloudFarm + "_" + MConfig.event_queue
-  def exchangeName = cloudFarm + "_" + MConfig.event_exchange
+  def queueName = cloudFarm + "_" + name + "_queue"
+  def exchangeName = cloudFarm + "_" + name + "_exchange"
 
-  val csp_pubMsg = Messages("assembly_id" -> id, "component_id" -> cid, "event" -> event)
+  val csp_pubMsg = Messages("assembly_id" -> id, "name" -> name, "event" -> event)
 
   play.api.Logger.debug("%-20s -->[%s]".format("Publish:" + queueName, csp_pubMsg))
   
