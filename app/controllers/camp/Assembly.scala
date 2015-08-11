@@ -108,25 +108,40 @@ object Assembly extends Controller with APIAuthElement {
 
 
 
- def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
+  def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "buildCI:Entry"))
+    val DOCKERQUEUE = "dockerstate"
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
-         ContiniousIntegrationNotifyPublish(id, name, "notify").dop.flatMap { x =>
-                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.CINotify", "published successfully."))
-                Status(CREATED)(FunnelResponse(CREATED, """CI notify initiation instruction submitted successfully.
+  (Validation.fromTryCatchThrowable[Result,Throwable] {
+          val clientAPIBody = "{\"cat_id\": \"" + id + "\",\"cattype\":\"" + "" + "\",\"name\":\"" + name + "\",\"action\":\"" + "redeploy" + "\"}"
+
+          models.CatRequests.create(clientAPIBody) match {
+            case Success(succ) =>              
+                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah"))
+                var qName = ""
+                   if (tuple_succ._3 != "Microservices") {
+                          qName = tuple_succ._2
+                    } else {
+                        qName = DOCKERQUEUE
+                    }         
+                CloudPerNodePublish(qName, tuple_succ._1).dop.flatMap { x =>
+                  Status(CREATED)(FunnelResponse(CREATED, """CatRequest initiation instruction submitted successfully.
             |
-            |The Assembly build request submitted. It will be build ready shortly.""", "Megam::Assembly").toJson(true)).successNel[Throwable]
-              } match {
-                //this is only a temporary hack.
-                case Success(succ_cpc) => succ_cpc
-                case Failure(err) =>
-                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """CI notification failed.
+            |The CatRequest is processed by our engine. It will be ready shortly.""", "Megam::CatRequests").toJson(true)).successNel[Throwable]
+                } match {
+                  //this is only a temporary hack.
+                  case Success(succ_cpc) => succ_cpc
+                  case Failure(err) =>
+                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """CatRequest initiation submission failed.
             |
-            |Retry again, our queue servers are crowded""", "Megam::Assembly").toJson(true))
-              }
+            |Retry again, our queue servers are crowded""", "Megam::CatRequests").toJson(true))
+                }
+            case Failure(err) => {
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+            }
+          }
+    
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
- }
-
-
+  }
 }
