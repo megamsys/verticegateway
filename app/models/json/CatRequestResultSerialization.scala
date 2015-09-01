@@ -40,6 +40,7 @@ class CatRequestResultSerialization(charset: Charset = UTF8Charset) extends Seri
   protected val CatTypeKey = "cattype"
   protected val NameKey = "name"
   protected val ActionKey = "action"
+  protected val CategoryKey = "category"
   protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[CatRequestResult] {
@@ -52,6 +53,7 @@ class CatRequestResultSerialization(charset: Charset = UTF8Charset) extends Seri
           JField(NameKey, toJSON(h.name)) ::
           JField(JSONClazKey, toJSON("Megam::CatRequests")) ::
           JField(ActionKey, toJSON(h.action)) ::
+          JField(CategoryKey, toJSON(h.category)) ::
           JField(CreatedAtKey, toJSON(h.created_at))   :: Nil)
     }
   }
@@ -64,11 +66,12 @@ class CatRequestResultSerialization(charset: Charset = UTF8Charset) extends Seri
       val catTypeField = field[String](CatTypeKey)(json)
       val nameField = field[String](NameKey)(json)
       val actionField = field[String](ActionKey)(json)
+       val categoryField = field[String](CategoryKey)(json)     
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| catIdField |@| catTypeField |@| nameField |@| actionField |@| createdAtField) {
-        (id: String, cat_id: String, cattype: String, name: String, action: String, created_at: String) =>
-          new CatRequestResult(id, cat_id, cattype, name, action, created_at)
+      (idField |@| catIdField |@| catTypeField |@| nameField |@| actionField |@| categoryField |@| createdAtField) {
+        (id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: String) =>
+          new CatRequestResult(id, cat_id, cattype, name, action, category, created_at)
       }
     }
   }
