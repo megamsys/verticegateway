@@ -28,10 +28,6 @@ GET		 /v2/organizations				        controllers.camp.Organizations.list()
 POST   /v2/domains/content              controllers.camp.Domains.post
 GET    /v2/domains/:id                  controllers.camp.Domains.show(id: String)
 
-#PredefClouds
-POST   /v2/predefclouds/content         controllers.PredefClouds.post
-GET    /v2/predefclouds                 controllers.PredefClouds.list
-GET    /v2/predefclouds/:pre_name       controllers.PredefClouds.show(pre_name: String)
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
