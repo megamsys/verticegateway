@@ -33,7 +33,7 @@ import controllers.Constants._
  */
 package object models {
 
-
+/*
  type PredefCloudResults = NonEmptyList[Option[PredefCloudResult]]
 
   object PredefCloudResults {
@@ -55,7 +55,7 @@ package object models {
 
     def apply(m: PredefCloudResult): PredefCloudResults = nels(m.some)
     def empty: PredefCloudResults = nel(emptyPC.head, emptyPC.tail)
-  }
+  } */
 
   type RequestResults = NonEmptyList[Option[RequestResult]]
 
@@ -81,7 +81,7 @@ package object models {
     def empty: RequestResults = nel(emptyRR.head, emptyRR.tail)
   }
 
-  implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): Option[String] = PredefCloudResults.toJson(prres, true).some
+//  implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): Option[String] = PredefCloudResults.toJson(prres, true).some
 
 
   type CloudToolSettingResults = NonEmptyList[Option[CloudToolSettingResult]]

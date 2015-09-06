@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
+/*
 package models.json
 
 import scalaz._
@@ -28,11 +30,16 @@ import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
 import models.{ PredefCloudSpec }
+*/
+
 
 /**
  * @author ram
  *
  */
+
+
+/*
 object PredefCloudSpecSerialization extends SerializationBase[PredefCloudSpec] {
 
   protected val NameKey = "type_name"
@@ -48,7 +55,7 @@ object PredefCloudSpecSerialization extends SerializationBase[PredefCloudSpec] {
         JField(NameKey, toJSON(h.type_name)) ::
           JField(GroupsKey, toJSON(h.groups)) ::
           JField(ImageKey, toJSON(h.image)) ::
-          JField(FlavorKey, toJSON(h.flavor)) :: 
+          JField(FlavorKey, toJSON(h.flavor)) ::
           JField(TenantIdKey, toJSON(h.tenant_id)) :: Nil)
     }
   }
@@ -69,3 +76,4 @@ object PredefCloudSpecSerialization extends SerializationBase[PredefCloudSpec] {
     }
   }
 }
+*/
