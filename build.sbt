@@ -58,8 +58,8 @@ resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
 resolvers += "Bintray scalaz" at "https://dl.bintray.com/scalaz/releases/"
 
 libraryDependencies ++= Seq(filters, cache,
-  "jp.t2v" %% "play2-auth" % "0.14.0",
-  "org.yaml" % "snakeyaml" % "1.15",
+  "jp.t2v" %% "play2-auth" % "0.14.1",
+  "org.yaml" % "snakeyaml" % "1.16",
   "io.megam" %% "libcommon" % "0.10",
   "io.megam" %% "newman" % "1.3.10" % "test")
 

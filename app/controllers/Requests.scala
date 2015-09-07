@@ -67,7 +67,6 @@ object Requests extends Controller with APIAuthElement {
               else {              
                 val pubres = if (tuple_succ._3 != "Microservices") {
                   if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) {
-                    //delete 
                     for {
                     csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop
                    } yield {} 
