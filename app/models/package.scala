@@ -33,29 +33,6 @@ import controllers.Constants._
  */
 package object models {
 
-/*
- type PredefCloudResults = NonEmptyList[Option[PredefCloudResult]]
-
-  object PredefCloudResults {
-    val emptyPC = List(Option.empty[PredefCloudResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: PredefCloudResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.PredefCloudResultsSerialization.{ writer => PredefCloudResultsWriter }
-      toJSON(prres)(PredefCloudResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: PredefCloudResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: PredefCloudResult): PredefCloudResults = nels(m.some)
-    def empty: PredefCloudResults = nel(emptyPC.head, emptyPC.tail)
-  } */
 
   type RequestResults = NonEmptyList[Option[RequestResult]]
 
@@ -230,27 +207,5 @@ package object models {
 
   }
 
-  type CatRequestResults = NonEmptyList[Option[CatRequestResult]]
-
-  object CatRequestResults {
-    val emptyPC = List(Option.empty[CatRequestResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: CatRequestResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.CatRequestResultsSerialization.{ writer => CatRequestResultsWriter }
-      toJSON(prres)(CatRequestResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: CatRequestResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: CatRequestResult): CatRequestResults = nels(m.some)
-    def empty: CatRequestResults = nel(emptyPC.head, emptyPC.tail)
-  }
 
 }

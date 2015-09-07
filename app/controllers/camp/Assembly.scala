@@ -115,9 +115,9 @@ object Assembly extends Controller with APIAuthElement {
   (Validation.fromTryCatchThrowable[Result,Throwable] {
           val clientAPIBody = "{\"cat_id\": \"" + id + "\",\"cattype\":\"" + "" + "\",\"name\":\"" + name + "\",\"action\":\"" + "redeploy" + "\"}"
 
-          models.CatRequests.create(clientAPIBody) match {
+          models.Requests.createforExistNode(clientAPIBody) match {
             case Success(succ) =>              
-                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah"))
+                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah", "hah", "lah"))
                 var qName = ""
                    if (tuple_succ._3 != "Microservices") {
                           qName = tuple_succ._2
@@ -134,7 +134,7 @@ object Assembly extends Controller with APIAuthElement {
                   case Failure(err) =>
                     Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """CatRequest initiation submission failed.
             |
-            |Retry again, our queue servers are crowded""", "Megam::CatRequests").toJson(true))
+            |Retry again, our queue servers are crowded""", "Megam::Requests").toJson(true))
                 }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -144,4 +144,6 @@ object Assembly extends Controller with APIAuthElement {
     
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
+  
+  
 }
