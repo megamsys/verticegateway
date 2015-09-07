@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
+/*
 package models.json
 
 import scalaz._
@@ -29,11 +31,15 @@ import controllers.Constants._
 import controllers.funnel.SerializationBase
 import models.{ PredefCloudAccess }
 
+*/
+
 /**
  * @author ram
  *
  */
 
+
+/*
 object PredefCloudAccessSerialization extends SerializationBase[PredefCloudAccess] {
 
   protected val SSHKey = "ssh_key"
@@ -50,10 +56,10 @@ object PredefCloudAccessSerialization extends SerializationBase[PredefCloudAcces
       JObject(
         JField(SSHKey, toJSON(h.ssh_key)) ::
           JField(IdentityFileKey, toJSON(h.identity_file)) ::
-          JField(SSHUserKey, toJSON(h.ssh_user)) :: 
-          JField(VaultLocationKey, toJSON(h.vault_location))  :: 
-          JField(SshPubLocationKey, toJSON(h.sshpub_location))  :: 
-          JField(ZoneKey, toJSON(h.zone)) :: 
+          JField(SSHUserKey, toJSON(h.ssh_user)) ::
+          JField(VaultLocationKey, toJSON(h.vault_location))  ::
+          JField(SshPubLocationKey, toJSON(h.sshpub_location))  ::
+          JField(ZoneKey, toJSON(h.zone)) ::
           JField(RegionKey, toJSON(h.region)) :: Nil)
     }
   }
@@ -75,4 +81,4 @@ object PredefCloudAccessSerialization extends SerializationBase[PredefCloudAcces
       }
     }
   }
-}
+}  */
