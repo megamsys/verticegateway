@@ -38,10 +38,12 @@ import controllers.Constants._
 import controllers.stack.MConfig
 import java.nio.charset.Charset
 
+
 /**
  * @author rajthilak
  */
 
+/*
 case class CatRequestInput(cat_id: String, cattype: String, name: String, action: String, category: String) {
   val json = "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
 }
@@ -81,6 +83,7 @@ object CatRequestResult {
 
 }
 
+
 object CatRequests {
 
   implicit val formats = DefaultFormats
@@ -103,8 +106,8 @@ object CatRequests {
 
     //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
-    val ripNel: ValidationNel[Throwable, CatRequestInput] = (Validation.fromTryCatchThrowable[CatRequestInput,Throwable] {
-      parse(input).extract[CatRequestInput]
+    val ripNel: ValidationNel[Throwable, RequestInput] = (Validation.fromTryCatchThrowable[RequestInput,Throwable] {
+      parse(input).extract[RequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     play.api.Logger.debug(("%-20s -->[%s]").format("models.CatRequests:rip", ripNel))
@@ -133,7 +136,7 @@ object CatRequests {
     }).flatMap { gs: Option[GunnySack] =>
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
-          val req_result = parse(gs.get.value).extract[CatRequestResult]
+          val req_result = parse(gs.get.value).extract[RequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("CatRequest.created successfully", "input", input))
           maybeGS match {
             case Some(thatGS) => Tuple3(Map[String,String](("Id" -> gs.get.key), ("Action" -> req_result.action), ("Category" -> req_result.category)), req_result.name, req_result.cattype).some.successNel[Throwable]
@@ -147,3 +150,4 @@ object CatRequests {
   }
 
 }
+*/

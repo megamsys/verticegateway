@@ -80,7 +80,11 @@ object Constants {
   val DEMO_APIKEY = "faketour"
 
 
-  val DELETE_REQUEST = "DELETE"
+  val DELETE_REQUEST = "DESTROY"
+  val CREATE_REQUEST = "CREATE"
+  
+  val DOCKER_QUEUE = "dockerstate"
+
 
   val MEGAM_PRIMED_DIR = (for {home <- MEGAM_HOME}
  yield { home + File.separator + "megamgateway" }).getOrElse("megamgateway")

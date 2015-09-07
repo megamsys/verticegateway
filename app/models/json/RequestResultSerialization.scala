@@ -34,23 +34,27 @@ import models.{RequestResult}
  *
  */
 class RequestResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[RequestResult] {
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val CatIDKey = "cat_id"
-  protected val NameKey = "name"
   protected val CatTypeKey = "cattype"
+  protected val NameKey = "name"
+  protected val ActionKey = "action"
+  protected val CategoryKey = "category"
   protected val CreatedAtKey ="created_at" 
 
   override implicit val writer = new JSONW[RequestResult] {
 
     override def write(h: RequestResult): JValue = {
       JObject(
-        JField(IdKey, toJSON(h.id)) ::
+      JField(IdKey, toJSON(h.id)) ::
           JField(CatIDKey, toJSON(h.cat_id)) ::
-          JField(JSONClazKey, toJSON("Megam::Request")) ::
-          JField(NameKey, toJSON(h.name)) ::
           JField(CatTypeKey, toJSON(h.cattype)) ::
-          JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
+          JField(NameKey, toJSON(h.name)) ::
+          JField(JSONClazKey, toJSON("Megam::Requests")) ::
+          JField(ActionKey, toJSON(h.action)) ::
+          JField(CategoryKey, toJSON(h.category)) ::
+          JField(CreatedAtKey, toJSON(h.created_at))   :: Nil)
     }
   }
 
@@ -59,13 +63,15 @@ class RequestResultSerialization(charset: Charset = UTF8Charset) extends Seriali
     override def read(json: JValue): Result[RequestResult] = {
       val idField = field[String](IdKey)(json)
       val catIdField = field[String](CatIDKey)(json)
-      val NameField = field[String](NameKey)(json)
-      val cattypeField = field[String](CatTypeKey)(json)
+      val catTypeField = field[String](CatTypeKey)(json)
+      val nameField = field[String](NameKey)(json)
+      val actionField = field[String](ActionKey)(json)
+       val categoryField = field[String](CategoryKey)(json)     
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| catIdField |@| NameField |@| cattypeField |@| createdAtField) {
-        (id: String, cat_id: String, name: String, cattype: String, created_at: String) =>
-          new RequestResult(id, cat_id, name, cattype, created_at)
+(idField |@| catIdField |@| catTypeField |@| nameField |@| actionField |@| categoryField |@| createdAtField) {
+        (id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: String) =>
+          new RequestResult(id, cat_id, cattype, name, action, category, created_at)
       }
     }
   }

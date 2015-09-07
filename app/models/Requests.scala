@@ -44,6 +44,7 @@ import java.nio.charset.Charset
  * @author ram
  * This would actually be a link to the Nodes bucket. which would allow us to use link-walking
  */
+/*
 case class RequestInputNewNode(cat_id: String, name: String, cattype: String) {
   val json = "\",\"cat_id\":\"" + cat_id + "\",\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\""
 }
@@ -55,6 +56,22 @@ case class RequestInputExistNode(cat_id :String, name: String, cattype: String) 
 case class RequestResult(id: String, cat_id: String, name: String, cattype: String, created_at: String) {
   val json = "{\"id\": \"" + id + "\",\"cat_id\":\"" + cat_id + "\",\"name\":\"" + name +
     "\",\"cattype\":\"" + cattype + ",\"created_at\":\"" + created_at + "\"}"
+*/
+
+
+case class RequestInputNewNode(cat_id: String, cattype: String, name: String, action: String, category: String) {
+  val json = "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
+}
+
+case class RequestInputExistNode(cat_id: String, cattype: String, name: String, action: String, category: String) {
+  val json = "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
+}
+
+case class RequestResult(id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: String) {
+  val json = "{\"id\": \"" + id + "\",\"cat_id\": \"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\",\"created_at\":\"" + created_at + "\"}"
+
+
+
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -72,7 +89,7 @@ case class RequestResult(id: String, cat_id: String, name: String, cattype: Stri
 
 object RequestResult {
 
-  def apply = new RequestResult(new String(), new String(), new String(), new String(), new String())
+  def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), new String)
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[RequestResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -117,7 +134,7 @@ object Requests {
       parse(input).extract[RequestInputNewNode]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests:rip", ripNel))
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.RequestsNewNode:rip", ripNel))
 
     for {
       rip <- ripNel
@@ -170,7 +187,7 @@ object Requests {
    * create new Request with the new 'Nodename' of the node provide as input.
    * A index name nodeID will point to the "nodes" bucket
    */
-  def createforNewNode(input: String): ValidationNel[Throwable, Option[Tuple3[String, String,String]]] = {
+  def createforNewNode(input: String): ValidationNel[Throwable, Option[Tuple5[Map[String,String], String, String, String, String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -182,10 +199,14 @@ object Requests {
           val req_result = parse(gs.get.value).extract[RequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple3(thatGS.key, req_result.name,req_result.cattype).some.successNel[Throwable]
-            case None => {
+            //case Some(thatGS) => Tuple3(thatGS.key, req_result.name,req_result.cattype).some.successNel[Throwable]
+           case Some(thatGS) => Tuple5(Map[String,String](("id" -> gs.get.key), ("cat_id" -> req_result.cat_id ), ("name" -> req_result.name),("action" -> req_result.action), ("category" -> req_result.category)), req_result.name, req_result.cattype, req_result.action, req_result.category).some.successNel[Throwable]
+
+          case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Request.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, req_result.name, req_result.cattype).some.successNel[Throwable]
+              //(gs.get.key, req_result.name, req_result.cattype).some.successNel[Throwable]
+             Tuple5(Map[String,String](("id" -> gs.get.key), ("cat_id" -> req_result.cat_id ), ("name" -> req_result.name),("action" -> req_result.action), ("category" -> req_result.category)), req_result.name, req_result.cattype, req_result.action, req_result.category).some.successNel[Throwable]
+
             }
           }
         }
@@ -196,7 +217,7 @@ object Requests {
    * create new Request with the existing 'Nodename' of the nodename provide as input.
    * A index name nodeID will point to the "nodes" bucket
    */
-  def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple3[String,String,String]]] = {
+  def createforExistNode(input: String): ValidationNel[Throwable, Option[Tuple5[Map[String,String], String, String, String, String]]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -208,10 +229,10 @@ object Requests {
           val req_result = parse(gs.get.value).extract[RequestResult]
           play.api.Logger.debug(("%-20s -->[%s]%nwith%n----%n%s").format("Request.created successfully--------------------------------------------------------------", "input", input))
           maybeGS match {
-            case Some(thatGS) => Tuple3(thatGS.key, req_result.name, req_result.cattype).some.successNel[Throwable]
+            case Some(thatGS) => Tuple5(Map[String,String](("id" -> gs.get.key), ("cat_id" -> req_result.cat_id ), ("name" -> req_result.name),("action" -> req_result.action), ("category" -> req_result.category)), req_result.name, req_result.cattype, req_result.action, req_result.category).some.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%-20s -->[%s]").format("Request.created success", "Scaliak returned => None. Thats OK."))
-              (gs.get.key, req_result.name,req_result.cattype).some.successNel[Throwable]
+              Tuple5(Map[String,String](("id" -> gs.get.key), ("cat_id" -> req_result.cat_id ), ("name" -> req_result.name),("action" -> req_result.action), ("category" -> req_result.category)), req_result.name, req_result.cattype, req_result.action, req_result.category).some.successNel[Throwable]
             }
           }
         }
