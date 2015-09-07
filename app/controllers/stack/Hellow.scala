@@ -95,7 +95,8 @@ case object Hellow {
   }
 
   //ping rabbitmq, by droping a DUM0001 req
-  private val amqp = CloudStandUpPublish("noname_stupid", DUMMY_REQ).dop match {
+  val dummy = Map[String,String]("dummy" -> "dum")
+  private val amqp = CloudStandUpPublish("noname_stupid", dummy).dop match {
     case Success(succ_uid) => (MConfig.amqpurl, Some(RUNNING))
     case Failure(erruid) => (MConfig.amqpurl, none)
   }

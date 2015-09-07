@@ -19,6 +19,7 @@ import scalaz._
 import Scalaz._
 import scala.concurrent._
 import scala.concurrent.duration.Duration
+import scala.collection.immutable.Map
 import org.megam.common._
 import org.megam.common.amqp._
 import org.megam.common.amqp.request._
@@ -34,16 +35,16 @@ import play.api.Play._
  */
 object CloudStandUpPublish {
 
-  def apply = new CloudStandUpPublish(new String(), new String())
+  def apply = new CloudStandUpPublish(new String(), Map.empty[String, String])
 
 }
 
-case class CloudStandUpPublish(name: String, messages: String) extends MessageContext {
+case class CloudStandUpPublish(name: String, messages: Map[String,String]) extends MessageContext {
 
   def queueName = cloudFarm + "_" + MConfig.cloudstandup_queue
   def exchangeName = cloudFarm + "_" + MConfig.cloudstandup_exchange
 
-  val csp_pubMsg = Messages("id" -> messages)
+  val csp_pubMsg = Messages(messages.toList)
   play.api.Logger.debug("%-20s -->[%s]".format("Publish:" + queueName, csp_pubMsg))
   
   def dop(): ValidationNel[Throwable, AMQPResponse] = execute(rmqClient.publish(csp_pubMsg, MConfig.routing_key))
