@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
+/*
 package models.json
 
 import scalaz._
@@ -22,11 +24,15 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import controllers.funnel.SerializationBase
 import models._
+*/
+
 
 /**
  * @author ram
  *
  */
+/*
+
 object PredefCloudResultsSerialization extends SerializationBase[PredefCloudResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
@@ -42,7 +48,7 @@ object PredefCloudResultsSerialization extends SerializationBase[PredefCloudResu
     }
   }
 
-  /* Read - JArray(List[NodeResult]) which translates to :
+   Read - JArray(List[NodeResult]) which translates to :
         JArray(List(
           JObject(
             List(
@@ -54,7 +60,7 @@ object PredefCloudResultsSerialization extends SerializationBase[PredefCloudResu
         )
       )
       PredefResult already has an implicit reader, hence use it.
-       */
+
   implicit override val reader = new JSONR[PredefCloudResults] {
     override def read(json: JValue): Result[PredefCloudResults] = {
       json match {
@@ -74,3 +80,4 @@ object PredefCloudResultsSerialization extends SerializationBase[PredefCloudResu
     }
   }
 }
+*/

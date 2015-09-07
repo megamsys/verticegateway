@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
+/*
 package models.json
 
 import scalaz._
@@ -28,11 +30,16 @@ import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
 import models.{ PredefCloudResult, PredefCloudSpec, PredefCloudAccess }
+*/
+
 
 /**
  * @author ram
  *
  */
+
+
+/*
 class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[PredefCloudResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
@@ -41,7 +48,7 @@ class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val SpecKey = "spec"
   protected val AccessKey = "access"
   protected val IdealKey = "ideal"
-  protected val PerformanceKey = "performance"  
+  protected val PerformanceKey = "performance"
     protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[PredefCloudResult] {
@@ -86,4 +93,4 @@ class PredefCloudResultSerialization(charset: Charset = UTF8Charset) extends Ser
       }
     }
   }
-}
+} */
