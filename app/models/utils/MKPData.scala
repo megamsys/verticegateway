@@ -1,5 +1,7 @@
 package models.utils
 
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 import controllers.Constants
 import models.{MarketPlaceInput, MarketPlacePlans, MarketPlacePlan, MarketPlaceCatalog}
 /**
@@ -148,6 +150,7 @@ object MKPData {
       C14._1 -> MarketPlaceInput(C14._1, C14._2, MarketPlacePlans(C14._3), SERVICE, "rabbitmq",ACTIVE),
       C15._1 -> MarketPlaceInput(C15._1, C15._2, MarketPlacePlans(C15._3), SERVICE, "hadoop",  ACTIVE)
     )
+
 
 
 }

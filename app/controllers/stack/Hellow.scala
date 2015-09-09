@@ -131,7 +131,7 @@ case object Hellow {
   }
 
   //pings each of our servers and return a Treasure :) Yeah for sure.
-  val buccaneer = Treasure(infra,sharks,
+    val buccaneer = Treasure(infra,sharks,
     mkps, (cansail ++ orgs))
 
   val events = Map[String, String]("events" -> "none")
