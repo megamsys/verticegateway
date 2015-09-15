@@ -128,7 +128,7 @@ object Requests {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Requests:json", input))
 
-    //Does this failure get propagated ? I mean, the input json parse fails ? I don't think so.
+    //Does this failure gets propagated ? I mean, the input json parse fails ? I don't think so.
     //This is a potential bug.
     val ripNel: ValidationNel[Throwable, RequestInputNewNode] = (Validation.fromTryCatchThrowable[models.RequestInputNewNode,Throwable] {
       parse(input).extract[RequestInputNewNode]

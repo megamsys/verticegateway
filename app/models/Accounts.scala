@@ -33,6 +33,7 @@ import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, L
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import models.cache._
 import models.riak._
+import models.tosca._
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.stack.MConfig
@@ -43,7 +44,7 @@ import controllers.stack.MConfig
  *
  */
 
-case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) {
+case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String,  password_reset_key: String, password_reset_sent_at: String, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -118,6 +119,7 @@ object Accounts {
       m <- accountInput
       bal <- (models.billing.Balances.create(m.email, "{\"credit\":\"0\"}") leftMap { t: NonEmptyList[Throwable] => t })
       uid <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get leftMap { ut: NonEmptyList[Throwable] => ut })
+     // org <- models.tosca.Organizations.create(m.email, OrganizationsInput(DEFAULT_ORG_NAME).json)
     } yield {
       val bvalue = Set(uid.get._1 + uid.get._2)
       val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString).toJson(false)

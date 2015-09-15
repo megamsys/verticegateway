@@ -62,8 +62,9 @@ case class OrganizationsResult(id: String, accounts_id: String, name: String, cr
   } else {
     compactRender(toJValue)
   }
-}
 
+}
+ 
 object OrganizationsResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OrganizationsResult] = {
@@ -114,7 +115,7 @@ object Organizations {
     } yield {
       val bvalue = Set(aor.get.id)
       val json = new OrganizationsResult(uir.get._1 + uir.get._2, aor.get.id, org.name, Time.now.toString).toJson(false)
-      new GunnySack(org.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
