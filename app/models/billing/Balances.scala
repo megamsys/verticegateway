@@ -120,6 +120,7 @@ object Balances {
       balance <- balancesInput
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bal").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
+
       val bvalue = Set(email)
       val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, Time.now.toString, Time.now.toString).toJson(false)
       new GunnySack(email, json, RiakConstants.CTYPE_TEXT_UTF8, None,

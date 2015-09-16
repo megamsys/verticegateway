@@ -21,8 +21,10 @@ POST   /v2/accounts/update       	 	    controllers.Accounts.update
 
 #Organizations
 POST   /v2/organizations/content        controllers.camp.Organizations.post
-GET    /v2/organizations/:id            controllers.camp.Organizations.show(id: String)
-GET		 /v2/organizations				        controllers.camp.Organizations.list()
+POST   /v2/organizations/update         controllers.camp.Organizations.update
+#GET    /v2/organizations/:id            controllers.camp.Organizations.show(id: String)
+GET	   /v2/organizations				controllers.camp.Organizations.list()
+
 
 #Domains
 POST   /v2/domains/content              controllers.camp.Domains.post
@@ -78,7 +80,7 @@ POST   /v2/cis/content                  controllers.camp.ContiniousIntegration.p
 POST   /v2/events/content               controllers.camp.Events.post
 
 #billings
-POST   /v2/subscriptions/content		    controllers.billing.Subscriptions.post
+POST     /v2/subscriptions/content		    controllers.billing.Subscriptions.post
 POST	 /v2/credithistories/content		  controllers.billing.Credithistories.post
 POST 	 /v2/billings/content			        controllers.billing.Billings.post
 POST	 /v2/availableunits/content	 	    controllers.billing.Availableunits.post

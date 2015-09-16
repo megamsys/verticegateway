@@ -39,6 +39,7 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
       protected val IdKey = "id"
       protected val AccountIdKey = "accounts_id"
       protected val NameKey = "name"
+      protected val RelatedOrgsKey = "related_orgs"
       protected val CreatedAtKey ="created_at"
  
 
@@ -49,7 +50,8 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
            JField(IdKey, toJSON(h.id)) ::
            JField(AccountIdKey, toJSON(h.accounts_id)) ::
            JField(JSONClazKey, toJSON("Megam::Organizations")) ::
-           JField(NameKey, toJSON(h.name)) ::        
+           JField(NameKey, toJSON(h.name)) ::  
+           JField(RelatedOrgsKey, toJSON(h.related_orgs)) ::        
            JField(CreatedAtKey, toJSON(h.created_at))   ::          
           Nil)
     }
@@ -65,13 +67,14 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
        val idField = field[String](IdKey)(json)
        val accountIdField = field[String](AccountIdKey)(json)
       val nameField = field[String](NameKey)(json)
+      val relatedOrgsField = field[List[String]](RelatedOrgsKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
       
 
-      (idField |@|accountIdField |@| nameField |@| createdAtField) {
-        (id: String, accountId: String, name: String, created_at: String) =>
-          new OrganizationsResult(id, accountId, name, created_at)
+      (idField |@|accountIdField |@| nameField |@| relatedOrgsField |@| createdAtField) {
+        (id: String, accountId: String, name: String, related_orgs: List[String], created_at: String) =>
+          new OrganizationsResult(id, accountId, name, related_orgs, created_at)
       }
     }
   }

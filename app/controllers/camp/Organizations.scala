@@ -75,7 +75,7 @@ object Organizations extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
   }
-
+/*
   /**
    * GET: findByName: Show a particular Organization by name
    * Email provided in the URI.
@@ -107,7 +107,7 @@ object Organizations extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-
+*/
   /**
    * GET: findbyEmail: List all the organizations names per email
    * Email grabbed from header.
@@ -138,4 +138,32 @@ object Organizations extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+  
+  def update = StackAction(parse.tolerantText) { implicit request => 
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Organizations wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          models.tosca.Organizations.updateOrganization(email, clientAPIBody) match {
+           case Success(succ) =>
+              Status(CREATED)(
+                FunnelResponse(CREATED, """Organizations got updated successfully.
+            |
+            |You can use the the 'Organizations name':{%s}.""".format(succ.getOrElse("none")), "Megam::Organizations").toJson(true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    
+  }
 }

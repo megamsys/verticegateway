@@ -43,7 +43,8 @@ class OrganizationsSpec extends Specification {
       //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
      // "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
-        "Correctly do LIST request with a valid email id" ! List.succeeds ^
+     //   "Correctly do LIST request with a valid email id" ! List.succeeds ^
+     //   "Correctly do UPDATE request with a valid related orgs body" ! Update.succeeds ^
       end
 
   /**
@@ -154,5 +155,28 @@ class OrganizationsSpec extends Specification {
     }
   }
 
+  /*
+   case object Update extends Context {
+
+    protected override def urlSuffix: String = "organizations/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"data\":\"somedata\"}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
+    }
+  }
+
+  */
+  
 
 }
