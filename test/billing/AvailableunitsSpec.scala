@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
+
 package test.billing
 
 import org.specs2.mutable._
@@ -26,10 +26,10 @@ import com.stackmob.newman.dsl._
 import models.billing._
 import models.billing.Availableunits
 import test.{ Context }
-/**
+
  * @author rajthilak
  *
- */
+
 class AvailableunitsSpec extends Specification {
 
   def is =
@@ -65,4 +65,4 @@ class AvailableunitsSpec extends Specification {
     }
   }
 
-}
+}*/

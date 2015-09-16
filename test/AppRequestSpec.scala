@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,14 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+/*
 package test
 
-import org.specs2.mutable._
-import org.specs2.Specification
+//import org.specs2.mutable._
+//import org.specs2.Specification
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
+//import org.specs2.matcher.MatchResult
+//import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
@@ -37,15 +38,15 @@ class CatRequestSpec extends Specification {
       //"Correctly do GET  (node name)requests with a valid node name" ! findByName.succeeds ^
       end
 
-  /**
+  
    * Change the body content in method bodyToStick
-   */
+
   case object Post extends Context {
 
     protected override def urlSuffix: String = "catrequests/content"
 
-    protected override def bodyToStick: Option[String] = {      
-      val contentToEncode = "{\"app_id\":\"ASM1136003656177549312\",\"app_name\":\"HermanWard.megam.co\",\"action\":\"start\"}"                                 
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"app_id\":\"ASM1136003656177549312\",\"app_name\":\"HermanWard.megam.co\",\"action\":\"start\"}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -59,6 +60,7 @@ class CatRequestSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-  
+
 
 }
+*/

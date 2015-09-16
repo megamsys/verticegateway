@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
+
 package test.billing
 
 import org.specs2.mutable._
@@ -26,10 +26,10 @@ import com.stackmob.newman.dsl._
 import models.billing._
 import models.billing.Credithistories
 import test.{ Context }
-/**
+
  * @author rajthilak
  *
- */
+
 class CredithistoriesSpec extends Specification {
 
   def is =
@@ -47,9 +47,9 @@ class CredithistoriesSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
         "\"accounts_id\": \"565656\"," +
-        "\"bill_type\":\"456436\"," +    
+        "\"bill_type\":\"456436\"," +
         "\"credit_amount\": \"2000\"," +
-        "\"currency_type\":\"USD\"," +  
+        "\"currency_type\":\"USD\"," +
         "}"
 
       Some(new String(contentToEncode))
@@ -66,4 +66,4 @@ class CredithistoriesSpec extends Specification {
     }
   }
 
-}
+}*/

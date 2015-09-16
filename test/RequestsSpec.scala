@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +13,23 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
+/*
 package test
 
-import org.specs2.mutable._
-import org.specs2.Specification
+//import org.specs2.mutable._
+//import org.specs2.Specification
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
+//import org.specs2.matcher.MatchResult
+//import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models._
-/**
+
  * @author ram
  *
- */
+
 class RequestsSpec extends Specification {
 
   def is =
@@ -41,9 +43,9 @@ class RequestsSpec extends Specification {
       "Correctly do POST request with a valid userid and api key" ! PostDel.succeeds ^
       end
 
-  /**
+
    * Change the body content in method bodyToStick
-   */
+
   case object Post extends Context {
 
     protected override def urlSuffix: String = "requests/content"
@@ -65,7 +67,7 @@ class RequestsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-  
+
    case object PostDel extends Context {
 
     protected override def urlSuffix: String = "requests/content"
@@ -113,4 +115,4 @@ class RequestsSpec extends Specification {
     }
   }
 
-}
+}*/

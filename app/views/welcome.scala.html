@@ -88,34 +88,6 @@
 			</li>
 			}
 </ul>
-<div class="row">
-	<div class="col-lg-12 activity">
-		<ul>
-			@tres.cansail.map { cs =>
-			<li>
-				<div class="author">
-					<img src="@routes.Assets.at("images/pirate.png ")"/>
-				</div>
-				<div class="header">
-					<span class="label label-success">TASK</span>
-					<strong>Pirate</strong> added this task:
-					@if(cs._2) {
-						<a href=@cs._3 target="_blank">@cs._1</a>
-					} else {
-						@cs._3
-					}
-					<span class="location"> <i class="icon-clock"></i>&nbsp;@cs._4.getOrElse("n/a")</span>
-					<span class="time"> <i class="icon-pointer"></i> @controllers.stack.MConfig.baseurl</span>
-				</div>
-			</li>
-		}
-		</ul
-	</div>
-	<!--/col-->
-
-</div>
-<!--/row-->
-
 
 <div class="row">
 	<div class="col-lg-12">
@@ -134,33 +106,31 @@
 					<thead>
 						<tr>
 							<th>Id</th>
-							<th>Cattype</th>
 							<th>Name</th>
+							<th>Cattype</th>
+							<th>Order</th>
 							<th>Image</th>
+							<th>Url</th>
 							<th>Plan</th>
-							<th>Tosca</th>
-							<th class="center">Status</th>
 							<th>Created at</th>
-							<th>Actions</th>
-						</tr>
+							<th>Action</th>
+							</tr>
 					</thead>
 					<tbody>
 						@for(mk <- tres.mkps.list.flatten)  {
 						<tr>
 							<td>@mk.id</td>
-							<td>@mk.cattype</td>
 							<td>@mk.name</td>
-							<td><a href=@mk.catalog.logo target="_blank">@mk.catalog.description</a></td>
+							<td>@mk.cattype</td>
+							<td>@mk.order</td>
+							<td>@mk.image</td>
+							<td>@mk.url</td>
 							<td>@mk.plans.map { p =>
-								[@p.version
-								<a href=@p.source target="_blank">source</a>
-								@p.os]
+								[@p.description
+								<a href="" target="_blank">
+								@p.version]</a>
 							</br>
 							}
-							</td>
-							<td>@mk.predef</td>
-							<td>
-								<span class="label label-success">Active</span>
 							</td>
 							<td class="text-center text-info">
 								@mk.created_at

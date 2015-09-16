@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2012-2013] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
+
 package test.tosca
 
 import org.specs2.mutable._
@@ -31,10 +31,10 @@ import test.{Context}
 
 
 
-/**
+
  * @author rajthilak
  *
- */
+
 
 class ContiniousIntegrationSpec extends Specification {
   def is =
@@ -68,11 +68,11 @@ case object Post extends Context {
     resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
   }
 }
-  
-  
-   /**
+
+
+
    * test case for invalidUrl
-   */
+
 
   case object PostInvalidUrl extends Context {
 
@@ -94,10 +94,10 @@ case object Post extends Context {
     }
 
   }
-  
-  /**
+
+
    * test case for invalidBody
-   */
+
 
   case object PostInvalidBody extends Context {
 
@@ -118,7 +118,7 @@ case object Post extends Context {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
     }
   }
-  
-  
-  
-}
+
+
+
+}   */
