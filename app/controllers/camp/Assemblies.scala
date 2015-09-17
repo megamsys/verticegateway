@@ -61,12 +61,12 @@ object Assemblies extends Controller with APIAuthElement {
                */
                 asm_succ match {
                   case Some(asm) =>
-                    val req = "{\"cat_id\": \"" + asm.id + "\",\"name\": \"" + asm.name + "\",\"cattype\": \"type\",\"action\": \"create\",\"category\": \"nil\"}"
+                    val req = "{\"cat_id\": \"" + asm.id + "\",\"name\": \"" + asm.name + "\",\"cattype\": \"type\",\"action\": \"create\",\"category\": \"state\"}"
                     models.Requests.createforExistNode(req) match {
                       case Success(succ) =>
                         //val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
                          val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah", "hah", "lah"))
-                         
+
                         (CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
                           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "published successfully."))
                           FunnelResponse(CREATED, """Assemblies initiation instruction submitted successfully.
