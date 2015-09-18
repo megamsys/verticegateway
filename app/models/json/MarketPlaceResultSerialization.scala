@@ -57,7 +57,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
           JField(OrderKey, toJSON(h.order)) ::
           JField(ImageKey, toJSON(h.image)) ::
           JField(UrlKey, toJSON(h.url)) ::
-          //JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::
+          JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::
           JField(PlanKey, toJSON(h.plans)(MarketPlacePlansWriter)) ::
           JField(CreatedAtKey, toJSON(h.created_at))   ::
            Nil)

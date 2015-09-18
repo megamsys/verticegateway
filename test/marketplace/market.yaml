@@ -1,6 +1,6 @@
 marketplaces:
  ubuntu:
-  cattype: Torpedo
+  cattype: TORPEDO
   order: 1
   image: ubuntu.png
   url: http://ubuntu.com
@@ -12,8 +12,8 @@ marketplaces:
     description: "Ubuntu 12.04 LTS (Precise Pangolin) is the blah..blah."
 
  CoreOS:
-  cattype: Torpedo
-  order: 2
+  cattype: TORPEDO
+  order: 1
   image: coreos.png
   url: http://coreos.com
 
@@ -22,8 +22,8 @@ marketplaces:
     description: "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers."
 
  Debian:
-  cattype: Torpedo
-  order: 3
+  cattype: TORPEDO
+  order: 1
   image: debian.png
   url: http://debian.com
 
@@ -34,8 +34,8 @@ marketplaces:
     description: "Debian is a free operating system (OS) for your computer. Jessie is the codename for 8.0 Debian."
 
  CentOS:
-  cattype: Torpedo
-  order: 4
+  cattype: TORPEDO
+  order: 1
   image: centos.png
   url: http://debian.com
 
@@ -45,7 +45,7 @@ marketplaces:
 
  Java:
   cattype: BYOC
-  order: 5
+  order: 2
   image: java.png
   url: https://github.com/megamsys/java-spring-petclinic.git
 
@@ -55,57 +55,47 @@ marketplaces:
 
  Rails:
   cattype: BYOC
-  order: 6
+  order: 2
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
 
   plans:
-   Constants.VERSION:
+   4.x:
     description: "Quickly get started with rails 4.x app."
 
  Play:
   cattype: BYOC
-  order: 7
+  order: 2
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
 
   plans:
-   Constants.VERSION:
+   2.4.x:
     description: "Build robust RESTful API server using Scala."
 
  Nodejs:
   cattype: BYOC
-  order: 8
+  order: 2
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
 
   plans:
-   Constants.VERSION:
+   0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
 
- Docker:
-  cattype: Plat
-  order: 9
-  image: container.png
-  url: https://www.docker.com
+ Php:
+  cattype: BYOC
+  order: 2
+  image: php.png
+  url: https://secure.php.net/
 
   plans:
-   Constants.VERSION:
-    description: "Docker that automates the deployment of applications inside software containers."
-
- DockerBox:
-  cattype: Plat
-  order: 10
-  image: docker.png
-  url: https://www.docker.com
-
-  plans:
-   0.9.0:
-    description: "Launch a vm with docker in detached model."
+   5.x:
+    description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
 
  PostgreSQL:
-  cattype: Appb
-  order: 11
+  cattype: SERVICE
+  order: 3
   image: postgres.png
   url: https://postgresql.org
 
@@ -114,8 +104,8 @@ marketplaces:
     description: "PostgreSQL is a powerful, open source object-relational database system."
 
  Riak:
-  cattype: Appb
-  order: 12
+  cattype: SERVICE
+  order: 3
   image: riak.png
   url: http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb
 
@@ -124,8 +114,8 @@ marketplaces:
     description: "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers."
 
  Redis:
-  cattype: Appb
-  order: 13
+  cattype: SERVICE
+  order: 3
   image: redis.png
   url: https://redis.org
 
@@ -134,8 +124,8 @@ marketplaces:
     description: "Redis is a key-value store which acts as a data structure server with keys containing strings, hashes, lists, sets and sorted sets."
 
  RabbitMQ:
-  cattype: Appb
-  order: 14
+  cattype: SERVICE
+  order: 3
   image: rabbitmq.png
   url: https://www.rabbitmq.com
 
@@ -143,12 +133,92 @@ marketplaces:
    3.3.5:
     description: "RabbitMQ is a message broker software  that implements the Advanced Message Queuing Protocol (AMQP)."
 
+ Mysql:
+  cattype: SERVICE
+  order: 3
+  image: mysql.png
+  url: https://dev.mysql.com/
+
+  plans:
+   5.7:
+    description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
+
+  DockerBox:
+  cattype: MICROSERVICES
+  order: 4
+  image: dockerbox.png
+  url: https://www.docker.com
+
+  plans:
+   0.9.0:
+    description: "Launch a vm with docker in detached model."
+
+ DockerContainer:
+  cattype: MICROSERVICES
+  order: 4
+  image: dockercontainer.png
+  url: https://www.docker.com
+
+  plans:
+   0.9.0:
+    description: "Docker that automates the deployment of applications inside software containers."
+
  Hadoop:
-  cattype: BigD
-  order: 15
+  cattype: ANALYTICS
+  order: 5
   image: hadoop.png
   url: https://hadoop.apache.org
 
   plans:
    2.6.0:
     description: "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware."
+
+ Spark:
+  cattype: ANALYTICS
+  order: 5
+  image: spark.png
+  url: http://spark.apache.org/
+
+  plans:
+   1.5.0:
+    description: "Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala, Python and R, and an optimized engine that supports general execution graphs."
+
+ Spark-notebook:
+  cattype: ANALYTICS
+  order: 5
+  image: sparknotebook.png
+  url:  http://spark-notebook.io
+
+  plans:
+   0.6.x:
+    description: "Use Apache Spark straight from the Browser. "
+
+ Zarafa:
+  cattype: COLLABORATION
+  order: 6
+  image: zarafa.png
+  url: https://www.zarafa.com/
+
+  plans:
+   7.2:
+    description: "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."
+
+ Owncloud:
+  cattype: COLLABORATION
+  order: 6
+  image: owncloud.png
+  url: https://owncloud.org/
+
+  plans:
+   8.1:
+    description: "Access your data from all your devices, on an open platform you can extend and modify."
+
+ Virtual-office:
+  cattype: COLLABORATION
+  order: 6
+  image: virtual_office.png
+  url: www.megam.io
+
+  plans:
+   0.9.0:
+    description: "A virtual office provides bundle application for everyday office use. "
