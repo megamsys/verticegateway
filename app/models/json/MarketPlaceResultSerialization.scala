@@ -47,7 +47,6 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   override implicit val writer = new JSONW[MarketPlaceResult] {
     import MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
     import MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
-    import MarketPlaceCatalogSerialization.{ writer => MarketPlaceCatalogWriter }
 
     override def write(h: MarketPlaceResult): JValue = {
       JObject(
@@ -67,8 +66,7 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   override implicit val reader = new JSONR[MarketPlaceResult] {
      import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
     import MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
-    import MarketPlaceCatalogSerialization.{ reader => MarketPlaceCatalogReader }
-
+    
     override def read(json: JValue): Result[MarketPlaceResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
