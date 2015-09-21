@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,28 +13,27 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-/**
+/*
  * @author rajthilak
  *
- */
+
 
 package test
 
-import org.specs2.mutable._
-import org.specs2.Specification
+//import org.specs2.mutable._
+//import org.specs2.Specification
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
+//import org.specs2.matcher.MatchResult
+//import org.specs2.execute.{ Result => SpecsResult }
 
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.HeaderConstants._
 
-/**
+
  * @author rajthilak
  *
- */
 
 class AuthenticateSpec extends Specification {
 
@@ -47,9 +46,9 @@ class AuthenticateSpec extends Specification {
      // "Correctly do POST requests with a invalid userid and api key(404)" ! PostWithInvalidUserIDEmail.succeeds ^
      // "Correctly do POST requests with an malformed header(404)" ! PostMalformedHeader.succeeds ^
       end
-  /**
+  
    * Change the body content in method bodyToStick
-   */
+
   case object Post extends Context {
 
     protected override def urlSuffix: String = "auth"
@@ -101,3 +100,4 @@ class AuthenticateSpec extends Specification {
     }
   }
 }
+*/

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
+
 package test.tosca
 
 import org.specs2.mutable._
@@ -26,10 +26,10 @@ import com.stackmob.newman.dsl._
 import models.tosca._
 import models.tosca.Assemblies
 import test.{ Context }
-/**
+
  * @author ram
  *
- */
+
 class AssembliesSpec extends Specification {
 
   def is =
@@ -42,9 +42,9 @@ class AssembliesSpec extends Specification {
       //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
       end
 
-  /**
+
    * Change the body content in method bodyToStick
-   */
+
   case object Post extends Context {
 
     protected override def urlSuffix: String = "assemblies/content"
@@ -58,7 +58,7 @@ class AssembliesSpec extends Specification {
         "\"components\":[" +
         "{" +
         "\"name\":\"GussieMathis\"," +
-        "\"tosca_type\":\"tosca.web.riak\"," +        
+        "\"tosca_type\":\"tosca.web.riak\"," +
         "\"inputs\":["+
         "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
         "{\"key\":\"version\",\"value\":\"2.0.0\"}," +
@@ -111,7 +111,7 @@ class AssembliesSpec extends Specification {
         "\"components\":[" +
         "{" +
         "\"name\":\"AddieOrtega\"," +
-        "\"tosca_type\":\"tosca.web.java\"," +        
+        "\"tosca_type\":\"tosca.web.java\"," +
         "\"inputs\":[" +
         "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
         "{\"key\":\"source\",\"value\":\"dfhfgjh\"}," +
@@ -120,7 +120,7 @@ class AssembliesSpec extends Specification {
         "{\"key\":\"varai-y\",\"value\":\"134\"}," +
         "{\"key\":\"varai-z\",\"value\":\"adae6e10.52519\"}," +
         "{\"key\":\"varai-wires\",\"value\":\"46fc26f2.b903d8\"}" +
-        "]," +        
+        "]," +
         "\"outputs\":[]," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -142,11 +142,11 @@ class AssembliesSpec extends Specification {
         "}," +
         "{" +
         "\"name\":\"MasonHernandez\"," +
-        "\"tosca_type\":\"tosca.web.akka\"," +       
+        "\"tosca_type\":\"tosca.web.akka\"," +
         "\"inputs\":[" +
         "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
         "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
-        "]," +       
+        "]," +
         "\"outputs\":[]," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"tosca type\"," +
@@ -185,7 +185,7 @@ class AssembliesSpec extends Specification {
         "}" +
         "]," +
         "\"inputs\":[]" +
-        "}" 
+        "}"
 
       Some(new String(contentToEncode))
     }
@@ -227,4 +227,4 @@ class AssembliesSpec extends Specification {
     }
   }
 
-}
+} */

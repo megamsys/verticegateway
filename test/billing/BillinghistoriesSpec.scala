@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
+
 package test.billing
 
 import org.specs2.mutable._
@@ -26,10 +26,10 @@ import com.stackmob.newman.dsl._
 import models.billing._
 import models.billing.Billinghistories
 import test.{ Context }
-/**
+
  * @author rajthilak
  *
- */
+
 class BillinghistoriesSpec extends Specification {
 
   def is =
@@ -47,10 +47,10 @@ class BillinghistoriesSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
         "\"accounts_id\": \"565656\"," +
-        "\"assembly_id\":\"456436\"," +  
+        "\"assembly_id\":\"456436\"," +
         "\"bill_type\": \"paypal\"," +
-        "\"billing_amount\":\"2000\"," +   
-        "\"currency_type\":\"USD\"" +   
+        "\"billing_amount\":\"2000\"," +
+        "\"currency_type\":\"USD\"" +
         "}"
 
       Some(new String(contentToEncode))
@@ -67,4 +67,4 @@ class BillinghistoriesSpec extends Specification {
     }
   }
 
-}
+}*/

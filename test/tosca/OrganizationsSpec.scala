@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-* */
+
 
 package test.tosca
 
@@ -28,10 +28,10 @@ import models.tosca._
 import models.tosca.Organizations
 import test.{ Context }
 
-/**
+
  * @author morpheyesh
  *
- */
+
 
 class OrganizationsSpec extends Specification {
   def is =
@@ -46,9 +46,9 @@ class OrganizationsSpec extends Specification {
         "Correctly do LIST request with a valid email id" ! List.succeeds ^
       end
 
-  /**
+
    * Change the body content in method bodyToStick
-   */
+
 
   case object Post extends Context {
 
@@ -71,9 +71,9 @@ class OrganizationsSpec extends Specification {
   }
   //Success
 
-  /**
+
    * test case for invalidUrl
-   */
+
 
   case object PostInvalidUrl extends Context {
 
@@ -97,9 +97,9 @@ class OrganizationsSpec extends Specification {
   }
   //Success
 
-  /**
+
    * test case for invalidBody
-   */
+
 
   case object PostInvalidBody extends Context {
 
@@ -121,11 +121,11 @@ class OrganizationsSpec extends Specification {
     }
   }
 
-  /*
+
    * Testing 'GET' request.
-   * 
-   * 
-   */
+   *
+   *
+
 
   case object Get extends Context {
     protected override def urlSuffix: String = "organizations/Megam"
@@ -140,7 +140,7 @@ class OrganizationsSpec extends Specification {
     }
   }
   //Success
-  
+
   case object List extends Context {
     protected override def urlSuffix: String = "organizations"
 
@@ -155,4 +155,4 @@ class OrganizationsSpec extends Specification {
   }
 
 
-}
+} */

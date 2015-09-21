@@ -43,7 +43,6 @@ object PlatformAppPrimer {
     AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, DEMO_EMAIL, DEMO_APIKEY, SAMPLE_PASSWORD, "demo", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
 
 
-
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     dummy <- takeatourAcct
   } yield {

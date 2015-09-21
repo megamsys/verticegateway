@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +11,7 @@
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+
 package test.billing
 
 import org.specs2.mutable._
@@ -26,10 +25,10 @@ import com.stackmob.newman.dsl._
 import models.billing._
 import models.billing.Discounts
 import test.{ Context }
-/**
+
  * @author rajthilak
  *
- */
+
 class DiscountsSpec extends Specification {
 
   def is =
@@ -48,9 +47,9 @@ class DiscountsSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
         "\"accounts_id\": \"565656\"," +
-        "\"bill_type\":\"456436\"," +    
+        "\"bill_type\":\"456436\"," +
         "\"code\": \"565656\"," +
-        "\"status\":\"456436\"" +  
+        "\"status\":\"456436\"" +
         "}"
 
       Some(new String(contentToEncode))
@@ -79,6 +78,6 @@ class DiscountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  
-  
-}
+
+
+}*/

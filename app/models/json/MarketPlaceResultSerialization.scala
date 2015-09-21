@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlaceCatalog, MarketPlacePlans }
+import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlacePlans }
 
 /**
  * @author rajthilak
@@ -37,11 +37,11 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NameKey = "name"
-  protected val CatalogKey = "catalog"
-  protected val PlanKey = "plans"
   protected val CattypeKey = "cattype"
-  protected val PredefKey = "predef"
-  protected val StatusKey = "status"
+  protected val OrderKey = "order"
+  protected val ImageKey = "image"
+  protected val UrlKey = "url"
+  protected val PlanKey = "plans"
   protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[MarketPlaceResult] {
@@ -53,12 +53,12 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(NameKey, toJSON(h.name)) ::
-          JField(CatalogKey, toJSON(h.catalog)(MarketPlaceCatalogWriter)) ::
+          JField(CattypeKey, toJSON(h.cattype)) ::
+          JField(OrderKey, toJSON(h.order)) ::
+          JField(ImageKey, toJSON(h.image)) ::
+          JField(UrlKey, toJSON(h.url)) ::
           JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::
           JField(PlanKey, toJSON(h.plans)(MarketPlacePlansWriter)) ::
-          JField(CattypeKey, toJSON(h.cattype)) ::
-          JField(PredefKey, toJSON(h.predef)) ::
-          JField(StatusKey, toJSON(h.status)) ::
           JField(CreatedAtKey, toJSON(h.created_at))   ::
            Nil)
     }
@@ -72,16 +72,16 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
     override def read(json: JValue): Result[MarketPlaceResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
-      val catalogField = field[MarketPlaceCatalog](CatalogKey)(json)(MarketPlaceCatalogReader)
-      val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
       val cattypeField = field[String](CattypeKey)(json)
-      val predefField = field[String](PredefKey)(json)
-      val statusField = field[String](StatusKey)(json)
+      val orderField = field[String](OrderKey)(json)
+      val imageField = field[String](ImageKey)(json)
+      val urlField = field[String](UrlKey)(json)
+      val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| catalogField |@| planField |@| cattypeField |@| predefField |@| statusField |@| createdAtField) {
-        (id: String, name: String, catalog: MarketPlaceCatalog, plan: MarketPlacePlans, cattype: String, predef: String, status: String, created_at: String) =>
-          new MarketPlaceResult(id, name, catalog, plan, cattype, predef, status, created_at)
+      (idField |@| nameField |@| cattypeField |@| orderField |@| imageField |@| urlField |@| planField |@| createdAtField) {
+        (id: String, name: String, cattype: String, order: String, image: String, url: String, plan: MarketPlacePlans, created_at: String) =>
+          new MarketPlaceResult(id, name, cattype, order, image, url, plan, created_at)
       }
     }
   }
