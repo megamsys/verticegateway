@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +13,20 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 /**
  * @author rajthilak
  *
  */
+
+ /*
 package test
 
-import org.specs2.mutable._
-import org.specs2.Specification
+//import org.specs2.mutable._
+//import org.specs2.Specification
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
+//import org.specs2.matcher.MatchResult
+//import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
@@ -117,11 +120,11 @@ class SshKeysSpec extends Specification {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
-  }
+  }*/
 
   /**
    * test case for invalidUrl
-   */
+
 
   case object PostInvalidUrl extends Context {
 
@@ -141,11 +144,11 @@ class SshKeysSpec extends Specification {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
-  }
+  }*/
 
   /**
    * test case for invalidBody
-   */
+
 
   case object PostInvalidBody extends Context {
 
@@ -197,5 +200,4 @@ class SshKeysSpec extends Specification {
     }
   }
 
-}
-  
+}*/

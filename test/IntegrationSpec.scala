@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,31 +13,33 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+/*
 package test
 
-import org.specs2.mutable._
+//import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
 
-/**
+
  * add your integration spec here.
  * An integration test will fire up a whole play application in a real (or headless) browser
- */
+
 class IntegrationSpec extends Specification {
-  
+
   "Application" should {
-    
+
     "work from within a browser" in {
       running(TestServer(9000), HTMLUNIT) { browser =>
 
         //browser.goTo("http://localhost:9000/")
         browser.goTo("https://api.megam.co/")
         browser.pageSource must contain("Your new application is ready.")
-       
+
       }
     }
-    
+
   }
-  
+
 }
+ */

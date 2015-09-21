@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
+
 package test.tosca
 
 import org.specs2.mutable._
@@ -26,10 +26,10 @@ import com.stackmob.newman.dsl._
 import models.tosca._
 import models.tosca.Component
 import test.{ Context }
-/**
+
  * @author rajthilak
  *
- */
+
 class ComponentsSpec extends Specification {
 
   def is =
@@ -62,7 +62,7 @@ class ComponentsSpec extends Specification {
       val contentToEncode = "{" +
         "\"id\": \"COM1139245887592202240\"," +
         "\"name\":\"NettieMoore\"," +
-        "\"tosca_type\":\"tosca.web.redis\"," +        
+        "\"tosca_type\":\"tosca.web.redis\"," +
         "\"inputs\":[" +
         "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
         "{\"key\":\"port\",\"value\":\"6379\"}," +
@@ -105,4 +105,4 @@ class ComponentsSpec extends Specification {
     }
   }
 
-}
+} */

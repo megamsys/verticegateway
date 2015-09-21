@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,21 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 /**
  * @author rajthilak
  *
  */
+
+ /*
 package test
 
-import org.specs2.mutable._
-import org.specs2.Specification
+//import org.specs2.mutable._
+//import org.specs2.Specification
 import java.net.URL
 import controllers.Constants._
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
+//import org.specs2.matcher.MatchResult
+//import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
@@ -123,9 +126,9 @@ class PredefCloudsSpec extends Specification {
     }
   }
 
-  /**
+
    * test case for invalidUrl
-   */
+
 
   case object PostInvalidUrl extends Context {
 
@@ -147,9 +150,9 @@ class PredefCloudsSpec extends Specification {
     }
   }
 
-  /**
+
    * test case for invalidBody
-   */
+
 
   case object PostInvalidBody extends Context {
 
@@ -202,4 +205,4 @@ class PredefCloudsSpec extends Specification {
   }
 
 }
-  
+   */

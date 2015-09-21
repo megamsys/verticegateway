@@ -50,7 +50,7 @@ object Assemblies extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "request funneled."))
           models.tosca.Assemblies.create(email, clientAPIBody) match {
             case Success(asm_succ) => {
-              if (email.trim.equalsIgnoreCase(DEMO_EMAIL)) {
+                    if (email.trim.equalsIgnoreCase(DEMO_EMAIL)) {
                 Status(CREATED)(FunnelResponse(CREATED, """Assemblies initiation dry run submitted successfully.
             |
             |
@@ -62,6 +62,7 @@ object Assemblies extends Controller with APIAuthElement {
                 asm_succ match {
                   case Some(asm) =>
                     val req = "{\"cat_id\": \"" + asm.id + "\",\"name\": \"" + asm.name + "\",\"cattype\": \"type\",\"action\": \"create\",\"category\": \"state\"}"
+
                     models.Requests.createforExistNode(req) match {
                       case Success(succ) =>
                         //val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
