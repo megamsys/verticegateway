@@ -222,7 +222,7 @@ object CSARJson {
     for (assembly <- assemblyList) {
       assembly_lists += assembly
     }
-    val cc: String = new AssembliesInput(getRandomName(), assembly_lists.toList, List[KeyValueField]()).json
+    val cc: String = new AssembliesInput(getRandomName(), "", assembly_lists.toList, List[KeyValueField]()).json
     return cc
 
   }

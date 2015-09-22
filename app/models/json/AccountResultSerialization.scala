@@ -44,6 +44,7 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
   protected val APIKey = "api_key"
   protected val PasswordKey = "password"
   protected val AuthorityKey = "authority"
+  //protected val OrgKey = "org_id"
   protected val PasswordResetKey = "password_reset_key"
   protected val PasswordResetSentAtKey = "password_reset_sent_at"
   protected val CreatedAtKey ="created_at"  
@@ -61,6 +62,7 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
           JField(APIKey, toJSON(h.api_key)) ::
           JField(PasswordKey, toJSON(h.password)) ::
           JField(AuthorityKey, toJSON(h.authority))    ::
+          //JField(OrgKey, toJSON(h.org_id))    ::
           JField(PasswordResetKey, toJSON(h.password_reset_key)) ::
           JField(PasswordResetSentAtKey, toJSON(h.password_reset_sent_at)) ::
           JField(CreatedAtKey, toJSON(h.created_at))   :: 
@@ -80,6 +82,7 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
       val apiKeyField = field[String](APIKey)(json)
       val passwordField = field[String](PasswordKey)(json)
       val authorityField = field[String](AuthorityKey)(json)
+      //val orgField = field[String](OrgKey)(json)
       val passwordResetField = field[String](PasswordResetKey)(json)
       val passwordResetSentAtField = field[String](PasswordResetSentAtKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)

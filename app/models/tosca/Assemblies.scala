@@ -61,8 +61,8 @@ import java.nio.charset.Charset
 //        6.z
 //        7.wires
 //  These fields are varai properties of assemblies
-case class AssembliesInput(name: String, assemblies: models.tosca.AssembliesList, inputs: KeyValueList) {
-  val json = "{\"name\":\"" + name + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + KeyValueList.toJson(inputs, true) + "}"
+case class AssembliesInput(name: String, org_id: String, assemblies: models.tosca.AssembliesList, inputs: KeyValueList) {
+  val json = "{\"name\":\"" + name + "\",\"org_id\":\"" + org_id + "\", \"assemblies\":" + AssembliesList.toJson(assemblies, true) + ",\"inputs\":" + KeyValueList.toJson(inputs, true) + "}"
 }
 
 case class KeyValueField(key: String, value: String) {
@@ -92,7 +92,7 @@ object KeyValueField {
   }
 
   def fromJson(json: String): Result[KeyValueField] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
-    play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
+    play.api.Logger.debug(("%-20s -->[%s]").format("--------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -163,9 +163,8 @@ object Assemblies {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
-     // req <- (Requests.createforNewNode("{\"cat_id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\": \"" + rip.name + "\",\"cattype\": \"create\"}") leftMap { t: NonEmptyList[Throwable] => t })
-    } yield {
-      val bvalue = Set(aor.get.id)
+    } yield {  
+      val bvalue = Set(aor.get.id, rip.org_id) //ORG1257629409746223104
       var assembly_links = new ListBuffer[String]()
       for (assembly <- aem) {
         assembly match {
@@ -265,3 +264,5 @@ object Assemblies {
   }
 
 }
+//def findByOrgID(email: String)
+

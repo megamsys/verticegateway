@@ -59,11 +59,11 @@ object Assemblies extends Controller with APIAuthElement {
                 /*This isn't correct. Revisit, as the testing progresses.
                We need to trap success/failures.
                */
-                asm_succ match {
+                asm_succ match {             
                   case Some(asm) =>
                     val req = "{\"cat_id\": \"" + asm.id + "\",\"name\": \"" + asm.name + "\",\"cattype\": \"type\",\"action\": \"create\",\"category\": \"state\"}"
+                  models.Requests.createforExistNode(req) match {
 
-                    models.Requests.createforExistNode(req) match {
                       case Success(succ) =>
                         //val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
                          val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah", "hah", "lah"))
