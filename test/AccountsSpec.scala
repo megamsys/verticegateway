@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,81 @@
  *
  */
 
+/**
 package test
 
-import org.specs2.mutable._
+
+import scalaz._
+import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
+import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
+import org.megam.util.Time
+import controllers.stack._
+import controllers.Constants._
+import controllers.funnel.FunnelErrors._
+import models._
+import models.cache._
+import models.riak._
+import com.stackmob.scaliak._
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.util.{ Constants => RiakConstants }
+import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.uid.UID
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
+import scala.collection.JavaConversions._
+import models.cache._
+import org.yaml.snakeyaml.Yaml
+import scala.collection.mutable.LinkedHashMap
+import scala.collection.mutable.ListBuffer
+import java.util.ArrayList
+import org.specs2.Specification
+import org.specs2.Specification.Step
+import org.junit.runner._
+
+
+
+object AccountsSpec extends Specification {
+
+def is =
+    "DynamicMarketplace:".title ^ br ^
+      "Functionality for loading marketplace dynamically." ^ br ^
+      "Load marketplace" ^ br ^
+      "can do a load of yaml" ! toMarketplace ^ br ^
+      end
+
+
+  protected def toMarketplace= {
+    val contentInput: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(input).asInstanceOf[java.util.Map[String, String]]).toMap
+    val market="{\"marketplace_version\":\"sample_yaml\"}"
+    println(contentInput)
+    //some(new String(contentInput))
+}
+
+    /**
+    contentInput.get("inputs") match{
+     case Some(a) => println("SUCCESS")
+     case None => ""
+    }
+    //
+
+    //val inputList = scala.collection.mutable.MutableList[String]()*/
+
+}
+*/
+
+
+
+
+//var a = "{\"tosca_definitions_version\":\"tosca_simple_yaml_1_0\",\"description\":\"Template for deploying a two-tier application servers on two\"}";
+
+/**
+
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
@@ -32,10 +104,10 @@ import controllers.stack.HeaderConstants._
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
-/**
+
  * @author rajthilak
  *
- */
+
 
 class AccountsSpec extends Specification {
 
@@ -52,9 +124,6 @@ class AccountsSpec extends Specification {
       //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
-  /**
-   * Change the body content in method bodyToStick
-   */
   case object Post extends Context {
 
     protected override def urlSuffix: String = "accounts/content"
@@ -74,10 +143,6 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-
-  /**
-   * test case for invalidUrl
-   */
 
   case object PostInvalidUrl extends Context {
 
@@ -99,9 +164,6 @@ class AccountsSpec extends Specification {
     }
   }
 
-  /**
-   * test case for invalidBody
-   */
 
   case object PostInvalidBody extends Context {
 
@@ -163,4 +225,4 @@ class AccountsSpec extends Specification {
     }
   }
 
-}
+}*/

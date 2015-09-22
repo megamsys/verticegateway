@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +12,10 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
-/**
+
  * @author rajthilak
  *
- */
+
 package test.tosca
 
 import scalaz._
@@ -71,7 +70,7 @@ class CSARsSpec extends Specification {
     }
 
   }
-  
+
   case object Push extends Context {
 
     protected override def urlSuffix: String = "csars/push/CSR1217821599709921280"
@@ -113,9 +112,9 @@ class CSARsSpec extends Specification {
     }
   }
 
-  /**
+
    * test case for invalidBody
-   */
+
   case object PostInvalidBody extends Context {
 
     protected override def urlSuffix: String = "csars/content"
@@ -136,5 +135,4 @@ class CSARsSpec extends Specification {
     }
   }
 
-}
-  
+} */

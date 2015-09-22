@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +13,23 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
+/*
 package test
 
-import org.specs2.mutable._
-import org.specs2.Specification
+//import org.specs2.mutable._
+//import org.specs2.Specification
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
+//import org.specs2.matcher.MatchResult
+//import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models._
-/**
+
  * @author ram
  *
- */
+
 class MarketPlaceAddonsSpec extends Specification {
 
   def is =
@@ -41,9 +43,9 @@ class MarketPlaceAddonsSpec extends Specification {
       //"Correctly do GET  (node name)MarketPlaceAddons with a valid appdefn name" ! findByDefnsId.succeeds ^
   end
 
-  /**
+
    * Change the body content in method bodyToStick
-   */
+
   case object Post extends Context {
 
     protected override def urlSuffix: String = "marketplaceaddons/content"
@@ -52,7 +54,7 @@ class MarketPlaceAddonsSpec extends Specification {
       val config = new MarketPlaceAddonsConfig(new MarketPlaceAddonsConfigDisaster("locations", "sample1.megam.co", "appsample2.megam.co;appsample3.megam.co", "recipe[megam_drbd]"), new MarketPlaceAddonsConfigLoadBalancing("", "", ""),
                                                new MarketPlaceAddonsConfigAutoScaling("", "", "", ""), new MarketPlaceAddonsConfigMonitoring("op5", ""))
       val contentToEncode = "{\"node_id\":\"NOD451721484906266624\",\"node_name\":\"lobotomies1.megam.co\",\"marketplace_id\":\"tyutyujyt\",\"config\":" + config.json + "}"
-      
+
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -107,3 +109,4 @@ class MarketPlaceAddonsSpec extends Specification {
   }
 
 }
+*/

@@ -55,26 +55,13 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
     """)
     play.api.Logger.info("started ...")
 
-    val megamprimeddir = new File(Constants.MEGAM_PRIMED_DIR)
-    megamprimeddir.mkdirs()
-
-    val megamprimedfile = new File(Constants.MEGAM_PRIMED_FILE)
-
-    megamprimedfile.exists() match {
-      case true => play.api.Logger.info(">> Found megamprimed file, skip priming.")
-      case false =>
-        play.api.Logger.info(">> priming: performing priming.")
         for {
           m <- models.PlatformAppPrimer.acc_prep
-          dorg <- models.PlatformAppPrimer.clone_organizations(controllers.Constants.DEMO_EMAIL)
           mkp <- models.PlatformAppPrimer.mkp_prep
         } yield {
           play.api.Logger.info(">> priming: successful.")
-          megamprimedfile.createNewFile();
-          play.api.Logger.info(">> priming: created .megamprimedfile [%s].".format(megamprimedfile.getAbsolutePath))
         }
         play.api.Logger.info(">> priming: complete.")
-    }
   }
 
   override def onStop(app: play.api.Application) {

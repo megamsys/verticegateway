@@ -1,4 +1,4 @@
-/* 
+/**
 ** Copyright [2013-2015] [Megam Systems]
 
 **
@@ -14,10 +14,10 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-/**
+/*
  * @author rajthilak
  *
- */
+
 package test
 
 import scalaz._
@@ -29,11 +29,11 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.newman._
 import com.stackmob.newman.response._
-import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
-import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
+//import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
+//import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.security.MessageDigest
-import javax.crypto.spec.SecretKeySpec
+//import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 import com.stackmob.newman._
@@ -55,8 +55,8 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    //X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07", 
-    X_Megam_EMAIL -> "tour@megam.io", X_Megam_APIKEY -> "faketour", 
+    //X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
+    X_Megam_EMAIL -> "tour@megam.io", X_Megam_APIKEY -> "faketour",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
@@ -158,3 +158,4 @@ trait Context extends BaseContext {
     res
   }
 }
+*/
