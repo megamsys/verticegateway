@@ -22,7 +22,7 @@ POST   /v2/accounts/update       	 	    controllers.Accounts.update
 #Organizations
 POST   /v2/organizations/content        controllers.camp.Organizations.post
 POST   /v2/organizations/update         controllers.camp.Organizations.update
-#GET    /v2/organizations/:id            controllers.camp.Organizations.show(id: String)
+GET    /v2/organizations/:id            controllers.camp.Organizations.show(id: String)
 GET	   /v2/organizations				controllers.camp.Organizations.list()
 
 

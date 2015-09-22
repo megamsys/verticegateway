@@ -164,7 +164,7 @@ object Assemblies {
       aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {  
-      val bvalue = Set(aor.get.id, rip.org_id)
+      val bvalue = Set(aor.get.id, rip.org_id) //ORG1257629409746223104
       var assembly_links = new ListBuffer[String]()
       for (assembly <- aem) {
         assembly match {

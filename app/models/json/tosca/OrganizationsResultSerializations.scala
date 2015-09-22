@@ -45,13 +45,16 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
 
   override implicit val writer = new JSONW[OrganizationsResult] {
    
+    import RelatedOrgsListSerialization.{ writer => RelatedOrgsListWriter}
+    
     override def write(h: OrganizationsResult): JValue = {
       JObject(
            JField(IdKey, toJSON(h.id)) ::
            JField(AccountIdKey, toJSON(h.accounts_id)) ::
            JField(JSONClazKey, toJSON("Megam::Organizations")) ::
            JField(NameKey, toJSON(h.name)) ::  
-           JField(RelatedOrgsKey, toJSON(h.related_orgs)) ::        
+          // JField(RelatedOrgsKey, toJSON(h.related_orgs)) ::      
+           JField(RelatedOrgsKey, toJSON(h.related_orgs)(RelatedOrgsListWriter)) ::
            JField(CreatedAtKey, toJSON(h.created_at))   ::          
           Nil)
     }
@@ -60,14 +63,16 @@ class OrganizationsResultSerialization(charset: Charset = UTF8Charset) extends S
   override implicit val reader = new JSONR[OrganizationsResult] {
    
     
-    
+        import RelatedOrgsListSerialization.{ reader => RelatedOrgsListReader}
+
 
     override def read(json: JValue): Result[OrganizationsResult] = {
       
        val idField = field[String](IdKey)(json)
        val accountIdField = field[String](AccountIdKey)(json)
       val nameField = field[String](NameKey)(json)
-      val relatedOrgsField = field[List[String]](RelatedOrgsKey)(json)
+     // val relatedOrgsField = field[List[String]](RelatedOrgsKey)(json)
+      val relatedOrgsField= field[List[String]](RelatedOrgsKey)(json)(RelatedOrgsListReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
       

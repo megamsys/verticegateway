@@ -49,10 +49,10 @@ case class OrganizationsInput(name: String) {
 }
 
 case class updateOrganizationsInput(id: String, accounts_id: String, name: String, related_orgs: models.tosca.RelatedOrgsList, created_at: String) {
-   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"accounts_id\":\"" + accounts_id + "\",\"related_orgs\":\"" + RelatedOrgsList.toJson(related_orgs, true) + "\",\"created_at\":\"" + created_at + "\"}"
+   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"accounts_id\":\"" + accounts_id + "\",\"related_orgs\":" + RelatedOrgsList.toJson(related_orgs, true) + ",\"created_at\":\"" + created_at + "\"}"
 }
 
-case class OrganizationsResult(id: String, accounts_id: String, name: String, related_orgs: List[String], created_at: String) {
+case class OrganizationsResult(id: String, accounts_id: String, name: String, related_orgs: models.tosca.RelatedOrgsList, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -152,28 +152,35 @@ object Organizations {
   }
   
   
-  def findByName(organizationsList: Option[List[String]]): ValidationNel[Throwable, OrganizationsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findByName:Entry"))
+  def findById(organizationsList: Option[List[String]]): ValidationNel[Throwable, OrganizationsResults] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findById:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("organizationList", organizationsList))
     (organizationsList map {
-      _.map { organizationsName =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("organizationsName", organizationsName))
-        (riak.fetch(organizationsName) leftMap { t: NonEmptyList[Throwable] =>
-          new ServiceUnavailableError(organizationsName, (t.list.map(m => m.getMessage)).mkString("\n"))
+      _.map { org_id =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId", org_id))
+        (riak.fetch(org_id) leftMap { t: NonEmptyList[Throwable] =>
+
+          new ServiceUnavailableError(org_id, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
+            play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId1", org_id))
+            play.api.Logger.debug(("%-20s -->[%s]").format("organizationsIdRESSS", OrganizationsResult))
+
               //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
               (OrganizationsResult.fromJson(xs.value) leftMap
+                  
                 { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
+                              play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId2", org_id))
+
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: OrganizationsResult =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("organizationsresult", j))
+                  play.api.Logger.debug(("%-20s -->[%s]").format("organizationsResult", j))
                   Validation.success[Throwable, OrganizationsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
                 }
             }
             case None => {
-              Validation.failure[Throwable, OrganizationsResults](new ResourceItemNotFound(organizationsName, "")).toValidationNel
+              Validation.failure[Throwable, OrganizationsResults](new ResourceItemNotFound(org_id, "")).toValidationNel
             }
           }
         }
@@ -199,16 +206,13 @@ object Organizations {
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>
-        (if (!nm.isEmpty) findByName(nm.some) else
+        (if (!nm.isEmpty) findById(nm.some) else
           new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
       }).disjunction).pure[IO]
     }.run.map(_.validation).unsafePerformIO
     res.getOrElse(new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
   }
 
-   
-   
-   
    
    private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("organization Update", "updateGunnySack:Entry"))
@@ -251,5 +255,6 @@ object Organizations {
         }
     }
   }
+   
    
 }
