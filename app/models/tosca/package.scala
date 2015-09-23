@@ -64,6 +64,8 @@ package object tosca {
     def empty: CSARResults = nel(emptyPC.head, emptyPC.tail)
   }
 
+  
+  
   type AssembliesList = List[Assembly]
 
   type ComponentsList = List[Component]
@@ -326,6 +328,37 @@ package object tosca {
 
   }
 
+   
+  type RelatedOrgsList = List[String]
+
+  object RelatedOrgsList {
+    val emptyRR = List("")
+    def toJValue(nres: RelatedOrgsList): JValue = {
+
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.RelatedOrgsListSerialization.{ writer => RelatedOrgsListWriter }
+      toJSON(nres)(RelatedOrgsListWriter)
+    }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[RelatedOrgsList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.RelatedOrgsListSerialization.{ reader => RelatedOrgsListReader }
+      fromJSON(jValue)(RelatedOrgsListReader)
+    }
+
+    def toJson(nres: RelatedOrgsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(plansList: List[String]): RelatedOrgsList = plansList
+
+    def empty: List[String] = emptyRR
+
+  }
+  
+  
 
   type KeyValueList = List[KeyValueField]
 
@@ -355,6 +388,9 @@ package object tosca {
     def empty: List[KeyValueField] = emptyRR
 
   }
+  
+ 
+  
 
   type OperationList = List[Operation]
 
@@ -436,8 +472,4 @@ package object tosca {
     def empty: List[String] = emptyRR
 
   }
-
-  
-  
-
 }

@@ -61,7 +61,7 @@ object Organizations extends Controller with APIAuthElement {
               Status(CREATED)(
                 FunnelResponse(CREATED, """Organizations created successfully.
             |
-            |You can use the the 'Organizations name':{%s}.""".format(succ.getOrElse("none")), "Megam::Organizations").toJson(true))
+            |You can use the the 'Organizations id':{%s}.""".format(succ.get.id).stripMargin, "Megam::Organizations").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -77,7 +77,7 @@ object Organizations extends Controller with APIAuthElement {
   }
 
   /**
-   * GET: findByName: Show a particular Organization by name
+   * GET: findById: Show a particular Organization by Id
    * Email provided in the URI.
    * Output: JSON (OrganizationsResult)
    **/
@@ -92,7 +92,7 @@ object Organizations extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Organizations", "request funneled."))
 
-          models.tosca.Organizations.findByName(List(id).some) match {
+          models.tosca.Organizations.findById(List(id).some) match {
             case Success(succ) =>
               Ok(OrganizationsResults.toJson(succ, true))
             case Failure(err) =>
@@ -138,4 +138,34 @@ object Organizations extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+  
+  def update = StackAction(parse.tolerantText) { implicit request => 
+    (Validation.fromTryCatchThrowable[Result,Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Organizations wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          models.tosca.Organizations.updateOrganization(email, clientAPIBody) match {
+           case Success(succ) =>
+              Status(CREATED)(
+                FunnelResponse(CREATED, """Organizations got updated successfully.
+            |
+            |You can use the the 'Organizations name':{%s}.""".format(succ.getOrElse("none")), "Megam::Organizations").toJson(true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    
+  }
+  
+  
 }
