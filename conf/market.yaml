@@ -43,6 +43,16 @@ marketplaces:
    7.0:
     description: "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat."
 
+ Php:
+  cattype: BYOC
+  order: 2
+  image: php.png
+  url: https://secure.php.net/
+
+  plans:
+   5.x:
+    description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
+
  Java:
   cattype: BYOC
   order: 2
@@ -82,16 +92,6 @@ marketplaces:
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
-
- Php:
-  cattype: BYOC
-  order: 2
-  image: php.png
-  url: https://secure.php.net/
-
-  plans:
-   5.x:
-    description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
 
  PostgreSQL:
   cattype: SERVICE
