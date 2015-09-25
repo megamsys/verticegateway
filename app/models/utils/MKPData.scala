@@ -38,11 +38,11 @@ object MKPData {
 
   implicit val formats = DefaultFormats
 
-  //marketplaceInput and marketplacePlans are loded dynamically to mkMap
-  val contentToEncode = scala.io.Source.fromFile("./test/marketplace/market.yaml").mkString
-  val kMap: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(contentToEncode).asInstanceOf[java.util.Map[String, String]]).toMap
-  val list = scala.collection.mutable.MutableList[String]()
-  val plist = scala.collection.mutable.MutableList[String]()
+//marketplaceInput and marketplacePlans are loded dynamically to mkMap
+val contentToEncode = scala.io.Source.fromFile("./conf/market.yaml").mkString
+val kMap: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(contentToEncode).asInstanceOf[java.util.Map[String, String]]).toMap
+val list = scala.collection.mutable.MutableList[String]()
+val plist = scala.collection.mutable.MutableList[String]()
 
   var mkMap = Map[String, MarketPlaceInput]()
 
