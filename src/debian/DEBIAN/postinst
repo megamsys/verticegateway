@@ -8,6 +8,8 @@ MEGAM_USER=megam
 
 LOG=/var/log/megam/megamgateway/megamgateway.log
 
+cp /usr/share/megam/megamgateway/config/market.yaml /var/lib/megam/market.yaml
+
 
 if [ "$1" = "configure" ]; then
     if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then
