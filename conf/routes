@@ -91,7 +91,7 @@ POST	 /v2/balances/content			        controllers.billing.Balances.post
 POST	 /v2/balances/update			        controllers.billing.Balances.update
 GET	   /v2/balances/:id               controllers.billing.Balances.show(id: String)
 
-POST   /v2/billinghistories/content	    controllers.billing.Billinghistories.post
-GET    /v2/billinghistories             controllers.billing.Billinghistories.list
+POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
+GET    /v2/billedhistories             controllers.billing.Billedhistories.list
 
 GET    /v2/promos/:id                   controllers.billing.Promos.show(id: String)

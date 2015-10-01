@@ -39,14 +39,14 @@ import models.billing._
  */
 
 
-object Billinghistories extends Controller with APIAuthElement {
+object Billedhistories extends Controller with APIAuthElement {
 
   /**
    * Create a new billing history for the user.
    **/
 
   def post = StackAction(parse.tolerantText) {  implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billinghistories", "post:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billedhistories", "post:Entry"))
 
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
@@ -54,13 +54,13 @@ object Billinghistories extends Controller with APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billinghistories", "request funneled."))
-          models.billing.Billinghistories.create(email, clientAPIBody) match {
+          play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billedhistories", "request funneled."))
+          models.billing.Billedhistories.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Billinghistories created successfully.
+                FunnelResponse(CREATED, """Billedhistories created successfully.
             |
-            |You can use the the 'Billinghistoriess':{%s}.""".format(succ.getOrElse("none")), "Megam::Billinghistories").toJson(true))
+            |You can use the the 'Billedhistoriess':{%s}.""".format(succ.getOrElse("none")), "Megam::Billedhistories").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -80,17 +80,17 @@ object Billinghistories extends Controller with APIAuthElement {
    * Output: JSON (BillingHistoriesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billinghistories", "list:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billedhistories", "list:Entry"))
 
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billinghistories", "request funneled."))
-          models.billing.Billinghistories.findByEmail(email) match {
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billedhistories", "request funneled."))
+          models.billing.Billedhistories.findByEmail(email) match {
             case Success(succ) =>
-              Ok(BillinghistoriesResults.toJson(succ, true))
+              Ok(BilledhistoriesResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
