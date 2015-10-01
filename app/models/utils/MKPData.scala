@@ -64,7 +64,7 @@ val plist = scala.collection.mutable.MutableList[String]()
               planList += MarketPlacePlan(plandesc.get(plandesc.keySet.head).getOrElse(""), String.valueOf(x._1))
             })
             //MarketPlaceInput and MarketPlacePlans are loaded dynamically to mkMap
-            mkMap += lkey -> MarketPlaceInput(lkey, innerhashmapinput.get("cattype").getOrElse(""), String.valueOf(innerhashmapinput.get("order").getOrElse("")), innerhashmapinput.get("image").getOrElse(""), innerhashmapinput.get("url").getOrElse(""), planList.toList)
+            mkMap += lkey -> MarketPlaceInput(lkey, innerhashmapinput.get("cattype").getOrElse(""), String.valueOf(innerhashmapinput.get("order").getOrElse("")), innerhashmapinput.get("image").getOrElse(""), innerhashmapinput.get("url").getOrElse("").trim, planList.toList)
         }
       }
     }
