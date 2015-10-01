@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,32 +56,32 @@ package object billing {
     def empty: BalancesResults = nel(emptyPR.head, emptyPR.tail)
 
   }
-  
-  type BillinghistoriesResults = NonEmptyList[Option[BillinghistoriesResult]]
 
-  object BillinghistoriesResults {
-    val emptyPR = List(Option.empty[BillinghistoriesResult])
+  type BilledhistoriesResults = NonEmptyList[Option[BilledhistoriesResult]]
+
+  object BilledhistoriesResults {
+    val emptyPR = List(Option.empty[BilledhistoriesResult])
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(pres: BillinghistoriesResults): JValue = {
+    def toJValue(pres: BilledhistoriesResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.billing.BillinghistoriesResultsSerialization.{ writer => BillinghistoriesResultsWriter }
-      toJSON(pres)(BillinghistoriesResultsWriter)
+      import models.json.billing.BilledhistoriesResultsSerialization.{ writer => BilledhistoriesResultsWriter }
+      toJSON(pres)(BilledhistoriesResultsWriter)
     }
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(pres: BillinghistoriesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    def toJson(pres: BilledhistoriesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(pres)))
     } else {
       compactRender(toJValue(pres))
     }
 
-    def apply(m: BillinghistoriesResult): BillinghistoriesResults = nels(m.some)
-    def empty: BillinghistoriesResults = nel(emptyPR.head, emptyPR.tail)
+    def apply(m: BilledhistoriesResult): BilledhistoriesResults = nels(m.some)
+    def empty: BilledhistoriesResults = nel(emptyPR.head, emptyPR.tail)
 
   }
-  
-  
+
+
   type DiscountsResults = NonEmptyList[Option[DiscountsResult]]
 
   object DiscountsResults {
@@ -104,7 +104,7 @@ package object billing {
     def apply(m: DiscountsResult): DiscountsResults = nels(m.some)
     def empty: DiscountsResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
-  
-  
+
+
+
 }
