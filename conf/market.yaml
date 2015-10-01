@@ -12,7 +12,7 @@ marketplaces:
 
  CoreOS:
   cattype: TORPEDO
-  order: 2
+  order: 1
   image: coreos.png
   url: http://coreos.com
   plans:
@@ -21,7 +21,7 @@ marketplaces:
 
  Debian:
   cattype: TORPEDO
-  order: 3
+  order: 1
   image: debian.png
   url: http://debian.com
   plans:
@@ -32,7 +32,7 @@ marketplaces:
 
  CentOS:
   cattype: TORPEDO
-  order: 4
+  order: 1
   image: centos.png
   url: http://debian.com
   plans:
@@ -41,7 +41,7 @@ marketplaces:
 
  Php:
   cattype: APP
-  order: 1
+  order: 2
   image: php.png
   url: https://secure.php.net/
   plans:
@@ -59,7 +59,7 @@ marketplaces:
 
  Rails:
   cattype: APP
-  order: 3
+  order: 2
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
   plans:
@@ -68,7 +68,7 @@ marketplaces:
 
  Play:
   cattype: APP
-  order: 4
+  order: 2
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
   plans:
@@ -77,7 +77,7 @@ marketplaces:
 
  Nodejs:
   cattype: APP
-  order: 5
+  order: 2
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
   plans:
@@ -95,7 +95,7 @@ marketplaces:
 
  Riak:
   cattype: SERVICE
-  order: 1
+  order: 3
   image: riak.png
   url: http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb
   plans:
@@ -104,7 +104,7 @@ marketplaces:
 
  Redis:
   cattype: SERVICE
-  order: 2
+  order: 3
   image: redis.png
   url: https://redis.org
   plans:
@@ -113,7 +113,7 @@ marketplaces:
 
  RabbitMQ:
   cattype: SERVICE
-  order: 4
+  order: 3
   image: rabbitmq.png
   url: https://www.rabbitmq.com
   plans:
@@ -122,7 +122,7 @@ marketplaces:
 
  Mysql:
   cattype: SERVICE
-  order: 5
+  order: 3
   image: mysql.png
   url: https://dev.mysql.com/
   plans:
@@ -131,7 +131,7 @@ marketplaces:
 
  DockerBox:
   cattype: MICROSERVICES
-  order: 6
+  order: 4
   image: dockerbox.png
   url: https://www.docker.com
   plans:
@@ -140,7 +140,7 @@ marketplaces:
 
  DockerContainer:
   cattype: MICROSERVICES
-  order: 7
+  order: 4
   image: dockercontainer.png
   url: https://www.docker.com
   plans:
@@ -149,7 +149,7 @@ marketplaces:
 
  Hadoop:
   cattype: ANALYTICS
-  order: 1
+  order: 5
   image: hadoop.png
   url: https://hadoop.apache.org
   plans:
@@ -158,7 +158,7 @@ marketplaces:
 
  Spark:
   cattype: ANALYTICS
-  order: 2
+  order: 5
   image: spark.png
   url: http://spark.apache.org/
   plans:
@@ -167,7 +167,7 @@ marketplaces:
 
  Spark-notebook:
   cattype: ANALYTICS
-  order: 3
+  order: 5
   image: sparknotebook.png
   url:  http://spark-notebook.io
   plans:
@@ -176,7 +176,7 @@ marketplaces:
 
  Zarafa:
   cattype: COLLABORATION
-  order: 1
+  order: 6
   image: zarafa.png
   url: https://www.zarafa.com/
   plans:
@@ -185,7 +185,7 @@ marketplaces:
 
  Owncloud:
   cattype: COLLABORATION
-  order: 2
+  order: 6
   image: owncloud.png
   url: https://owncloud.org/
   plans:
@@ -194,7 +194,7 @@ marketplaces:
 
  Virtual-office:
   cattype: COLLABORATION
-  order: 3
+  order: 6
   image: virtual_office.png
   url: www.megam.io
   plans:
