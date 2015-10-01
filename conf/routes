@@ -66,11 +66,6 @@ POST   /v2/requests/content            	controllers.Requests.post
 #GET   /v2/requests                     controllers.Requests.list()
 #GET   /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
 
-# CloudToolSetting
-POST   /v2/cloudtoolsettings/content    controllers.CloudToolSettings.post
-GET    /v2/cloudtoolsettings            controllers.CloudToolSettings.list
-GET    /v2/cloudtoolsettings/:id        controllers.CloudToolSettings.show(id: String)
-
 #Continious Integration
 POST   /v2/cis/content                  controllers.camp.ContiniousIntegration.post
 #GET   /v2/cis							            controllers.camp.ContiniousIntegration.list
