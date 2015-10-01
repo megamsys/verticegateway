@@ -60,29 +60,30 @@ package object models {
 
 //  implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): Option[String] = PredefCloudResults.toJson(prres, true).some
 
+/**
+ *  type CloudToolSettingResults = NonEmptyList[Option[CloudToolSettingResult]]
 
-  type CloudToolSettingResults = NonEmptyList[Option[CloudToolSettingResult]]
+ *  object CloudToolSettingResults {
+ *   val emptyPC = List(Option.empty[CloudToolSettingResult])
 
-  object CloudToolSettingResults {
-    val emptyPC = List(Option.empty[CloudToolSettingResult])
+ *   //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+ *   def toJValue(prres: CloudToolSettingResults): JValue = {
+ *     import net.liftweb.json.scalaz.JsonScalaz.toJSON
+ *     import models.json.CloudToolSettingResultsSerialization.{ writer => CloudToolSettingResultsWriter }
+ *     toJSON(prres)(CloudToolSettingResultsWriter)
+ *   }
 
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: CloudToolSettingResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.CloudToolSettingResultsSerialization.{ writer => CloudToolSettingResultsWriter }
-      toJSON(prres)(CloudToolSettingResultsWriter)
-    }
+ *  //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+ *   def toJson(nres: CloudToolSettingResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+ *     pretty(render(toJValue(nres)))
+ *   } else {
+ *     compactRender(toJValue(nres))
+ *   }
 
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: CloudToolSettingResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: CloudToolSettingResult): CloudToolSettingResults = nels(m.some)
-    def empty: CloudToolSettingResults = nel(emptyPC.head, emptyPC.tail)
-  }
+ *   def apply(m: CloudToolSettingResult): CloudToolSettingResults = nels(m.some)
+ *   def empty: CloudToolSettingResults = nel(emptyPC.head, emptyPC.tail)
+ * }
+*/
 
   type SshKeyResults = NonEmptyList[Option[SshKeyResult]]
 
