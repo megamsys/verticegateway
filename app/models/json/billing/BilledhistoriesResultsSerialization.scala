@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,37 +27,37 @@ import models.billing._
  * @author rajthilak
  *
  */
-object BillinghistoriesResultsSerialization extends SerializationBase[BillinghistoriesResults] {
+object BilledhistoriesResultsSerialization extends SerializationBase[BilledhistoriesResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[BillinghistoriesResults] {
-    override def write(h: BillinghistoriesResults): JValue = {
+  implicit override val writer = new JSONW[BilledhistoriesResults] {
+    override def write(h: BilledhistoriesResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[BillinghistoriesResult] =>
-          (nrOpt.map { nr: BillinghistoriesResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[BilledhistoriesResult] =>
+          (nrOpt.map { nr: BilledhistoriesResult => nr.toJValue }).getOrElse(JNothing)
       }
 
-      JObject(JField(JSONClazKey, JString("Megam::BillinghistoriesCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::BilledhistoriesCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
- 
-  implicit override val reader = new JSONR[BillinghistoriesResults] {
-    override def read(json: JValue): Result[BillinghistoriesResults] = {
+
+  implicit override val reader = new JSONR[BilledhistoriesResults] {
+    override def read(json: JValue): Result[BilledhistoriesResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            BillinghistoriesResult.fromJValue(jValue) match {
+            BilledhistoriesResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[BillinghistoriesResult]()
+              case Failure(fail) => List[BilledhistoriesResult]()
             }
-          } map { x: BillinghistoriesResult => x.some }
-          //this is screwy. Making the BillinghistoriesResults as Option[NonEmptylist[BillinghistoriesResult]] will solve it.
-          val nrs: BillinghistoriesResults = list.toNel.getOrElse(nels(none))
+          } map { x: BilledhistoriesResult => x.some }
+          //this is screwy. Making the BilledhistoriesResults as Option[NonEmptylist[BilledhistoriesResult]] will solve it.
+          val nrs: BilledhistoriesResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[BillinghistoriesResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[BilledhistoriesResults]
       }
     }
   }

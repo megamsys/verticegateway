@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 package test.billing
 
 import org.specs2.mutable._
@@ -24,17 +24,17 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.billing._
-import models.billing.Billinghistories
+import models.billing.Billedhistories
 import test.{ Context }
 
- * @author rajthilak
- *
+ //* @author rajthilak
+ //*
 
-class BillinghistoriesSpec extends Specification {
+class BilledhistoriesSpec extends Specification {
 
   def is =
-    "BillinghistoriesSpec".title ^ end ^ """
-  BillinghistoriesSpec is the implementation that calls the megam_play API server with the /billinghistories url
+    "BilledhistoriesSpec".title ^ end ^ """
+  BilledhistoriesSpec is the implementation that calls the megam_play API server with the /billedhistories url
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST  requests with an valid datas" ! create.succeeds ^
@@ -42,7 +42,7 @@ class BillinghistoriesSpec extends Specification {
 
     case object create extends Context {
 
-    protected override def urlSuffix: String = "billinghistories/content"
+    protected override def urlSuffix: String = "billedhistories/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
@@ -67,4 +67,4 @@ class BillinghistoriesSpec extends Specification {
     }
   }
 
-}*/
+}

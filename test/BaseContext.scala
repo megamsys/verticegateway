@@ -16,7 +16,7 @@
 */
 /*
  * @author rajthilak
- *
+ */
 
 package test
 
@@ -29,11 +29,11 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.newman._
 import com.stackmob.newman.response._
-//import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
-//import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
+import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
+import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.security.MessageDigest
-//import javax.crypto.spec.SecretKeySpec
+import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 import com.stackmob.newman._
@@ -158,4 +158,3 @@ trait Context extends BaseContext {
     res
   }
 }
-*/
