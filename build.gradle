@@ -1,0 +1,61 @@
+plugins {
+    id 'play'
+}
+
+model {
+    components {
+        play {
+            platform play: '2.4.3', scala: '2.11'
+        }
+    }
+}
+
+dependencies {
+    play      "jp.t2v:play2-auth_2.11:0.14.1"
+    play      "org.yaml:snakeyaml:1.16"
+    play      "io.megam:libcommon_2.11:0.10"
+    playTest  "io.megam:newman_2.11:1.3.10"
+    playTest  "org.specs2:specs2-core:3.6.1-20150618235732-d4f57e9"
+    playTest  "org.specs2:specs2-matcher-extra:3.6.1-20150618235732-d4f57e9"
+}
+
+repositories{
+    jcenter()
+    maven {
+        name "typesafe-maven-release"
+        url "https://repo.typesafe.com/typesafe/maven-releases"
+    }
+    ivy {
+        name "typesafe-ivy-release"
+        url "https://repo.typesafe.com/typesafe/ivy-releases"
+        layout "ivy"
+    }
+    maven {
+        name "gradle-js"
+        url "https://repo.gradle.org/gradle/javascript-public"
+    }
+   maven {
+    name ="Typesafe Snapshots"
+    url = "http://repo.typesafe.com/typesafe/snapshots/"
+   }
+  maven {
+    name = "Scala-Tools Maven2 Snapshots Repository"
+    url = "http://scala-tools.org/repo-snapshots"
+  }
+  maven {
+    name  "Spray repo"
+    url ="http://repo.spray.io"
+    }
+  maven {
+    name = "Spy Repository"
+    url ="http://files.couchbase.com/maven2"
+    }
+  maven {
+    name = "Bintray megamsys"
+    url = "https://dl.bintray.com/megamsys/scala/"
+    }
+  maven {
+  name = "Bintray scalaz"
+  url = "https://dl.bintray.com/scalaz/releases/"
+  }
+}
