@@ -2,15 +2,22 @@ plugins {
     id 'play'
 }
 
+def playVersion = '2.4.3'
+def scalaVersion = '2.11'
+
 model {
     components {
         play {
-            platform play: '2.4.3', scala: '2.11'
+            platform play: playVersion, scala: scalaVersion
         }
     }
 }
 
 dependencies {
+    ['play-cache', 'filters-helpers'].each { playModule ->
+        play "com.typesafe.play:${playModule}_$scalaVersion:$playVersion"
+    }
+
     play      "jp.t2v:play2-auth_2.11:0.14.1"
     play      "org.yaml:snakeyaml:1.16"
     play      "io.megam:libcommon_2.11:0.10"
