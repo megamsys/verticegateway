@@ -37,7 +37,7 @@ class BilledhistoriesSpec extends Specification {
   BilledhistoriesSpec is the implementation that calls the megam_play API server with the /billedhistories url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+      "Correctly do POST  requests with an valid datas "! create.succeeds^
       end
 
     case object create extends Context {
