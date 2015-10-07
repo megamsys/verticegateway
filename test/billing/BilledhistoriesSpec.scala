@@ -15,34 +15,43 @@
 */
 package test.billing
 
-import org.specs2.mutable._
-import org.specs2.Specification
+import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
+import com.stackmob.newman.{HttpClient}
 import com.stackmob.newman.dsl._
+import org.specs2._
+import org.specs2.Specification
+import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
 import models.billing._
-import models.billing.Billinghistories
-import Context._ 
+import models.billing.Billedhistories
+import controllers.stack.HeaderConstants._
+import test.{ Context }
 
  //* @author rajthilak
+ //*
+
+class BilledhistoriesSpec extends Specification {
+
+   def is =
+    "BilledhistoriesSpec".title ^
+      """
+  BilledhistoriesSpec is the implementation that calls the megam_play API server with the /billedhistories url
+  """ ^
+      p ^
+  "The Client Should" ^ br ^
+    "Correctly do POST  requests with an valid datas" ! create.succeeds ^ p ^    
+    end
  
-
-class BillinghistoriesSpec extends Specification {
-
-  def is =
-    "BillinghistoriesSpec".title ^ end ^ """
-  BillinghistoriesSpec is the implementation that calls the megam_play API server with the /billinghistories url
-  """ ^ end ^
-      "The Client Should" ^
-      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
-      end
 
     case object create extends Context {
 
-    protected override def urlSuffix: String = "billinghistories/content"
+    protected override def urlSuffix: String = "billedhistories/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
@@ -56,12 +65,12 @@ class BillinghistoriesSpec extends Specification {
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
-
+    
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
 
-    def succeeds: SpecsResult = {
+    def succeeds: SpecsResult = {   
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }

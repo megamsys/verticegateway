@@ -16,7 +16,7 @@
 */
 /*
  * @author rajthilak
- *
+ */
 
 package test
 
@@ -29,18 +29,19 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import com.stackmob.newman._
 import com.stackmob.newman.response._
-//import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
-//import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
+import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
+import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.security.MessageDigest
-//import javax.crypto.spec.SecretKeySpec
+import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 import com.stackmob.newman._
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman.dsl._
-import scala.concurrent.Await
+import scala.concurrent._
 import scala.concurrent.duration._
+import scala.concurrent.Await
 import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -126,9 +127,11 @@ trait BaseContext {
 }
 
 trait Context extends BaseContext {
-
+  play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("%-20s".format("Context"))
   val httpClient = new ApacheHttpClient
-
+   play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("%-20s".format("client"))
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())
   protected def headersOpt: Option[Map[String, String]]
@@ -158,4 +161,3 @@ trait Context extends BaseContext {
     res
   }
 }
-*/

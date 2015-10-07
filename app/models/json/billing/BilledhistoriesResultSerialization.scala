@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,13 +27,13 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.billing.{ BillinghistoriesResult }
+import models.billing.{ BilledhistoriesResult }
 
 /**
  * @author rajthilak
  *
  */
-class BillinghistoriesResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[BillinghistoriesResult] {
+class BilledhistoriesResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[BilledhistoriesResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
@@ -44,13 +44,13 @@ class BillinghistoriesResultSerialization(charset: Charset = UTF8Charset) extend
   protected val CurrencyTypeKey = "currency_type"
   protected val CreatedAtKey = "created_at"
 
-  override implicit val writer = new JSONW[BillinghistoriesResult] {
+  override implicit val writer = new JSONW[BilledhistoriesResult] {
 
-    override def write(h: BillinghistoriesResult): JValue = {
+    override def write(h: BilledhistoriesResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(AccountsIdKey, toJSON(h.accounts_id)) ::
-          JField(JSONClazKey, toJSON("Megam::Billinghistories")) ::
+          JField(JSONClazKey, toJSON("Megam::Billedhistories")) ::
            JField(AssemblyIdKey, toJSON(h.assembly_id)) ::
           JField(BillTypeKey, toJSON(h.bill_type)) ::
           JField(BillingAmountKey, toJSON(h.billing_amount)) ::
@@ -60,9 +60,9 @@ class BillinghistoriesResultSerialization(charset: Charset = UTF8Charset) extend
     }
   }
 
-  override implicit val reader = new JSONR[BillinghistoriesResult] {
+  override implicit val reader = new JSONR[BilledhistoriesResult] {
 
-    override def read(json: JValue): Result[BillinghistoriesResult] = {
+    override def read(json: JValue): Result[BilledhistoriesResult] = {
 
       val idField = field[String](IdKey)(json)
       val accountsIdField = field[String](AccountsIdKey)(json)
@@ -74,7 +74,7 @@ class BillinghistoriesResultSerialization(charset: Charset = UTF8Charset) extend
 
       (idField |@| accountsIdField |@| assemblyIdField |@| billTypeField |@| billingamountField |@| currencytypeField |@| createdAtField) {
         (id: String, accounts_id: String, assembly_id: String, bill_type: String, billing_amount: String, currency_type: String, created_at: String) =>
-          new BillinghistoriesResult(id, accounts_id, assembly_id, bill_type, billing_amount, currency_type, created_at)
+          new BilledhistoriesResult(id, accounts_id, assembly_id, bill_type, billing_amount, currency_type, created_at)
       }
     }
   }

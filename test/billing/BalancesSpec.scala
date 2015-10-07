@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 package test.billing
 
 import org.specs2.mutable._
@@ -27,8 +27,8 @@ import models.billing._
 import models.billing.Balances
 import test.{ Context }
 
- * @author rajthilak
- *
+// * @author rajthilak
+// *
 
 class BalancesSpec extends Specification {
 
@@ -63,4 +63,4 @@ class BalancesSpec extends Specification {
     }
   }
 
-}*/
+}
