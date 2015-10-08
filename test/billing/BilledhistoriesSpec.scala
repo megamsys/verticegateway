@@ -46,8 +46,8 @@ class BilledhistoriesSpec extends Specification {
       p ^
   "The Client Should" ^ br ^
     "Correctly do POST  requests with an valid datas" ! create.succeeds ^ p ^    
-    end
- 
+    end 
+
 
     case object create extends Context {
 

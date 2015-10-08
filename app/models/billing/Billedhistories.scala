@@ -194,7 +194,7 @@ object Billedhistories {
         val bindex = ""
         val bvalue = Set("")
          play.api.Logger.debug(("%-20s -->[%s]").format("Billedhistories result", aor.get))
-        new GunnySack("Billinghistories", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+        new GunnySack("Billedhistories", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
