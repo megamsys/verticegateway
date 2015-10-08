@@ -104,6 +104,27 @@ package object billing {
     def apply(m: DiscountsResult): DiscountsResults = nels(m.some)
     def empty: DiscountsResults = nel(emptyPC.head, emptyPC.tail)
   }
+type InvoicesResults = NonEmptyList[Option[InvoicesResult]]
+
+object InvoicesResults {
+  val emptyPC = List(Option.empty[InvoicesResult])
+
+  //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+  def toJValue(prres: InvoicesResults): JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.billing.InvoicesResultsSerialization.{ writer => InvoicesResultsWriter }
+    toJSON(prres)(InvoicesResultsWriter)
+  }
+
+  def toJson(nres: InvoicesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue(nres)))
+  } else {
+    compactRender(toJValue(nres))
+  }
+
+  def apply(m: InvoicesResult): InvoicesResults = nels(m.some)
+  def empty: InvoicesResults = nel(emptyPC.head, emptyPC.tail)
+}
 
 
 

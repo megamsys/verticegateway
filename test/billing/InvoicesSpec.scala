@@ -12,8 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
-
+*/
 package test.billing
 
 import org.specs2.mutable._
@@ -25,36 +24,34 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.billing._
-import models.billing.Billings
+import models.billing.Invoice
 import test.{ Context }
 
- * @author rajthilak
- *
+ //* @author rajthilak
+ //*
 
-class BillingsSpec extends Specification {
+class InvoicesSpec extends Specification {
 
   def is =
-    "BillingsSpec".title ^ end ^ """
-  BillingsSpec is the implementation that calls the megam_play API server with the /billings url
+    "InvoicesSpec".title ^ end ^ """
+InvoicesSpec is the implementation that calls the megam_play API server with the /invoices url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+      "Correctly do POST  requests with an valid datas "! create.succeeds^
       end
 
     case object create extends Context {
 
-    protected override def urlSuffix: String = "billings/content"
+    protected override def urlSuffix: String = "invoices/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"accounts_id\": \"565656\"," +
-        "\"line1\":\"456436\"," +
-        "\"line2\": \"565656\"," +
-        "\"country_code\":\"456436\"," +
-        "\"postal_code\": \"565656\"," +
-        "\"state\":\"456436\"," +
-        "\"phone\": \"565656\"," +
-        "\"bill_type\":\"paypal\"," +
+        "\"from_date\": \"2015-10-07\"," +
+        "\"to_date\":\"2015-11-07\"," +
+        "\"month\":\"oct\"," +
+        "\"bill_type\": \"paypal\"," +
+        "\"billing_amount\":\"2000\"," +
+        "\"currency_type\":\"USD\"," +
         "}"
 
       Some(new String(contentToEncode))
@@ -71,4 +68,4 @@ class BillingsSpec extends Specification {
     }
   }
 
-}*/
+}
