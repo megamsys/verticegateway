@@ -180,9 +180,9 @@ object Invoices {
 
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the histories are listed on the index (account.id) in bucket `Billinghistories`.
-   * Using a "Billinghistories name" as key, return a list of ValidationNel[List[BillinghistoriesResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[BillinghistoriesResult]]]
+   * the histories are listed on the index (account.id) in bucket `Invoices`.
+   * Using a "Invoices name" as key, return a list of ValidationNel[List[InvoicesResult]]
+   * Takes an email, and returns a Future[ValidationNel, List[Option[InvoicesResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, InvoicesResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Invoices", "findByEmail:Entry"))
