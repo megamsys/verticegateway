@@ -24,7 +24,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.billing._
-import models.billing.Billedhistories
+import models.billing.Invoice
 import test.{ Context }
 
  //* @author rajthilak
@@ -34,7 +34,7 @@ class BilledhistoriesSpec extends Specification {
 
   def is =
     "BilledhistoriesSpec".title ^ end ^ """
-  BilledhistoriesSpec is the implementation that calls the megam_play API server with the /billedhistories url
+BilledhistoriesSpec is the implementation that calls the megam_play API server with the /billedhistories url
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST  requests with an valid datas "! create.succeeds^
@@ -46,11 +46,11 @@ class BilledhistoriesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"accounts_id\": \"565656\"," +
-        "\"assembly_id\":\"456436\"," +
+        "\"accounts_id\": \"5555555\"," +
+        "\"assembly_id\":\"67889\"," +
         "\"bill_type\": \"paypal\"," +
         "\"billing_amount\":\"2000\"," +
-        "\"currency_type\":\"USD\"" +
+        "\"currency_type\":\"USD\"," +
         "}"
 
       Some(new String(contentToEncode))
