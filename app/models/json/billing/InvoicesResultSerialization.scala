@@ -29,7 +29,7 @@ import controllers.Constants._
 import controllers.funnel.SerializationBase
 import models.billing.{ InvoicesResult }
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
 class InvoicesResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[InvoicesResult] {

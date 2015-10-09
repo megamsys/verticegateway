@@ -34,7 +34,7 @@ import models.billing._
 
 
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
 
@@ -42,7 +42,7 @@ import models.billing._
 object Invoices extends Controller with APIAuthElement {
 
   /**
-   * Create a new billing history for the user.
+   * Create a new invoices history for the user.
    **/
 
   def post = StackAction(parse.tolerantText) {  implicit request =>
@@ -75,9 +75,9 @@ object Invoices extends Controller with APIAuthElement {
    }
 
  /**
-   * GET: findbyEmail: List all the billing histories per email
+   * GET: findbyEmail: List all the  invoices per email
    * Email grabbed from header.
-   * Output: JSON (BillingHistoriesResult)
+   * Output: JSON (InvoicesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Invoices", "list:Entry"))

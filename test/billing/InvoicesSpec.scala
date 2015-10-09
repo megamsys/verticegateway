@@ -27,7 +27,7 @@ import models.billing._
 import models.billing.Invoice
 import test.{ Context }
 
- //* @author rajthilak
+ //* @author ranjitha
  //*
 
 class InvoicesSpec extends Specification {

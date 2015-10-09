@@ -42,7 +42,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
 
@@ -113,7 +113,7 @@ object Invoices {
     for {
       bhi <- InvoicesInput
       aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "invs").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "inv").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
         //val bvalue = Set(bhi.accounts_id)
@@ -124,7 +124,7 @@ object Invoices {
   }
 
   /*
-   * create new billing histories for currently pay the bill of user.
+   * create new invoices for currently pay the bill of user.
    *
    */
 

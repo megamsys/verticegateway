@@ -24,7 +24,7 @@ import controllers.funnel.SerializationBase
 import models.billing._
 
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
 object InvoicesResultsSerialization extends SerializationBase[InvoicesResults] {
