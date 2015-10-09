@@ -106,25 +106,25 @@
 					<thead>
 						<tr>
 							<th>Id</th>
-							<th>Name</th>
 							<th>Cattype</th>
+							<th>Name</th>
 							<th>Order</th>
 							<th>Image</th>
-							<th>Url</th>
 							<th>Plan</th>
 							<th>Created at</th>
 							<th>Action</th>
 							</tr>
 					</thead>
 					<tbody>
-						@for(mk <- tres.mkps.list.flatten)  {
+						@for(mk <- tres.mkps.list.flatten.sortWith(_.cattype < _.cattype))  {
 						<tr>
 							<td>@mk.id</td>
-							<td>@mk.name</td>
 							<td>@mk.cattype</td>
+							<td>@mk.name</td>
 							<td>@mk.order</td>
-							<td>@mk.image</td>
-							<td>@mk.url</td>
+							<td>
+								@mk.image
+							</td>
 							<td>@mk.plans.map { p =>
 								[@p.description
 								<a href="" target="_blank">
@@ -136,9 +136,6 @@
 								@mk.created_at
 							</td>
 							<td>
-								<a class="btn btn-info" href="#" disabled>
-									<i class="fa fa-edit "></i>
-								</a>
 								<a class="btn btn-danger" href="#" disabled>
 									<i class="fa fa-trash-o "></i>
 								</a>
