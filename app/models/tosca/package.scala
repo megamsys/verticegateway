@@ -64,8 +64,8 @@ package object tosca {
     def empty: CSARResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-  
-  
+
+
   type AssembliesList = List[Assembly]
 
   type ComponentsList = List[Component]
@@ -243,8 +243,8 @@ package object tosca {
     def apply(m: OrganizationsResult): OrganizationsResults = nels(m.some)
     def empty: OrganizationsResults = nel(emptyPC.head, emptyPC.tail)
   }
-  
-  
+
+
 
   type DomainsResults = NonEmptyList[Option[DomainsResult]]
 
@@ -269,7 +269,7 @@ package object tosca {
     def empty: DomainsResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-  
+
   type PoliciesList = List[Policy]
 
   object PoliciesList {
@@ -328,7 +328,7 @@ package object tosca {
 
   }
 
-   
+
   type RelatedOrgsList = List[String]
 
   object RelatedOrgsList {
@@ -357,8 +357,8 @@ package object tosca {
     def empty: List[String] = emptyRR
 
   }
-  
-  
+
+
 
   type KeyValueList = List[KeyValueField]
 
@@ -388,11 +388,11 @@ package object tosca {
     def empty: List[KeyValueField] = emptyRR
 
   }
-  
- 
-  
 
-  type OperationList = List[Operation]
+
+
+
+ type OperationList = List[Operation]
 
   object OperationList {
     val emptyRR = List(Operation.empty)

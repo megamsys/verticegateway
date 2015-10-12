@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,21 +40,21 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
   protected val NameKey = "name"
   protected val ComponentsKey = "components"
   protected val ToscaTypeKey = "tosca_type"
-  protected val RequirementsKey = "requirements"
   protected val PoliciesKey = "policies"
   protected val InputsKey = "inputs"
-  protected val OperationsKey = "operations"
+  //protected val OperationsKey = "operations"
   protected val OutputsKey = "outputs"
   protected val StatusKey = "status"
-  protected val CreatedAtKey ="created_at" 
-    
+ protected val CreatedAtKey ="created_at"
+
+
   override implicit val writer = new JSONW[AssemblyResult] {
 
     import ComponentLinksSerialization.{ writer => ComponentLinksWriter }
     import PoliciesListSerialization.{ writer => PoliciesListWriter }
     import KeyValueListSerialization.{ writer => KeyValueListWriter }
     import OperationListSerialization.{ writer => OperationListWriter }
-    
+
     override def write(h: AssemblyResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
@@ -62,18 +62,18 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
           JField(NameKey, toJSON(h.name)) ::
           JField(ComponentsKey, toJSON(h.components)(ComponentLinksWriter)) ::
           JField(ToscaTypeKey, toJSON(h.tosca_type)) ::
-          JField(RequirementsKey, toJSON(h.requirements)(KeyValueListWriter)) ::
+          //JField(RequirementsKey, toJSON(h.requirements)(KeyValueListWriter)) ::
           JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
           JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::
-          JField(OperationsKey, toJSON(h.operations)(OperationListWriter)) :: 
-          JField(OutputsKey, toJSON(h.outputs)(KeyValueListWriter)) :: 
+          //JField(OperationsKey, toJSON(h.operations)(OperationListWriter)) ::
+          JField(OutputsKey, toJSON(h.outputs)(KeyValueListWriter)) ::
           JField(StatusKey, toJSON(h.status)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) :: Nil)
-    }
   }
+}
 
   override implicit val reader = new JSONR[AssemblyResult] {
-    
+
     import ComponentLinksSerialization.{ reader => ComponentLinksReader }
     import PoliciesListSerialization.{ reader => PoliciesListReader }
     import KeyValueListSerialization.{reader => KeyValueListReader }
@@ -84,17 +84,17 @@ class AssemblyResultSerialization(charset: Charset = UTF8Charset) extends Serial
       val nameField = field[String](NameKey)(json)
       val componentsField = field[ComponentLinks](ComponentsKey)(json)(ComponentLinksReader)
       val toscatypeField = field[String](ToscaTypeKey)(json)
-      val requirementsField = field[KeyValueList](RequirementsKey)(json)(KeyValueListReader)
+      //val requirementsField = field[KeyValueList](RequirementsKey)(json)(KeyValueListReader)
       val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
-      val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)  
-      val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
+      val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
+      //val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
       val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader)
-      val statusField = field[String](StatusKey)(json) 
+      val statusField = field[String](StatusKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| componentsField |@| toscatypeField |@| requirementsField |@| policiesField |@| inputsField |@| operationsField |@| outputsField |@| statusField |@| createdAtField) {
-          (id: String, name: String, components: ComponentLinks, tosca_type: String, requirements: KeyValueList, policies: PoliciesList, inputs: KeyValueList, operations: OperationList, outputs: KeyValueList, status: String, created_at: String) =>
-          new AssemblyResult(id, name, components, tosca_type, requirements, policies, inputs, operations, outputs, status, created_at)
+      (idField |@| nameField |@| componentsField |@| toscatypeField |@| policiesField |@| inputsField |@| outputsField |@| statusField |@| createdAtField) {
+          (id: String, name: String, components: ComponentLinks, tosca_type: String, policies: PoliciesList, inputs: KeyValueList, outputs: KeyValueList, status: String, created_at: String ) =>
+          new AssemblyResult(id, name, components, tosca_type, policies, inputs, outputs, status, created_at )
       }
     }
   }
