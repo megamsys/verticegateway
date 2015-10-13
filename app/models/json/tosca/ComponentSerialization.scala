@@ -30,7 +30,7 @@ import controllers.funnel.SerializationBase
 import models.tosca.{ Component, Artifacts, KeyValueList, OperationList, BindLinks, Repo }
 
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
 class ComponentSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Component] {

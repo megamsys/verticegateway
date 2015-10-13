@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,33 +38,33 @@ class OperationSerialization(charset: Charset = UTF8Charset) extends Serializati
 
   protected val OperationTypeKey = "operation_type"
   protected val DescriptionKey = "description"
-  protected val OperationRequirementsKey = "operation_requirements"
+  protected val PropertiesKey = "properties"
 
   override implicit val writer = new JSONW[Operation] {
 
     import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
-    
+
     override def write(h: Operation): JValue = {
       JObject(
         JField(OperationTypeKey, toJSON(h.operation_type)) ::
           JField(DescriptionKey, toJSON(h.description)) ::
-          JField(OperationRequirementsKey, toJSON(h.operation_requirements)(KeyValueListWriter)) :: 
+          JField(PropertiesKey, toJSON(h.properties)(KeyValueListWriter)) ::
            Nil)
     }
   }
 
   override implicit val reader = new JSONR[Operation] {
-    
+
      import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
 
     override def read(json: JValue): Result[Operation] = {
       val operationtypeField = field[String](OperationTypeKey)(json)
-      val descriptionField = field[String](DescriptionKey)(json)    
-      val operationrequirementsField = field[KeyValueList](OperationRequirementsKey)(json)(KeyValueListReader)
-      
-      (operationtypeField |@| descriptionField |@| operationrequirementsField) {
-        (operationtype: String, description: String, operation_requirements: KeyValueList) =>
-          new Operation(operationtype, description, operation_requirements)
+      val descriptionField = field[String](DescriptionKey)(json)
+      val propertiesField = field[KeyValueList](PropertiesKey)(json)(KeyValueListReader)
+
+      (operationtypeField |@| descriptionField |@| propertiesField) {
+        (operationtype: String, description: String, properties: KeyValueList) =>
+          new Operation(operationtype, description, properties)
       }
     }
   }

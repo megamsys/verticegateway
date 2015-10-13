@@ -30,7 +30,7 @@ import controllers.funnel.SerializationBase
 import models.tosca.{ Assembly, ComponentsList, PoliciesList, KeyValueList, OperationList }
 
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
 class AssemblySerialization(charset: Charset = UTF8Charset) extends SerializationBase[Assembly] {
@@ -39,10 +39,8 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
   protected val NameKey = "name"
   protected val ComponentsKey = "components"
   protected val ToscaTypeKey = "tosca_type"
-//  protected val RequirementsKey = "requirements"
   protected val PoliciesKey = "policies"
   protected val InputsKey = "inputs"
-  //protected val OperationsKey = "operations"
   protected val OutputsKey = "outputs"
   protected val StatusKey = "status"
 
@@ -59,10 +57,8 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
           JField(NameKey, toJSON(h.name)) ::
           JField(ComponentsKey, toJSON(h.components)(ComponentsListWriter)) ::
           JField(ToscaTypeKey, toJSON(h.tosca_type)) ::
-  //        JField(RequirementsKey, toJSON(h.requirements)(KeyValueListWriter)) ::
           JField(PoliciesKey, toJSON(h.policies)(PoliciesListWriter)) ::
           JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::
-    //      JField(OperationsKey, toJSON(h.operations)(OperationListWriter)) ::
           JField(OutputsKey, toJSON(h.outputs)(KeyValueListWriter)) ::
           JField(StatusKey, toJSON(h.status)) ::
           Nil)
@@ -80,10 +76,8 @@ class AssemblySerialization(charset: Charset = UTF8Charset) extends Serializatio
       val nameField = field[String](NameKey)(json)
       val componentsField = field[ComponentsList](ComponentsKey)(json)(ComponentsListReader)
       val toscatypeField = field[String](ToscaTypeKey)(json)
-      //val requirementsField = field[KeyValueList](RequirementsKey)(json)(KeyValueListReader)
       val policiesField = field[PoliciesList](PoliciesKey)(json)(PoliciesListReader)
       val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
-      //val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
       val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader)
       val statusField = field[String](StatusKey)(json)
 

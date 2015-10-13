@@ -63,8 +63,8 @@ import java.nio.charset.Charset
 //    15.dbpassword
 // These fields are presents at inputs array for APP or SERVICE components
 
-case class Artifacts(artifact_type: String, content: String, artifact_requirements: KeyValueList) {
-  val json = "{\"artifact_type\":\"" + artifact_type + "\",\"content\":\"" + content + "\",\"artifact_requirements\":" + KeyValueList.toJson(artifact_requirements, true) + "}"
+case class Artifacts(artifact_type: String, content: String, requirements: KeyValueList) {
+  val json = "{\"artifact_type\":\"" + artifact_type + "\",\"content\":\"" + content + "\",\"requirements\":" + KeyValueList.toJson(requirements, true) + "}"
 }
 
 object Artifacts {
@@ -72,7 +72,7 @@ object Artifacts {
 }
 
 case class Repo(rtype: String, source: String, oneclick: String, url: String){
-  val json = "{\"type\":\"" + rtype + "\",\"source\":\"" + source + "\",\"oneclick\":\"" + oneclick + "\",\"url\":\"" + url + "\"}"
+  val json = "{\"rtype\":\"" + rtype + "\",\"source\":\"" + source + "\",\"oneclick\":\"" + oneclick + "\",\"url\":\"" + url + "\"}"
 }
 
 object  Repo{
@@ -279,7 +279,7 @@ object ComponentsList {
     } yield {
 
       val bvalue = Set(aor.get.id)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) + ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) + ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status + "\",\"repo\":" + input.repo.json + "}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) + ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) + ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status + "\",\"repo\":" + input.repo.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
 
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some

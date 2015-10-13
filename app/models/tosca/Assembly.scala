@@ -65,8 +65,8 @@ import java.nio.charset.Charset
 
 
 
- case class Operation(operation_type: String, description: String, operation_requirements: models.tosca.KeyValueList) {
-  val json = "{\"operation_type\":\"" + operation_type + "\",\"description\":\"" + description + "\",\"operation_requirements\":\"" + KeyValueList.toJson(operation_requirements, true) + "\"}"
+ case class Operation(operation_type: String, description: String, properties: models.tosca.KeyValueList) {
+  val json = "{\"operation_type\":\"" + operation_type + "\",\"description\":\"" + description + "\",\"properties\":\"" + KeyValueList.toJson(properties, true) + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
