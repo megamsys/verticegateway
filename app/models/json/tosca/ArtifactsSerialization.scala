@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,33 +38,33 @@ object ArtifactsSerialization extends SerializationBase[Artifacts] {
 
   protected val ArtifactTypeKey = "artifact_type"
   protected val ContentKey = "content"
-  protected val ArtifactRequirementsKey = "artifact_requirements"
+  protected val RequirementsKey = "requirements"
 
   override implicit val writer = new JSONW[Artifacts] {
 
     import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
-    
+
     override def write(h: Artifacts): JValue = {
       JObject(
         JField(ArtifactTypeKey, toJSON(h.artifact_type)) ::
           JField(ContentKey, toJSON(h.content)) ::
-          JField(ArtifactRequirementsKey, toJSON(h.artifact_requirements)(KeyValueListWriter)) :: 
+          JField(RequirementsKey, toJSON(h.requirements)(KeyValueListWriter)) ::
            Nil)
     }
   }
 
   override implicit val reader = new JSONR[Artifacts] {
-    
+
     import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
 
     override def read(json: JValue): Result[Artifacts] = {
       val artifacttypeField = field[String](ArtifactTypeKey)(json)
-      val contentField = field[String](ContentKey)(json)    
-      val artifactrequirementsField = field[KeyValueList](ArtifactRequirementsKey)(json)(KeyValueListReader)
-      
-      (artifacttypeField |@| contentField |@| artifactrequirementsField) {
-        (artifacttype: String, content: String, artifact_requirements: KeyValueList) =>
-          new Artifacts(artifacttype, content, artifact_requirements)
+      val contentField = field[String](ContentKey)(json)
+      val requirementsField = field[KeyValueList](RequirementsKey)(json)(KeyValueListReader)
+
+      (artifacttypeField |@| contentField |@| requirementsField) {
+        (artifacttype: String, content: String, requirements: KeyValueList) =>
+          new Artifacts(artifacttype, content, requirements)
       }
     }
   }

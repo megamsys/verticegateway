@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,10 +27,10 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Component, Artifacts, KeyValueList, OperationList, BindLinks }
+import models.tosca.{ Component, Artifacts, KeyValueList, OperationList, BindLinks, Repo }
 
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
 class ComponentSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Component] {
@@ -44,14 +44,16 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
   protected val RelatedComponentsKey = "related_components"
   protected val OperationsKey = "operations"
   protected val StatusKey = "status"
-    
+  protected val RepoKey = "repo"
+
   override implicit val writer = new JSONW[Component] {
-    
+
     import KeyValueListSerialization.{ writer => KeyValueListWriter }
     import ArtifactsSerialization.{ writer => ArtifactsWriter }
     import OperationListSerialization.{ writer => OperationListWriter }
+    import RepoSerialization. { writer => RepoWriter }
     import BindLinksSerialization.{ writer => BindLinksWriter }
-    
+
     override def write(h: Component): JValue = {
       JObject(
    //     JField(JSONClazKey, toJSON("Megam::Component")) ::
@@ -62,30 +64,33 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
           JField(ArtifactsKey, toJSON(h.artifacts)(ArtifactsWriter)) ::
           JField(RelatedComponentsKey, toJSON(h.related_components)(BindLinksWriter)) ::
           JField(OperationsKey, toJSON(h.operations)(OperationListWriter)) ::
+             JField(RepoKey, toJSON(h.repo)(RepoWriter)) ::
           JField(StatusKey, toJSON(h.status)) :: Nil)
     }
   }
 
   override implicit val reader = new JSONR[Component] {
-    
+
     import KeyValueListSerialization.{ reader => KeyValueListReader }
     import ArtifactsSerialization.{ reader => ArtifactsReader }
     import OperationListSerialization.{ reader => OperationListReader }
+    import RepoSerialization.{ reader => RepoReader }
     import BindLinksSerialization.{ reader => BindLinksReader }
 
     override def read(json: JValue): Result[Component] = {
       val nameField = field[String](NameKey)(json)
       val toscatypeField = field[String](ToscaTypeKey)(json)
-      val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)  
-      val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader) 
+      val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
+      val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader)
       val artifactsField = field[Artifacts](ArtifactsKey)(json)(ArtifactsReader)
-      val relatedcomponentsField = field[BindLinks](RelatedComponentsKey)(json)(BindLinksReader) 
+      val relatedcomponentsField = field[BindLinks](RelatedComponentsKey)(json)(BindLinksReader)
       val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
       val statusField = field[String](StatusKey)(json)
+      val repoField = field[Repo](RepoKey)(json)(RepoReader)
 
-      (nameField |@| toscatypeField |@| inputsField |@| outputsField |@| artifactsField |@| relatedcomponentsField |@| operationsField |@| statusField) {
-        (name: String, tosca_type: String, inputs: KeyValueList, outputs: KeyValueList, artifacts: Artifacts, related_components: BindLinks, operations: OperationList, status: String) =>
-          new Component(name, tosca_type, inputs, outputs, artifacts, related_components, operations, status)
+      (nameField |@| toscatypeField |@| inputsField |@| outputsField |@| artifactsField |@| relatedcomponentsField |@| operationsField |@| repoField |@| statusField) {
+        (name: String, tosca_type: String, inputs: KeyValueList, outputs: KeyValueList, artifacts: Artifacts, related_components: BindLinks, operations: OperationList, repo: Repo ,status: String ) =>
+          new Component(name, tosca_type, inputs, outputs, artifacts, related_components, operations, repo, status)
       }
     }
   }
