@@ -29,8 +29,8 @@ import org.specs2.Specification
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.{ Result => SpecsResult }
 import models.billing._
-import models.billing.Billedhistories
-import controllers.stack.HeaderConstants._
+import models.billing.Invoice
+
 import test.{ Context }
 
  //* @author rajthilak
@@ -38,16 +38,13 @@ import test.{ Context }
 
 class BilledhistoriesSpec extends Specification {
 
-   def is =
-    "BilledhistoriesSpec".title ^
-      """
-  BilledhistoriesSpec is the implementation that calls the megam_play API server with the /billedhistories url
-  """ ^
-      p ^
-  "The Client Should" ^ br ^
-    "Correctly do POST  requests with an valid datas" ! create.succeeds ^ p ^    
-    end 
-
+  def is =
+    "BilledhistoriesSpec".title ^ end ^ """
+BilledhistoriesSpec is the implementation that calls the megam_play API server with the /billedhistories url
+  """ ^ end ^
+      "The Client Should" ^
+      "Correctly do POST  requests with an valid datas "! create.succeeds^
+      end
 
     case object create extends Context {
 
@@ -55,11 +52,11 @@ class BilledhistoriesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"accounts_id\": \"565656\"," +
-        "\"assembly_id\":\"456436\"," +
+        "\"accounts_id\": \"5555555\"," +
+        "\"assembly_id\":\"67889\"," +
         "\"bill_type\": \"paypal\"," +
         "\"billing_amount\":\"2000\"," +
-        "\"currency_type\":\"USD\"" +
+        "\"currency_type\":\"USD\"," +
         "}"
 
       Some(new String(contentToEncode))

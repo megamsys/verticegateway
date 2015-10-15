@@ -31,6 +31,7 @@ POST   /v2/domains/content              controllers.camp.Domains.post
 GET    /v2/domains/:id                  controllers.camp.Domains.show(id: String)
 
 
+
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
@@ -89,4 +90,8 @@ GET	   /v2/balances/:id               controllers.billing.Balances.show(id: Stri
 POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
 GET    /v2/billedhistories             controllers.billing.Billedhistories.list
 
-GET    /v2/promos/:id                   controllers.billing.Promos.show(id: String)
+GET    /v2/promos/:id                    controllers.billing.Promos.show(id: String)
+
+POST   /v2/invoices/content             controllers.billing.Invoices.post
+GET    /v2/invoices                     controllers.billing.Invoices.list
+GET	   /v2/invoices/:id               controllers.billing.Invoices.show(id: String)

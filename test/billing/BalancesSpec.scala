@@ -52,7 +52,7 @@ class BalancesSpec extends Specification {
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
-
+    val httpClient = new ApacheHttpClient
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
