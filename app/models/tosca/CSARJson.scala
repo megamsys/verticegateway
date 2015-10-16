@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -196,7 +196,7 @@ object CSARJson {
           assembly_inputs_lists += KeyValueField("sshkey", getValue("sshkey", template))
         }
 
-        new Assembly(getValue("name", template), clist.toList, get_tosca_type(getValue("type", template), "ASSEMBLY"), List[KeyValueField](), List[Policy](), assembly_inputs_lists.toList, List[Operation](), List[KeyValueField](), "LAUNCHING")
+        new Assembly(getValue("name", template), clist.toList, get_tosca_type(getValue("type", template), "ASSEMBLY"), List[Policy](), assembly_inputs_lists.toList, List[KeyValueField](), "LAUNCHING")
     }
     return cc
   }
@@ -213,8 +213,13 @@ object CSARJson {
 
     val valu = new Component(getValue("name", template), getValue("type", template),
       component_inputs_lists.toList, List[KeyValueField](), new Artifacts("", "", List[KeyValueField]()),
-      List[String](), List[Operation](), "LAUNCHING")
+      List[String](), List[Operation](), new Repo("", "", "", ""), "LAUNCHING")
     return valu
+
+    //val value = new Component(getValue("name", template), getValue("type", template),
+      //component_inputs_lists.toList, List[KeyValueField](), new Repo("", "", List[KeyValueField]()),
+      //List[String](), List[Operation](), "LAUNCHING")
+      //return value
   }
 
   def assembliesBuilder(assemblyList: scala.collection.mutable.MutableList[Assembly]): String = {
