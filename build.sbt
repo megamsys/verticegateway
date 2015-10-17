@@ -25,6 +25,14 @@ initialize := {
     sys.error("Java 8 is required for this project.")
 }
 
+javaOptions += ("-Dconfig.file=" + {
+  val home  = System getenv "MEGAM_HOME"
+  if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
+  val gwconfPath = Path(home)
+  val gwconf = gwconfPath / "megamgateway" /  "gateway.conf"
+  gwconf.toString
+})
+
 scalacOptions := Seq(
   "-deprecation",
   "-feature",

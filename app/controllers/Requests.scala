@@ -25,7 +25,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.stack._
-import controllers.Constants.{ DEMO_EMAIL, DELETE_REQUEST , CREATE_REQUEST, DOCKER_QUEUE}
+import controllers.Constants.{ DEMO_EMAIL, DELETE_REQUEST , CREATE_REQUEST}
 import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
@@ -39,8 +39,8 @@ import play.api.mvc.Result
  */
 object Requests extends Controller with APIAuthElement {
 
-  
-  
+
+
   /*
    * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
@@ -64,25 +64,25 @@ object Requests extends Controller with APIAuthElement {
             |
             |Dry launch of {:node_name=>'%s', :req_type=>'%s'}
             |No actual launch in cloud. Signup for a new account to get started.""".format(tuple_succ._2, tuple_succ._3).stripMargin, "Megam::Request").toJson(true))
-              else {              
+              else {
                 val pubres = if (tuple_succ._3 != "Microservices") {
                   if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) {
                     for {
                     csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop
-                   } yield {} 
-                 
+                   } yield {}
+
                    } else {
                     for {
                      csup <- CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop
                    } yield {}
-                    
+
                   }
                 } else {
                     for {
-                     csup <- CloudPerNodePublish(DOCKER_QUEUE, tuple_succ._1).dop
+                     csup <- CloudPerNodePublish(MConfig.dockerup_queue, tuple_succ._1).dop
                    } yield {}
                   }
-                               
+
                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.node.update", pubres))
                 pubres flatMap { x =>
                   play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
@@ -96,8 +96,8 @@ object Requests extends Controller with APIAuthElement {
                     Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
             |
             |Retry again, our queue servers are crowded""", "Megam::Request").toJson(true))
-                } 
-              } 
+                }
+              }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
