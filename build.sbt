@@ -11,8 +11,8 @@ organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))
 
-description := """Megam Gateway : RESTful API server for the megam built using
-                  Riak, Snowflake(UID), Memcache
+description := """Megam Gateway : Scalable RESTful API server for megam cloud platform
+                  in a functional way, built using Riak, Snowflake(UID), Memcache
                   try: https://console.megam.io
                   web: https://www.megam.io"""
 
