@@ -390,16 +390,10 @@ object AssembliesList {
         for (component <- com) {
           component match {
             case Some(value) => components_links += value.id
-            case None => components_links += ""
+            case None => components_links
           }
         }
-        /* if (rip.components(0).tosca_type == "tosca.web.docker") {
-          for {
-            predef <- (models.PredefClouds.create(email, new PredefCloudInput(rip.name, new PredefCloudSpec("docker", uir.get._1 + uir.get._2, "", "", ""), new PredefCloudAccess("", "", "fedora", "", "", "", "")).json) leftMap { t: NonEmptyList[Throwable] => t })
-          } yield {
-            outlist :::= List(KeyValueField("container", predef.get.name))
-          }
-        } */
+        
       }
       val json = AssemblyResult(uir.get._1 + uir.get._2, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
