@@ -163,13 +163,13 @@ object Assemblies {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
-    } yield {  
+    } yield {
       val bvalue = Set(aor.get.id, rip.org_id) //ORG1257629409746223104
       var assembly_links = new ListBuffer[String]()
       for (assembly <- aem) {
         assembly match {
           case Some(value) => assembly_links += value.id
-          case None        => assembly_links += ""
+          case None        => assembly_links 
         }
       }
       val json = new AssembliesResult(uir.get._1 + uir.get._2, aor.get.id, rip.name, assembly_links.toList, rip.inputs, Time.now.toString).toJson(false)
@@ -265,4 +265,3 @@ object Assemblies {
 
 }
 //def findByOrgID(email: String)
-
