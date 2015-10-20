@@ -7,7 +7,7 @@ API server for "[Megam cloud platform](https://www.megam.io)". The API server pr
 
 ## Getting Started
 
-* Try our developer edition [https://console.megam.io](https://console.megam.io)
+* Try our cloud  edition [https://console.megam.io](https://console.megam.io)
 
 
 ### Requirements
@@ -33,8 +33,6 @@ API server for "[Megam cloud platform](https://www.megam.io)". The API server pr
 
 ```
 
-![Gateway Dashboard](https://github.com/megamsys/megam_gateway/blob/0.9/conf/megam_gateway.png)
-
 
 ### Documentation
 
@@ -52,9 +50,11 @@ We are glad to help if you have questions, or request for new features..
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
 | **Author:**          | Rajthilak (<rajthilak@megam.io>)
-|		       	       | KishorekumarNeelamegam (<nkishore@megam.io>)
-|		       	       | Yeshwanth Kumar (<getyesh@megam.io>)
+|	    	       	       | Yeshwanth Kumar (<getyesh@megam.io>)
 |                      | Thomas alrin (<thomasalrin@megam.io>)
+|                      | RanjithaR (<ranjithar@megam.io>)  
+|                      | Arunkumar sekar (<arunkumar.sekar@megam.io>)  
+|		       	           | KishorekumarNeelamegam (<nkishore@megam.io>)
 | **Copyright:**       | Copyright (c) 2013-2015 Megam Systems.
 | **License:**         | Apache License, Version 2.0
 
