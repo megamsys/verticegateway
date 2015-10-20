@@ -39,7 +39,7 @@ object MKPData {
   implicit val formats = DefaultFormats
 
 //marketplaceInput and marketplacePlans are loded dynamically to mkMap
-val contentToEncode = scala.io.Source.fromFile("./conf/market.yaml").mkString
+val contentToEncode = scala.io.Source.fromFile(Constants.MEGAM_MKT_YAML).mkString
 val kMap: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(contentToEncode).asInstanceOf[java.util.Map[String, String]]).toMap
 val list = scala.collection.mutable.MutableList[String]()
 val plist = scala.collection.mutable.MutableList[String]()
@@ -50,16 +50,14 @@ val plist = scala.collection.mutable.MutableList[String]()
     case Some(innerlink) => {
       play.api.Logger.debug(("%s").format("Entered To Inner KeyValue of YAML"))
       if (innerlink.asInstanceOf[AnyRef].getClass.getSimpleName == "LinkedHashMap") {
-
         val hashmapinput: Map[String, String] = mapAsScalaMap[String, String](innerlink.asInstanceOf[java.util.Map[String, String]]).toMap
         val cc = hashmapinput foreach {
           case (lkey, lvalue) =>
             val innerhashmapinput: Map[String, String] = mapAsScalaMap[String, String](lvalue.asInstanceOf[java.util.Map[String, String]]).toMap
-            val plans = innerhashmapinput.get("plans").getOrElse()
+            val plans = innerhashmapinput.get("plans").getOrElse(new java.util.LinkedHashMap[String,String]())
             val planinput: Map[String, String] = mapAsScalaMap[String, String](plans.asInstanceOf[java.util.Map[String, String]]).toMap
             var planList = new ListBuffer[MarketPlacePlan]()
             planinput.map(x => {
-
               val plandesc: Map[String, String] = mapAsScalaMap[String, String](x._2.asInstanceOf[java.util.Map[String, String]]).toMap
               planList += MarketPlacePlan(plandesc.get(plandesc.keySet.head).getOrElse(""), String.valueOf(x._1))
             })

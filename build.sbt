@@ -11,8 +11,8 @@ organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))
 
-description := """Megam Gateway : RESTful API server for the megam built using
-                  Riak, Snowflake(UID), Memcache
+description := """Megam Gateway : Scalable RESTful API server for megam cloud platform
+                  in a functional way, built using Riak, Snowflake(UID), Memcache
                   try: https://console.megam.io
                   web: https://www.megam.io"""
 
@@ -24,6 +24,14 @@ initialize := {
   if (sys.props("java.specification.version") != "1.8")
     sys.error("Java 8 is required for this project.")
 }
+
+javaOptions += ("-Dconfig.file=" + {
+  val home  = System getenv "MEGAM_HOME"
+  if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
+  val gwconfPath = Path(home)
+  val gwconf = gwconfPath / "megamgateway" /  "gateway.conf"
+  gwconf.toString
+})
 
 scalacOptions := Seq(
   "-deprecation",

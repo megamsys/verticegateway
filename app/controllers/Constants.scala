@@ -27,9 +27,9 @@ import java.io._
  *
  */
 
-case class MegamAdmin(email: String, api_key: String, authority: String)
-
 object Constants {
+
+  val VERSION = "0.9"
 
   val UTF8Charset = Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
@@ -38,11 +38,10 @@ object Constants {
 
   lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
 
-  /**
-   * The MEGAM_HOME variable is setup during the installation of megamgateway in MEGAM_HOME/.megam_auth
-   */
   val MEGAM_HOME = sys.env.get("MEGAM_HOME")
 
+  val DEMO_EMAIL = "tour@megam.io"
+  val DEMO_APIKEY = "faketour"
   val MEGAM_FIRST_NAME = "Megam Tour"
   val MEGAM_LAST_NAME  = "Call us"
   val MEGAM_PHONE = "18006186813"
@@ -56,44 +55,14 @@ object Constants {
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megambox.com"
 
-  val VERSION = "0.8"
-
-
-  /*Look for a file /var/lib/megam/.megam_auth with fields
-  megam@mypaas.io:<randomlygenerated pw>
-  if it doesn't exists then use the defaults
-  megam@mypaas.io, IamAtlas{74}NobodyCanSeeME#07*/
-  private lazy val adminAuth: MegamAdmin = (for {
-    home <- MEGAM_HOME
-    auth_file <- Some(home + "/.megam_auth")
-    res <- Try(scala.io.Source.fromFile(auth_file).mkString).toOption
-    if (res.indexOf(":") > 0)
-  } yield {
-    val res1 = res.split(":").take(2)
-    MegamAdmin(res1(0), res1(1), MEGAM_ADMIN_AUTHORITY)
-  }).getOrElse(MegamAdmin("megam@mypaas.io", "IamAtlas{74}NobodyCanSeeME#07", MEGAM_ADMIN_AUTHORITY))
-
-  val MEGAM_ADMIN_EMAIL = adminAuth.email
-  val MEGAM_ADMIN_APIKEY = adminAuth.api_key
-
-  val DEMO_EMAIL = "tour@megam.io"
-  val DEMO_APIKEY = "faketour"
-
-
   val DELETE_REQUEST = "DESTROY"
   val CREATE_REQUEST = "CREATE"
-  
-  val DOCKER_QUEUE = "dockerstate"
 
 
-  val MEGAM_PRIMED_DIR = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" }).getOrElse("megamgateway")
+ val MEGAM_GW_CONF = (for {home <- MEGAM_HOME}
+ yield { home + File.separator + "megamgateway" + File.separator + "gateway.conf"}).getOrElse("gateway.conf")
 
- val MEGAM_PRIMED_FILE = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" + File.separator + ".megam_primed"}).getOrElse(".megam_primed")
-
-
-
-
+ val MEGAM_MKT_YAML = (for {home <- MEGAM_HOME}
+ yield { home + File.separator + "megamgateway" + File.separator + "marketplaces.yaml"}).getOrElse("marketplaces.yaml")
 
 }

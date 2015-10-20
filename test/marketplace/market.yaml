@@ -8,9 +8,7 @@ marketplaces:
   plans:
    14.04:
     description: "Ubuntu 14.04 LTS (Trusty) is the blah..blah."
-   12.04:
-    description: "Ubuntu 12.04 LTS (Precise Pangolin) is the blah..blah."
-
+   
  CoreOS:
   cattype: TORPEDO
   order: 1

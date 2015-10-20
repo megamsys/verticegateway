@@ -121,19 +121,9 @@ case object Hellow {
     case Failure(errmkps) => OrganizationsResults.empty
   }).list.flatten map {og => ("ORG", false, og.id +" " + og.name, og.created_at.some)}
 
-  private val cansail = {
-    val megamprimedfile = new java.io.File(controllers.Constants.MEGAM_PRIMED_FILE)
-
-  List(megamprimedfile.exists() match {
-      case true => ("Land ho! - primed", true, "file:///"+ controllers.Constants.MEGAM_PRIMED_FILE, Time.fromMilliseconds(megamprimedfile.lastModified).toString.some)
-      case false => ("Yo Ho Ho. can't sail.", false,"?", none)
-    })
-
-  }
 
   //pings each of our servers and return a Treasure :) Yeah for sure.
-    val buccaneer = Treasure(infra,sharks,
-    mkps, (cansail ++ orgs))
+    val buccaneer = Treasure(infra,sharks, mkps, orgs)
 
   val events = Map[String, String]("events" -> "none")
 
