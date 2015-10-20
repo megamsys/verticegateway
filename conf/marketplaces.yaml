@@ -141,7 +141,7 @@ marketplaces:
    5.7:
     description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
 
- DockerBox:
+  DockerBox:
   cattype: MICROSERVICES
   order: 4
   image: dockerbox.png
