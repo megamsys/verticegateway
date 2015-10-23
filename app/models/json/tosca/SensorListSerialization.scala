@@ -20,7 +20,6 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import scala.collection.mutable.ListBuffer
 import controllers.funnel.SerializationBase
 import models.tosca._
 import models.json.tosca._
@@ -29,34 +28,36 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object ComponentLinksSerialization extends SerializationBase[ComponentLinks] {
-  implicit val formats = DefaultFormats
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "components"
+object SensorListSerialization extends SerializationBase[SensorList] {
 
-  implicit override val writer = new JSONW[ComponentLinks] {
-    override def write(h: ComponentLinks): JValue = {
+  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val ResultsKey = "sensor"
+
+  implicit override val writer = new JSONW[SensorList] {
+    override def write(h: SensorList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
-        nrOpt: String => toJSON(nrOpt)
+        nrOpt: Sensor => nrOpt.toJValue
       }.some
 
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }
 
-  implicit override val reader = new JSONR[ComponentLinks] {
-    override def read(json: JValue): Result[ComponentLinks] = {
-      var list = new ListBuffer[String]()
+  implicit override val reader = new JSONR[SensorList] {
+    override def read(json: JValue): Result[SensorList] = {
       json match {
         case JArray(jObjectList) => {
-         jObjectList.foreach { jValue: JValue =>
-            list += jValue.extract[String]
+          val list = jObjectList.flatMap { jValue: JValue =>
+            Sensor.fromJValue(jValue) match {
+              case Success(nr) => List(nr)
+              case Failure(fail) => List[Sensor]()
+            }
           }.some
 
-          val nrs: ComponentLinks = list.toList
+          val nrs: SensorList = SensorList(list.getOrElse(SensorList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[ComponentLinks]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[SensorList]
       }
     }
   }
