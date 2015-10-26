@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,14 +34,14 @@ object ComponentsResultsSerialization extends SerializationBase[ComponentsResult
   implicit override val writer = new JSONW[ComponentsResults] {
     override def write(h: ComponentsResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[ComponentResult] =>         
+        nrOpt: Option[ComponentResult] =>
             (nrOpt.map { nr: ComponentResult => nr.toJValue }).getOrElse(JNothing)
       }
       JObject(JField(JSONClazKey, JString("Megam::ComponentsCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)
     }
   }
 
- 
+
   implicit override val reader = new JSONR[ComponentsResults] {
     override def read(json: JValue): Result[ComponentsResults] = {
       json match {

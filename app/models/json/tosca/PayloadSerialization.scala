@@ -27,14 +27,14 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Payload, KeyValueList }
+import models.tosca.{ Payload, MetricList }
 
 /**
  * @author ranjitha
  *
  */
 
-class PayloadSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Payload] { 
+object PayloadSerialization extends SerializationBase[Payload] {
 
   protected val AccountsIdKey = "accounts_id"
   protected val AssembliesIdKey = "assemblies_id"
@@ -50,7 +50,7 @@ class PayloadSerialization(charset: Charset = UTF8Charset) extends Serialization
 
   override implicit val writer = new JSONW[Payload] {
 
-    import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
+    import models.json.tosca.MetricListSerialization.{ writer => MetricListWriter }
 
     override def write(h: Payload): JValue = {
       JObject(
@@ -64,14 +64,14 @@ class PayloadSerialization(charset: Charset = UTF8Charset) extends Serialization
                   JField(MessageKey, toJSON(h.message)) ::
                   JField(AuditPeriodBeginingKey, toJSON(h.audit_period_begining)) ::
                     JField(AuditPeriodEndingKey, toJSON(h.audit_period_ending)) ::
-          JField(MetricsKey, toJSON(h.metrics)(KeyValueListWriter)) ::
+          JField(MetricsKey, toJSON(h.metrics)(MetricListWriter)) ::
            Nil)
     }
   }
 
   override implicit val reader = new JSONR[Payload] {
 
-    import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
+    import models.json.tosca.MetricListSerialization.{ reader => MetricListReader }
 
     override def read(json: JValue): Result[Payload] = {
       val accountsIdField = field[String](AccountsIdKey)(json)
@@ -84,10 +84,10 @@ class PayloadSerialization(charset: Charset = UTF8Charset) extends Serialization
                   val messageField = field[String](MessageKey)(json)
                   val auditPeriodBeginingField = field[String](AuditPeriodBeginingKey)(json)
                     val auditPeriodEndingField = field[String](AuditPeriodEndingKey)(json)
-      val metricsField = field[KeyValueList](MetricsKey)(json)(KeyValueListReader)
+                 val metricsField = field[MetricList](MetricsKey)(json)(MetricListReader)
 
       (accountsIdField |@| assembliesIdField |@| assemblyIdField |@| componentIdField |@| stateField |@| sourceField |@| nodeField |@| messageField |@| auditPeriodBeginingField |@| auditPeriodEndingField |@| metricsField) {
-        (accounts_id: String, assemblies_id: String, assembly_id: String, component_id: String, state: String, source: String, node: String, message: String, audit_period_begining: String, audit_period_ending: String, metrics: KeyValueList) =>
+        (accounts_id: String, assemblies_id: String, assembly_id: String, component_id: String, state: String, source: String, node: String, message: String, audit_period_begining: String, audit_period_ending: String, metrics: MetricList) =>
           new Payload(accounts_id, assemblies_id, assembly_id, component_id, state, source, node, message, audit_period_begining, audit_period_ending, metrics)
       }
     }

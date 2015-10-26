@@ -477,34 +477,38 @@ package object tosca {
     def empty: List[Operation] = emptyRR
 
   }
-  type PayloadList = List[Payload]
 
-   object PayloadList {
-     val emptyRR = List(Payload.empty)
-     def toJValue(nres: PayloadList): JValue = {
 
-       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-       import models.json.tosca.PayloadListSerialization.{ writer => PayloadListWriter }
-       toJSON(nres)(PayloadListWriter)
-     }
 
-     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PayloadList] = {
-       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-       import models.json.tosca.PayloadListSerialization.{ reader => PayloadListReader }
-       fromJSON(jValue)(PayloadListReader)
-     }
 
-     def toJson(nres: PayloadList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-       pretty(render(toJValue(nres)))
-     } else {
-       compactRender(toJValue(nres))
-     }
+   type MetricList = List[Metric]
 
-     def apply(plansList: List[Payload]): PayloadList = plansList
+    object MetricList {
+      val emptyRR = List(Metric.empty)
+      def toJValue(nres: MetricList): JValue = {
 
-     def empty: List[Payload] = emptyRR
+        import net.liftweb.json.scalaz.JsonScalaz.toJSON
+        import models.json.tosca.MetricListSerialization.{ writer => MetricListWriter }
+        toJSON(nres)(MetricListWriter)
+      }
 
-   }
+      def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MetricList] = {
+        import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+        import models.json.tosca.MetricListSerialization.{ reader => MetricListReader }
+        fromJSON(jValue)(MetricListReader)
+      }
+
+      def toJson(nres: MetricList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+        pretty(render(toJValue(nres)))
+      } else {
+        compactRender(toJValue(nres))
+      }
+
+      def apply(plansList: List[Metric]): MetricList = plansList
+
+      def empty: List[Metric] = emptyRR
+
+    }
 
   type ContiniousIntegrationResults = NonEmptyList[Option[ContiniousIntegrationResult]]
 

@@ -27,7 +27,7 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ SensorResult, SensorList, PayloadList }
+import models.tosca.{ SensorResult, SensorList, Payload }
 
 /**
  * @author morpheyesh
@@ -45,15 +45,15 @@ class SensorResultSerialization(charset: Charset = UTF8Charset) extends Serializ
 
   override implicit val writer = new JSONW[SensorResult] {
 
-    import models.json.tosca.PayloadListSerialization.{ writer => PayloadListWriter }
-      
+    import models.json.tosca.PayloadSerialization.{ writer => PayloadWriter }
+
     override def write(h: SensorResult): JValue = {
       JObject(
            JField(IdKey, toJSON(h.id)) ::
 
            JField(JSONClazKey, toJSON("Megam::Sensor")) ::
             JField(SensorTypeKey, toJSON(h.sensor_type)) ::
-            JField(PayloadKey, toJSON(h.payload)(PayloadListWriter)) ::
+            JField(PayloadKey, toJSON(h.payload)(PayloadWriter)) ::
 
            JField(CreatedAtKey, toJSON(h.created_at)) ::
           Nil)
@@ -62,19 +62,19 @@ class SensorResultSerialization(charset: Charset = UTF8Charset) extends Serializ
 
   override implicit val reader = new JSONR[SensorResult] {
 
-  import models.json.tosca.PayloadListSerialization.{ reader => PayloadListReader }
+  import PayloadSerialization.{ reader => PayloadReader }
 
 
     override def read(json: JValue): Result[SensorResult] = {
 
        val idField = field[String](IdKey)(json)
          val sensorTypeField = field[String](SensorTypeKey)(json)
-       val payloadField = field[PayloadList](PayloadKey)(json)(PayloadListReader)
+       val payloadField = field[Payload](PayloadKey)(json)(PayloadReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
 
       (idField |@|sensorTypeField |@|payloadField |@|createdAtField) {
-        (id: String, sensor_type: String, payload: PayloadList, created_at: String) =>
+        (id: String, sensor_type: String, payload: Payload, created_at: String) =>
           new SensorResult(id, sensor_type, payload, created_at)
       }
     }

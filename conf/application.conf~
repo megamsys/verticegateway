@@ -26,7 +26,7 @@ sf.port=7609
 
 # RabbitMQ configuration
 # ~~~~~
-amqp.url = "amqp://103.56.92.29:5672/vhost"
+amqp.url = "amqp://103.56.92.14:5672/vhost"
 #amqp.url = "amqp://localhost:5672/vhost"
 amqp.node.queue.prefix=megam
 amqp.node.exchange.prefix=megam

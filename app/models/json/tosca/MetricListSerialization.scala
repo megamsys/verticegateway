@@ -27,33 +27,33 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object PayloadListSerialization extends SerializationBase[PayloadList] {
+object MetricListSerialization extends SerializationBase[MetricList] {
 
-  implicit override val writer = new JSONW[PayloadList] {
-    override def write(h: PayloadList): JValue = {
+  implicit override val writer = new JSONW[MetricList] {
+    override def write(h: MetricList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
-        nrOpt: Payload => nrOpt.toJValue
+        nrOpt: Metric => nrOpt.toJValue
       }.some
 
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }
 
-  implicit override val reader = new JSONR[PayloadList] {
-    override def read(json: JValue): Result[PayloadList] = {
+  implicit override val reader = new JSONR[MetricList] {
+    override def read(json: JValue): Result[MetricList] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            Payload.fromJValue(jValue) match {
+            Metric.fromJValue(jValue) match {
               case Success(nr) => List(nr)
-              case Failure(fail) => List[Payload]()
+              case Failure(fail) => List[Metric]()
             }
           }.some
 
-          val nrs: PayloadList = PayloadList(list.getOrElse(PayloadList.empty))
+          val nrs: MetricList = MetricList(list.getOrElse(MetricList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[PayloadList]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[MetricList]
       }
     }
   }
