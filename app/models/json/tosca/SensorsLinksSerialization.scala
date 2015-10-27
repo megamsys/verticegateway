@@ -26,16 +26,16 @@ import models.tosca._
 import models.json.tosca._
 import java.nio.charset.Charset
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
-object SensorLinksSerialization extends SerializationBase[SensorLinks] {
+object SensorsLinksSerialization extends SerializationBase[SensorsLinks] {
   implicit val formats = DefaultFormats
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "sensor"
+  protected val ResultsKey = "sensors"
 
-  implicit override val writer = new JSONW[SensorLinks] {
-    override def write(h: SensorLinks): JValue = {
+  implicit override val writer = new JSONW[SensorsLinks] {
+    override def write(h: SensorsLinks): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: String => toJSON(nrOpt)
       }.some
@@ -44,8 +44,8 @@ object SensorLinksSerialization extends SerializationBase[SensorLinks] {
     }
   }
 
-  implicit override val reader = new JSONR[SensorLinks] {
-    override def read(json: JValue): Result[SensorLinks] = {
+  implicit override val reader = new JSONR[SensorsLinks] {
+    override def read(json: JValue): Result[SensorsLinks] = {
       var list = new ListBuffer[String]()
       json match {
         case JArray(jObjectList) => {
@@ -53,10 +53,10 @@ object SensorLinksSerialization extends SerializationBase[SensorLinks] {
             list += jValue.extract[String]
           }.some
 
-          val nrs: SensorLinks = list.toList
+          val nrs: SensorsLinks = list.toList
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[SensorLinks]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[SensorsLinks]
       }
     }
   }

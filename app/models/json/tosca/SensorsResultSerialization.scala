@@ -27,13 +27,13 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ SensorResult, SensorList, Payload }
+import models.tosca.{ SensorsResult, Payload }
 
 /**
- * @author morpheyesh
+ * @author ranjitha
  *
  */
-class SensorResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[SensorResult] {
+class SensorsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[SensorsResult] {
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
@@ -43,15 +43,15 @@ class SensorResultSerialization(charset: Charset = UTF8Charset) extends Serializ
       protected val CreatedAtKey = "created_at"
 
 
-  override implicit val writer = new JSONW[SensorResult] {
+  override implicit val writer = new JSONW[SensorsResult] {
 
     import models.json.tosca.PayloadSerialization.{ writer => PayloadWriter }
 
-    override def write(h: SensorResult): JValue = {
+    override def write(h: SensorsResult): JValue = {
       JObject(
            JField(IdKey, toJSON(h.id)) ::
 
-           JField(JSONClazKey, toJSON("Megam::Sensor")) ::
+           JField(JSONClazKey, toJSON("Megam::Sensors")) ::
             JField(SensorTypeKey, toJSON(h.sensor_type)) ::
             JField(PayloadKey, toJSON(h.payload)(PayloadWriter)) ::
 
@@ -60,12 +60,12 @@ class SensorResultSerialization(charset: Charset = UTF8Charset) extends Serializ
     }
   }
 
-  override implicit val reader = new JSONR[SensorResult] {
+  override implicit val reader = new JSONR[SensorsResult] {
 
   import PayloadSerialization.{ reader => PayloadReader }
 
 
-    override def read(json: JValue): Result[SensorResult] = {
+    override def read(json: JValue): Result[SensorsResult] = {
 
        val idField = field[String](IdKey)(json)
          val sensorTypeField = field[String](SensorTypeKey)(json)
@@ -75,7 +75,7 @@ class SensorResultSerialization(charset: Charset = UTF8Charset) extends Serializ
 
       (idField |@|sensorTypeField |@|payloadField |@|createdAtField) {
         (id: String, sensor_type: String, payload: Payload, created_at: String) =>
-          new SensorResult(id, sensor_type, payload, created_at)
+          new SensorsResult(id, sensor_type, payload, created_at)
       }
     }
   }

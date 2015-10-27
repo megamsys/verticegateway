@@ -72,9 +72,10 @@ POST   /v2/cis/content                  controllers.camp.ContiniousIntegration.p
 #GET   /v2/cis							            controllers.camp.ContiniousIntegration.list
 
 
-#Sensor
-POST   /v2/sensor/content               controllers.camp.Sensor.post
-GET	   /v2/sensor          		          controllers.camp.Sensor.list
+#Sensors
+POST   /v2/sensors/content               controllers.camp.Sensors.post
+GET	   /v2/sensors          		          controllers.camp.Sensors.list
+GET    /v2/sensors/:id           		  controllers.camp.Sensors.show(id: String)
 #billings
 POST     /v2/subscriptions/content		    controllers.billing.Subscriptions.post
 POST	 /v2/credithistories/content		  controllers.billing.Credithistories.post

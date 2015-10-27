@@ -34,12 +34,12 @@ import models.tosca._
 
 
 /**
- * @author morpheyesh
+ * @author ranjitha
  *
  */
 
 
-object Sensor extends Controller with APIAuthElement {
+object Sensors extends Controller with APIAuthElement {
 
   /*
    * Create or update a new event by email/json input.
@@ -47,7 +47,7 @@ object Sensor extends Controller with APIAuthElement {
    */
 
   def post = StackAction(parse.tolerantText) {  implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.Sensor", "post:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("camp.Sensors", "post:Entry"))
 
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
@@ -55,13 +55,13 @@ object Sensor extends Controller with APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("camp.Sensor", "request funneled."))
-          models.tosca.Sensor.create(email, clientAPIBody) match {
+          play.api.Logger.debug(("%-20s -->[%s]").format("camp.Sensors", "request funneled."))
+          models.tosca.Sensors.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Sensor created successfully.
+                FunnelResponse(CREATED, """Sensors created successfully.
             |
-            |You can use the the 'Sensor':{%s}.""".format(succ.getOrElse("none")), "Megam::Sensor").toJson(true))
+            |You can use the the 'Sensors':{%s}.""".format(succ.getOrElse("none")), "Megam::Sensors").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -82,19 +82,19 @@ object Sensor extends Controller with APIAuthElement {
     * and in case of error, a json needs to be sent back.
     **/
     def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-      play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensor", "show:Entry"))
+      play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "show:Entry"))
       play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
       (Validation.fromTryCatchThrowable[Result,Throwable] {
         reqFunneled match {
           case Success(succ) => {
-            val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
+            val freq = succ.getOrElse(throw new Error("Sensors wasn't funneled. Verify the header."))
             val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-            play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensor", "request funneled."))
+            play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "request funneled."))
 
-            models.tosca.Sensor.findById(List(id).some) match {
+            models.tosca.Sensors.findById(List(id).some) match {
               case Success(succ) =>
-                Ok(SensorResults.toJson(succ, true))
+                Ok(SensorsResults.toJson(succ, true))
               case Failure(err) =>
                 val rn: FunnelResponse = new HttpReturningError(err)
                 Status(rn.code)(rn.toJson(true))
@@ -112,10 +112,10 @@ object Sensor extends Controller with APIAuthElement {
       (Validation.fromTryCatchThrowable[Result,Throwable] {
         reqFunneled match {
           case Success(succ) => {
-            val freq = succ.getOrElse(throw new Error("Sensor wasn't funneled. Verify the header."))
+            val freq = succ.getOrElse(throw new Error("Sensors wasn't funneled. Verify the header."))
             val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-            models.tosca.Sensor.findByEmail(email) match {
-              case Success(succ) => Ok(SensorResults.toJson(succ, true))
+            models.tosca.Sensors.findByEmail(email) match {
+              case Success(succ) => Ok(SensorsResults.toJson(succ, true))
               case Failure(err) =>
                 val rn: FunnelResponse = new HttpReturningError(err)
                 Status(rn.code)(rn.toJson(true))
@@ -128,28 +128,5 @@ object Sensor extends Controller with APIAuthElement {
         }
       }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
