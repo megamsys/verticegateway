@@ -21,7 +21,6 @@ import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
 import models.json.tosca._
 
-
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -63,8 +62,6 @@ package object tosca {
     def apply(m: CSARResult): CSARResults = nels(m.some)
     def empty: CSARResults = nel(emptyPC.head, emptyPC.tail)
   }
-
-
 
   type AssembliesList = List[Assembly]
 
@@ -220,8 +217,6 @@ package object tosca {
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
   }
 
-
-
   type SensorsLinks = List[String]
 
   object SensorsLinks {
@@ -251,8 +246,6 @@ package object tosca {
 
   }
 
-
-
   type SensorsResults = NonEmptyList[Option[SensorsResult]]
 
   object SensorsResults {
@@ -275,8 +268,6 @@ package object tosca {
     def apply(m: SensorsResult): SensorsResults = SensorsResults(m.some)
     def empty: SensorsResults = nel(emptyNR.head, emptyNR.tail)
   }
-  
-
 
   type OrganizationsResults = NonEmptyList[Option[OrganizationsResult]]
 
@@ -301,8 +292,6 @@ package object tosca {
     def empty: OrganizationsResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-
-
   type DomainsResults = NonEmptyList[Option[DomainsResult]]
 
   object DomainsResults {
@@ -325,7 +314,6 @@ package object tosca {
     def apply(m: DomainsResult): DomainsResults = nels(m.some)
     def empty: DomainsResults = nel(emptyPC.head, emptyPC.tail)
   }
-
 
   type PoliciesList = List[Policy]
 
@@ -385,7 +373,6 @@ package object tosca {
 
   }
 
-
   type RelatedOrgsList = List[String]
 
   object RelatedOrgsList {
@@ -414,8 +401,6 @@ package object tosca {
     def empty: List[String] = emptyRR
 
   }
-
-
 
   type KeyValueList = List[KeyValueField]
 
@@ -446,10 +431,7 @@ package object tosca {
 
   }
 
-
-
-
- type OperationList = List[Operation]
+  type OperationList = List[Operation]
 
   object OperationList {
     val emptyRR = List(Operation.empty)
@@ -478,37 +460,34 @@ package object tosca {
 
   }
 
+  type MetricList = List[Metric]
 
+  object MetricList {
+    val emptyRR = List(Metric.empty)
+    def toJValue(nres: MetricList): JValue = {
 
-
-   type MetricList = List[Metric]
-
-    object MetricList {
-      val emptyRR = List(Metric.empty)
-      def toJValue(nres: MetricList): JValue = {
-
-        import net.liftweb.json.scalaz.JsonScalaz.toJSON
-        import models.json.tosca.MetricListSerialization.{ writer => MetricListWriter }
-        toJSON(nres)(MetricListWriter)
-      }
-
-      def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MetricList] = {
-        import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-        import models.json.tosca.MetricListSerialization.{ reader => MetricListReader }
-        fromJSON(jValue)(MetricListReader)
-      }
-
-      def toJson(nres: MetricList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-        pretty(render(toJValue(nres)))
-      } else {
-        compactRender(toJValue(nres))
-      }
-
-      def apply(plansList: List[Metric]): MetricList = plansList
-
-      def empty: List[Metric] = emptyRR
-
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      import models.json.tosca.MetricListSerialization.{ writer => MetricListWriter }
+      toJSON(nres)(MetricListWriter)
     }
+
+    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MetricList] = {
+      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+      import models.json.tosca.MetricListSerialization.{ reader => MetricListReader }
+      fromJSON(jValue)(MetricListReader)
+    }
+
+    def toJson(nres: MetricList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+      pretty(render(toJValue(nres)))
+    } else {
+      compactRender(toJValue(nres))
+    }
+
+    def apply(plansList: List[Metric]): MetricList = plansList
+
+    def empty: List[Metric] = emptyRR
+
+  }
 
   type ContiniousIntegrationResults = NonEmptyList[Option[ContiniousIntegrationResult]]
 

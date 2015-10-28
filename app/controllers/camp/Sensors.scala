@@ -32,12 +32,10 @@ import play.api.mvc._
 import play.api.mvc.Result
 import models.tosca._
 
-
 /**
  * @author ranjitha
  *
  */
-
 
 object Sensors extends Controller with APIAuthElement {
 
@@ -46,10 +44,10 @@ object Sensors extends Controller with APIAuthElement {
    * Old value for the same key gets wiped out.
    */
 
-  def post = StackAction(parse.tolerantText) {  implicit request =>
+  def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Sensors", "post:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
@@ -73,60 +71,60 @@ object Sensors extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-   }
+  }
 
-   /*
+  /*
     * GET: findByName: Show a particular csar  by name
     * Email provided in the URI.
     * Output: This is a special case, we need to return the yaml stored inside riak.
     * and in case of error, a json needs to be sent back.
     **/
-    def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-      play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "show:Entry"))
-      play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "show:Entry"))
+    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-      (Validation.fromTryCatchThrowable[Result,Throwable] {
-        reqFunneled match {
-          case Success(succ) => {
-            val freq = succ.getOrElse(throw new Error("Sensors wasn't funneled. Verify the header."))
-            val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-            play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "request funneled."))
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Sensors wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "request funneled."))
 
-            models.tosca.Sensors.findById(List(id).some) match {
-              case Success(succ) =>
-                Ok(SensorsResults.toJson(succ, true))
-              case Failure(err) =>
-                val rn: FunnelResponse = new HttpReturningError(err)
-                Status(rn.code)(rn.toJson(true))
-            }
-          }
-          case Failure(err) => {
-            val rn: FunnelResponse = new HttpReturningError(err)
-            Status(rn.code)(rn.toJson(true))
+          models.tosca.Sensors.findById(List(id).some) match {
+            case Success(succ) =>
+              Ok(SensorsResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
           }
         }
-      }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
-    }
-    def list = StackAction(parse.tolerantText) { implicit request =>
-      (Validation.fromTryCatchThrowable[Result,Throwable] {
-        reqFunneled match {
-          case Success(succ) => {
-            val freq = succ.getOrElse(throw new Error("Sensors wasn't funneled. Verify the header."))
-            val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-            models.tosca.Sensors.findByEmail(email) match {
-              case Success(succ) => Ok(SensorsResults.toJson(succ, true))
-              case Failure(err) =>
-                val rn: FunnelResponse = new HttpReturningError(err)
-                Status(rn.code)(rn.toJson(true))
-            }
-          }
-          case Failure(err) => {
-            val rn: FunnelResponse = new HttpReturningError(err)
-            Status(rn.code)(rn.toJson(true))
+  }
+  def list = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Sensors wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.tosca.Sensors.findByEmail(email) match {
+            case Success(succ) => Ok(SensorsResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
           }
         }
-      }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-    }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
 
 }

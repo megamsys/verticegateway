@@ -15,7 +15,6 @@
 */
 package models.json.tosca
 
-
 import scalaz._
 import scalaz.NonEmptyList._
 import Scalaz._
@@ -36,9 +35,9 @@ object SensorsResultsSerialization extends SerializationBase[SensorsResults] {
     override def write(h: SensorsResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
         nrOpt: Option[SensorsResult] =>
-            (nrOpt.map { nr: SensorsResult => nr.toJValue }).getOrElse(JNothing)
+          (nrOpt.map { nr: SensorsResult => nr.toJValue }).getOrElse(JNothing)
       }
-      JObject(JField(JSONClazKey,JString("Megam::SensorsCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::SensorsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
@@ -48,11 +47,10 @@ object SensorsResultsSerialization extends SerializationBase[SensorsResults] {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
             SensorsResult.fromJValue(jValue) match {
-              case Success(nr)   => List(nr)
+              case Success(nr) => List(nr)
               case Failure(fail) => List[SensorsResult]()
             }
           } map { x: SensorsResult => x.some }
-          //this is screwy. Making the NodeResults as Option[NonEmptylist[AssembliesResult]] will solve it.
           val nrs: SensorsResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }

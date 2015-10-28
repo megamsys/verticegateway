@@ -49,7 +49,7 @@ object SensorsLinksSerialization extends SerializationBase[SensorsLinks] {
       var list = new ListBuffer[String]()
       json match {
         case JArray(jObjectList) => {
-         jObjectList.foreach { jValue: JValue =>
+          jObjectList.foreach { jValue: JValue =>
             list += jValue.extract[String]
           }.some
 

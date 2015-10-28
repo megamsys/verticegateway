@@ -27,15 +27,13 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ Sensors,  Payload}
+import models.tosca.{ Sensors, Payload }
 
 /**
  * @author ranjitha
  *
  */
 class SensorsSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Sensors] {
-
-  //protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val SensorTypeKey = "sensor_type"
   protected val PayloadKey = "payload"
 
@@ -43,28 +41,20 @@ class SensorsSerialization(charset: Charset = UTF8Charset) extends Serialization
 
     import PayloadSerialization.{ writer => PayloadWriter }
 
-
     override def write(h: Sensors): JValue = {
       JObject(
-   //     JField(JSONClazKey, toJSON("Megam::Component")) ::
-
-          JField(SensorTypeKey, toJSON(h.sensor_type)) ::
-
+        JField(SensorTypeKey, toJSON(h.sensor_type)) ::
           JField(PayloadKey, toJSON(h.payload)(PayloadWriter)) :: Nil)
-
     }
   }
 
   override implicit val reader = new JSONR[Sensors] {
 
-
     import PayloadSerialization.{ reader => PayloadReader }
 
     override def read(json: JValue): Result[Sensors] = {
-
       val sensortypeField = field[String](SensorTypeKey)(json)
-          val payloadField = field[Payload](PayloadKey)(json)(PayloadReader)
-
+      val payloadField = field[Payload](PayloadKey)(json)(PayloadReader)
 
       (sensortypeField |@| payloadField) {
         (sensor_type: String, payload: Payload) =>

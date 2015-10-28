@@ -44,20 +44,18 @@ import java.nio.charset.Charset
  * @author ranjitha
  *
  */
- case class Payload(accounts_id: String, assemblies_id: String, assembly_id: String, component_id: String, state: String, source: String, node: String, message: String, audit_period_begining: String, audit_period_ending: String, metrics: MetricList) {
+case class Payload(accounts_id: String, assemblies_id: String, assembly_id: String, component_id: String, state: String, source: String, node: String, message: String, audit_period_begining: String, audit_period_ending: String, metrics: MetricList) {
 
-   val json = "{\"accounts_id\":\"" + accounts_id + "\",\"assemblies_id\":\"" + assemblies_id + "\",\"assembly_id\":\"" + assembly_id + "\",\"component_id\":\"" + component_id + "\",\"state\":\"" + state + "\",\"source\":\"" + source + "\",\"node\":\"" + node + "\",\"message\":\"" + message + "\",\"audit_period_begining\":\"" + audit_period_begining + "\",\"audit_period_ending\":\"" + audit_period_ending + "\",\"metrics\":" + MetricList.toJson(metrics, true) + "}"
+  val json = "{\"accounts_id\":\"" + accounts_id + "\",\"assemblies_id\":\"" + assemblies_id + "\",\"assembly_id\":\"" + assembly_id + "\",\"component_id\":\"" + component_id + "\",\"state\":\"" + state + "\",\"source\":\"" + source + "\",\"node\":\"" + node + "\",\"message\":\"" + message + "\",\"audit_period_begining\":\"" + audit_period_begining + "\",\"audit_period_ending\":\"" + audit_period_ending + "\",\"metrics\":" + MetricList.toJson(metrics, true) + "}"
 
 }
 
 object Payload {
-  def empty: Payload = new Payload(new String(), new String(),  new String(),  new String() , new String(),  new String(),  new String() , new String(),  new String(),  new String(), MetricList.empty)
+  def empty: Payload = new Payload(new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String(), new String(), MetricList.empty)
 
+}
 
-  }
-
-
-case class SensorsInput( sensor_type: String, payload: Payload) {
+case class SensorsInput(sensor_type: String, payload: Payload) {
   val json = "{\"sensor_type\":\"" + sensor_type + "\",\"payload\":" + payload.json + "}"
 
 }
@@ -87,7 +85,7 @@ object SensorsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[SensorsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[SensorsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -96,42 +94,40 @@ object SensorsResult {
 }
 
 case class Metric(metric_type: String, metric_value: String, metric_units: String, metric_name: String) {
- val json = "{\"metric_type\":\"" + metric_type + "\",\"metric_value\":\"" + metric_value + "\", \"metric_units\":\"" + metric_units + "\", \"metric_name\":\"" + metric_name + "\"}"
+  val json = "{\"metric_type\":\"" + metric_type + "\",\"metric_value\":\"" + metric_value + "\", \"metric_units\":\"" + metric_units + "\", \"metric_name\":\"" + metric_name + "\"}"
 
- def toJValue: JValue = {
-   import net.liftweb.json.scalaz.JsonScalaz.toJSON
-   import models.json.tosca.MetricSerialization
-   val preser = new models.json.tosca.MetricSerialization()
-   toJSON(this)(preser.writer)
- }
+  def toJValue: JValue = {
+    import net.liftweb.json.scalaz.JsonScalaz.toJSON
+    import models.json.tosca.MetricSerialization
+    val preser = new models.json.tosca.MetricSerialization()
+    toJSON(this)(preser.writer)
+  }
 
- def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-   pretty(render(toJValue))
- } else {
-   compactRender(toJValue)
- }
+  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+    pretty(render(toJValue))
+  } else {
+    compactRender(toJValue)
+  }
 
 }
 
 object Metric {
- def empty: Metric = new Metric(new String(), new String(), new String(), new String())
+  def empty: Metric = new Metric(new String(), new String(), new String(), new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Metric] = {
-   import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-   import models.json.tosca.MetricSerialization
-   val preser = new models.json.tosca.MetricSerialization()
-   fromJSON(jValue)(preser.reader)
- }
+    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+    import models.json.tosca.MetricSerialization
+    val preser = new models.json.tosca.MetricSerialization()
+    fromJSON(jValue)(preser.reader)
+  }
 
- def fromJson(json: String): Result[Metric] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
-   play.api.Logger.debug(("%-20s -->[%s]").format("---json--->", json))
-   parse(json)
- } leftMap { t: Throwable =>
-   UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
- }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
- }
-
-
+  def fromJson(json: String): Result[Metric] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+    play.api.Logger.debug(("%-20s -->[%s]").format("---json--->", json))
+    parse(json)
+  } leftMap { t: Throwable =>
+    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+}
 
 case class Sensors(sensor_type: String, payload: Payload) {
   val json = "{\"sensor_type\":\"" + sensor_type + "\",\"payload\":" + payload.json + "}"
@@ -165,7 +161,7 @@ object Sensors {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Sensors] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[Sensors] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -176,17 +172,17 @@ object Sensors {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val sensorsInput: ValidationNel[Throwable, SensorsInput] = (Validation.fromTryCatchThrowable[SensorsInput,Throwable] {
+    val sensorsInput: ValidationNel[Throwable, SensorsInput] = (Validation.fromTryCatchThrowable[SensorsInput, Throwable] {
       parse(input).extract[SensorsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       event <- sensorsInput
-     aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "snr").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-     val bvalue = Set(aor.get.id)
-       //val bvalue = Set(event.a_id)
+      val bvalue = Set(aor.get.id)
+      //val bvalue = Set(event.a_id)
       val json = new SensorsResult(uir.get._1 + uir.get._2, event.sensor_type, event.payload, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
@@ -224,7 +220,7 @@ object Sensors {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[SensorsResult,Throwable] {
+              (Validation.fromTryCatchThrowable[SensorsResult, Throwable] {
                 parse(xs.value).extract[SensorsResult]
               } leftMap { t: Throwable => new MalformedBodyError(xs.value, t.getMessage) }).toValidationNel.flatMap { j: SensorsResult =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("Sensors result", j))
