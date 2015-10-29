@@ -217,34 +217,7 @@ package object tosca {
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
   }
 
-  type SensorsLinks = List[String]
-
-  object SensorsLinks {
-    val emptyRR = List("")
-    def toJValue(nres: SensorsLinks): JValue = {
-
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.SensorsLinksSerialization.{ writer => SensorsLinksWriter }
-      toJSON(nres)(SensorsLinksWriter)
-    }
-
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[SensorsLinks] = {
-      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.SensorsLinksSerialization.{ reader => SensorsLinksReader }
-      fromJSON(jValue)(SensorsLinksReader)
-    }
-
-    def toJson(nres: SensorsLinks, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(plansList: List[String]): SensorsLinks = plansList
-
-    def empty: List[String] = emptyRR
-
-  }
+  
 
   type SensorsResults = NonEmptyList[Option[SensorsResult]]
 
