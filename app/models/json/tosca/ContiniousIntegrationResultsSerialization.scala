@@ -46,7 +46,7 @@ object ContiniousIntegrationResultsSerialization extends SerializationBase[Conti
     }
   }
 
- 
+
   implicit override val reader = new JSONR[ContiniousIntegrationResults] {
     override def read(json: JValue): Result[ContiniousIntegrationResults] = {
       json match {

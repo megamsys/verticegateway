@@ -52,7 +52,7 @@ object Accounts extends Controller with APIAuthElement {
     val input = (request.body).toString()
     play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
     models.Accounts.create(input) match {
-      case Success(succ) => 
+      case Success(succ) =>
         PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
@@ -63,7 +63,7 @@ object Accounts extends Controller with APIAuthElement {
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
         }
-      
+
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))

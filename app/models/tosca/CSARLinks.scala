@@ -51,7 +51,7 @@ import org.yaml.snakeyaml.Yaml
 case class CSARLinkInput(kachha: String) {
   val TOSCA_DESCRIPTION = "description"
 
-  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatchThrowable[Map[String, String],Throwable] {
+  lazy val kacchaMango: Validation[Throwable, Map[String, String]] = (Validation.fromTryCatchThrowable[Map[String, String], Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "kacchaMango:Entry"))
     mapAsScalaMap[String, String](new Yaml().load(kachha).asInstanceOf[java.util.Map[String, String]]).toMap
   } leftMap { t: Throwable => t
@@ -140,7 +140,7 @@ object CSARLinks {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.tosca.CSARLinkResult,Throwable] {
+              (Validation.fromTryCatchThrowable[models.tosca.CSARLinkResult, Throwable] {
                 CSARLinkResult(csarLinkName, xs.value)
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(csarLinkName, t.getMessage)

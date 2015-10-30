@@ -38,7 +38,7 @@ object ComponentsListSerialization extends SerializationBase[ComponentsList] {
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: Component => nrOpt.toJValue
       }.some
-      
+
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }

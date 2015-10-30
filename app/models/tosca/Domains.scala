@@ -38,7 +38,6 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
-
 /**
  * @author morpheyesh
  *
@@ -73,7 +72,7 @@ object DomainsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[DomainsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[DomainsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -102,7 +101,7 @@ object Domains {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val domainsInput: ValidationNel[Throwable, DomainsInput] = (Validation.fromTryCatchThrowable[DomainsInput,Throwable] {
+    val domainsInput: ValidationNel[Throwable, DomainsInput] = (Validation.fromTryCatchThrowable[DomainsInput, Throwable] {
       parse(input).extract[DomainsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -143,7 +142,6 @@ object Domains {
     }
   }
 
-
   def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Domains", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("domainsList", domainsList))
@@ -174,6 +172,5 @@ object Domains {
       _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
   }
-
 
 }
