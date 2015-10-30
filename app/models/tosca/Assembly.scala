@@ -381,7 +381,7 @@ object AssembliesList {
     var outlist = rip.outputs
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "asm").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "asy").get leftMap { ut: NonEmptyList[Throwable] => ut })
       com <- (ComponentsList.createLinks(email, rip.components, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
@@ -393,7 +393,7 @@ object AssembliesList {
             case None => components_links
           }
         }
-        
+
       }
       val json = AssemblyResult(uir.get._1 + uir.get._2, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,

@@ -111,7 +111,7 @@ object ContiniousIntegration {
 
     for {
       cig <- cigInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "cig").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "cii").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(cig.scm)
       val json = new ContiniousIntegrationResult(uir.get._1 + uir.get._2, cig.enable, cig.scm, cig.token, cig.owner, cig.component_id, cig.assembly_id, Time.now.toString).toJson(false)
