@@ -108,7 +108,7 @@ object Domains {
 
     for {
       domain <- domainsInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "domain").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "dom").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(domain.name)
       val json = new DomainsResult(uir.get._1 + uir.get._2, domain.name, Time.now.toString).toJson(false)
