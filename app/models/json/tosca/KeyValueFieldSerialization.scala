@@ -37,7 +37,7 @@ class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends Seriali
 
   protected val NameKey = "key"
   protected val ValueKey = "value"
- 
+
   override implicit val writer = new JSONW[KeyValueField] {
 
     override def write(h: KeyValueField): JValue = {
@@ -48,12 +48,12 @@ class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends Seriali
     }
   }
 
-  override implicit val reader = new JSONR[KeyValueField] {    
+  override implicit val reader = new JSONR[KeyValueField] {
 
     override def read(json: JValue): Result[KeyValueField] = {
       val nameField = field[String](NameKey)(json)
       val valueField = field[String](ValueKey)(json)
-    
+
       (nameField |@| valueField ) {
           (name: String, value: String) =>
           new KeyValueField(name, value)

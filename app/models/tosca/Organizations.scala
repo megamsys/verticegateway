@@ -49,7 +49,7 @@ case class OrganizationsInput(name: String) {
 }
 
 case class updateOrganizationsInput(id: String, accounts_id: String, name: String, related_orgs: models.tosca.RelatedOrgsList, created_at: String) {
-   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"accounts_id\":\"" + accounts_id + "\",\"related_orgs\":" + RelatedOrgsList.toJson(related_orgs, true) + ",\"created_at\":\"" + created_at + "\"}"
+  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"accounts_id\":\"" + accounts_id + "\",\"related_orgs\":" + RelatedOrgsList.toJson(related_orgs, true) + ",\"created_at\":\"" + created_at + "\"}"
 }
 
 case class OrganizationsResult(id: String, accounts_id: String, name: String, related_orgs: models.tosca.RelatedOrgsList, created_at: String) {
@@ -68,7 +68,7 @@ case class OrganizationsResult(id: String, accounts_id: String, name: String, re
   }
 
 }
- 
+
 object OrganizationsResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OrganizationsResult] = {
@@ -78,7 +78,7 @@ object OrganizationsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[OrganizationsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[OrganizationsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -92,11 +92,9 @@ object Organizations {
 
   implicit def OrganizationsResultsSemigroup: Semigroup[OrganizationsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-
   val metadataKey = "Organizations"
   val metadataVal = "Organizations Creation"
   val bindex = "organization"
-
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -109,7 +107,7 @@ object Organizations {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val organizationsInput: ValidationNel[Throwable, OrganizationsInput] = (Validation.fromTryCatchThrowable[OrganizationsInput,Throwable] {
+    val organizationsInput: ValidationNel[Throwable, OrganizationsInput] = (Validation.fromTryCatchThrowable[OrganizationsInput, Throwable] {
       parse(input).extract[OrganizationsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -150,8 +148,7 @@ object Organizations {
         }
     }
   }
-  
-  
+
   def findById(organizationsList: Option[List[String]]): ValidationNel[Throwable, OrganizationsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findById:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("organizationList", organizationsList))
@@ -164,14 +161,14 @@ object Organizations {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-            play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId1", org_id))
-            play.api.Logger.debug(("%-20s -->[%s]").format("organizationsIdRESSS", OrganizationsResult))
+              play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId1", org_id))
+              play.api.Logger.debug(("%-20s -->[%s]").format("organizationsIdRESSS", OrganizationsResult))
 
               //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
               (OrganizationsResult.fromJson(xs.value) leftMap
-                  
+
                 { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
-                              play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId2", org_id))
+                  play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId2", org_id))
 
                   JSONParsingError(t)
                 }).toValidationNel.flatMap { j: OrganizationsResult =>
@@ -190,8 +187,7 @@ object Organizations {
     }).head //return the folded element in the head.
   }
 
-
-   def findByEmail(email: String): ValidationNel[Throwable, OrganizationsResults] = {
+  def findByEmail(email: String): ValidationNel[Throwable, OrganizationsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Organizations", "findByEmail:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, OrganizationsResults]] {
@@ -200,7 +196,7 @@ object Organizations {
       } yield {
         val bindex = ""
         val bvalue = Set("")
-         play.api.Logger.debug(("%-20s -->[%s]").format(" Organizations result", aor.get))
+        play.api.Logger.debug(("%-20s -->[%s]").format(" Organizations result", aor.get))
         new GunnySack("organization", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
           None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
@@ -213,13 +209,12 @@ object Organizations {
     res.getOrElse(new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
   }
 
-   
-   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("organization Update", "updateGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, updateOrganizationsInput] = (Validation.fromTryCatchThrowable[updateOrganizationsInput,Throwable] {
+    val ripNel: ValidationNel[Throwable, updateOrganizationsInput] = (Validation.fromTryCatchThrowable[updateOrganizationsInput, Throwable] {
       parse(input).extract[updateOrganizationsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -234,9 +229,8 @@ object Organizations {
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
-   
-   
-   def updateOrganization(email: String, input: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
+
+  def updateOrganization(email: String, input: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Organization", "create:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
@@ -255,6 +249,5 @@ object Organizations {
         }
     }
   }
-   
-   
+
 }

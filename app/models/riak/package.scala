@@ -24,9 +24,9 @@ import org.megam.common.riak.GSRiak
  *
  */
 package object riak {
-  
+
     val GatewayScaliakPool = Scaliak.clientPool(List(MConfig.riakurl))
-    
+
     def GWRiak(bucketName: String) = new GSRiak(MConfig.riakurl, bucketName)(GatewayScaliakPool)
 
 

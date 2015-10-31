@@ -15,7 +15,6 @@
 */
 package models.json.tosca
 
-
 import scalaz._
 import scalaz.NonEmptyList._
 import scalaz.Validation
@@ -35,36 +34,30 @@ import models.tosca.{ DomainsResult }
  */
 class DomainsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[DomainsResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  
+
   protected val NameKey = "name"
-      protected val IdKey = "id"
-     protected val CreatedAtKey ="created_at"
- 
+  protected val IdKey = "id"
+  protected val CreatedAtKey = "created_at"
 
   override implicit val writer = new JSONW[DomainsResult] {
-   
+
     override def write(h: DomainsResult): JValue = {
       JObject(
-       
-          JField(NameKey, toJSON(h.name)) ::
-           JField(IdKey, toJSON(h.id)) ::
-           JField(CreatedAtKey, toJSON(h.created_at))   ::          
+
+        JField(NameKey, toJSON(h.name)) ::
+          JField(IdKey, toJSON(h.id)) ::
+          JField(CreatedAtKey, toJSON(h.created_at)) ::
           Nil)
     }
   }
 
   override implicit val reader = new JSONR[DomainsResult] {
-   
-    
-    
 
     override def read(json: JValue): Result[DomainsResult] = {
-      
-       val idField = field[String](IdKey)(json)
+
+      val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
-
-      
 
       (idField |@| nameField |@| createdAtField) {
         (id: String, name: String, created_at: String) =>
