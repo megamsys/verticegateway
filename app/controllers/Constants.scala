@@ -61,8 +61,9 @@ object Constants {
 
  val MEGAM_GW_CONF = (for {home <- MEGAM_HOME}
  yield { home + File.separator + "megamgateway" + File.separator + "gateway.conf"}).getOrElse("gateway.conf")
-
+play.api.Logger.debug(("%-20s *****************************-->[%s]").format("MEGAM_HOME", MEGAM_GW_CONF))
  val MEGAM_MKT_YAML = (for {home <- MEGAM_HOME}
+ play.api.Logger.debug(("%-20s ****************************-->[%s]").format("MEGAM_HOME", MEGAM_MKT_YAML))
  yield { home + File.separator + "megamgateway" + File.separator + "marketplaces.yaml"}).getOrElse("marketplaces.yaml")
 
 }

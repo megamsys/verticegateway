@@ -11,6 +11,9 @@ LOG=/var/log/megam/megamgateway/megamgateway.log
   mkdir -p $MEGAM_HOME/megamgateway
   cp  /usr/share/megam/megamgateway/conf/marketplaces.yaml $MEGAM_HOME/megamgateway/marketplaces.yaml
   cp  /usr/share/megam/megamgateway/conf/gateway.conf  $MEGAM_HOME/megamgateway/gateway.conf
+  cat > //var/lib/megam/megamgateway/env.sh <<EOF
+  initctl set-env MEGAM_HOME='/var/lib/megam'
+EOF
 
 if [ "$1" = "configure" ]; then
     if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then
