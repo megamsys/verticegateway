@@ -42,7 +42,7 @@ object CSARResultsSerialization extends SerializationBase[CSARResults] {
     }
   }
 
-  
+
   implicit override val reader = new JSONR[CSARResults] {
     override def read(json: JValue): Result[CSARResults] = {
       json match {

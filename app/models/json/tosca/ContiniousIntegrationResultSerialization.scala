@@ -35,7 +35,7 @@ import models.tosca.{ ContiniousIntegrationResult }
  */
 class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[ContiniousIntegrationResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  
+
      protected val ScmKey = "scm"
      protected val EnableKey = "enable"
      protected val TokenKey = "token"
@@ -44,13 +44,13 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
      protected val AssemblyIDKey = "assembly_id"
      protected val IdKey = "id"
      protected val CreatedAtKey ="created_at"
- 
+
 
   override implicit val writer = new JSONW[ContiniousIntegrationResult] {
-   
+
     override def write(h: ContiniousIntegrationResult): JValue = {
       JObject(
-       
+
           JField(EnableKey, toJSON(h.enable)) ::
           JField(ScmKey, toJSON(h.scm)) ::
           JField(TokenKey, toJSON(h.token)) ::
@@ -58,7 +58,7 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
           JField(ComponentIDKey, toJSON(h.component_id)) ::
           JField(AssemblyIDKey, toJSON(h.assembly_id)) ::
            JField(IdKey, toJSON(h.id)) ::
-           JField(CreatedAtKey, toJSON(h.created_at))   ::          
+           JField(CreatedAtKey, toJSON(h.created_at))   ::
           Nil)
     }
   }
@@ -66,7 +66,7 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
   override implicit val reader = new JSONR[ContiniousIntegrationResult] {
 
     override def read(json: JValue): Result[ContiniousIntegrationResult] = {
-      
+
        val idField = field[String](IdKey)(json)
        val enableField = field[String](EnableKey)(json)
       val scmField = field[String](ScmKey)(json)
@@ -75,7 +75,7 @@ class ContiniousIntegrationResultSerialization(charset: Charset = UTF8Charset) e
       val componentIDField = field[String](ComponentIDKey)(json)
       val assemblyIDField = field[String](AssemblyIDKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
-      
+
       (idField |@| enableField |@| scmField |@| tokenField |@| ownerField |@| componentIDField |@| assemblyIDField |@| createdAtField) {
         (id: String, enable: String, scm: String, token: String, owner: String, component_id: String, assembly_id: String, created_at: String) =>
           new ContiniousIntegrationResult(id, enable, scm, token, owner, component_id, assembly_id, created_at)

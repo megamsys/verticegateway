@@ -59,7 +59,6 @@ case class CSARListOutput(key: String, value: String) {
 }
 
 case class CSARPolicyOutput(key: String, value: Any) {
-  //  val json = "{\"key\":\"" + key + "\",\"value\":" + value + "}"
   val policykey = key
   val policyvalue = value
 }
