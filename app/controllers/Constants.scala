@@ -58,7 +58,7 @@ object Constants {
   val DELETE_REQUEST = "DESTROY"
   val CREATE_REQUEST = "CREATE"
 
-
+ 
  val MEGAM_GW_CONF = (for {home <- MEGAM_HOME}
  yield { home + File.separator + "megamgateway" + File.separator + "gateway.conf"}).getOrElse("gateway.conf")
 
