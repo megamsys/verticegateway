@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ import java.nio.charset.Charset
  */
 object MarketPlacePlansSerialization extends SerializationBase[MarketPlacePlans] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  
   protected val ResultsKey = "plans"
 
   implicit override val writer = new JSONW[MarketPlacePlans] {
@@ -37,7 +37,7 @@ object MarketPlacePlansSerialization extends SerializationBase[MarketPlacePlans]
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: MarketPlacePlan => nrOpt.toJValue
       }.some
-      
+
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }
