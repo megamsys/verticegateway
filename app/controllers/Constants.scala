@@ -20,6 +20,7 @@ import play.api.Logger
 import scala.util.{ Try }
 import play.api.http.HeaderNames._
 import controllers.stack.HeaderConstants._
+import controllers.stack.MConfig
 import java.io._
 
 /**
@@ -43,7 +44,7 @@ object Constants {
   val DEMO_EMAIL = "tour@megam.io"
   val DEMO_APIKEY = "faketour"
   val MEGAM_FIRST_NAME = "Megam Tour"
-  val MEGAM_LAST_NAME  = "Call us"
+  val MEGAM_LAST_NAME = "Call us"
   val MEGAM_PHONE = "18006186813"
   val SAMPLE_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/YiBNWP2"
   val MEGAM_PASSWORD_RESET_KEY = "nil"
@@ -58,11 +59,5 @@ object Constants {
   val DELETE_REQUEST = "DESTROY"
   val CREATE_REQUEST = "CREATE"
 
-
- val MEGAM_GW_CONF = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" + File.separator + "gateway.conf"}).getOrElse("gateway.conf")
-
- val MEGAM_MKT_YAML = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" + File.separator + "marketplaces.yaml"}).getOrElse("marketplaces.yaml")
-
+  val MEGAM_MKT_YAML = MConfig.marketplaces_yaml
 }

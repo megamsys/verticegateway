@@ -25,6 +25,7 @@ package controllers.stack
  */
 object MConfig {
   val baseurl = play.api.Play.application(play.api.Play.current).configuration.getString("application.baseUrl")
+  val marketplaces_yaml = play.api.Play.application(play.api.Play.current).configuration.getString("megam.marketplaces").get
   val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get
   val amqpurl = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.url").get
   val routing_key = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.routing.key").get

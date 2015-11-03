@@ -4,25 +4,15 @@ marketplaces:
   order: 1
   image: ubuntu.png
   url: http://ubuntu.com
-  host:
-  port:
-  username:
-  password:
-
   plans:
    14.04:
-    description: "Ubuntu 14.04 LTS (Trusty) is the blah..blah."
+    description: "Ubuntu 14.04 LTS (Trusty) is delivers the best value scale-out performance available."
 
  CoreOS:
   cattype: TORPEDO
   order: 1
   image: coreos.png
   url: http://coreos.com
-  host:
-  port:
-  username:
-  password:
-
   plans:
    633.1.0:
     description: "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers."
@@ -32,14 +22,7 @@ marketplaces:
   order: 1
   image: debian.png
   url: http://debian.com
-  host:
-  port:
-  username:
-  password:
-
   plans:
-   7.0:
-    description: "Debian is a free operating system (OS) for your computer. Wheezy is the codename for 7.0 Debian."
    8.0:
     description: "Debian is a free operating system (OS) for your computer. Jessie is the codename for 8.0 Debian."
 
@@ -48,84 +31,54 @@ marketplaces:
   order: 1
   image: centos.png
   url: http://debian.com
-  host:
-  port:
-  username:
-  password:
-
   plans:
    7.0:
     description: "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat."
 
  Java:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: java.png
   url: https://github.com/megamsys/java-spring-petclinic.git
-  host:
-  port:
-  username:
-  password:
-
   plans:
-   Constants.VERSION:
+   8.x:
     description: "Quickly get started with J2EE Spring framework app."
 
  Rails:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
-  host:
-  port:
-  username:
-  password:
-
   plans:
    4.x:
     description: "Quickly get started with rails 4.x app."
 
  Play:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
-  host:
-  port:
-  username:
-  password:
-
   plans:
    2.4.x:
     description: "Build robust RESTful API server using Scala."
 
  Nodejs:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
-  host:
-  port:
-  username:
-  password:
-
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
 
- Php:
-  cattype: BYOC
-  order: 2
-  image: php.png
-  url: https://secure.php.net/
-  host:
-  port:
-  username:
-  password:
-
-  plans:
-   5.x:
-    description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
+Php:
+ cattype: APP
+ order: 2
+ image: php.png
+ url: https://secure.php.net/
+ plans:
+  5.x:
+   description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
 
  PostgreSQL:
   cattype: SERVICE
@@ -136,7 +89,6 @@ marketplaces:
   port: 5432
   username:
   password:
-
   plans:
    9.3:
     description: "PostgreSQL is a powerful, open source object-relational database system."
@@ -150,7 +102,6 @@ marketplaces:
   port: 8098
   username:
   password:
-
   plans:
    2.1.1:
     description: "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers."
@@ -164,7 +115,6 @@ marketplaces:
   port: 6379
   username:
   password:
-
   plans:
    2.8.4:
     description: "Redis is a key-value store which acts as a data structure server with keys containing strings, hashes, lists, sets and sorted sets."
@@ -178,9 +128,8 @@ marketplaces:
   port: 15672
   username: guest
   password: guest
-
   plans:
-   3.3.5:
+   3.3.x:
     description: "RabbitMQ is a message broker software  that implements the Advanced Message Queuing Protocol (AMQP)."
 
  Mysql:
@@ -192,21 +141,15 @@ marketplaces:
   port: 3306
   username: root
   password:
-
   plans:
-   5.7:
+   5.x:
     description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
 
-  DockerBox:
+ DockerBox:
   cattype: MICROSERVICES
   order: 4
   image: dockerbox.png
   url: https://www.docker.com
-  host:
-  port:
-  username:
-  password:
-
   plans:
    0.9.0:
     description: "Launch a vm with docker in detached model."
@@ -216,13 +159,8 @@ marketplaces:
   order: 4
   image: dockercontainer.png
   url: https://www.docker.com
-  host:
-  Port:
-  username:
-  password:
-
   plans:
-   0.9.0:
+   1.8.x:
     description: "Docker that automates the deployment of applications inside software containers."
 
  Hadoop:
@@ -230,11 +168,6 @@ marketplaces:
   order: 5
   image: hadoop.png
   url: https://hadoop.apache.org
-  host:
-  port:
-  username:
-  password:
-
   plans:
    2.6.0:
     description: "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware."
@@ -248,7 +181,6 @@ marketplaces:
   port:
   username:
   password:
-
   plans:
    1.5.0:
     description: "Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala, Python and R, and an optimized engine that supports general execution graphs."
@@ -258,11 +190,6 @@ marketplaces:
   order: 5
   image: sparknotebook.png
   url:  http://spark-notebook.io
-  host:
-  port:
-  username:
-  passsword:
-
   plans:
    0.6.x:
     description: "Use Apache Spark straight from the Browser. "
@@ -272,11 +199,6 @@ marketplaces:
   order: 6
   image: zarafa.png
   url: https://www.zarafa.com/
-  host:
-  port:
-  username:
-  password:
-
   plans:
    7.2:
     description: "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."
@@ -286,12 +208,6 @@ marketplaces:
   order: 6
   image: owncloud.png
   url: https://owncloud.org/
-  host:
-  port:
-  username:
-  password:
-
-
   plans:
    8.1:
     description: "Access your data from all your devices, on an open platform you can extend and modify."
@@ -301,11 +217,6 @@ marketplaces:
   order: 6
   image: virtual_office.png
   url: www.megam.io
-  host:
-  port:
-  username:
-  password:
-
   plans:
    0.9.0:
-    description: "A virtual office provides bundle application for everyday office use. "
+    description: "A virtual office provides bundled applications for everyday office use. "
