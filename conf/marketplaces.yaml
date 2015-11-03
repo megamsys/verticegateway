@@ -1,5 +1,5 @@
 marketplaces:
- ubuntu:
+ Ubuntu:
   cattype: TORPEDO
   order: 1
   image: ubuntu.png
@@ -71,14 +71,14 @@ marketplaces:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
 
-Php:
- cattype: APP
- order: 2
- image: php.png
- url: https://secure.php.net/
- plans:
-  5.x:
-   description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
+ Php:
+  cattype: APP
+  order: 2
+  image: php.png
+  url: https://secure.php.net/
+  plans:
+   5.x:
+    description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
 
  PostgreSQL:
   cattype: SERVICE
@@ -185,7 +185,7 @@ Php:
    1.5.0:
     description: "Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala, Python and R, and an optimized engine that supports general execution graphs."
 
- Spark-notebook:
+ SparkNotebook:
   cattype: ANALYTICS
   order: 5
   image: sparknotebook.png
@@ -212,7 +212,7 @@ Php:
    8.1:
     description: "Access your data from all your devices, on an open platform you can extend and modify."
 
- Virtual-office:
+ VirtualOffice:
   cattype: COLLABORATION
   order: 6
   image: virtual_office.png
