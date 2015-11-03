@@ -214,6 +214,7 @@ object CSARJson {
       component_inputs_lists.toList, List[KeyValueField](), List[KeyValueField](), new Artifacts("", "", List[KeyValueField]()),
       List[String](), List[Operation](), new Repo("", "", "", ""), "LAUNCHING")
     return valu
+
   }
 
   def assembliesBuilder(assemblyList: scala.collection.mutable.MutableList[Assembly]): String = {
