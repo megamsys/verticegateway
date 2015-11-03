@@ -41,8 +41,12 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
   protected val OrderKey = "order"
   protected val ImageKey = "image"
   protected val UrlKey = "url"
+  protected val HostKey = "host"
+  protected val PortKey = "port"
+  protected val UsernameKey = "username"
+  protected val PasswordKey = "password"
   protected val PlanKey = "plans"
-  protected val CreatedAtKey ="created_at"
+  protected val CreatedAtKey = "created_at"
 
   override implicit val writer = new JSONW[MarketPlaceResult] {
     import MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
@@ -56,17 +60,21 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
           JField(OrderKey, toJSON(h.order)) ::
           JField(ImageKey, toJSON(h.image)) ::
           JField(UrlKey, toJSON(h.url)) ::
+          JField(HostKey, toJSON(h.host)) ::
+          JField(PortKey, toJSON(h.port)) ::
+          JField(UsernameKey, toJSON(h.username)) ::
+          JField(PasswordKey, toJSON(h.password)) ::
           JField(JSONClazKey, toJSON("Megam::MarketPlace")) ::
           JField(PlanKey, toJSON(h.plans)(MarketPlacePlansWriter)) ::
-          JField(CreatedAtKey, toJSON(h.created_at))   ::
-           Nil)
+          JField(CreatedAtKey, toJSON(h.created_at)) ::
+          Nil)
     }
   }
 
   override implicit val reader = new JSONR[MarketPlaceResult] {
-     import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
+    import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
     import MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
-    
+
     override def read(json: JValue): Result[MarketPlaceResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
@@ -74,12 +82,16 @@ class MarketPlaceResultSerialization(charset: Charset = UTF8Charset) extends Ser
       val orderField = field[String](OrderKey)(json)
       val imageField = field[String](ImageKey)(json)
       val urlField = field[String](UrlKey)(json)
+      val hostField = field[String](HostKey)(json)
+      val portField = field[String](PortKey)(json)
+      val usernameField = field[String](UsernameKey)(json)
+      val passwordField = field[String](PasswordKey)(json)
       val planField = field[MarketPlacePlans](PlanKey)(json)(MarketPlacePlansReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| cattypeField |@| orderField |@| imageField |@| urlField |@| planField |@| createdAtField) {
-        (id: String, name: String, cattype: String, order: String, image: String, url: String, plan: MarketPlacePlans, created_at: String) =>
-          new MarketPlaceResult(id, name, cattype, order, image, url, plan, created_at)
+      (idField |@| nameField |@| cattypeField |@| orderField |@| imageField |@| urlField |@| hostField |@| portField |@| usernameField |@| passwordField |@| planField |@| createdAtField) {
+        (id: String, name: String, cattype: String, order: String, image: String, url: String, host: String, port: String, username: String, password: String, plan: MarketPlacePlans, created_at: String) =>
+          new MarketPlaceResult(id, name, cattype, order, image, url, host, port, username, password, plan, created_at)
       }
     }
   }

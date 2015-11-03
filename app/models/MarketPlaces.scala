@@ -71,7 +71,7 @@ object MarketPlacePlan {
     fromJSON(jValue)(MarketPlacePlanReader)
   }
 
-  def fromJson(json: String): Result[MarketPlacePlan] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[MarketPlacePlan] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -79,11 +79,9 @@ object MarketPlacePlan {
 
 }
 
-
-case class MarketPlaceInput(name: String, cattype: String, order: String, image: String, url: String, plans: models.MarketPlacePlans) {
-  val json = "{\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\",\"order\":\"" + order + "\",\"image\":\"" + image + "\",\"url\":\"" + url + "\",\"plans\":" + MarketPlacePlans.toJson(plans, true) + "}"
+case class MarketPlaceInput(name: String, cattype: String, order: String, image: String, url: String, host: String, port: String, username: String, password: String, plans: models.MarketPlacePlans) {
+  val json = "{\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\",\"order\":\"" + order + "\",\"image\":\"" + image + "\",\"url\":\"" + url + "\",\"host\":\"" + host + "\",\"port\":\"" + port + "\",\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"plans\":" + MarketPlacePlans.toJson(plans, true) + "}"
 }
-
 
 //init the default market place addons
 object MarketPlaceInput {
@@ -91,11 +89,11 @@ object MarketPlaceInput {
   val toMap = MKPData.mkMap
 
   val toStream = toMap.keySet.toStream
-  
+
 }
 
 //case class MarketPlaceResult(id: String, name: String, catalog: MarketPlaceCatalog, features: MarketPlaceFeatures, plans: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) {
-case class MarketPlaceResult(id: String, name: String, cattype: String, order: String, image: String, url: String, plans: MarketPlacePlans, created_at: String) {
+case class MarketPlaceResult(id: String, name: String, cattype: String, order: String, image: String, url: String, host: String, port: String, username: String, password: String, plans: MarketPlacePlans, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -121,7 +119,7 @@ object MarketPlaceResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[MarketPlaceResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -151,7 +149,7 @@ object MarketPlaces {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val mktPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput,Throwable] {
+    val mktPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput, Throwable] {
       parse(input).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -160,7 +158,7 @@ object MarketPlaces {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(mkp.name)
-      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.plans, Time.now.toString).toJson(false)
+      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.host, mkp.port, mkp.username, mkp.password, mkp.plans, Time.now.toString).toJson(false)
       new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -168,7 +166,7 @@ object MarketPlaces {
 
   private def mkGunnySack_init(input: MarketPlaceInput): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug("models.MarketPlaces mkGunnySack_init: entry--------------------:\n" + input.json)
-    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput,Throwable] {
+    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.MarketPlaceInput, Throwable] {
       parse(input.json).extract[MarketPlaceInput]
     } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
     play.api.Logger.debug("models.MarketPlaces mkGunnySack: entry--------------------:\n" + marketplaceInput)
@@ -181,7 +179,7 @@ object MarketPlaces {
       //TO-DO: do we need a match for uir to filter the None case. confirm it during function testing.
       play.api.Logger.debug("models.marketplaces mkGunnySack: yield:\n" + (uir.get._1 + uir.get._2))
       val bvalue = Set(mkp.name)
-      val mkpJson = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.plans, Time.now.toString).toJson(false)
+      val mkpJson = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.host, mkp.port, mkp.username, mkp.password, mkp.plans, Time.now.toString).toJson(false)
       new GunnySack(mkp.name, mkpJson, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -226,7 +224,7 @@ object MarketPlaces {
                 case Some(thatGS) => MarketPlaceResults(parse(thatGS.value).extract[MarketPlaceResult]).successNel[Throwable]
                 case None => {
                   play.api.Logger.warn(("%-20s -->[%s]").format("MarketPlaces.created success", "Scaliak returned => None. Thats OK."))
-                  MarketPlaceResults(MarketPlaceResult(new String(), p._2.name, p._2.cattype, p._2.order, p._2.image, p._2.url, p._2.plans, new String())).successNel[Throwable]
+                  MarketPlaceResults(MarketPlaceResult(new String(), p._2.name, p._2.cattype, p._2.order, p._2.image, p._2.url, p._2.host, p._2.port, p._2.username, p._2.password, p._2.plans, new String())).successNel[Throwable]
                 }
               }
             }
@@ -252,7 +250,7 @@ object MarketPlaces {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.MarketPlaceResult,Throwable] {
+                    (Validation.fromTryCatchThrowable[models.MarketPlaceResult, Throwable] {
                       parse(xs.value).extract[MarketPlaceResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(marketplacesName, t.getMessage)

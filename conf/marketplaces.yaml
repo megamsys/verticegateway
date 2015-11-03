@@ -4,16 +4,24 @@ marketplaces:
   order: 1
   image: ubuntu.png
   url: http://ubuntu.com
+  host:
+  port:
+  username:
+  password:
 
   plans:
    14.04:
     description: "Ubuntu 14.04 LTS (Trusty) is the blah..blah."
-   
+
  CoreOS:
   cattype: TORPEDO
   order: 1
   image: coreos.png
   url: http://coreos.com
+  host:
+  port:
+  username:
+  password:
 
   plans:
    633.1.0:
@@ -24,6 +32,10 @@ marketplaces:
   order: 1
   image: debian.png
   url: http://debian.com
+  host:
+  port:
+  username:
+  password:
 
   plans:
    7.0:
@@ -36,6 +48,10 @@ marketplaces:
   order: 1
   image: centos.png
   url: http://debian.com
+  host:
+  port:
+  username:
+  password:
 
   plans:
    7.0:
@@ -46,6 +62,10 @@ marketplaces:
   order: 2
   image: java.png
   url: https://github.com/megamsys/java-spring-petclinic.git
+  host:
+  port:
+  username:
+  password:
 
   plans:
    Constants.VERSION:
@@ -56,6 +76,10 @@ marketplaces:
   order: 2
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
+  host:
+  port:
+  username:
+  password:
 
   plans:
    4.x:
@@ -66,6 +90,10 @@ marketplaces:
   order: 2
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
+  host:
+  port:
+  username:
+  password:
 
   plans:
    2.4.x:
@@ -76,6 +104,10 @@ marketplaces:
   order: 2
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
+  host:
+  port:
+  username:
+  password:
 
   plans:
    0.12.x:
@@ -86,6 +118,10 @@ marketplaces:
   order: 2
   image: php.png
   url: https://secure.php.net/
+  host:
+  port:
+  username:
+  password:
 
   plans:
    5.x:
@@ -96,6 +132,10 @@ marketplaces:
   order: 3
   image: postgres.png
   url: https://postgresql.org
+  host:
+  port: 5432
+  username:
+  password:
 
   plans:
    9.3:
@@ -106,6 +146,10 @@ marketplaces:
   order: 3
   image: riak.png
   url: http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb
+  host:
+  port: 8098
+  username:
+  password:
 
   plans:
    2.1.1:
@@ -116,6 +160,10 @@ marketplaces:
   order: 3
   image: redis.png
   url: https://redis.org
+  host:
+  port: 6379
+  username:
+  password:
 
   plans:
    2.8.4:
@@ -126,6 +174,10 @@ marketplaces:
   order: 3
   image: rabbitmq.png
   url: https://www.rabbitmq.com
+  host:
+  port: 15672
+  username: guest
+  password: guest
 
   plans:
    3.3.5:
@@ -136,6 +188,10 @@ marketplaces:
   order: 3
   image: mysql.png
   url: https://dev.mysql.com/
+  host:
+  port: 3306
+  username: root
+  password:
 
   plans:
    5.7:
@@ -146,6 +202,10 @@ marketplaces:
   order: 4
   image: dockerbox.png
   url: https://www.docker.com
+  host:
+  port:
+  username:
+  password:
 
   plans:
    0.9.0:
@@ -156,6 +216,10 @@ marketplaces:
   order: 4
   image: dockercontainer.png
   url: https://www.docker.com
+  host:
+  Port:
+  username:
+  password:
 
   plans:
    0.9.0:
@@ -166,6 +230,10 @@ marketplaces:
   order: 5
   image: hadoop.png
   url: https://hadoop.apache.org
+  host:
+  port:
+  username:
+  password:
 
   plans:
    2.6.0:
@@ -176,6 +244,10 @@ marketplaces:
   order: 5
   image: spark.png
   url: http://spark.apache.org/
+  host:
+  port:
+  username:
+  password:
 
   plans:
    1.5.0:
@@ -186,6 +258,10 @@ marketplaces:
   order: 5
   image: sparknotebook.png
   url:  http://spark-notebook.io
+  host:
+  port:
+  username:
+  passsword:
 
   plans:
    0.6.x:
@@ -196,6 +272,10 @@ marketplaces:
   order: 6
   image: zarafa.png
   url: https://www.zarafa.com/
+  host:
+  port:
+  username:
+  password:
 
   plans:
    7.2:
@@ -206,6 +286,11 @@ marketplaces:
   order: 6
   image: owncloud.png
   url: https://owncloud.org/
+  host:
+  port:
+  username:
+  password:
+
 
   plans:
    8.1:
@@ -216,6 +301,10 @@ marketplaces:
   order: 6
   image: virtual_office.png
   url: www.megam.io
+  host:
+  port:
+  username:
+  password:
 
   plans:
    0.9.0:
