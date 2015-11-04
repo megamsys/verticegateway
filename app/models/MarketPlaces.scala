@@ -130,6 +130,7 @@ object MarketPlaceResult {
 
 }
 
+
 object MarketPlaces {
 
   implicit val formats = DefaultFormats
@@ -140,6 +141,7 @@ object MarketPlaces {
   val metadataKey = "MarketPlace"
   val metadataVal = "MarketPlaces Creation"
   val bindex = "marketplace"
+  
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.

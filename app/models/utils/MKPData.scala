@@ -65,9 +65,13 @@ val plist = scala.collection.mutable.MutableList[String]()
             val envs = innerhashmapinput.get("envs").getOrElse(new java.util.LinkedHashMap[String,String]())
             val envinput: Map[String, String] = mapAsScalaMap[String, String](envs.asInstanceOf[java.util.Map[String, String]]).toMap
             var envList = new ListBuffer[KeyValueField]()
+
             envinput.map(x => {
-              //val envdesc: Map[String, String] = mapAsScalaMap[String, String](x._2.asInstanceOf[java.util.Map[String, String]]).toMap
-              envList += KeyValueField(String.valueOf(x._1), String.valueOf(x._2))
+            var temp = ""
+              if (String.valueOf(x._2) != "null") {
+                   temp = String.valueOf(x._2)
+              }
+             envList += KeyValueField(String.valueOf(x._1), temp)
             })
             //MarketPlaceInput and MarketPlacePlans are loaded dynamically to mkMap
             mkMap += lkey -> MarketPlaceInput(lkey, innerhashmapinput.get("cattype").getOrElse(""), String.valueOf(innerhashmapinput.get("order").getOrElse("")), innerhashmapinput.get("image").getOrElse(""), innerhashmapinput.get("url").getOrElse("").trim, envList.toList , planList.toList)

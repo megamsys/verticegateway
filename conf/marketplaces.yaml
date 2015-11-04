@@ -5,10 +5,10 @@ marketplaces:
   image: ubuntu.png
   url: http://ubuntu.com
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    14.04:
     description: "Ubuntu 14.04 LTS (Trusty) is delivers the best value scale-out performance available."
@@ -19,10 +19,10 @@ marketplaces:
   image: coreos.png
   url: http://coreos.com
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    633.1.0:
     description: "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers."
@@ -33,10 +33,10 @@ marketplaces:
   image: debian.png
   url: http://debian.com
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    8.0:
     description: "Debian is a free operating system (OS) for your computer. Jessie is the codename for 8.0 Debian."
@@ -47,10 +47,10 @@ marketplaces:
   image: centos.png
   url: http://debian.com
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    7.0:
     description: "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat."
@@ -61,10 +61,10 @@ marketplaces:
   image: java.png
   url: https://github.com/megamsys/java-spring-petclinic.git
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    8.x:
     description: "Quickly get started with J2EE Spring framework app."
@@ -75,10 +75,10 @@ marketplaces:
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    4.x:
     description: "Quickly get started with rails 4.x app."
@@ -89,10 +89,10 @@ marketplaces:
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    2.4.x:
     description: "Build robust RESTful API server using Scala."
@@ -103,10 +103,10 @@ marketplaces:
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
@@ -117,10 +117,10 @@ marketplaces:
   image: php.png
   url: https://secure.php.net/
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    5.x:
     description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
@@ -131,10 +131,10 @@ marketplaces:
   image: postgres.png
   url: https://postgresql.org
   envs:
-    host:
-    port: 5432
-    username:
-    password:
+   host:
+   port: 5432
+   username:
+   password:
   plans:
    9.3:
     description: "PostgreSQL is a powerful, open source object-relational database system."
@@ -144,11 +144,11 @@ marketplaces:
   order: 3
   image: riak.png
   url: http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb
- envs:
-  host:
-  port: 8098
-  username:
-  password:
+  envs:
+   host:
+   port: 8098
+   username:
+   password:
   plans:
    2.1.1:
     description: "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers."
@@ -172,7 +172,7 @@ marketplaces:
   order: 3
   image: rabbitmq.png
   url: https://www.rabbitmq.com
- envs:
+  envs:
    host:
    port: 15672
    username: guest
@@ -186,7 +186,7 @@ marketplaces:
   order: 3
   image: mysql.png
   url: https://dev.mysql.com/
-envs:
+ envs:
   host:
   port: 3306
   username: root
@@ -201,10 +201,10 @@ envs:
   image: dockerbox.png
   url: https://www.docker.com
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    0.9.0:
     description: "Launch a vm with docker in detached model."
@@ -215,10 +215,10 @@ envs:
   image: dockercontainer.png
   url: https://www.docker.com
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    1.8.x:
     description: "Docker that automates the deployment of applications inside software containers."
@@ -229,10 +229,10 @@ envs:
   image: hadoop.png
   url: https://hadoop.apache.org
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    2.6.0:
     description: "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware."
@@ -257,10 +257,10 @@ envs:
   image: sparknotebook.png
   url:  http://spark-notebook.io
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    0.6.x:
     description: "Use Apache Spark straight from the Browser. "
@@ -271,10 +271,10 @@ envs:
   image: zarafa.png
   url: https://www.zarafa.com/
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    7.2:
     description: "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."
@@ -285,10 +285,10 @@ envs:
   image: owncloud.png
   url: https://owncloud.org/
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    8.1:
     description: "Access your data from all your devices, on an open platform you can extend and modify."
@@ -299,10 +299,11 @@ envs:
   image: virtual_office.png
   url: www.megam.io
   envs:
-    host:
-    port:
-    username:
-    password:
+   host:
+   port:
+   username:
+   password:
   plans:
    0.9.0:
     description: "A virtual office provides bundled applications for everyday office use. "
+
