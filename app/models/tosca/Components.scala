@@ -68,18 +68,18 @@ case class Artifacts(artifact_type: String, content: String, requirements: KeyVa
 }
 
 object Artifacts {
-   def empty: Artifacts = new Artifacts(new String(), new String(), KeyValueList.empty)
+  def empty: Artifacts = new Artifacts(new String(), new String(), KeyValueList.empty)
 }
 
-case class Repo(rtype: String, source: String, oneclick: String, url: String){
+case class Repo(rtype: String, source: String, oneclick: String, url: String) {
   val json = "{\"rtype\":\"" + rtype + "\",\"source\":\"" + source + "\",\"oneclick\":\"" + oneclick + "\",\"url\":\"" + url + "\"}"
 }
 
-object  Repo{
-    def empty: Repo = new Repo(new String(), new String(), new String(), new String())
+object Repo {
+  def empty: Repo = new Repo(new String(), new String(), new String(), new String())
 }
 
-case class ComponentResult(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, status: String, repo: Repo, created_at: String) {
+case class ComponentResult(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, envs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, status: String, repo: Repo, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.ComponentResultSerialization
@@ -103,7 +103,7 @@ object ComponentResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[ComponentResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[ComponentResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -111,13 +111,13 @@ object ComponentResult {
 
 }
 
-case class ComponentUpdateInput(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, status: String, repo: Repo) {
-  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"outputs\":" + models.tosca.KeyValueList.toJson(outputs, true) + ",\"artifacts\":" + artifacts.json +
+case class ComponentUpdateInput(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, envs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, status: String, repo: Repo) {
+  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"outputs\":" + models.tosca.KeyValueList.toJson(outputs, true) + ",\"envs\":" + models.tosca.KeyValueList.toJson(envs, true) + ",\"artifacts\":" + artifacts.json +
     ",\"related_components\":" + models.tosca.BindLinks.toJson(related_components, true) + ",\"operations\":" + models.tosca.OperationList.toJson(operations, true) + ",\"status\":\"" + status + "\",\"repo\":" + repo.json + "}"
 }
 
-case class Component(name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, repo: Repo, status: String) {
-  val json = "{\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"outputs\":" + models.tosca.KeyValueList.toJson(outputs, true) + ",\"artifacts\":" + artifacts.json +
+case class Component(name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, envs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, repo: Repo, status: String) {
+  val json = "{\"name\":\"" + name + "\",\"tosca_type\":\"" + tosca_type + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"outputs\":" + models.tosca.KeyValueList.toJson(outputs, true) + ",\"envs\":" + models.tosca.KeyValueList.toJson(envs, true) + ",\"artifacts\":" + artifacts.json +
     ",\"related_components\":" + models.tosca.BindLinks.toJson(related_components, true) + ",\"operations\":" + models.tosca.OperationList.toJson(operations, true) + ",\"status\":\"" + status + "\", \"repo\":" + repo.json + "}"
 
   def toJValue: JValue = {
@@ -141,7 +141,7 @@ object Component {
   val metadataVal = "Component Creation"
   val bindex = "component"
 
-  def empty: Component = new Component(new String(), new String(), KeyValueList.empty, KeyValueList.empty, Artifacts.empty, BindLinks.empty, OperationList.empty, Repo.empty, new String())
+  def empty: Component = new Component(new String(), new String(), KeyValueList.empty, KeyValueList.empty, KeyValueList.empty, Artifacts.empty, BindLinks.empty, OperationList.empty, Repo.empty, new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Component] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -149,7 +149,7 @@ object Component {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Component] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[Component] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -166,7 +166,7 @@ object Component {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[ComponentResult,Throwable] {
+              (Validation.fromTryCatchThrowable[ComponentResult, Throwable] {
                 parse(xs.value).extract[ComponentResult]
               } leftMap { t: Throwable => new MalformedBodyError(xs.value, t.getMessage) }).toValidationNel.flatMap { j: ComponentResult =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("Component result", j))
@@ -188,7 +188,7 @@ object Component {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Component", "upGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, ComponentUpdateInput] = (Validation.fromTryCatchThrowable[ComponentUpdateInput,Throwable] {
+    val ripNel: ValidationNel[Throwable, ComponentUpdateInput] = (Validation.fromTryCatchThrowable[ComponentUpdateInput, Throwable] {
       parse(input).extract[ComponentUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -198,8 +198,8 @@ object Component {
       com_collection <- (Component.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
-       val com = com_collection.head
-      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations, com.get.status, com.get.repo, com.get.created_at).toJson(false)
+      val com = com_collection.head
+      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations, com.get.status, com.get.repo, com.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -215,10 +215,10 @@ object Component {
       val nrip = parse(gs.get.value).extract[ComponentResult]
       maybeGS match {
         case Some(thatGS) =>
-          nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.repo, Time.now.toString()).some)
+          nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.envs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.repo, Time.now.toString()).some)
         case None => {
           play.api.Logger.warn(("%-20s -->[%s]").format("Component.updated successfully", "Scaliak returned => None. Thats OK."))
-          nels(ComponentResult(nrip.id, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.repo, Time.now.toString()).some)
+          nels(ComponentResult(nrip.id, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.envs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.repo, Time.now.toString()).some)
 
         }
       }
@@ -279,7 +279,7 @@ object ComponentsList {
     } yield {
 
       val bvalue = Set(aor.get.id)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) + ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) + ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status + "\",\"repo\":" + input.repo.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) + ",\"envs\":" + KeyValueList.toJson(input.envs, true) + ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) + ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status + "\",\"repo\":" + input.repo.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
 
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
@@ -293,11 +293,11 @@ object ComponentsList {
     if (input.isEmpty) {
       res = (ComponentsResults.empty).successNel[Throwable]
     } else {
-       res = (input map {
+      res = (input map {
         asminp =>
-         play.api.Logger.debug(("%-20s -->[%s]").format("component", asminp))
+          play.api.Logger.debug(("%-20s -->[%s]").format("component", asminp))
           (create(email, asminp, asm_id))
-        }).foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
+      }).foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
     }
     play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Components", res))
     //res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[ComponentsResults])
@@ -327,7 +327,6 @@ object ComponentsList {
           }
         }
     }
-
 
   }
 }

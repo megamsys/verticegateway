@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,42 +22,39 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import controllers.funnel.SerializationBase
 import models.tosca._
-import models.json.tosca._
-import java.nio.charset.Charset
+
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
-object ComponentsListSerialization extends SerializationBase[ComponentsList] {
-
+object SensorsResultsSerialization extends SerializationBase[SensorsResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
-  protected val ResultsKey = "components"
+  protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[ComponentsList] {
-    override def write(h: ComponentsList): JValue = {
-      val nrsList: Option[List[JValue]] = h.map {
-        nrOpt: Component => nrOpt.toJValue
-      }.some
-
-      JArray(nrsList.getOrElse(List.empty[JValue]))
+  implicit override val writer = new JSONW[SensorsResults] {
+    override def write(h: SensorsResults): JValue = {
+      val nrsList: NonEmptyList[JValue] = h.map {
+        nrOpt: Option[SensorsResult] =>
+          (nrOpt.map { nr: SensorsResult => nr.toJValue }).getOrElse(JNothing)
+      }
+      JObject(JField(JSONClazKey, JString("Megam::SensorsCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
-  implicit override val reader = new JSONR[ComponentsList] {
-    override def read(json: JValue): Result[ComponentsList] = {
+  implicit override val reader = new JSONR[SensorsResults] {
+    override def read(json: JValue): Result[SensorsResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            Component.fromJValue(jValue) match {
+            SensorsResult.fromJValue(jValue) match {
               case Success(nr) => List(nr)
-              case Failure(fail) => List[Component]()
+              case Failure(fail) => List[SensorsResult]()
             }
-          }.some
-
-          val nrs: ComponentsList = ComponentsList(list.getOrElse(ComponentsList.empty))
+          } map { x: SensorsResult => x.some }
+          val nrs: SensorsResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[ComponentsList]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[SensorsResults]
       }
     }
   }

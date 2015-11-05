@@ -47,7 +47,6 @@ import java.nio.charset.Charset
  *
  */
 
-
 //The operation class is some user operations of APP (like - build, start, stop...)
 // The CI operation is also build operation of APP
 // The operation type is CI then the operation_requirements field must have followwing fields
@@ -62,10 +61,7 @@ import java.nio.charset.Charset
 //
 //
 
-
-
-
- case class Operation(operation_type: String, description: String, properties: models.tosca.KeyValueList) {
+case class Operation(operation_type: String, description: String, properties: models.tosca.KeyValueList) {
   val json = "{\"operation_type\":\"" + operation_type + "\",\"description\":\"" + description + "\",\"properties\":\"" + KeyValueList.toJson(properties, true) + "\"}"
 
   def toJValue: JValue = {
@@ -86,14 +82,14 @@ import java.nio.charset.Charset
 object Operation {
   def empty: Operation = new Operation(new String(), new String(), KeyValueList.empty)
 
-   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Operation] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Operation] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.tosca.OperationSerialization
     val preser = new models.json.tosca.OperationSerialization()
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Operation] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[Operation] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json--->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -101,7 +97,7 @@ object Operation {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-case class AssemblyResult(id: String, name: String, components: models.tosca.ComponentLinks, tosca_type: String, policies: models.tosca.PoliciesList, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, status: String, created_at: String ) {
+case class AssemblyResult(id: String, name: String, components: models.tosca.ComponentLinks, tosca_type: String, policies: models.tosca.PoliciesList, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, status: String, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.AssemblyResultSerialization
@@ -125,7 +121,7 @@ object AssemblyResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[AssemblyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[AssemblyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -159,7 +155,7 @@ object Policy {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Policy] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[Policy] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -185,7 +181,7 @@ case class Assembly(name: String, components: models.tosca.ComponentsList, tosca
   }
 }
 
-case class AssemblyUpdateInput(id: String, name: String, components: models.tosca.ComponentLinks, tosca_type: String, policies: models.tosca.PoliciesList, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, status: String ) {
+case class AssemblyUpdateInput(id: String, name: String, components: models.tosca.ComponentLinks, tosca_type: String, policies: models.tosca.PoliciesList, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, status: String) {
   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"components\":" + ComponentLinks.toJson(components, true) + ",\"tosca_type\":\"" + tosca_type + "\", \"policies\":" + PoliciesList.toJson(policies, true) +
     ",\"inputs\":" + KeyValueList.toJson(inputs, true) + ", \"outputs\":" + KeyValueList.toJson(outputs, true) + ",\"status\":\"" + status + "\"}"
 }
@@ -198,7 +194,7 @@ object Assembly {
   val metadataVal = "Assembly Creation"
   val bindex = "assembly"
 
-  def empty: Assembly = new Assembly(new String(), ComponentsList.empty, new String(), PoliciesList.empty,  KeyValueList.empty, KeyValueList.empty, new String())
+  def empty: Assembly = new Assembly(new String(), ComponentsList.empty, new String(), PoliciesList.empty, KeyValueList.empty, KeyValueList.empty, new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Assembly] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -206,7 +202,7 @@ object Assembly {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[Assembly] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[Assembly] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("---json------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -244,13 +240,12 @@ object Assembly {
     }).head //return the folded element in the head.
   }
 
-
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assembly Update", "mkGunnySack:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput,Throwable] {
+    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput, Throwable] {
       parse(input).extract[AssemblyUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -261,9 +256,9 @@ object Assembly {
     } yield {
       val bvalue = Set(aor.get.id)
       val asm = asm_collection.head
-      val json = AssemblyResult(rip.id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.created_at ).toJson(false)
+      val json = AssemblyResult(rip.id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-       Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
 
     }
   }
@@ -272,7 +267,7 @@ object Assembly {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Assembly", "update:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput,Throwable] {
+    val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput, Throwable] {
       parse(input).extract[AssemblyUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -381,7 +376,7 @@ object AssembliesList {
     var outlist = rip.outputs
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "asm").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "asy").get leftMap { ut: NonEmptyList[Throwable] => ut })
       com <- (ComponentsList.createLinks(email, rip.components, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
@@ -393,7 +388,7 @@ object AssembliesList {
             case None => components_links
           }
         }
-        
+
       }
       val json = AssemblyResult(uir.get._1 + uir.get._2, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,

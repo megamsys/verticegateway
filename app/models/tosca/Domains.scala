@@ -38,7 +38,6 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
-
 /**
  * @author morpheyesh
  *
@@ -73,7 +72,7 @@ object DomainsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[DomainsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[DomainsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -102,13 +101,13 @@ object Domains {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val domainsInput: ValidationNel[Throwable, DomainsInput] = (Validation.fromTryCatchThrowable[DomainsInput,Throwable] {
+    val domainsInput: ValidationNel[Throwable, DomainsInput] = (Validation.fromTryCatchThrowable[DomainsInput, Throwable] {
       parse(input).extract[DomainsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       domain <- domainsInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "domain").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "dom").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(domain.name)
       val json = new DomainsResult(uir.get._1 + uir.get._2, domain.name, Time.now.toString).toJson(false)
@@ -143,7 +142,6 @@ object Domains {
     }
   }
 
-
   def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("models.Domains", "findByName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("domainsList", domainsList))
@@ -174,6 +172,5 @@ object Domains {
       _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
   }
-
 
 }

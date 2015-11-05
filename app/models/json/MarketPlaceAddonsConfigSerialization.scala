@@ -33,40 +33,40 @@ import models.{ MarketPlaceAddonsConfig, MarketPlaceAddonsConfigDisaster, Market
  * @author rajthilak
  *
  */
-object MarketPlaceAddonsConfigSerialization extends SerializationBase[MarketPlaceAddonsConfig] {  
+object MarketPlaceAddonsConfigSerialization extends SerializationBase[MarketPlaceAddonsConfig] {
   protected val DisasterKey = "disaster"
   protected val LoadBalancingKey = "loadbalancing"
-  protected val AutoScalingKey = "autoscaling"  
-  protected val MonitoringKey = "monitoring"  
+  protected val AutoScalingKey = "autoscaling"
+  protected val MonitoringKey = "monitoring"
 
   override implicit val writer = new JSONW[MarketPlaceAddonsConfig] {
-   import MarketPlaceAddonsConfigDisasterSerialization.{ writer => MarketPlaceAddonsConfigDisasterWriter }
-   import MarketPlaceAddonsConfigLoadBalancingSerialization.{ writer => MarketPlaceAddonsConfigLoadBalancingWriter }
-   import MarketPlaceAddonsConfigAutoScalingSerialization.{ writer => MarketPlaceAddonsConfigAutoScalingWriter }
-   import MarketPlaceAddonsConfigMonitoringSerialization.{ writer => MarketPlaceAddonsConfigMonitoringWriter }
+    import MarketPlaceAddonsConfigDisasterSerialization.{ writer => MarketPlaceAddonsConfigDisasterWriter }
+    import MarketPlaceAddonsConfigLoadBalancingSerialization.{ writer => MarketPlaceAddonsConfigLoadBalancingWriter }
+    import MarketPlaceAddonsConfigAutoScalingSerialization.{ writer => MarketPlaceAddonsConfigAutoScalingWriter }
+    import MarketPlaceAddonsConfigMonitoringSerialization.{ writer => MarketPlaceAddonsConfigMonitoringWriter }
 
     override def write(h: MarketPlaceAddonsConfig): JValue = {
-      JObject(        
+      JObject(
         JField(DisasterKey, toJSON(h.disaster)(MarketPlaceAddonsConfigDisasterWriter)) ::
-          JField(LoadBalancingKey, toJSON(h.loadbalancing)(MarketPlaceAddonsConfigLoadBalancingWriter)) ::                   
+          JField(LoadBalancingKey, toJSON(h.loadbalancing)(MarketPlaceAddonsConfigLoadBalancingWriter)) ::
           JField(AutoScalingKey, toJSON(h.autoscaling)(MarketPlaceAddonsConfigAutoScalingWriter)) ::
           JField(MonitoringKey, toJSON(h.monitoring)(MarketPlaceAddonsConfigMonitoringWriter)) ::
-           Nil)
+          Nil)
     }
   }
 
   override implicit val reader = new JSONR[MarketPlaceAddonsConfig] {
-   import MarketPlaceAddonsConfigDisasterSerialization.{ reader => MarketPlaceAddonsConfigDisasterReader }
-   import MarketPlaceAddonsConfigLoadBalancingSerialization.{ reader => MarketPlaceAddonsConfigLoadBalancingReader }
-   import MarketPlaceAddonsConfigAutoScalingSerialization.{ reader => MarketPlaceAddonsConfigAutoScalingReader }
-   import MarketPlaceAddonsConfigMonitoringSerialization.{ reader => MarketPlaceAddonsConfigMonitoringReader }
-     
+    import MarketPlaceAddonsConfigDisasterSerialization.{ reader => MarketPlaceAddonsConfigDisasterReader }
+    import MarketPlaceAddonsConfigLoadBalancingSerialization.{ reader => MarketPlaceAddonsConfigLoadBalancingReader }
+    import MarketPlaceAddonsConfigAutoScalingSerialization.{ reader => MarketPlaceAddonsConfigAutoScalingReader }
+    import MarketPlaceAddonsConfigMonitoringSerialization.{ reader => MarketPlaceAddonsConfigMonitoringReader }
+
     override def read(json: JValue): Result[MarketPlaceAddonsConfig] = {
       val disasterField = field[MarketPlaceAddonsConfigDisaster](DisasterKey)(json)(MarketPlaceAddonsConfigDisasterReader)
       val loadBalancingField = field[MarketPlaceAddonsConfigLoadBalancing](LoadBalancingKey)(json)(MarketPlaceAddonsConfigLoadBalancingReader)
-      val autoScalingField = field[MarketPlaceAddonsConfigAutoScaling](AutoScalingKey)(json)(MarketPlaceAddonsConfigAutoScalingReader)     
-      val monitoringField = field[MarketPlaceAddonsConfigMonitoring](MonitoringKey)(json)(MarketPlaceAddonsConfigMonitoringReader) 
-      
+      val autoScalingField = field[MarketPlaceAddonsConfigAutoScaling](AutoScalingKey)(json)(MarketPlaceAddonsConfigAutoScalingReader)
+      val monitoringField = field[MarketPlaceAddonsConfigMonitoring](MonitoringKey)(json)(MarketPlaceAddonsConfigMonitoringReader)
+
       (disasterField |@| loadBalancingField |@| autoScalingField |@| monitoringField) {
         (disaster: MarketPlaceAddonsConfigDisaster, loadbalancing: MarketPlaceAddonsConfigLoadBalancing, autoscaling: MarketPlaceAddonsConfigAutoScaling, monitoring: MarketPlaceAddonsConfigMonitoring) =>
           new MarketPlaceAddonsConfig(disaster, loadbalancing, autoscaling, monitoring)

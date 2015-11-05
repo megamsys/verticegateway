@@ -38,11 +38,11 @@ object MKPData {
 
   implicit val formats = DefaultFormats
 
-//marketplaceInput and marketplacePlans are loded dynamically to mkMap
-val contentToEncode = scala.io.Source.fromFile(Constants.MEGAM_MKT_YAML).mkString
-val kMap: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(contentToEncode).asInstanceOf[java.util.Map[String, String]]).toMap
-val list = scala.collection.mutable.MutableList[String]()
-val plist = scala.collection.mutable.MutableList[String]()
+  //marketplaceInput and marketplacePlans are loded dynamically to mkMap
+  val contentToEncode = scala.io.Source.fromFile(Constants.MEGAM_MKT_YAML).mkString
+  val kMap: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(contentToEncode).asInstanceOf[java.util.Map[String, String]]).toMap
+  val list = scala.collection.mutable.MutableList[String]()
+  val plist = scala.collection.mutable.MutableList[String]()
 
   var mkMap = Map[String, MarketPlaceInput]()
 
@@ -54,7 +54,7 @@ val plist = scala.collection.mutable.MutableList[String]()
         val cc = hashmapinput foreach {
           case (lkey, lvalue) =>
             val innerhashmapinput: Map[String, String] = mapAsScalaMap[String, String](lvalue.asInstanceOf[java.util.Map[String, String]]).toMap
-            val plans = innerhashmapinput.get("plans").getOrElse(new java.util.LinkedHashMap[String,String]())
+            val plans = innerhashmapinput.get("plans").getOrElse(new java.util.LinkedHashMap[String, String]())
             val planinput: Map[String, String] = mapAsScalaMap[String, String](plans.asInstanceOf[java.util.Map[String, String]]).toMap
             var planList = new ListBuffer[MarketPlacePlan]()
             planinput.map(x => {
@@ -62,7 +62,7 @@ val plist = scala.collection.mutable.MutableList[String]()
               planList += MarketPlacePlan(plandesc.get(plandesc.keySet.head).getOrElse(""), String.valueOf(x._1))
             })
             //MarketPlaceInput and MarketPlacePlans are loaded dynamically to mkMap
-            mkMap += lkey -> MarketPlaceInput(lkey, innerhashmapinput.get("cattype").getOrElse(""), String.valueOf(innerhashmapinput.get("order").getOrElse("")), innerhashmapinput.get("image").getOrElse(""), innerhashmapinput.get("url").getOrElse("").trim, planList.toList)
+            mkMap += lkey -> MarketPlaceInput(lkey, innerhashmapinput.get("cattype").getOrElse(""), String.valueOf(innerhashmapinput.get("order").getOrElse("")), innerhashmapinput.get("image").getOrElse(""), innerhashmapinput.get("url").getOrElse("").trim, innerhashmapinput.get("host").getOrElse(""), innerhashmapinput.get("port").getOrElse(""), innerhashmapinput.get("username").getOrElse(""), innerhashmapinput.get("password").getOrElse(""), planList.toList)
         }
       }
     }

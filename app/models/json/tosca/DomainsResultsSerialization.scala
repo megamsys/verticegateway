@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,19 +46,7 @@ object DomainsResultsSerialization extends SerializationBase[DomainsResults] {
     }
   }
 
-  /* Read - JArray(List[NodeResult]) which translates to :
-        JArray(List(
-          JObject(
-            List(
-              JField(name,JInt(code)),
-              JField(value,JString(msg))
-              .....
-            )
-          )
-        )
-      )
-      PredefResult already has an implicit reader, hence use it.
-       */
+  
   implicit override val reader = new JSONR[DomainsResults] {
     override def read(json: JValue): Result[DomainsResults] = {
       json match {

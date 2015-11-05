@@ -72,7 +72,7 @@ object CSARResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[CSARResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -195,7 +195,6 @@ object CSARs {
     }
   }
 
-
   def findLinksByName(csarslinksNameList: Option[List[String]]): ValidationNel[Throwable, CSARLinkResults] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findLinksByNodeName:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("csarlinksList", csarslinksNameList))
@@ -228,7 +227,7 @@ object CSARs {
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
                 xso match {
                   case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.tosca.CSARResult,Throwable] {
+                    (Validation.fromTryCatchThrowable[models.tosca.CSARResult, Throwable] {
                       parse(xs.value).extract[CSARResult]
                     } leftMap { t: Throwable =>
                       new ResourceItemNotFound(csarsName, t.getMessage)

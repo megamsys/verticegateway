@@ -40,6 +40,7 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
   protected val ToscaTypeKey = "tosca_type"
   protected val InputsKey = "inputs"
   protected val OutputsKey = "outputs"
+  protected val EnvsKey = "envs"
   protected val ArtifactsKey = "artifacts"
   protected val RelatedComponentsKey = "related_components"
   protected val OperationsKey = "operations"
@@ -51,20 +52,20 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
     import KeyValueListSerialization.{ writer => KeyValueListWriter }
     import ArtifactsSerialization.{ writer => ArtifactsWriter }
     import OperationListSerialization.{ writer => OperationListWriter }
-    import RepoSerialization. { writer => RepoWriter }
+    import RepoSerialization.{ writer => RepoWriter }
     import BindLinksSerialization.{ writer => BindLinksWriter }
 
     override def write(h: Component): JValue = {
       JObject(
-   //     JField(JSONClazKey, toJSON("Megam::Component")) ::
-          JField(NameKey, toJSON(h.name)) ::
+        JField(NameKey, toJSON(h.name)) ::
           JField(ToscaTypeKey, toJSON(h.tosca_type)) ::
           JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::
           JField(OutputsKey, toJSON(h.outputs)(KeyValueListWriter)) ::
+          JField(EnvsKey, toJSON(h.envs)(KeyValueListWriter)) ::
           JField(ArtifactsKey, toJSON(h.artifacts)(ArtifactsWriter)) ::
           JField(RelatedComponentsKey, toJSON(h.related_components)(BindLinksWriter)) ::
           JField(OperationsKey, toJSON(h.operations)(OperationListWriter)) ::
-             JField(RepoKey, toJSON(h.repo)(RepoWriter)) ::
+          JField(RepoKey, toJSON(h.repo)(RepoWriter)) ::
           JField(StatusKey, toJSON(h.status)) :: Nil)
     }
   }
@@ -82,15 +83,16 @@ class ComponentSerialization(charset: Charset = UTF8Charset) extends Serializati
       val toscatypeField = field[String](ToscaTypeKey)(json)
       val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
       val outputsField = field[KeyValueList](OutputsKey)(json)(KeyValueListReader)
+      val envsField = field[KeyValueList](EnvsKey)(json)(KeyValueListReader)
       val artifactsField = field[Artifacts](ArtifactsKey)(json)(ArtifactsReader)
       val relatedcomponentsField = field[BindLinks](RelatedComponentsKey)(json)(BindLinksReader)
       val operationsField = field[OperationList](OperationsKey)(json)(OperationListReader)
       val statusField = field[String](StatusKey)(json)
       val repoField = field[Repo](RepoKey)(json)(RepoReader)
 
-      (nameField |@| toscatypeField |@| inputsField |@| outputsField |@| artifactsField |@| relatedcomponentsField |@| operationsField |@| repoField |@| statusField) {
-        (name: String, tosca_type: String, inputs: KeyValueList, outputs: KeyValueList, artifacts: Artifacts, related_components: BindLinks, operations: OperationList, repo: Repo ,status: String ) =>
-          new Component(name, tosca_type, inputs, outputs, artifacts, related_components, operations, repo, status)
+      (nameField |@| toscatypeField |@| inputsField |@| outputsField |@| envsField |@| artifactsField |@| relatedcomponentsField |@| operationsField |@| repoField |@| statusField) {
+        (name: String, tosca_type: String, inputs: KeyValueList, outputs: KeyValueList, envs: KeyValueList, artifacts: Artifacts, related_components: BindLinks, operations: OperationList, repo: Repo, status: String) =>
+          new Component(name, tosca_type, inputs, outputs, envs, artifacts, related_components, operations, repo, status)
       }
     }
   }

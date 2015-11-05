@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,41 +27,52 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import controllers.funnel.SerializationBase
-import models.tosca.{ DomainsResult }
+import models.tosca.{ SensorsResult, Payload }
+
 /**
- * @author morpheyesh
+ * @author ranjitha
  *
  */
-class DomainsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[DomainsResult] {
+class SensorsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[SensorsResult] {
+
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
-  protected val NameKey = "name"
   protected val IdKey = "id"
+  protected val SensorTypeKey = "sensor_type"
+  protected val PayloadKey = "payload"
   protected val CreatedAtKey = "created_at"
 
-  override implicit val writer = new JSONW[DomainsResult] {
+  override implicit val writer = new JSONW[SensorsResult] {
 
-    override def write(h: DomainsResult): JValue = {
+    import models.json.tosca.PayloadSerialization.{ writer => PayloadWriter }
+
+    override def write(h: SensorsResult): JValue = {
       JObject(
+        JField(IdKey, toJSON(h.id)) ::
 
-        JField(NameKey, toJSON(h.name)) ::
-          JField(IdKey, toJSON(h.id)) ::
+          JField(JSONClazKey, toJSON("Megam::Sensors")) ::
+          JField(SensorTypeKey, toJSON(h.sensor_type)) ::
+          JField(PayloadKey, toJSON(h.payload)(PayloadWriter)) ::
+
           JField(CreatedAtKey, toJSON(h.created_at)) ::
           Nil)
     }
   }
 
-  override implicit val reader = new JSONR[DomainsResult] {
+  override implicit val reader = new JSONR[SensorsResult] {
 
-    override def read(json: JValue): Result[DomainsResult] = {
+    import PayloadSerialization.{ reader => PayloadReader }
+
+    override def read(json: JValue): Result[SensorsResult] = {
 
       val idField = field[String](IdKey)(json)
-      val nameField = field[String](NameKey)(json)
+      val sensorTypeField = field[String](SensorTypeKey)(json)
+      val payloadField = field[Payload](PayloadKey)(json)(PayloadReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| createdAtField) {
-        (id: String, name: String, created_at: String) =>
-          new DomainsResult(id, name, created_at)
+      (idField |@| sensorTypeField |@| payloadField |@| createdAtField) {
+        (id: String, sensor_type: String, payload: Payload, created_at: String) =>
+          new SensorsResult(id, sensor_type, payload, created_at)
       }
     }
   }

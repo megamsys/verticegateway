@@ -59,7 +59,6 @@ case class CSARListOutput(key: String, value: String) {
 }
 
 case class CSARPolicyOutput(key: String, value: Any) {
-  //  val json = "{\"key\":\"" + key + "\",\"value\":" + value + "}"
   val policykey = key
   val policyvalue = value
 }
@@ -212,14 +211,10 @@ object CSARJson {
     }
 
     val valu = new Component(getValue("name", template), getValue("type", template),
-      component_inputs_lists.toList, List[KeyValueField](), new Artifacts("", "", List[KeyValueField]()),
+      component_inputs_lists.toList, List[KeyValueField](), List[KeyValueField](), new Artifacts("", "", List[KeyValueField]()),
       List[String](), List[Operation](), new Repo("", "", "", ""), "LAUNCHING")
     return valu
 
-    //val value = new Component(getValue("name", template), getValue("type", template),
-      //component_inputs_lists.toList, List[KeyValueField](), new Repo("", "", List[KeyValueField]()),
-      //List[String](), List[Operation](), "LAUNCHING")
-      //return value
   }
 
   def assembliesBuilder(assemblyList: scala.collection.mutable.MutableList[Assembly]): String = {

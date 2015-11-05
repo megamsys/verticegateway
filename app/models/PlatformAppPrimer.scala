@@ -44,13 +44,14 @@ object PlatformAppPrimer {
 
 
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    dummy <- takeatourAcct
+    dumact <- takeatourAcct
+    dumorg <- clone_organizations(DEMO_EMAIL)
   } yield {
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Account created successfully(%s).
+      FunnelResponse(CREATED, """Account/Org created successfully(%s).
             |
             |Your email registered successully.""".
-        format( dummy.get.email).stripMargin, "Megam::Account"))
+        format( dumact.get.email).stripMargin, "Megam::Account"))
     FunnelResponses(chainedComps)
   }
 

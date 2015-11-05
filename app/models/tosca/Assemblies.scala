@@ -91,7 +91,7 @@ object KeyValueField {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[KeyValueField] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[KeyValueField] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     play.api.Logger.debug(("%-20s -->[%s]").format("--------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
@@ -99,7 +99,6 @@ object KeyValueField {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-
 
 case class AssembliesResult(id: String, accounts_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList, created_at: String) {
 
@@ -126,7 +125,7 @@ object AssembliesResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[AssembliesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[AssembliesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -154,7 +153,7 @@ object Assemblies {
     play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
 
-    val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput,Throwable] {
+    val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput, Throwable] {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -162,14 +161,14 @@ object Assemblies {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       aem <- (AssembliesList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "aes").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id, rip.org_id) //ORG1257629409746223104
       var assembly_links = new ListBuffer[String]()
       for (assembly <- aem) {
         assembly match {
           case Some(value) => assembly_links += value.id
-          case None        => assembly_links 
+          case None => assembly_links
         }
       }
       val json = new AssembliesResult(uir.get._1 + uir.get._2, aor.get.id, rip.name, assembly_links.toList, rip.inputs, Time.now.toString).toJson(false)
