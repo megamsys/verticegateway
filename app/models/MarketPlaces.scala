@@ -28,6 +28,7 @@ import controllers.stack._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models._
+import models.tosca._
 import models.riak._
 import models.cache._
 import models.utils._
@@ -79,8 +80,10 @@ object MarketPlacePlan {
 
 }
 
-case class MarketPlaceInput(name: String, cattype: String, order: String, image: String, url: String, host: String, port: String, username: String, password: String, plans: models.MarketPlacePlans) {
-  val json = "{\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\",\"order\":\"" + order + "\",\"image\":\"" + image + "\",\"url\":\"" + url + "\",\"host\":\"" + host + "\",\"port\":\"" + port + "\",\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"plans\":" + MarketPlacePlans.toJson(plans, true) + "}"
+
+
+case class MarketPlaceInput(name: String, cattype: String, order: String, image: String, url: String, envs: models.tosca.KeyValueList, plans: models.MarketPlacePlans) {
+  val json = "{\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\",\"order\":\"" + order + "\",\"image\":\"" + image + "\",\"url\":\"" + url + "\",\"envs\":" + models.tosca.KeyValueList.toJson(envs, true) + ",\"plans\":" + MarketPlacePlans.toJson(plans, true) + "}"
 }
 
 //init the default market place addons
@@ -93,7 +96,7 @@ object MarketPlaceInput {
 }
 
 //case class MarketPlaceResult(id: String, name: String, catalog: MarketPlaceCatalog, features: MarketPlaceFeatures, plans: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) {
-case class MarketPlaceResult(id: String, name: String, cattype: String, order: String, image: String, url: String, host: String, port: String, username: String, password: String, plans: MarketPlacePlans, created_at: String) {
+case class MarketPlaceResult(id: String, name: String, cattype: String, order: String, image: String, url: String, envs: models.tosca.KeyValueList, plans: MarketPlacePlans, created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -127,6 +130,7 @@ object MarketPlaceResult {
 
 }
 
+
 object MarketPlaces {
 
   implicit val formats = DefaultFormats
@@ -137,6 +141,7 @@ object MarketPlaces {
   val metadataKey = "MarketPlace"
   val metadataVal = "MarketPlaces Creation"
   val bindex = "marketplace"
+  
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -158,7 +163,7 @@ object MarketPlaces {
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(mkp.name)
-      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.host, mkp.port, mkp.username, mkp.password, mkp.plans, Time.now.toString).toJson(false)
+      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.envs, mkp.plans, Time.now.toString).toJson(false)
       new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -179,7 +184,7 @@ object MarketPlaces {
       //TO-DO: do we need a match for uir to filter the None case. confirm it during function testing.
       play.api.Logger.debug("models.marketplaces mkGunnySack: yield:\n" + (uir.get._1 + uir.get._2))
       val bvalue = Set(mkp.name)
-      val mkpJson = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.host, mkp.port, mkp.username, mkp.password, mkp.plans, Time.now.toString).toJson(false)
+      val mkpJson = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.envs, mkp.plans, Time.now.toString).toJson(false)
       new GunnySack(mkp.name, mkpJson, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -224,7 +229,7 @@ object MarketPlaces {
                 case Some(thatGS) => MarketPlaceResults(parse(thatGS.value).extract[MarketPlaceResult]).successNel[Throwable]
                 case None => {
                   play.api.Logger.warn(("%-20s -->[%s]").format("MarketPlaces.created success", "Scaliak returned => None. Thats OK."))
-                  MarketPlaceResults(MarketPlaceResult(new String(), p._2.name, p._2.cattype, p._2.order, p._2.image, p._2.url, p._2.host, p._2.port, p._2.username, p._2.password, p._2.plans, new String())).successNel[Throwable]
+                  MarketPlaceResults(MarketPlaceResult(new String(), p._2.name, p._2.cattype, p._2.order, p._2.image, p._2.url, p._2.envs, p._2.plans, new String())).successNel[Throwable]
                 }
               }
             }
