@@ -57,8 +57,6 @@ marketplaces:
   envs:
    host: localhost
    port: 8080
-   username:
-   password:
   plans:
    4.x:
     description: "Quickly get started with rails 4.x app."
@@ -71,8 +69,6 @@ marketplaces:
   envs:
    host: localhost
    port: 3000
-   username:
-   password:
   plans:
    2.4.x:
     description: "Build robust RESTful API server using Scala."
@@ -85,8 +81,6 @@ marketplaces:
   envs:
    host: localhost
    port: 7000
-   username:
-   password:
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
@@ -166,11 +160,11 @@ marketplaces:
   order: 3
   image: mysql.png
   url: https://dev.mysql.com/
- envs:
-  host:
-  port: 3306
-  username: root
-  password:
+  envs:
+   host:
+   port: 3306
+   username: root
+   password:
   plans:
    5.x:
     description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
