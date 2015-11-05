@@ -14,24 +14,23 @@ import scala.collection.mutable.LinkedHashMap
 import scala.collection.mutable.ListBuffer
 import java.nio.charset.Charset
 import scala.util.control._
-//import scala.collection.mutable.Map
 import java.io.{ File, FileInputStream }
 import models.{ MarketPlaceInput, MarketPlacePlans, MarketPlacePlan  }
 import models.tosca.{KeyValueList, KeyValueField}
 
 /**
  *
- * ubuntu:
- * cattype: Torpedo
+ * java:
+ * cattype: APP
  * order: 1
- * image: ubuntu.png
- * url: http://ubuntu.com
- *
+ * image: java.png
+ * url: http://apache.tomcat.org
+ * envs:
  * plans:
- * 14.04:
- * description: "Ubuntu 14.04 LTS (Trusty) is the blah..blah."
- * 12.04:
- * description: "Ubuntu 12.04 LTS (Precise Pangolin) is the blah..blah."
+ * 8.x:
+ * description: "Tomcat that run java apps faster"
+ * 7.x:
+ * description: "Tomcat legacy that sleeps faster."
  *
  */
 
@@ -49,35 +48,29 @@ val plist = scala.collection.mutable.MutableList[String]()
 
   kMap.get("marketplaces") match {
     case Some(innerlink) => {
-      play.api.Logger.debug(("%s").format("Entered To Inner KeyValue of YAML"))
+      play.api.Logger.debug(("%s %s").format("Starting to parse", Constants.MEGAM_MKT_YAML))
       if (innerlink.asInstanceOf[AnyRef].getClass.getSimpleName == "LinkedHashMap") {
         val hashmapinput: Map[String, String] = mapAsScalaMap[String, String](innerlink.asInstanceOf[java.util.Map[String, String]]).toMap
         val cc = hashmapinput foreach {
           case (lkey, lvalue) =>
             val innerhashmapinput: Map[String, String] = mapAsScalaMap[String, String](lvalue.asInstanceOf[java.util.Map[String, String]]).toMap
             val plans = innerhashmapinput.get("plans").getOrElse(new java.util.LinkedHashMap[String,String]())
-            val planinput: Map[String, String] = mapAsScalaMap[String, String](plans.asInstanceOf[java.util.Map[String, String]]).toMap
-            var planList = new ListBuffer[MarketPlacePlan]()
-            planinput.map(x => {
+            val planInput: Map[String, String] = mapAsScalaMap[String, String](plans.asInstanceOf[java.util.Map[String, String]]).toMap
+            var planList: List[MarketPlacePlan] = planInput.map(x => {
               val plandesc: Map[String, String] = mapAsScalaMap[String, String](x._2.asInstanceOf[java.util.Map[String, String]]).toMap
-              planList += MarketPlacePlan(plandesc.get(plandesc.keySet.head).getOrElse(""), String.valueOf(x._1))
-            })
+               MarketPlacePlan(plandesc.get(plandesc.keySet.head).getOrElse(""), String.valueOf(x._1))
+            }).toList
+            println("-------- planList " + planList)
             val envs = innerhashmapinput.get("envs").getOrElse(new java.util.LinkedHashMap[String,String]())
-            val envinput: Map[String, String] = mapAsScalaMap[String, String](envs.asInstanceOf[java.util.Map[String, String]]).toMap
-            var envList = new ListBuffer[KeyValueField]()
+            println("-------- envs " + envs)
+            val envInput: Map[String, String] = mapAsScalaMap[String, String](envs.asInstanceOf[java.util.Map[String, String]]).toMap
+            var envList: List[KeyValueField] = (envInput.map { x => if (String.valueOf(x._2) == "null")  KeyValueField(String.valueOf(x._1),"") else KeyValueField(String.valueOf(x._1), String.valueOf(x._2))}).toList
+            println("-------- envList" + planList)
 
-            envinput.map(x => {
-            var temp = ""
-              if (String.valueOf(x._2) != "null") {
-                   temp = String.valueOf(x._2)
-              }
-             envList += KeyValueField(String.valueOf(x._1), temp)
-            })
-            //MarketPlaceInput and MarketPlacePlans are loaded dynamically to mkMap
             mkMap += lkey -> MarketPlaceInput(lkey, innerhashmapinput.get("cattype").getOrElse(""), String.valueOf(innerhashmapinput.get("order").getOrElse("")), innerhashmapinput.get("image").getOrElse(""), innerhashmapinput.get("url").getOrElse("").trim, envList.toList , planList.toList)
         }
       }
     }
-    case None => println("Failure")
+    case None => println("Failed to parse the " + Constants.MEGAM_MKT_YAML)
   }
 }
