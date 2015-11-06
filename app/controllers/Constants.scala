@@ -60,4 +60,7 @@ object Constants {
   val CREATE_REQUEST = "CREATE"
 
   val MEGAM_MKT_YAML = MConfig.marketplaces_yaml
+
+  val TOSCA_DOCKER = "dockercontainer"
+
 }

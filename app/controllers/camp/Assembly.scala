@@ -23,7 +23,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import models.tosca._
-import controllers.Constants.DEMO_EMAIL
+import controllers.Constants.{ DEMO_EMAIL, TOSCA_DOCKER }
 import controllers.stack._
 import controllers.stack.APIAuthElement
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
@@ -78,7 +78,7 @@ object Assembly extends Controller with APIAuthElement {
           models.tosca.Assembly.update(email, clientAPIBody) match {
             case Success(succ) =>
               //Ok(AssemblyResults.toJson(succ, true))
-              
+
               val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
               CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
                 play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "published successfully."))
@@ -110,20 +110,19 @@ object Assembly extends Controller with APIAuthElement {
 
   def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "buildCI:Entry"))
-    val DOCKERQUEUE = "dockerstate"
 
   (Validation.fromTryCatchThrowable[Result,Throwable] {
           val clientAPIBody = "{\"cat_id\": \"" + id + "\",\"cattype\":\"" + "" + "\",\"name\":\"" + name + "\",\"action\":\"" + "redeploy" + "\"}"
 
           models.Requests.createforExistNode(clientAPIBody) match {
-            case Success(succ) =>              
+            case Success(succ) =>
                 val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah", "hah", "lah"))
                 var qName = ""
-                   if (tuple_succ._3 != "Microservices") {
+                   if (tuple_succ._3 != TOSCA_DOCKER) {
                           qName = tuple_succ._2
                     } else {
-                        qName = DOCKERQUEUE
-                    }         
+                        qName = MConfig.dockerup_queue
+                    }
                 CloudPerNodePublish(qName, tuple_succ._1).dop.flatMap { x =>
                   Status(CREATED)(FunnelResponse(CREATED, """CatRequest initiation instruction submitted successfully.
             |
@@ -141,9 +140,9 @@ object Assembly extends Controller with APIAuthElement {
               Status(rn.code)(rn.toJson(true))
             }
           }
-    
+
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
-  
+
+
 }

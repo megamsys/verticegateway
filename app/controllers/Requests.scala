@@ -25,7 +25,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.stack._
-import controllers.Constants.{ DEMO_EMAIL, DELETE_REQUEST , CREATE_REQUEST}
+import controllers.Constants.{ DEMO_EMAIL, DELETE_REQUEST , CREATE_REQUEST, TOSCA_DOCKER}
 import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
@@ -65,7 +65,7 @@ object Requests extends Controller with APIAuthElement {
             |Dry launch of {:node_name=>'%s', :req_type=>'%s'}
             |No actual launch in cloud. Signup for a new account to get started.""".format(tuple_succ._2, tuple_succ._3).stripMargin, "Megam::Request").toJson(true))
               else {
-                val pubres = if (tuple_succ._3 != "Microservices") {
+                val pubres = if (tuple_succ._3 != TOSCA_DOCKER) {
                   if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) {
                     for {
                     csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop
