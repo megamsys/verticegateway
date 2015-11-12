@@ -56,11 +56,10 @@ object Constants {
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megambox.com"
 
-  val DELETE_REQUEST = "DESTROY"
-  val CREATE_REQUEST = "CREATE"
-
   val MEGAM_MKT_YAML = MConfig.marketplaces_yaml
 
-  val TOSCA_DOCKER = "dockercontainer"
-
+  val CREATE ="create"
+  val DELETE = "destroy"
+  val STATE = "state"
+  val BUILD = "build"
 }

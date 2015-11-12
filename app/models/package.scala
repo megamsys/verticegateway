@@ -58,46 +58,17 @@ package object models {
     def empty: RequestResults = nel(emptyRR.head, emptyRR.tail)
   }
 
-//  implicit def transformPredefCloudResults22Json(prres: PredefCloudResults): Option[String] = PredefCloudResults.toJson(prres, true).some
-
-/**
- *  type CloudToolSettingResults = NonEmptyList[Option[CloudToolSettingResult]]
-
- *  object CloudToolSettingResults {
- *   val emptyPC = List(Option.empty[CloudToolSettingResult])
-
- *   //screwy. you pass an instance. may be FunnelResponses needs be to a case class
- *   def toJValue(prres: CloudToolSettingResults): JValue = {
- *     import net.liftweb.json.scalaz.JsonScalaz.toJSON
- *     import models.json.CloudToolSettingResultsSerialization.{ writer => CloudToolSettingResultsWriter }
- *     toJSON(prres)(CloudToolSettingResultsWriter)
- *   }
-
- *  //screwy. you pass an instance. may be FunnelResponses needs be to a case class
- *   def toJson(nres: CloudToolSettingResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
- *     pretty(render(toJValue(nres)))
- *   } else {
- *     compactRender(toJValue(nres))
- *   }
-
- *   def apply(m: CloudToolSettingResult): CloudToolSettingResults = nels(m.some)
- *   def empty: CloudToolSettingResults = nel(emptyPC.head, emptyPC.tail)
- * }
-*/
-
   type SshKeyResults = NonEmptyList[Option[SshKeyResult]]
 
   object SshKeyResults {
     val emptyPC = List(Option.empty[SshKeyResult])
 
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(prres: SshKeyResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
       import models.json.SshKeyResultsSerialization.{ writer => SshKeyResultsWriter }
       toJSON(prres)(SshKeyResultsWriter)
     }
 
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: SshKeyResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(nres)))
     } else {
@@ -113,14 +84,12 @@ package object models {
   object MarketPlaceResults {
     val emptyPC = List(Option.empty[MarketPlaceResult])
 
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(prres: MarketPlaceResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
       import models.json.MarketPlaceResultsSerialization.{ writer => MarketPlaceResultsWriter }
       toJSON(prres)(MarketPlaceResultsWriter)
     }
 
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: MarketPlaceResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(nres)))
     } else {
@@ -131,53 +100,6 @@ package object models {
     def empty: MarketPlaceResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-  type MarketPlaceAddonsResults = NonEmptyList[Option[MarketPlaceAddonsResult]]
-
-  object MarketPlaceAddonsResults {
-    val emptyRR = List(Option.empty[MarketPlaceAddonsResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(nres: MarketPlaceAddonsResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.MarketPlaceAddonsResultsSerialization.{ writer => MarketPlaceAddonsResultsWriter }
-      toJSON(nres)(MarketPlaceAddonsResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: MarketPlaceAddonsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: Option[MarketPlaceAddonsResult]) = nels(m)
-    def apply(m: MarketPlaceAddonsResult): MarketPlaceAddonsResults = MarketPlaceAddonsResults(m.some)
-    def empty: MarketPlaceAddonsResults = nel(emptyRR.head, emptyRR.tail)
-  }
-
-  type MarketPlaceAddonsConfigurationResults = NonEmptyList[Option[MarketPlaceAddonsConfigurationResult]]
-
-  object MarketPlaceAddonsConfigurationResults {
-    val emptyRR = List(Option.empty[MarketPlaceAddonsConfigurationResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(nres: MarketPlaceAddonsConfigurationResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.MarketPlaceAddonsConfigurationResultsSerialization.{ writer => MarketPlaceAddonsConfigurationResultsWriter }
-      toJSON(nres)(MarketPlaceAddonsConfigurationResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: MarketPlaceAddonsConfigurationResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: Option[MarketPlaceAddonsConfigurationResult]) = nels(m)
-    def apply(m: MarketPlaceAddonsConfigurationResult): MarketPlaceAddonsConfigurationResults = MarketPlaceAddonsConfigurationResults(m.some)
-    def empty: MarketPlaceAddonsConfigurationResults = nel(emptyRR.head, emptyRR.tail)
-  }
 
   type MarketPlacePlans = List[MarketPlacePlan]
 
@@ -205,8 +127,6 @@ package object models {
     def apply(plansList: List[MarketPlacePlan]): MarketPlacePlans = plansList
 
     def empty: List[MarketPlacePlan] = emptyRR
-
   }
-
 
 }

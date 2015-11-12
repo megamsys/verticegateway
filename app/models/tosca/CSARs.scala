@@ -181,17 +181,17 @@ object CSARs {
     }).head //return the folded element in the head.
   }
 
-  def push(email: String, input: String): ValidationNel[Throwable, AMQPResponse] = {
+  def push(email: String, input: String): ValidationNel[Throwable, Option[controllers.stack.PQd]] = {
     for {
       csar <- (CSARs.getCSAR(input) leftMap { err: NonEmptyList[Throwable] => err })
       csir <- (getCsarLink(csar) leftMap { err: NonEmptyList[Throwable] => err })
       json <- (getYaml(csir) leftMap { err: NonEmptyList[Throwable] => err })
       asm <- (Assemblies.create(email, json) leftMap { err: NonEmptyList[Throwable] => err })
-      request <- (models.Requests.createforNewNode("{\"cat_id\": \"" + asm.get.id + "\",\"name\": \"" + asm.get.name + "\",\"cattype\": \"create\"}") leftMap { err: NonEmptyList[Throwable] => err })
-      amqp <- (CloudStandUpPublish(request.get._2, request.get._1).dop leftMap { err: NonEmptyList[Throwable] => err })
+      request <- (models.Requests.createAndPub(
+        RequestInput(asm.get.id, asm.get.name, "type ?", CREATE, STATE).json) leftMap { err: NonEmptyList[Throwable] => err })
     } yield {
       play.api.Logger.debug("tosca.CSARs Pushed: csars:" + json)
-      amqp
+      request
     }
   }
 

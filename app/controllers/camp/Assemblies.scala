@@ -22,7 +22,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import models.tosca._
-import controllers.Constants.DEMO_EMAIL
+import controllers.Constants._
 import controllers.stack._
 import controllers.stack.APIAuthElement
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
@@ -41,7 +41,7 @@ object Assemblies extends Controller with APIAuthElement {
   def post = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "post:Entry"))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
@@ -50,51 +50,32 @@ object Assemblies extends Controller with APIAuthElement {
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "request funneled."))
           models.tosca.Assemblies.create(email, clientAPIBody) match {
             case Success(asm_succ) => {
-                    if (email.trim.equalsIgnoreCase(DEMO_EMAIL)) {
-                Status(CREATED)(FunnelResponse(CREATED, """Assemblies initiation dry run submitted successfully.
+              if (email.trim.equalsIgnoreCase(DEMO_EMAIL)) {
+                Status(CREATED)(FunnelResponse(CREATED, """Dry run submitted successfully.
             |
             |
             |No actual launch in cloud. Signup for a new account to get started.""", "Megam::Assemblies").toJson(true))
               } else {
-                /*This isn't correct. Revisit, as the testing progresses.
-               We need to trap success/failures.
-               */
-                asm_succ match {             
-                  case Some(asm) =>
-                    val req = "{\"cat_id\": \"" + asm.id + "\",\"name\": \"" + asm.name + "\",\"cattype\": \"type\",\"action\": \"create\",\"category\": \"state\"}"
-                  models.Requests.createforExistNode(req) match {
-
+                asm_succ match {
+                  case Some(asm) =>  {
+                    models.Requests.createAndPub(RequestInput(asm.id, "asm.type",
+                        asm.name, CREATE,STATE).json) match {
                       case Success(succ) =>
-                        //val tuple_succ = succ.getOrElse(("Nah", "Gah", "Hah"))
-                         val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah", "hah", "lah"))
+                        Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
+            |
+            |Check on the overview for further updates.""", "Megam::Request").toJson(true))
 
-                        (CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
-                          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "published successfully."))
-                          FunnelResponse(CREATED, """Assemblies initiation instruction submitted successfully.
-            |
-            |Megam is cranking the cloud for you. It will be ready shortly.""".format(tuple_succ._2, tuple_succ._1).stripMargin, "Megam::Assemblies").successNel[Throwable]
-                        } match {
-                          //this is only a temporary hack.
-                          case Success(succ_cpc) =>
-                            Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
-            |
-            |Check on the node for further updates. It will be ready shortly.""", "Megam::Request").toJson(true))
-                          case Failure(err) =>
-                            Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
-            |
-            |Retry again, our queue servers are crowded""", "Megam::Request").toJson(true))
-                        })
                       case Failure(err) => {
                         val rn: FunnelResponse = new HttpReturningError(err)
                         Status(rn.code)(rn.toJson(true))
                       }
                     }
+                  }
                   case None =>
                     Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Assemblies initiation instruction submission failed.
             |
             |Retry again""", "Megam::Assemblies").toJson(true))
                 }
-
               }
             }
             case Failure(err) => {
@@ -120,7 +101,7 @@ object Assemblies extends Controller with APIAuthElement {
     play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assemblies", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
 
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
@@ -150,7 +131,7 @@ object Assemblies extends Controller with APIAuthElement {
    * Output: JSON (AssembliesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))

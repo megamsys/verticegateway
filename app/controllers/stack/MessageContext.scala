@@ -24,27 +24,19 @@ import org.megam.common.amqp._
 import org.megam.common.amqp.request._
 import org.megam.common.amqp.response._
 import org.megam.common.concurrent._
-import com.typesafe.config._
 import play.api.Logger
-import play.api.Play._
 
 /**
  * @author rajthilak
  *
  */
 
-/*
- * Used it to perform rate limiting
- * TO-DO: Yet to me implemented.
- *
- */
+
 trait MessageContext {
 
   play.api.Logger.debug("%-20s -->[%s]".format("MessageContext:", "Entry"))
 
-  //by default everybody belongs to megam cloud farm
-  //this will be a list, as any body can belong to multiple cloud farms.
-  def cloudFarm: String = MConfig.cloudper_node_queue_prefix
+  def cloudFarm: String = MConfig.amqp_prefix + "_"
   def queueName: String
   def exchangeName: String
 

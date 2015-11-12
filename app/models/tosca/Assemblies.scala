@@ -92,7 +92,6 @@ object KeyValueField {
   }
 
   def fromJson(json: String): Result[KeyValueField] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    play.api.Logger.debug(("%-20s -->[%s]").format("--------------------->", json))
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -214,7 +213,6 @@ object Assemblies {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
               (AssembliesResult.fromJson(xs.value) leftMap
                 { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
                   JSONParsingError(t)

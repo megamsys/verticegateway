@@ -459,29 +459,6 @@ package object tosca {
 
   }
 
-  type ContiniousIntegrationResults = NonEmptyList[Option[ContiniousIntegrationResult]]
-
-  object ContiniousIntegrationResults {
-    val emptyPC = List(Option.empty[ContiniousIntegrationResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: ContiniousIntegrationResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.ContiniousIntegrationResultsSerialization.{ writer => ContiniousIntegrationResultsWriter }
-      toJSON(prres)(ContiniousIntegrationResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: ContiniousIntegrationResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: ContiniousIntegrationResult): ContiniousIntegrationResults = nels(m.some)
-    def empty: ContiniousIntegrationResults = nel(emptyPC.head, emptyPC.tail)
-  }
-
   type BindLinks = List[String]
 
   object BindLinks {

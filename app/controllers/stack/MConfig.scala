@@ -28,16 +28,14 @@ object MConfig {
   val marketplaces_yaml = play.api.Play.application(play.api.Play.current).configuration.getString("megam.marketplaces").get
   val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get
   val amqpurl = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.url").get
-  val routing_key = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.routing.key").get
   val snowflakeHost = play.api.Play.application(play.api.Play.current).configuration.getString("sf.host").get
   val snowflakePort: Int = play.api.Play.application(play.api.Play.current).configuration.getInt("sf.port").get
   val snowflakeurl = snowflakeHost + ":" + snowflakePort
-  val cloudstandup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.queue").get
-  val cloudstandup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.cloudstandup.exchange").get
+
+  val amqp_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.prefix").get
+  val routing_key = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.routing.key").get
+  val standup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.vmup.queue").get
+  val standup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.vmup.exchange").get
   val dockerup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.dockerup.queue").get
   val dockerup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.dockerup.exchange").get
-  val cloudper_node_queue_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.queue.prefix").get
-  val cloudper_node_exchage_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.node.exchange.prefix").get
-  val event_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.event.queue").get
-  val event_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.global.event.exchange").get
-}
+  }

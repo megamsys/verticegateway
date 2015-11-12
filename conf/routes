@@ -31,7 +31,6 @@ POST   /v2/domains/content              controllers.camp.Domains.post
 GET    /v2/domains/:id                  controllers.camp.Domains.show(id: String)
 
 
-
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
@@ -41,10 +40,6 @@ GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: Strin
 POST   /v2/marketplaces/content         controllers.MarketPlaces.post
 GET    /v2/marketplaces                 controllers.MarketPlaces.list
 GET    /v2/marketplaces/:id             controllers.MarketPlaces.show(id: String)
-
-#MarketPlaceAddons
-POST   /v2/marketplaceaddons/content    controllers.MarketPlaceAddons.post
-#GET   /v2/marketplaceaddons/:id        controllers.MarketPlaceAddons.show(id: String)
 
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post
@@ -58,41 +53,42 @@ GET	   /v2/assemblies	          		    controllers.camp.Assemblies.list
 GET    /v2/assemblies/:id         		  controllers.camp.Assemblies.show(id: String)
 GET    /v2/assembly/:id           		  controllers.camp.Assembly.show(id: String)
 POST   /v2/assembly/update       	 	    controllers.camp.Assembly.update
-POST   /v2/assembly/build/:id/:name   	  controllers.camp.Assembly.build(id: String, name: String)
+POST   /v2/assembly/build/:id/:name     controllers.camp.Assembly.build(id: String, name: String)
 GET    /v2/components/:id         		  controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
 
-# Requests for Assemblies
+# Requests
 POST   /v2/requests/content            	controllers.Requests.post
 #GET   /v2/requests                     controllers.Requests.list()
 #GET   /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
 
-#Continious Integration
-POST   /v2/cis/content                  controllers.camp.ContiniousIntegration.post
-#GET   /v2/cis							            controllers.camp.ContiniousIntegration.list
-
 
 #Sensors
-POST   /v2/sensors/content               controllers.camp.Sensors.post
-GET	   /v2/sensors          		          controllers.camp.Sensors.list
-GET    /v2/sensors/:id           		  controllers.camp.Sensors.show(id: String)
-#billings
-POST     /v2/subscriptions/content		    controllers.billing.Subscriptions.post
-POST	 /v2/credithistories/content		  controllers.billing.Credithistories.post
-POST 	 /v2/billings/content			        controllers.billing.Billings.post
-POST	 /v2/availableunits/content	 	    controllers.billing.Availableunits.post
-POST	 /v2/discounts/content			      controllers.billing.Discounts.post
-GET      /v2/discounts                  controllers.billing.Discounts.list
+POST   /v2/sensors/content              controllers.camp.Sensors.post
+GET	   /v2/sensors          		        controllers.camp.Sensors.list
+GET    /v2/sensors/:id           		    controllers.camp.Sensors.show(id: String)
 
+#billings
 POST	 /v2/balances/content			        controllers.billing.Balances.post
 POST	 /v2/balances/update			        controllers.billing.Balances.update
-GET	   /v2/balances/:id               controllers.billing.Balances.show(id: String)
+GET	   /v2/balances/:id                 controllers.billing.Balances.show(id: String)
+
+POST 	 /v2/billings/content			        controllers.billing.Billings.post
 
 POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
-GET    /v2/billedhistories             controllers.billing.Billedhistories.list
+GET    /v2/billedhistories              controllers.billing.Billedhistories.list
 
-GET    /v2/promos/:id                    controllers.billing.Promos.show(id: String)
+GET    /v2/promos/:id                   controllers.billing.Promos.show(id: String)
 
 POST   /v2/invoices/content             controllers.billing.Invoices.post
 GET    /v2/invoices                     controllers.billing.Invoices.list
-GET	   /v2/invoices/:id               controllers.billing.Invoices.show(id: String)
+GET	   /v2/invoices/:id                 controllers.billing.Invoices.show(id: String)
+
+POST   /v2/subscriptions/content		    controllers.billing.Subscriptions.post
+
+POST	 /v2/credithistories/content		  controllers.billing.Credithistories.post
+
+POST	 /v2/availableunits/content	 	    controllers.billing.Availableunits.post
+
+POST	 /v2/discounts/content			      controllers.billing.Discounts.post
+GET    /v2/discounts                    controllers.billing.Discounts.list

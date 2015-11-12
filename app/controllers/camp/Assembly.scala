@@ -23,7 +23,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import models.tosca._
-import controllers.Constants.{ DEMO_EMAIL, TOSCA_DOCKER }
+import controllers.Constants._
 import controllers.stack._
 import controllers.stack.APIAuthElement
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
@@ -50,7 +50,6 @@ object Assembly extends Controller with APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Assembly wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "request funneled."))
-
           models.tosca.Assembly.findById(List(id).some) match {
             case Success(succ) =>
               Ok(AssemblyResults.toJson(succ, true))
@@ -76,26 +75,22 @@ object Assembly extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.tosca.Assembly.update(email, clientAPIBody) match {
-            case Success(succ) =>
-              //Ok(AssemblyResults.toJson(succ, true))
-
-              val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah"))
-              CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop.flatMap { x =>
-                play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "published successfully."))
-                Status(CREATED)(FunnelResponse(CREATED, """CatUpdate initiation instruction submitted successfully.
+            case Success(succ) =>{
+              models.Requests.createAndPub(RequestInput("id", "", "name", BUILD, STATE).json) match {
+                case Success(succ_cpc) =>
+                    Status(CREATED)(FunnelResponse(CREATED, """Update initiation instruction submitted successfully.
             |
-            |The App update request is working for you. It will be ready shortly.""", "Megam::Assembly").toJson(true)).successNel[Throwable]
-              } match {
-                //this is only a temporary hack.
-                case Success(succ_cpc) => succ_cpc
+            |Engine is cranking.""", "Megam::Assembly").toJson(true))
                 case Failure(err) =>
-                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """AppUpdateRequest initiation submission failed.
+                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Update initiation instruction failed.
             |
             |Retry again, our queue servers are crowded""", "Megam::Assembly").toJson(true))
-              }
-            case Failure(err) =>
+            }
+          }
+          case Failure(err) =>{
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
+            }
           }
         }
         case Failure(err) => {
@@ -109,40 +104,18 @@ object Assembly extends Controller with APIAuthElement {
 
 
   def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "buildCI:Entry"))
-
+    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "build ci:Entry"))
   (Validation.fromTryCatchThrowable[Result,Throwable] {
-          val clientAPIBody = "{\"cat_id\": \"" + id + "\",\"cattype\":\"" + "" + "\",\"name\":\"" + name + "\",\"action\":\"" + "redeploy" + "\"}"
-
-          models.Requests.createforExistNode(clientAPIBody) match {
+    models.Requests.createAndPub(RequestInput(id,"",name, BUILD,STATE).json) match {
             case Success(succ) =>
-                val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah", "hah", "lah"))
-                var qName = ""
-                   if (tuple_succ._3 != TOSCA_DOCKER) {
-                          qName = tuple_succ._2
-                    } else {
-                        qName = MConfig.dockerup_queue
-                    }
-                CloudPerNodePublish(qName, tuple_succ._1).dop.flatMap { x =>
-                  Status(CREATED)(FunnelResponse(CREATED, """CatRequest initiation instruction submitted successfully.
-            |
-            |The CatRequest is processed by our engine. It will be ready shortly.""", "Megam::CatRequests").toJson(true)).successNel[Throwable]
-                } match {
-                  //this is only a temporary hack.
-                  case Success(succ_cpc) => succ_cpc
-                  case Failure(err) =>
-                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """CatRequest initiation submission failed.
-            |
-            |Retry again, our queue servers are crowded""", "Megam::Requests").toJson(true))
-                }
-            case Failure(err) => {
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-            }
-          }
-
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+             Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
+             |
+             |Engine is cranking.. It will be ready shortly.""", "Megam::Requests").toJson(true))
+            case Failure(err) =>
+            Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
+             |
+             |Retry again, our queue servers are crowded""", "Megam::Requests").toJson(true))
+             }
+       }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-
-
 }

@@ -25,7 +25,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import models._
 import controllers.stack._
-import controllers.Constants.{ DEMO_EMAIL, DELETE_REQUEST , CREATE_REQUEST, TOSCA_DOCKER}
+import controllers.Constants._
 import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
@@ -38,8 +38,6 @@ import play.api.mvc.Result
  *
  */
 object Requests extends Controller with APIAuthElement {
-
-
 
   /*
    * parse.tolerantText to parse the RawBody
@@ -55,49 +53,16 @@ object Requests extends Controller with APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Request", "request funneled."))
-          models.Requests.createforExistNode(clientAPIBody) match {
+          models.Requests.createAndPub(clientAPIBody) match {
             case Success(succ) =>
-              val tuple_succ = succ.getOrElse((Map.empty[String, String], "Bah", "nah", "hah", "lah"))
-              //This isn't correct. Revisit, as the testing progresses.We need to trap success/failures.
               if (email.trim.equalsIgnoreCase(DEMO_EMAIL))
                 Status(CREATED)(FunnelResponse(CREATED, """Request initiation dryrun submitted successfully.
             |
-            |Dry launch of {:node_name=>'%s', :req_type=>'%s'}
-            |No actual launch in cloud. Signup for a new account to get started.""".format(tuple_succ._2, tuple_succ._3).stripMargin, "Megam::Request").toJson(true))
-              else {
-                val pubres = if (tuple_succ._3 != TOSCA_DOCKER) {
-                  if (tuple_succ._4.trim.equalsIgnoreCase(DELETE_REQUEST)) {
-                    for {
-                    csup <- CloudStandUpPublish(tuple_succ._2, tuple_succ._1).dop
-                   } yield {}
-
-                   } else {
-                    for {
-                     csup <- CloudPerNodePublish(tuple_succ._2, tuple_succ._1).dop
-                   } yield {}
-
-                  }
-                } else {
-                    for {
-                     csup <- CloudPerNodePublish(MConfig.dockerup_queue, tuple_succ._1).dop
-                   } yield {}
-                  }
-
-               play.api.Logger.debug(("%-20s -->[%s]").format("controllers.node.update", pubres))
-                pubres flatMap { x =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Requests", "published successfully."))
+            |No actual launch in cloud. Signup for a new account to get started.""".stripMargin, "Megam::Request").toJson(true))
+              else
                   Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
-            |
-            |Check on the node for further updates. It will be ready shortly.""", "Megam::Request").toJson(true)).successNel[Throwable]
-                } match {
-                  //this is only a temporary hack.
-                  case Success(succ_cpc) => succ_cpc
-                  case Failure(err) =>
-                    Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
-            |
-            |Retry again, our queue servers are crowded""", "Megam::Request").toJson(true))
-                }
-              }
+                 |
+                 |Check on the overview for updates. It will be ready shortly.""", "Megam::Request").toJson(true))
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -111,6 +76,4 @@ object Requests extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-
-
 }

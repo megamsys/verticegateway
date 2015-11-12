@@ -24,6 +24,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import org.megam.util.Time
 import controllers.stack._
+import models.RequestResult
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
 import models.tosca._
@@ -52,8 +53,6 @@ case object Hellow {
   val SPACE = "SPACE"
   val CPU_LOAD = "CPU_LOAD"
   val CPU_CORES = "CPU_CORES"
-
-  val DUMMY_REQ = "{\"cat_id\": \"DUM0001\",\"name\": \"VEERAPAN\",\"cattype\": \"create\"}"
 
   val MEMCACHE = "Memcache"
   val SNOWFLAKE = "Snowflake"
@@ -95,15 +94,13 @@ case object Hellow {
   }
 
   //ping rabbitmq, by droping a DUM0001 req
-  val dummy = Map[String,String]("dummy" -> "dum")
-  private val amqp = CloudStandUpPublish("noname_stupid", dummy).dop match {
+  private val amqp = new AOneWasher(new PQd(RequestResult("","","","","test","",""))).wash match {
     case Success(succ_uid) => (MConfig.amqpurl, Some(RUNNING))
     case Failure(erruid) => (MConfig.amqpurl, none)
   }
 
   //we don't memcache today
   private val memcache = ("None", none)
-
 
   val sharks = Map(RIAK -> gwr, SNOWFLAKE -> uid, RABBITMQ -> amqp, MEMCACHE -> memcache)
 
