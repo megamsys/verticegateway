@@ -26,14 +26,12 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.{ MarketPlacePlan }
+import models.base.MarketPlacePlan
 
 /**
  * @author rajthilak
  *
  */
-
 
 object MarketPlacePlanSerialization extends SerializationBase[MarketPlacePlan] {
   protected val DescriptionKey = "description"

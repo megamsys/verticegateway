@@ -17,22 +17,15 @@ package controllers.camp
 
 import scalaz._
 import Scalaz._
-import scalaz.NonEmptyList._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 
-import scalaz.Validation._
-import models._
 import models.tosca._
-import controllers.Constants.DEMO_EMAIL
-import controllers.stack._
-import controllers.stack.APIAuthElement
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import controllers.funnel.FunnelErrors._
-import org.megam.common.amqp._
-import play.api._
 import play.api.mvc._
-import play.api.mvc.Result
 
-object Components extends Controller with APIAuthElement {
+object Components extends Controller with controllers.stack.APIAuthElement {
 
   /*
    * GET: findById: Show component for a compid per user(by email)
@@ -40,16 +33,11 @@ object Components extends Controller with APIAuthElement {
    * Output: JSON (ComponentsResults)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Components", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("id", id))
-
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Components wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Components", "request funneled."))
-
           models.tosca.Component.findById(List(id).some) match {
             case Success(succ) =>
               Ok(ComponentsResults.toJson(succ, true))

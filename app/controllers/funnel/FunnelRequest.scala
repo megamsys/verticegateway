@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,8 @@ package controllers.funnel
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
-import scalaz.NonEmptyList._
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
 import controllers.funnel._
@@ -54,7 +51,7 @@ case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[Str
     case Some(succ) => Validation.success[Throwable, Option[String]](succ.some)
     case None => Validation.failure[Throwable, Option[String]](new MalformedHeaderError(maybeEmail.get,
       """Email is blank or invalid. Kindly provide us an email in the standard format.\n"
-      eg: goodemail@megam.com"""))
+      eg: goodemail@megam.io"""))
   }
   /**
    * Hmm this has created a dependency with GoofyCrypto. Not a good one.
@@ -65,7 +62,6 @@ case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[Str
   val mkSign = {
     val ab = ((clientAPIDate ++ clientAPIPath ++ calculateMD5(clientAPIBody)) map { a: String => a
     }).mkString("\n")
-    play.api.Logger.debug(("%-20s -->[%s]").format("FunnelRequest:mkSign", ab))
     ab
   }
 
@@ -101,9 +97,6 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
    * A valid email exists, then send back a ValidationNel.success with FunneledRequest wrapped in Option.
    */
   def funneled: ValidationNel[Throwable, Option[FunneledRequest]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("FunnelRB:funneled", rawheader.toString))
-    play.api.Logger.debug(("%-20s -->[%s]").format("FunnelRB:funneled", frOpt.getOrElse("Funneled Request is NONE! Bummer dude.").toString))
-
     frOpt match {
       case Some(fr) => fr.wowEmail.leftMap { t: Throwable => t }.toValidationNel.flatMap {
         _: Option[String] => Validation.success[Error, Option[FunneledRequest]](fr.some).toValidationNel

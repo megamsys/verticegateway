@@ -26,14 +26,13 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.billing.{ BilledhistoriesResult }
+import models.billing._
 
 /**
  * @author rajthilak
  *
  */
-class BilledhistoriesResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[BilledhistoriesResult] {
+class BilledhistoriesResultSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[BilledhistoriesResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"

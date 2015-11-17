@@ -10,26 +10,10 @@ GET    /                                controllers.Application.index
 GET    /iluvapis                        controllers.Application.iluvapis
 GET    /avastye                         controllers.Application.avastye
 
-# Authentication - HMAC
-POST   /v2/auth                         controllers.Application.authenticate
-
 # Account
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 POST   /v2/accounts/update       	 	    controllers.Accounts.update
-
-
-#Organizations
-POST   /v2/organizations/content        controllers.camp.Organizations.post
-POST   /v2/organizations/update         controllers.camp.Organizations.update
-GET    /v2/organizations/:id            controllers.camp.Organizations.show(id: String)
-GET	   /v2/organizations				controllers.camp.Organizations.list()
-
-
-#Domains
-POST   /v2/domains/content              controllers.camp.Domains.post
-GET    /v2/domains/:id                  controllers.camp.Domains.show(id: String)
-
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
@@ -40,6 +24,23 @@ GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: Strin
 POST   /v2/marketplaces/content         controllers.MarketPlaces.post
 GET    /v2/marketplaces                 controllers.MarketPlaces.list
 GET    /v2/marketplaces/:id             controllers.MarketPlaces.show(id: String)
+
+# Requests
+POST   /v2/requests/content            	controllers.Requests.post
+#GET   /v2/requests                     controllers.Requests.list()
+#GET   /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
+
+#Organizations
+POST   /v2/organizations/content        controllers.team.Organizations.post
+POST   /v2/organizations/update         controllers.team.Organizations.update
+GET    /v2/organizations/:id            controllers.team.Organizations.show(id: String)
+GET	   /v2/organizations	         			controllers.team.Organizations.list()
+
+#Domains
+POST   /v2/domains/content              controllers.team.Domains.post
+GET    /v2/domains/:id                  controllers.team.Domains.show(id: String)
+
+
 
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post
@@ -56,12 +57,6 @@ POST   /v2/assembly/update       	 	    controllers.camp.Assembly.update
 POST   /v2/assembly/build/:id/:name     controllers.camp.Assembly.build(id: String, name: String)
 GET    /v2/components/:id         		  controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
-
-# Requests
-POST   /v2/requests/content            	controllers.Requests.post
-#GET   /v2/requests                     controllers.Requests.list()
-#GET   /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
-
 
 #Sensors
 POST   /v2/sensors/content              controllers.camp.Sensors.post

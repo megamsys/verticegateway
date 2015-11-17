@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
 */
 package controllers.stack
 
-import controllers.Constants._
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
@@ -23,14 +22,10 @@ import scala.concurrent.Future
 
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
-import controllers.stack.stack._
+import controllers.Constants._
 import controllers.funnel._
 import controllers.funnel.FunnelErrors._
-import models._
-import play.api._
-import play.api.Logger
 import play.api.mvc._
-import play.api.mvc.Result
 import play.api.libs.iteratee.Enumerator
 
 /**
@@ -38,33 +33,32 @@ import play.api.libs.iteratee.Enumerator
  *
  */
 /*
- * sub trait for stackable controller, proceed method was override here for our request changes, 
+ * sub trait for stackable controller, proceed method was override here for our request changes,
  * And result return in super trait proceed method,
- * when stack action is called then this stackable controller is executed  
+ * when stack action is called then this stackable controller is executed
  */
 trait APIAuthElement extends StackableController {
 
   self: Controller =>
-    
-  
-case object APIAccessedKey extends RequestAttributeKey[Option[String]]
+
+  case object APIAccessedKey extends RequestAttributeKey[Option[String]]
 
   /**
    * If HMAC authentication is true, the req send in super class
    * otherwise send out a json formatted error
    */
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[Result]): Future[Result] = {
-    play.api.Logger.debug("<M>>>------------------------------------->")
-    play.api.Logger.debug("%-20s -->[%s]".format("APIAuthElement:", "Entry"))
-
+    play.api.Logger.debug("%s%s====> %s%s%s ".format(Console.CYAN, Console.BOLD, req.host, req.path, Console.RESET))
+    play.api.Logger.debug("%s%sHEAD:%s %s%s%s".format(Console.MAGENTA, Console.BOLD, Console.RESET, Console.BLUE, req.headers, Console.RESET))
+      play.api.Logger.debug("%s%sBODY:%s %s%s%s\n".format(Console.MAGENTA, Console.BOLD, Console.RESET, Console.BLUE, req.headers, Console.RESET))
     SecurityActions.Authenticated(req) match {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {
         val g = Action { implicit request =>
           val rn: FunnelResponse = new HttpReturningError(err) //implicitly loaded.
           Result(header = ResponseHeader(rn.code, Map(CONTENT_TYPE -> "text/plain")),
-            body = Enumerator(rn.toJson(true).getBytes(UTF8Charset) ))
-         }
+            body = Enumerator(rn.toJson(true).getBytes(UTF8Charset)))
+        }
         val origReq = req.asInstanceOf[Request[AnyContent]]
         g(origReq)
       }
@@ -77,4 +71,3 @@ case object APIAccessedKey extends RequestAttributeKey[Option[String]]
   implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): Option[String] = req.get(APIAccessedKey).get
 
 }
-

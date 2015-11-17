@@ -25,12 +25,8 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.tosca._
-import models.tosca.Organizations
+import models.team.Organizations
 import test.{ Context }
-
-
- * @author morpheyesh
- *
 
 
 class OrganizationsSpec extends Specification {
@@ -39,17 +35,13 @@ class OrganizationsSpec extends Specification {
       OrganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
-      //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-     // "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
-     //   "Correctly do LIST request with a valid email id" ! List.succeeds ^
-     //   "Correctly do UPDATE request with a valid related orgs body" ! Update.succeeds ^
+      "Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
+      "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+      "Correctly do LIST request with a valid email id" ! List.succeeds ^
+      "Correctly do UPDATE request with a valid related orgs body" ! Update.succeeds ^
       end
-
-
-   * Change the body content in method bodyToStick
-
 
   case object Post extends Context {
 
@@ -70,11 +62,6 @@ class OrganizationsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-  //Success
-
-
-   * test case for invalidUrl
-
 
   case object PostInvalidUrl extends Context {
 
@@ -96,11 +83,6 @@ class OrganizationsSpec extends Specification {
     }
 
   }
-  //Success
-
-
-   * test case for invalidBody
-
 
   case object PostInvalidBody extends Context {
 
@@ -122,12 +104,6 @@ class OrganizationsSpec extends Specification {
     }
   }
 
-
-   * Testing 'GET' request.
-   *
-   *
-
-
   case object Get extends Context {
     protected override def urlSuffix: String = "organizations/Megam"
 
@@ -140,7 +116,7 @@ class OrganizationsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-  //Success
+
 
   case object List extends Context {
     protected override def urlSuffix: String = "organizations"
@@ -155,7 +131,7 @@ class OrganizationsSpec extends Specification {
     }
   }
 
-  /*
+
    case object Update extends Context {
 
     protected override def urlSuffix: String = "organizations/content"
@@ -176,7 +152,6 @@ class OrganizationsSpec extends Specification {
     }
   }
 
-  */
-  
 
-} */
+}
+*/

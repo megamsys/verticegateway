@@ -17,39 +17,23 @@ package controllers.camp
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import models._
+
 import models.tosca._
-import controllers.Constants._
-import controllers.stack._
-import controllers.stack.APIAuthElement
 import controllers.funnel.{ FunnelResponse, FunnelResponses }
 import controllers.funnel.FunnelErrors._
-import org.megam.common.amqp._
-import play.api._
 import play.api.mvc._
-import play.api.mvc.Result
 
-object Assembly extends Controller with APIAuthElement {
+object Assembly extends Controller with controllers.stack.APIAuthElement {
 
-  /*
-   * GET: findById: Show assembly information from assembly_id per user(by email)
-   * Email grabbed from header
-   * Output: JSON (AssemblyResults)
-   **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("id", id))
-
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assembly wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "request funneled."))
           models.tosca.Assembly.findById(List(id).some) match {
             case Success(succ) =>
               Ok(AssemblyResults.toJson(succ, true))
@@ -68,26 +52,19 @@ object Assembly extends Controller with APIAuthElement {
   }
 
   def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.tosca.Assembly.update(email, clientAPIBody) match {
-            case Success(succ) =>{
-              models.Requests.createAndPub(RequestInput("id", "", "name", BUILD, STATE).json) match {
-                case Success(succ_cpc) =>
-                    Status(CREATED)(FunnelResponse(CREATED, """Update initiation instruction submitted successfully.
+            case Success(succ) => {
+              Status(CREATED)(FunnelResponse(CREATED, """Bind initiation submitted successfully.
             |
             |Engine is cranking.""", "Megam::Assembly").toJson(true))
-                case Failure(err) =>
-                  Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Update initiation instruction failed.
-            |
-            |Retry again, our queue servers are crowded""", "Megam::Assembly").toJson(true))
             }
-          }
-          case Failure(err) =>{
+            case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
             }
@@ -101,21 +78,18 @@ object Assembly extends Controller with APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-
-
   def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Assembly", "build ci:Entry"))
-  (Validation.fromTryCatchThrowable[Result,Throwable] {
-    models.Requests.createAndPub(RequestInput(id,"",name, BUILD,STATE).json) match {
-            case Success(succ) =>
-             Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      models.base.Requests.createAndPub("",models.base.RequestInput(id, "",name, controllers.Constants.BUILD, controllers.Constants.CONTROL).json) match {
+        case Success(succ) =>
+          Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
              |
              |Engine is cranking.. It will be ready shortly.""", "Megam::Requests").toJson(true))
-            case Failure(err) =>
-            Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
+        case Failure(err) =>
+          Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
              |
              |Retry again, our queue servers are crowded""", "Megam::Requests").toJson(true))
-             }
-       }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 }

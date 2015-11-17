@@ -23,19 +23,22 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import org.megam.util.Time
-import controllers.stack._
+
+import cache._
+import db._
+import models.json.tosca._
+import models.json.tosca.box._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models.tosca._
-import models._
-import models.Accounts
-import models.cache._
-import models.riak._
+import app.MConfig
+import models.base._
+
+import org.megam.util.Time
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -82,7 +85,6 @@ object Repo {
 case class ComponentResult(id: String, name: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList, envs: models.tosca.KeyValueList, artifacts: Artifacts, related_components: models.tosca.BindLinks, operations: models.tosca.OperationList, status: String, repo: Repo, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.tosca.ComponentResultSerialization
     val preser = new ComponentResultSerialization()
     toJSON(this)(preser.writer)
   }
@@ -98,7 +100,6 @@ object ComponentResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.tosca.ComponentResultSerialization
     val preser = new ComponentResultSerialization()
     fromJSON(jValue)(preser.reader)
   }
@@ -122,7 +123,7 @@ case class Component(name: String, tosca_type: String, inputs: models.tosca.KeyV
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    val preser = new models.json.tosca.ComponentSerialization()
+    val preser = new models.json.tosca.box.ComponentSerialization()
     toJSON(this)(preser.writer)
   }
 
@@ -137,7 +138,7 @@ object Component {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("components")
 
-  val metadataKey = "COMPONENT"
+  val metadataKey = "Component"
   val metadataVal = "Component Creation"
   val bindex = "component"
 
@@ -145,7 +146,7 @@ object Component {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Component] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    val preser = new models.json.tosca.ComponentSerialization()
+    val preser = new ComponentSerialization()
     fromJSON(jValue)(preser.reader)
   }
 
@@ -156,11 +157,9 @@ object Component {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
   def findById(componentID: Option[List[String]]): ValidationNel[Throwable, ComponentsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Components", "findById:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("idList", componentID))
     (componentID map {
       _.map { asm_id =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("Component ID", asm_id))
+        play.api.Logger.debug(("%-20s -->[%s]").format("Asm Id", asm_id))
         (riak.fetch(asm_id) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
@@ -185,9 +184,6 @@ object Component {
   }
 
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Component", "upGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     val ripNel: ValidationNel[Throwable, ComponentUpdateInput] = (Validation.fromTryCatchThrowable[ComponentUpdateInput, Throwable] {
       parse(input).extract[ComponentUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -206,8 +202,6 @@ object Component {
   }
 
   def update(email: String, input: String): ValidationNel[Throwable, ComponentsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Components", "update:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
     for {
       gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
@@ -217,7 +211,7 @@ object Component {
         case Some(thatGS) =>
           nels(ComponentResult(thatGS.key, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.envs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.repo, Time.now.toString()).some)
         case None => {
-          play.api.Logger.warn(("%-20s -->[%s]").format("Component.updated successfully", "Scaliak returned => None. Thats OK."))
+          play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Component.updated successfully", Console.RESET))
           nels(ComponentResult(nrip.id, nrip.name, nrip.tosca_type, nrip.inputs, nrip.outputs, nrip.envs, nrip.artifacts, nrip.related_components, nrip.operations, nrip.status, nrip.repo, Time.now.toString()).some)
 
         }
@@ -237,13 +231,13 @@ object ComponentsList {
   def toJValue(nres: ComponentsList): JValue = {
 
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.tosca.ComponentsListSerialization.{ writer => ComponentsListWriter }
+    import models.json.tosca.carton.ComponentsListSerialization.{ writer => ComponentsListWriter }
     toJSON(nres)(ComponentsListWriter)
   }
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentsList] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.tosca.ComponentsListSerialization.{ reader => ComponentsListReader }
+    import models.json.tosca.carton.ComponentsListSerialization.{ reader => ComponentsListReader }
     fromJSON(jValue)(ComponentsListReader)
   }
 
@@ -253,7 +247,7 @@ object ComponentsList {
     compactRender(toJValue(nres))
   }
 
-  def apply(componentList: List[Component]): ComponentsList = { println(componentList); componentList }
+  def apply(componentList: List[Component]): ComponentsList = { componentList }
 
   def empty: List[Component] = emptyRR
 
@@ -270,9 +264,6 @@ object ComponentsList {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: Component, asm_id: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Components", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "com").get leftMap { ut: NonEmptyList[Throwable] => ut })
@@ -287,20 +278,14 @@ object ComponentsList {
   }
 
   def createLinks(email: String, input: ComponentsList, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Components", "createLinks:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
     var res = (ComponentsResults.empty).successNel[Throwable]
     if (input.isEmpty) {
       res = (ComponentsResults.empty).successNel[Throwable]
     } else {
-      res = (input map {
-        asminp =>
-          play.api.Logger.debug(("%-20s -->[%s]").format("component", asminp))
-          (create(email, asminp, asm_id))
+      res = (input map { asminp => (create(email, asminp, asm_id))
       }).foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
     }
     play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Components", res))
-    //res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[ComponentsResults])
     res
   }
 
@@ -309,9 +294,6 @@ object ComponentsList {
    * A index name assemblies name will point to the "csars" bucket
    */
   def create(email: String, input: Component, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Components", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     (mkGunnySack(email, input, asm_id) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input.name, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -321,7 +303,7 @@ object ComponentsList {
           maybeGS match {
             case Some(thatGS) => nels((parse(thatGS.value).extract[ComponentResult]).some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Components.created success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Components.created success", Console.RESET))
               nels((parse(gs.get.value).extract[ComponentResult]).some).successNel[Throwable];
             }
           }
