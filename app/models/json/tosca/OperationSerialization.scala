@@ -26,7 +26,6 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
 import models.tosca.{ Operation, KeyValueList }
 
 /**
@@ -34,7 +33,7 @@ import models.tosca.{ Operation, KeyValueList }
  *
  */
 
-class OperationSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Operation] {
+class OperationSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[Operation] {
 
   protected val OperationTypeKey = "operation_type"
   protected val DescriptionKey = "description"

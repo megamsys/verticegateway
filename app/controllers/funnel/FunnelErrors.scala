@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 package controllers.funnel
 
 import scalaz._
-import scalaz.NonEmptyList
 import Scalaz._
 import java.io.{ StringWriter, PrintWriter }
 import org.megam.common.jsonscalaz._
@@ -31,10 +30,9 @@ import play.api.http.Status._
 object FunnelErrors {
 
   val tailMsg =
-    """Forum   :https://groups.google.com/forum/?fromgroups=#!forum/megamlive. 
-      |API     :https://api.megam.co
-  	  |Docs    :http://docs.megam.co
-      |Support :http://support.megam.co""".stripMargin
+    """Forum   :http://docs.megam.io/discuss
+  	  |Docs    :http://docs.megam.io
+      |Support :http://support.megam.io""".stripMargin
 
   case class CannotAuthenticateError(input: String, msg: String, httpCode: Int = BAD_REQUEST)
     extends java.lang.Error(msg)
@@ -51,7 +49,7 @@ object FunnelErrors {
   case class ResourceItemNotFound(input: String, msg: String, httpCode: Int = NOT_FOUND)
     extends java.lang.Error(msg)
 
-  case class JSONParsingError(errNel: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error]) 
+  case class JSONParsingError(errNel: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error])
   extends java.lang.Error({
     errNel.map { err: net.liftweb.json.scalaz.JsonScalaz.Error =>
       err.fold(
@@ -65,20 +63,20 @@ object FunnelErrors {
 
     def mkMsg(err: Throwable): String = {
       err.fold(
-        a => """Authentication failure using the email/apikey combination. %n'%s' 
-            |Verify the email and api key combination. 
+        a => """Authentication failure using the email/apikey combination. %n'%s'
+            |verify the email and api key combination.
             """.format(a.input).stripMargin,
-        m => """Body received from the API call contains invalid input. 'body:' %n'%s' 
-            |Verify the body content as needed for this resource. 
+        m => """Body received from the api contains invalid input. 'body:' %n'%s'
+            |verify the body content as needed for this resource.
             |""".format(m.input).stripMargin,
-        h => """Header received from the API call contains invalid input. 'header:' %n'%s' 
-            |Verify the header content as required for this resource. 
+        h => """Header received from the api contains invalid input. 'header:' %n'%s'
+            |verify the header content as required for this resource.
             |%s""".format(h.input).stripMargin,
-        c => """Service error. The layer responsible for fullfilling the request
-            |came back with errors %n'%s'""".format(c.input).stripMargin,
+        c => """Service layer failed to perform the the request
+            |verify riak, snowflake or rabbitmq %n'%s'""".format(c.input).stripMargin,
         r => """The resource wasn't found   '%s'""".format(r.input).stripMargin,
-        t => """Ooops ! I know its crazy. We flunked. 
-            |Contact support with this text.                   
+        t => """Ooops ! I know its crazy. We flunked.
+            |Contact support@megam.io with this text.
             """.format(t.getLocalizedMessage).stripMargin)
     }
 
@@ -103,8 +101,8 @@ object FunnelErrors {
     		  	|%s""".format(c.msg).stripMargin,
         r => """|The error received from the datasource :
     		  	|%s""".format(r.msg).stripMargin,
-        t => """|Pardon us. This is how it happened.             
-            |Stack trace 
+        t => """|Pardon us. This is how it happened.
+            |Stack trace
             |%s
             """.format({ val u = new StringWriter; t.printStackTrace(new PrintWriter(u)); u.toString }).stripMargin)
     }

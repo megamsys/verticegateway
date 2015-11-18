@@ -11,6 +11,7 @@
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
+**/
 
 package test.billing
 
@@ -22,13 +23,10 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import models.billing._
-import models.billing.Discounts
+import models.json.billing._
 import test.{ Context }
 
- * @author rajthilak
- *
-
+ 
 class DiscountsSpec extends Specification {
 
   def is =
@@ -79,5 +77,4 @@ class DiscountsSpec extends Specification {
     }
   }
 
-
-}*/
+}

@@ -15,30 +15,22 @@
 */
 package controllers
 
-import controllers.stack._
+
+import app.Hellow
+import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-import controllers.funnel._
-import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
-import models._
-import play.api._
 import play.api.mvc._
-import scalaz._
-import Scalaz._
-import scalaz.Validation._
-import play.api.data._
-import play.api.data.Form._
-import play.api.cache._
-import play.api.mvc._
+
 /**
  * @author rajthilak
  *
  */
 //class Application @Inject() (cache: CacheApi) extends Controller with APIAuthElement {
-object Application extends Controller with APIAuthElement {
+object Application extends Controller with controllers.stack.APIAuthElement {
 
   //Shows index page. with all the status.
   def index = Action { implicit request =>
-    Ok(views.html.index("Megam CMP. Lets kick the tyres.", Hellow.buccaneer))
+    Ok(Hellow.buccaneer.json)
   }
 
   def iluvapis = Action { implicit request =>
@@ -49,15 +41,4 @@ object Application extends Controller with APIAuthElement {
   def avastye = Action { implicit request =>
     Ok(views.html.eventsPage(Hellow.events))
   }
-
-  /**
-   * POST : Authenticate, verifies if the auth setup is OK.
-   * Output: FunnelResponse as JSON with the msg.
-   * Accessed via API
-   */
-  def authenticate = StackAction(parse.tolerantText) { implicit request =>
-    val resp = FunnelResponse(apiAccessed.getOrElse("Something strange. Authentication successful, but sans success message. Contact support"), "Megam::Auth").toJson(true)
-    Ok(resp)
-  }
-
 }

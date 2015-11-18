@@ -26,8 +26,7 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.{ MarketPlaceResult, MarketPlacePlan, MarketPlacePlans }
+import models.base.{ MarketPlaceResult, MarketPlacePlan, MarketPlacePlans }
 import models.tosca.{ KeyValueList }
 
 /**

@@ -1,98 +1,21 @@
 /**
-** Copyright [2013-2015] [Megam Systems]
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-** http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
-/**
- * @author rajthilak
- *
+ * * Copyright [2013-2015] [Megam Systems]
+ * *
+ * * Licensed under the Apache License, Version 2.0 (the "License");
+ * * you may not use this file except in compliance with the License.
+ * * You may obtain a copy of the License at
+ * *
+ * * http://www.apache.org/licenses/LICENSE-2.0
+ * *
+ * * Unless required by applicable law or agreed to in writing, software
+ * * distributed under the License is distributed on an "AS IS" BASIS,
+ * * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * * See the License for the specific language governing permissions and
+ * * limitations under the License.
  */
-
-/**
 package test
 
-
-import scalaz._
-import Scalaz._
-import scalaz.effect.IO
-import scalaz.EitherT._
-import scalaz.Validation
-import scalaz.Validation.FlatMap._
-import scalaz.NonEmptyList._
-import scalaz.syntax.SemigroupOps
-import org.megam.util.Time
-import controllers.stack._
-import controllers.Constants._
-import controllers.funnel.FunnelErrors._
-import models._
-import models.cache._
-import models.riak._
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
-import org.megam.common.uid.UID
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import java.nio.charset.Charset
-import scala.collection.JavaConversions._
-import models.cache._
-import org.yaml.snakeyaml.Yaml
-import scala.collection.mutable.LinkedHashMap
-import scala.collection.mutable.ListBuffer
-import java.util.ArrayList
-import org.specs2.Specification
-import org.specs2.Specification.Step
-import org.junit.runner._
-
-
-
-object AccountsSpec extends Specification {
-
-def is =
-    "DynamicMarketplace:".title ^ br ^
-      "Functionality for loading marketplace dynamically." ^ br ^
-      "Load marketplace" ^ br ^
-      "can do a load of yaml" ! toMarketplace ^ br ^
-      end
-
-
-  protected def toMarketplace= {
-    val contentInput: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(input).asInstanceOf[java.util.Map[String, String]]).toMap
-    val market="{\"marketplace_version\":\"sample_yaml\"}"
-    println(contentInput)
-    //some(new String(contentInput))
-}
-
-    /**
-    contentInput.get("inputs") match{
-     case Some(a) => println("SUCCESS")
-     case None => ""
-    }
-    //
-
-    //val inputList = scala.collection.mutable.MutableList[String]()*/
-
-}
-*/
-
-
-
-
-//var a = "{\"tosca_definitions_version\":\"tosca_simple_yaml_1_0\",\"description\":\"Template for deploying a two-tier application servers on two\"}";
-
-/**
-
+import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
@@ -100,14 +23,8 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import controllers.stack.HeaderConstants._
-import scalaz._
-import Scalaz._
-import scalaz.NonEmptyList._
-
- * @author rajthilak
- *
-
+import models.base._
+import test.{ Context }
 
 class AccountsSpec extends Specification {
 
@@ -116,12 +33,12 @@ class AccountsSpec extends Specification {
   AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   case object Post extends Context {
@@ -164,7 +81,6 @@ class AccountsSpec extends Specification {
     }
   }
 
-
   case object PostInvalidBody extends Context {
 
     protected override def urlSuffix: String = "accounts/content"
@@ -199,8 +115,6 @@ class AccountsSpec extends Specification {
   case object GetInvalidApi extends Context {
     protected override def urlSuffix: String = "accounts/megam@mypaas.io"
 
-    // protected def headersOpt: Option[Map[String, String]] = None
-
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
       X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
       X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
@@ -225,4 +139,4 @@ class AccountsSpec extends Specification {
     }
   }
 
-}*/
+}

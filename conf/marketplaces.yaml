@@ -4,11 +4,6 @@ marketplaces:
   order: 1
   image: ubuntu.png
   url: http://ubuntu.com
-  envs:
-   host:
-   port:
-   username:
-   password:
   plans:
    14.04:
     description: "Ubuntu 14.04 LTS (Trusty) is delivers the best value scale-out performance available."
@@ -18,11 +13,6 @@ marketplaces:
   order: 1
   image: coreos.png
   url: http://coreos.com
-  envs:
-   host:
-   port:
-   username:
-   password:
   plans:
    633.1.0:
     description: "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers."
@@ -32,11 +22,6 @@ marketplaces:
   order: 1
   image: debian.png
   url: http://debian.com
-  envs:
-   host:
-   port:
-   username:
-   password:
   plans:
    8.0:
     description: "Debian is a free operating system (OS) for your computer. Jessie is the codename for 8.0 Debian."
@@ -46,11 +31,6 @@ marketplaces:
   order: 1
   image: centos.png
   url: http://debian.com
-  envs:
-   host:
-   port:
-   username:
-   password:
   plans:
    7.0:
     description: "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat."
@@ -61,10 +41,10 @@ marketplaces:
   image: java.png
   url: https://github.com/megamsys/java-spring-petclinic.git
   envs:
-   host:
-   port:
-   username:
-   password:
+   host: localhost
+   port: 8080
+   username: admin
+   password: admin
   plans:
    8.x:
     description: "Quickly get started with J2EE Spring framework app."
@@ -75,10 +55,8 @@ marketplaces:
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
   envs:
-   host:
-   port:
-   username:
-   password:
+   host: localhost
+   port: 8080
   plans:
    4.x:
     description: "Quickly get started with rails 4.x app."
@@ -89,10 +67,8 @@ marketplaces:
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
   envs:
-   host:
-   port:
-   username:
-   password:
+   host: localhost
+   port: 3000
   plans:
    2.4.x:
     description: "Build robust RESTful API server using Scala."
@@ -103,15 +79,13 @@ marketplaces:
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
   envs:
-   host:
-   port:
-   username:
-   password:
+   host: localhost
+   port: 7000
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
 
- Php:
+ PHP:
   cattype: APP
   order: 2
   image: php.png
@@ -186,11 +160,11 @@ marketplaces:
   order: 3
   image: mysql.png
   url: https://dev.mysql.com/
- envs:
-  host:
-  port: 3306
-  username: root
-  password:
+  envs:
+   host:
+   port: 3306
+   username: root
+   password:
   plans:
    5.x:
     description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
@@ -306,4 +280,3 @@ marketplaces:
   plans:
    0.9.0:
     description: "A virtual office provides bundled applications for everyday office use. "
-

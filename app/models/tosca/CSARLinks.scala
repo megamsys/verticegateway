@@ -24,30 +24,33 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
-import org.megam.util.Time
-import controllers.stack._
+
+import cache._
+import db._
+import models.json.tosca._
+import models.json.tosca.carton._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import controllers.Constants._
-import models._
-import models.riak._
+import app.MConfig
+import models.base._
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import scala.collection.JavaConversions._
-import models.cache._
+import cache._
 import org.yaml.snakeyaml.Yaml
 
 /**
  * @author rajthilak
  *
  */
-
 case class CSARLinkInput(kachha: String) {
   val TOSCA_DESCRIPTION = "description"
 
@@ -82,19 +85,13 @@ object CSARLinks {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, (String, Option[GunnySack])] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
-
     val csarInput: ValidationNel[Throwable, Option[String]] = CSARLinkInput(input).desc
 
     for {
       pdc <- csarInput
-      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "csi").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
       (pdc.get, (new GunnySack(uir.get._1 + uir.get._2, input, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue)))).some)
@@ -106,10 +103,6 @@ object CSARLinks {
    * A index name accountID will point to the "accounts" bucket
    */
   def create(email: String, input: String): ValidationNel[Throwable, CSARLinkResult] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("yaml", input))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: (String, Option[GunnySack]) =>
@@ -119,7 +112,7 @@ object CSARLinks {
             case Some(thatGS) => CSARLinkResult(thatGS.key, thatGS.value).successNel[Throwable]
             case None => {
               play.api.Logger.debug(("%-20s -->[%s]").format("desc", gs._1 + "," + gs._2.get))
-              play.api.Logger.warn(("%-20s -->[%s]").format("CSARLink.created success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "CSARLink.created success", Console.RESET))
               CSARLinkResult(gs._2.get.key, gs._1).successNel[Throwable]
             }
           }
@@ -129,9 +122,6 @@ object CSARLinks {
   }
 
   def findByName(csarLinksNameList: Option[List[String]]): ValidationNel[Throwable, CSARLinkResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "findByName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("CSARLinksList", csarLinksNameList))
-
     (csarLinksNameList map {
       _.map { csarLinkName =>
         play.api.Logger.debug("models.tosca.CSARLinks findByName: CSARLinks:" + csarLinkName)
@@ -165,8 +155,6 @@ object CSARLinks {
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARLinkResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, CSARLinkResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARLinks", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, CSARLinkResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)

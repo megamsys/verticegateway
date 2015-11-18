@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,11 +28,9 @@ import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 
-import controllers.stack.stack._
 import controllers.funnel._
 import controllers.funnel.FunnelErrors._
-import models.Accounts
-import models.AccountResult
+import models.base.{Accounts, AccountResult}
 
 import play.api.mvc._
 import play.api.http.Status._
@@ -41,25 +39,21 @@ import play.api.Logger
  * @author rajthilak
  *
  */
-
 object SecurityActions {
 
- 
+
   def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[Throwable, Option[String]] = {
-    Logger.debug(("%-20s -->[%s]").format("SecurityActions", "Authenticated:Entry"))
     req.funneled match {
       case Success(succ) => {
-        Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-S", succ.toString))
         (succ map (x => bazookaAtDataSource(x))).getOrElse(
-          Validation.failure[Throwable, Option[String]](CannotAuthenticateError("""Invalid content in header. API server couldn't parse it""",
+          Validation.failure[Throwable, Option[String]](CannotAuthenticateError("""Invalid content in header. parse failure.""",
             "Request can't be funneled.")).toValidationNel)
 
       }
       case Failure(err) =>
         val errm = (err.list.map(m => m.getMessage)).mkString("\n")
-        Logger.debug(("%-20s -->[%s]").format("FUNNLEDREQ-F", errm))
         Validation.failure[Error, Option[String]](CannotAuthenticateError(
-          """Invalid content in header. API server couldn't parse it.""", errm)).toValidationNel
+          """Invalid content in header. parse failure.""", errm)).toValidationNel
     }
   }
 
@@ -72,7 +66,6 @@ object SecurityActions {
    * else
    */
   def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Throwable, Option[String]] = {
-    play.api.Logger.debug("<O==>------------------------------------->")
     (for {
       resp <- eitherT[IO, NonEmptyList[Throwable], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
         (Accounts.findByEmail(freq.maybeEmail.get).disjunction).pure[IO]
@@ -105,11 +98,9 @@ object GoofyCrypto {
    */
   def calculateMD5(content: Option[String]): Option[String] = {
     val MD5 = "MD5"
-    Logger.debug(("%-20s -->[%s]").format("MD5 CONTENT", content.get))
     val digest = MessageDigest.getInstance(MD5)
     digest.update(content.getOrElse(new String()).getBytes)
     val md5b = new String(Base64.encodeBase64(digest.digest()))
-    Logger.debug(("%-20s -->[%s]").format("MD5 OUTPUT==============================>", md5b))
     md5b.some
   }
 
@@ -118,14 +109,11 @@ object GoofyCrypto {
    */
   def calculateHMAC(secret: String, toEncode: String): String = {
     val HMACSHA1 = "HmacSHA1"
-    Logger.debug(("%-20s -->[%-20s,%s]").format("HMAC: ENTRY", secret, toEncode))
-
     val signingKey = new SecretKeySpec(secret.getBytes(), "RAW")
     val mac = Mac.getInstance(HMACSHA1)
     mac.init(signingKey)
     val rawHmac = mac.doFinal(toEncode.getBytes())
     val hmacAsByt = dumpByt(rawHmac.some)
-    Logger.debug(("%-20s -->[%s]").format("HMAC OUTPUT===========================>", hmacAsByt))
     hmacAsByt
   }
 
@@ -139,4 +127,3 @@ object GoofyCrypto {
   }
 
 }
-

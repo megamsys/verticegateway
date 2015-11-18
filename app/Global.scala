@@ -18,12 +18,12 @@
  *
  */
 
- import scalaz._
- import Scalaz._
- import scalaz.effect.IO
- import scalaz.EitherT._
- import scalaz.Validation
- import scalaz.Validation.FlatMap._
+import scalaz._
+import Scalaz._
+import scalaz.effect.IO
+import scalaz.EitherT._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 import play.api._
 import play.api.http.Status._
 import play.api.http.HeaderNames._
@@ -56,8 +56,8 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
     play.api.Logger.info("started ...")
 
         for {
-          m <- models.PlatformAppPrimer.acc_prep
-          mkp <- models.PlatformAppPrimer.mkp_prep
+          m <- utils.PlatformAppPrimer.acc_prep
+          mkp <- utils.PlatformAppPrimer.mkp_prep
         } yield {
           play.api.Logger.info(">> priming: successful.")
         }

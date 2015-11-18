@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,14 +26,13 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
 import models.tosca.CSARResult
 
 /**
  * @author rajthilak
  *
  */
-class CSARResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[CSARResult] {
+class CSARResultSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[CSARResult] {
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val IdKey = "id"
@@ -44,8 +43,6 @@ class CSARResultSerialization(charset: Charset = UTF8Charset) extends Serializat
   override implicit val writer = new JSONW[CSARResult] {
 
     override def write(h: CSARResult): JValue = {
-      play.api.Logger.debug(("%-20s -->[%s]").format("csar.serialization", "entry"))
-
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(DescKey, toJSON(h.desc)) ::

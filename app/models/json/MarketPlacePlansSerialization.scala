@@ -20,8 +20,7 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
-import models._
+import models.base._
 import java.nio.charset.Charset
 /**
  * @author rajthilak

@@ -34,12 +34,15 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.HeaderConstants._
 import models.{ MarketPlaceInput, KeyValueList, MarketPlacePlans }
+ import models.base._
+ import test.{ Context }
+
 
 class MarketPlaceSpec extends Specification {
   def is =
     "MarketPlacesSpec".title ^ end ^
       """
-      MarketPlacesSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
+      MarketPlacesSpec is the implementation that calls the API server with the /marketplaces url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests" ! Post0.succeeds ^
@@ -51,8 +54,6 @@ class MarketPlaceSpec extends Specification {
       "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
       "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
-
-  //post the headers and their body for specifing url
 
   case object Post0 extends Context {
 
@@ -131,6 +132,7 @@ class MarketPlaceSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
+
 
 
 

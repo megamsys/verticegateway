@@ -18,45 +18,30 @@ package controllers.camp
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
-
 import scalaz.Validation._
+
 import models.tosca._
-import controllers.Constants._
-import controllers.stack._
-import controllers.stack.APIAuthElement
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-import play.api._
 import play.api.mvc._
-import play.api.mvc.Result
-import play.api.libs.iteratee._
 
 /**
  * @author rajthilak
  *
  */
-
-/*
- *
- * If HMAC authentication is true then post or list the CSAR will be stored
- *
- */
-object CSARs extends Controller with APIAuthElement {
+object CSARs extends Controller with controllers.stack.APIAuthElement {
 
   /*
    * Create or update a new MarketPlace by email/json input.
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "post:Entry"))
-
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "request funneled."))
           models.tosca.CSARs.create(email, clientAPIBody) match {
             case Success(succ) => {
               Status(CREATED)(
@@ -83,19 +68,14 @@ object CSARs extends Controller with APIAuthElement {
    * and in case of error, a json needs to be sent back.
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
-
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "request funneled."))
-
           models.tosca.CSARs.findLinksByName(List(id).some) match {
             case Success(succ) =>
-              Result(header = ResponseHeader(play.api.http.Status.OK, WithGzipHoleHeader),
+              Result(header = ResponseHeader(play.api.http.Status.OK, controllers.Constants.WithGzipHoleHeader),
                 body = play.api.libs.iteratee.Enumerator((succ.head map (_.desc)).getOrElse("").getBytes))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -111,15 +91,12 @@ object CSARs extends Controller with APIAuthElement {
   }
 
  def push(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "post:Entry"))
-
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "request funneled."))
           models.tosca.CSARs.push(email, id) match {
             case Success(succ) => {
               Status(CREATED)(
@@ -145,8 +122,6 @@ object CSARs extends Controller with APIAuthElement {
    * Output: JSON (MarketPlacesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.CSARs", "list:Entry"))
-
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {

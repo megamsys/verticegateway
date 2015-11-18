@@ -19,42 +19,28 @@ package controllers.billing
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
-
 import scalaz.Validation._
-import models._
-import controllers.stack._
-import controllers.stack.APIAuthElement
+
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-import org.megam.common.amqp._
-import play.api._
-import play.api.mvc._
-import play.api.mvc.Result
 import models.billing._
-
-
+import play.api.mvc._
 /**
  * @author morpheyesh
  *
  */
-
-
-object Promos extends Controller with APIAuthElement {
+object Promos extends Controller with controllers.stack.APIAuthElement {
 
   /**
    * Create a new balance entry by email/json input. ***NOT USED AS OF NOW***
-   **/
-
-  def post = StackAction(parse.tolerantText) {  implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Promos", "post:Entry"))
-
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+   */
+  def post = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("billing.Promos", "request funneled."))
           models.billing.Balances.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
@@ -72,7 +58,7 @@ object Promos extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-   }
+  }
 
   /*
    * GET: findByName: Show a particular promo by name
@@ -80,12 +66,10 @@ object Promos extends Controller with APIAuthElement {
    * Output: JSON (PromosResult)
    **/
 
-    def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Promos", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
-    models.billing.Promos.findByName(id) match {
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+      models.billing.Promos.findByName(id) match {
       case Success(succ) => {
-      Ok(succ.get.toJson(true))
+        Ok(succ.get.toJson(true))
       }
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
@@ -93,8 +77,5 @@ object Promos extends Controller with APIAuthElement {
       }
     }
   }
-
-
-
 
 }

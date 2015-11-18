@@ -23,18 +23,21 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import org.megam.util.Time
-import controllers.stack._
+
+import cache._
+import db._
+import models.json.tosca._
+import models.json.sensors._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models.tosca._
-import models._
-import models.cache._
-import models.riak._
+import app.MConfig
+import models.base._
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -64,7 +67,6 @@ case class SensorsResult(id: String, sensor_type: String, payload: Payload, crea
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.tosca.SensorsResultSerialization
     val preser = new SensorsResultSerialization()
     toJSON(this)(preser.writer) //where does this JSON from?
   }
@@ -80,7 +82,6 @@ object SensorsResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[SensorsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.tosca.SensorsResultSerialization
     val preser = new SensorsResultSerialization()
     fromJSON(jValue)(preser.reader)
   }
@@ -98,8 +99,7 @@ case class Metric(metric_type: String, metric_value: String, metric_units: Strin
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.tosca.MetricSerialization
-    val preser = new models.json.tosca.MetricSerialization()
+    val preser = new MetricSerialization()
     toJSON(this)(preser.writer)
   }
 
@@ -116,13 +116,11 @@ object Metric {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Metric] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.tosca.MetricSerialization
-    val preser = new models.json.tosca.MetricSerialization()
+    val preser = new MetricSerialization()
     fromJSON(jValue)(preser.reader)
   }
 
   def fromJson(json: String): Result[Metric] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    play.api.Logger.debug(("%-20s -->[%s]").format("---json--->", json))
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -134,7 +132,7 @@ case class Sensors(sensor_type: String, payload: Payload) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    val preser = new models.json.tosca.SensorsSerialization()
+    val preser = new SensorsSerialization()
     toJSON(this)(preser.writer)
   }
 
@@ -157,7 +155,7 @@ object Sensors {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Sensors] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    val preser = new models.json.tosca.SensorsSerialization()
+    val preser = new SensorsSerialization()
     fromJSON(jValue)(preser.reader)
   }
 
@@ -168,17 +166,13 @@ object Sensors {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Sensors", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     val sensorsInput: ValidationNel[Throwable, SensorsInput] = (Validation.fromTryCatchThrowable[SensorsInput, Throwable] {
       parse(input).extract[SensorsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       event <- sensorsInput
-      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "snr").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
@@ -189,10 +183,6 @@ object Sensors {
     }
   }
   def create(email: String, input: String): ValidationNel[Throwable, Option[SensorsResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Sensors", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -201,7 +191,7 @@ object Sensors {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[SensorsResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Sensors created. success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Sensors created. success", Console.RESET))
               (parse(gs.get.value).extract[SensorsResult].some).successNel[Throwable];
             }
           }
@@ -210,8 +200,6 @@ object Sensors {
   }
 
   def findById(sensorsID: Option[List[String]]): ValidationNel[Throwable, SensorsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Sensors", "findById:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("idList", sensorsID))
     (sensorsID map {
       _.map { asm_id =>
         play.api.Logger.debug(("%-20s -->[%s]").format("Sensors ID", asm_id))
@@ -239,8 +227,6 @@ object Sensors {
   }
 
   def findByEmail(email: String): ValidationNel[Throwable, SensorsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Sensors", "findByEmail:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, SensorsResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
