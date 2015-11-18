@@ -14,27 +14,26 @@
 ** limitations under the License.
 */
 
-/**
- * @author rajthilak
- *
- */
- /*
+
+
+
+
 package test
 
 import scalaz._
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
 import scalaz.Validation._
-//import org.specs2.mutable._
-//import org.specs2.Specification
+import org.specs2.mutable._
+import org.specs2.Specification
 import java.net.URL
-//import org.specs2.matcher.MatchResult
-//import org.specs2.execute.{ Result => SpecsResult }
+import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack.HeaderConstants._
-import models.{ MarketPlaceInput, MarketPlacePlan, MarketPlaceCatalog, MarketPlacePlans }
+import models.{ MarketPlaceInput, KeyValueList, MarketPlacePlans }
 
 class MarketPlaceSpec extends Specification {
   def is =
@@ -43,14 +42,14 @@ class MarketPlaceSpec extends Specification {
       MarketPlacesSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests" ! Post0.succeeds ^
-      //"Correctly do POST requests" ! Post1.succeeds ^
-      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      "Correctly do POST requests" ! Post0.succeeds ^
+      "Correctly do POST requests" ! Post1.succeeds ^
+      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-     // "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-     // "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-     // "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   //post the headers and their body for specifing url
@@ -134,7 +133,6 @@ class MarketPlaceSpec extends Specification {
   }
 
 
-   * test case for invalidUrl
 
 
   case object PostInvalidUrl extends Context {
@@ -157,8 +155,8 @@ class MarketPlaceSpec extends Specification {
     }
   }
 
-  
-   * test case for invalidBody
+
+
 
 
   case object PostInvalidBody extends Context {
@@ -212,4 +210,3 @@ class MarketPlaceSpec extends Specification {
   }
 
 }
- */
