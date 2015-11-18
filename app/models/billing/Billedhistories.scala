@@ -23,19 +23,20 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import scalaz.syntax.SemigroupOps
-import org.megam.util.Time
-import Scalaz._
-import controllers.stack._
+
+import cache._
+import db._
+import models.json.billing._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models.billing._
-import models.cache._
-import models.riak._
+import app.MConfig
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
+import app.MConfig
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -87,10 +88,6 @@ object BilledhistoriesResult {
 object Billedhistories {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("billedhistories")
-
-  //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
-
   val metadataKey = "Billedhistories"
   val metadataVal = "Billedhistories Creation"
   val bindex = "Billedhistories"
@@ -102,21 +99,15 @@ object Billedhistories {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.billing.Billinghistories", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     val BilledhistoriesInput: ValidationNel[Throwable, BilledhistoriesInput] = (Validation.fromTryCatchThrowable[BilledhistoriesInput, Throwable] {
       parse(input).extract[BilledhistoriesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       bhi <- BilledhistoriesInput
-      //aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //val bvalue = Set(aor.get.id)
-       val bvalue = Set(bhi.accounts_id)
+      val bvalue = Set(bhi.accounts_id)
       val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, bhi.accounts_id, bhi.assembly_id, bhi.bill_type, bhi.billing_amount, bhi.currency_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
@@ -127,12 +118,7 @@ object Billedhistories {
    * create new billing histories for currently pay the bill of user.
    *
    */
-
   def create(email: String, input: String): ValidationNel[Throwable, Option[BilledhistoriesResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billedhistories", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -141,7 +127,7 @@ object Billedhistories {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[BilledhistoriesResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Billedhistories created. success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Billedhistories.created success",Console.RESET))
               (parse(gs.get.value).extract[BilledhistoriesResult].some).successNel[Throwable];
             }
           }
@@ -150,11 +136,8 @@ object Billedhistories {
   }
 
    def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BilledhistoriesResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billedhistories", "findByName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("BilledhistoriesList", balanceList))
     (balanceList map {
       _.map { balanceName =>
-        play.api.Logger.debug("models.BilledhistoriesName findByName: Billedhistories:" + balanceName)
         (riak.fetch(balanceName) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(balanceName, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
@@ -185,11 +168,9 @@ object Billedhistories {
    * Takes an email, and returns a Future[ValidationNel, List[Option[BillinghistoriesResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, BilledhistoriesResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billedhistories", "findByEmail:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, BilledhistoriesResults]] {
       (((for {
-        aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
+        aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
         val bindex = ""
         val bvalue = Set("")

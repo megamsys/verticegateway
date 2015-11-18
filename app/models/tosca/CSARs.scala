@@ -24,17 +24,21 @@ import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
-import org.megam.util.Time
-import controllers.stack._
+
+import cache._
+import db._
+import models.json.tosca._
+import models.json.tosca.carton._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models._
-import models.cache._
-import models.riak._
+import app.MConfig
+import models.base._
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -51,7 +55,6 @@ case class CSARResult(id: String, desc: String, link: String, created_at: String
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.tosca.CSARResultSerialization
     val preser = new CSARResultSerialization()
     toJSON(this)(preser.writer)
   }
@@ -67,7 +70,6 @@ object CSARResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[CSARResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.tosca.CSARResultSerialization
     val preser = new CSARResultSerialization()
     fromJSON(jValue)(preser.reader)
   }
@@ -99,10 +101,6 @@ object CSARs {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       csir <- (CSARLinks.create(email, input) leftMap { err: NonEmptyList[Throwable] => err })
@@ -121,9 +119,6 @@ object CSARs {
    * A index name csar name will point to the "csars" bucket
    */
   def create(email: String, input: String): ValidationNel[Throwable, Option[CSARResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -133,7 +128,7 @@ object CSARs {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[CSARResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("CSAR.created success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "CSAR.created successfully", Console.RESET))
               (parse(gs.get.value).extract[CSARResult].some).successNel[Throwable]
             }
           }
@@ -181,17 +176,15 @@ object CSARs {
     }).head //return the folded element in the head.
   }
 
-  def push(email: String, input: String): ValidationNel[Throwable, AMQPResponse] = {
+  def push(email: String, input: String): ValidationNel[Throwable, AssembliesResult] = {
     for {
       csar <- (CSARs.getCSAR(input) leftMap { err: NonEmptyList[Throwable] => err })
       csir <- (getCsarLink(csar) leftMap { err: NonEmptyList[Throwable] => err })
       json <- (getYaml(csir) leftMap { err: NonEmptyList[Throwable] => err })
       asm <- (Assemblies.create(email, json) leftMap { err: NonEmptyList[Throwable] => err })
-      request <- (models.Requests.createforNewNode("{\"cat_id\": \"" + asm.get.id + "\",\"name\": \"" + asm.get.name + "\",\"cattype\": \"create\"}") leftMap { err: NonEmptyList[Throwable] => err })
-      amqp <- (CloudStandUpPublish(request.get._2, request.get._1).dop leftMap { err: NonEmptyList[Throwable] => err })
     } yield {
       play.api.Logger.debug("tosca.CSARs Pushed: csars:" + json)
-      amqp
+      asm
     }
   }
 
@@ -214,8 +207,6 @@ object CSARs {
   }
 
   def findByName(csarsNameList: Option[List[String]]): ValidationNel[Throwable, CSARResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findByNodeName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("csarList", csarsNameList))
     (csarsNameList map {
       _.map { csarsName =>
         InMemory[ValidationNel[Throwable, CSARResults]]({
@@ -254,8 +245,6 @@ object CSARs {
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, CSARResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "findByEmail:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, CSARResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
@@ -278,7 +267,6 @@ object CSARs {
   implicit val sedimentCSARsResults = new Sedimenter[ValidationNel[Throwable, CSARResults]] {
     def sediment(maybeASediment: ValidationNel[Throwable, CSARResults]): Boolean = {
       val notSed = maybeASediment.isSuccess
-      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->CSR:sediment:", notSed))
       notSed
     }
   }
@@ -286,7 +274,6 @@ object CSARs {
   implicit val sedimentStrings = new Sedimenter[ValidationNel[Throwable, String]] {
     def sediment(maybeASediment: ValidationNel[Throwable, String]): Boolean = {
       val notSed = maybeASediment.isSuccess
-      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->CSR:sediment:", notSed))
       notSed
     }
   }
@@ -294,7 +281,6 @@ object CSARs {
   implicit val sedimentCSARLinksResults = new Sedimenter[ValidationNel[Throwable, CSARLinkResults]] {
     def sediment(maybeASediment: ValidationNel[Throwable, CSARLinkResults]): Boolean = {
       val notSed = maybeASediment.isSuccess
-      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->CSRLK:sediment:", notSed))
       notSed
     }
   }

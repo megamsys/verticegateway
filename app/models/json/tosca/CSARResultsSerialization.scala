@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +20,13 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
 import models.tosca._
 
 /**
  * @author rajthilak
  *
  */
-object CSARResultsSerialization extends SerializationBase[CSARResults] {
+object CSARResultsSerialization extends models.json.SerializationBase[CSARResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 

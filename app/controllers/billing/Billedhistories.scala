@@ -13,48 +13,36 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-
 package controllers.billing
 
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
-
 import scalaz.Validation._
-import models._
-import controllers.stack._
-import controllers.stack.APIAuthElement
+
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-import org.megam.common.amqp._
-import play.api._
-import play.api.mvc._
-import play.api.mvc.Result
 import models.billing._
-
-
+import play.api.mvc._
 /**
  * @author rajthilak
  *
  */
 
 
-object Billedhistories extends Controller with APIAuthElement {
+object Billedhistories extends Controller with controllers.stack.APIAuthElement {
 
   /**
    * Create a new billing history for the user.
    **/
 
   def post = StackAction(parse.tolerantText) {  implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billedhistories", "post:Entry"))
-
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("billing.Billedhistories", "request funneled."))
           models.billing.Billedhistories.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
@@ -80,14 +68,11 @@ object Billedhistories extends Controller with APIAuthElement {
    * Output: JSON (BillingHistoriesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billedhistories", "list:Entry"))
-
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Billedhistories", "request funneled."))
           models.billing.Billedhistories.findByEmail(email) match {
             case Success(succ) =>
               Ok(BilledhistoriesResults.toJson(succ, true))
@@ -103,8 +88,4 @@ object Billedhistories extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-
-
-
-
 }
