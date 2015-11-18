@@ -50,12 +50,13 @@ case object Hellow {
 
    //crude but for now its ok.
     val stat = (hunts.map { x => (x._1, x._2._2.getOrElse("fried")) }).toMap
-    val load = (mkps.list.flatten.sortWith(_.cattype < _.cattype).map { x =>
+    val loady = scala.collection.immutable.TreeMap((mkps.list.flatten.sortWith(_.cattype < _.cattype).map { x =>
         (x.cattype +"."+x.name, x.id  + "|"  + x.image + "." + x.plans.size.toString)
-      }).toMap
+      }).toMap.toSeq:_*)
+
     val json =  Json.prettyPrint(Json.toJson(Map("status" -> stat,
         "runtime" -> infra,
-        "loaded" ->  load)))
+        "loaded" ->  loady)))
    println(json)
 
   }

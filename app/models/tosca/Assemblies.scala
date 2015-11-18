@@ -129,7 +129,7 @@ case class WrapAssembliesResult(thatGS: Option[GunnySack], idPair: Map[String,St
 
   val ams = parse(thatGS.get.value).extract[AssembliesResult].some
 
-  def cattype(id: String) = idPair(id).split('.')(1)
+  def cattype= idPair.map(x => x._2.split('.')(1)).head
 }
 
 
@@ -233,13 +233,9 @@ object Assemblies {
     res.getOrElse(new ResourceItemNotFound(email, "Assemblies = nothing found.").failureNel[AssembliesResults])
   }
 
+  /* Lets clean it up in 1.0 using Messageable  */
   private def pub(email: String, wa: WrapAssembliesResult): ValidationNel[Throwable, AssembliesResult] = {
-    wa.idPair.map { i => models.base.Requests.createAndPub(email, RequestInput(i._1, wa.cattype(i._1),"", CREATE,STATE).json) }
-    /* Lets clean it up in 1.0
-    This will send back an audit entry of all the success/failures
-    map {
-      _.foldRight((PQdResults.empty).successNel[Throwable])(_ +++ _)
-    }).head*/
+    models.base.Requests.createAndPub(email, RequestInput(wa.ams.get.id, wa.cattype,"", CREATE,STATE).json)
     wa.ams.get.successNel[Throwable]
   }
 }

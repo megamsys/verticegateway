@@ -291,14 +291,10 @@ object Assembly {
     }
   }
 
+  /* Lets clean it up in 1.0 using Messageable  */
   private def pub(email: String, wa: WrapAssemblyResult): AssemblyResult = {
     models.base.Requests.createAndPub(email,
       RequestInput(wa.asm.id, wa.cattype, wa.alma, BIND, CONTROL).json)
-    /* Lets clean it up in 1.0
-    This will send back an audit entry of all the success/failures
-    map {
-      _.foldRight((PQdResults.empty).successNel[Throwable])(_ +++ _)
-    }).head*/
     wa.asm
   }
 }
