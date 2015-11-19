@@ -61,7 +61,7 @@ object Constants {
 
   val STATE   = "state"
   val CONTROL = "control"
-  val CATTYPE_DOCKER = "MICROSERVICES"
+  val CATTYPE_DOCKER = "microservices"
 
   val DOMAIN = "domain"
 }
