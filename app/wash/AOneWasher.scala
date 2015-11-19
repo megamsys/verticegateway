@@ -49,7 +49,7 @@ case class PQd(reqres: models.base.RequestResult) {
   val DQACTIONS = Array[String](CREATE, DELETE)
 
   def QrE(cloudFarm: String): Option[Tuple2[String, String]] = {
-    if (reqres.cattype == CATTYPE_DOCKER) {
+    if (reqres.cattype.equalsIgnoreCase(CATTYPE_DOCKER)) {
       (cloudFarm + MConfig.dockerup_queue, cloudFarm + MConfig.dockerup_exchange).some
     } else if (DQACTIONS.contains(reqres.action)) {
       (cloudFarm + MConfig.standup_queue, cloudFarm + MConfig.standup_exchange).some
