@@ -25,7 +25,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.base._
-import test.{ Context }
+import test._
 
 class RequestSpec extends Specification {
 

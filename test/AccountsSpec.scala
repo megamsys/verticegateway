@@ -25,7 +25,7 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import controllers.stack._
 import models.base._
-import test.{ Context }
+import test._
 
 class AccountsSpec extends Specification {
 
