@@ -1,4 +1,3 @@
-import com.typesafe.sbt.SbtNativePackager._
 import NativePackagerKeys._
 import sbt._
 import Process._
