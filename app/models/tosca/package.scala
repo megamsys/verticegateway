@@ -27,6 +27,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import controllers.Constants._
 
+
 /**
  * @author ram
  *
@@ -216,6 +217,8 @@ package object tosca {
     def apply(m: ComponentResult): ComponentsResults = ComponentsResults(m.some)
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
   }
+
+  
   type SensorsResults = NonEmptyList[Option[SensorsResult]]
 
   object SensorsResults {
