@@ -1,5 +1,7 @@
 import sbt._
 import Process._
+import com.typesafe.sbt.SbtNativePackager._
+import NativePackagerKeys._
 
 name := "megamgateway"
 

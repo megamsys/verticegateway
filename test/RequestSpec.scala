@@ -42,12 +42,12 @@ class RequestSpec extends Specification {
       "Correctly do POST requests for a app(start)" ! AppStart.succeeds ^
       "Correctly do POST requests for a app(stop)" ! AppStart.succeeds ^
       "Correctly do POST requests for a app(delete)" ! AppDelete.succeeds ^
-      "Correctly do POST requests for a app(restart)" ! AppRestart.succeeds ^
+      //"Correctly do POST requests for a app(restart)" ! AppRestart.succeeds ^
       "Correctly do POST requests for a service(create)" ! ServiceCreate.succeeds ^
       "Correctly do POST requests for a service(start)" ! ServiceStart.succeeds ^
       "Correctly do POST requests for a service(stop)" ! ServiceStop.succeeds ^
       "Correctly do POST requests for a service(delete)" ! ServiceDelete.succeeds ^
-      "Correctly do POST requests for a service(restart)" ! ServiceRestart.succeeds ^
+      //"Correctly do POST requests for a service(restart)" ! ServiceRestart.succeeds ^
       "Correctly do POST requests for a docker(create)" ! DockerCreate.succeeds ^
       "Correctly do POST requests for a docker(start)" ! DockerStart.succeeds ^
       "Correctly do POST requests for a docker(delete)" ! DockerDelete.succeeds ^
@@ -58,8 +58,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu",
-        "", CREATE, STATE).json
+      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu", "", "create", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -80,7 +79,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu",
-        "katru.megambox.com", "start", CONTROL).json
+        "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -101,7 +100,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu",
-        "katru.megambox.com", "stop", CONTROL).json
+        "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -122,7 +121,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu",
-        "katru.megambox.com", "destroy", STATE).json
+        "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -145,7 +144,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
-        "", CREATE, STATE).json
+        "", "create", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -166,7 +165,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
-        "katru.megambox.com", "start", CONTROL).json
+        "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -187,7 +186,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
-        "katru.megambox.com", "stop", CONTROL).json
+        "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -208,7 +207,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
-        "katru.megambox.com", "destroy", STATE).json
+        "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -231,7 +230,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
-        "", CREATE, STATE).json
+        "", "create", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -252,7 +251,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
-        "katru.megambox.com", "start", CONTROL).json
+        "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -273,7 +272,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
-        "katru.megambox.com", "stop", CONTROL).json
+        "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -294,7 +293,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
-        "katru.megambox.com", "destroy", STATE).json
+        "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -317,7 +316,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
-        "", CREATE, STATE).json
+        "", "create", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -338,7 +337,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
-        "katru.megambox.com", "start", CONTROL).json
+        "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -359,7 +358,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
-        "katru.megambox.com", "stop", CONTROL).json
+        "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -380,7 +379,7 @@ class RequestSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
-        "katru.megambox.com", "destroy", STATE).json
+        "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
