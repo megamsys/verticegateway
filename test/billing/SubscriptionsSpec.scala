@@ -16,7 +16,7 @@
 
 package test.billing
 
-import org.specs2.mutable._
+import org.specs2._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
