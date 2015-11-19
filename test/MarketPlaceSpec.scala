@@ -14,16 +14,29 @@
 ** limitations under the License.
 */
 
- import org.specs2.mutable._
- import org.specs2.Specification
- import java.net.URL
- import org.specs2.matcher.MatchResult
- import org.specs2.execute.{ Result => SpecsResult }
- import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
- import com.stackmob.newman._
- import com.stackmob.newman.dsl._
+
+
+
+
+package test
+
+import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
+import org.specs2.mutable._
+import org.specs2.Specification
+import java.net.URL
+import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
+import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
+import com.stackmob.newman._
+import com.stackmob.newman.dsl._
+import controllers.stack.HeaderConstants._
+import models.{ MarketPlaceInput, KeyValueList, MarketPlacePlans }
  import models.base._
  import test.{ Context }
+
 
 class MarketPlaceSpec extends Specification {
   def is =
@@ -121,7 +134,10 @@ class MarketPlaceSpec extends Specification {
   }
 
 
-    case object PostInvalidUrl extends Context {
+
+
+
+  case object PostInvalidUrl extends Context {
 
     protected override def urlSuffix: String = "marketplaces/contentinvalidurl"
 
@@ -142,7 +158,7 @@ class MarketPlaceSpec extends Specification {
   }
 
 
-   * test case for invalidBody
+
 
 
   case object PostInvalidBody extends Context {
@@ -196,4 +212,3 @@ class MarketPlaceSpec extends Specification {
   }
 
 }
- */
