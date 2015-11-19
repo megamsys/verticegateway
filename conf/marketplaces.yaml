@@ -239,6 +239,20 @@ marketplaces:
    0.6.x:
     description: "Use Apache Spark straight from the Browser. "
 
+ HotelManangement:
+   cattype: ANALYTICS
+   order: 5
+   image: spark.png
+   url: http://spark.apache.org/
+   envs:
+    megam_email:
+    megam_apikey:
+    file1:
+    file2:
+   plans:
+    1.5.0:
+     description: "HotelManangement is the application that analyze the data by using Spark."
+
  Zarafa:
   cattype: COLLABORATION
   order: 6
