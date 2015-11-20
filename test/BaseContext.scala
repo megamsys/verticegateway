@@ -27,7 +27,6 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import com.stackmob.newman._
 import com.stackmob.newman.response._
 import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
 import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
@@ -40,6 +39,7 @@ import com.stackmob.newman._
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman.dsl._
 import scala.concurrent.Await
+import scala.concurrent._
 import scala.concurrent.duration._
 import java.net.URL
 import java.util.Calendar
@@ -71,6 +71,7 @@ trait BaseContext {
       result(res, "Headers are equal", expected + " does not equal " + other, r)
     }
   }
+
 
   protected class HttpResponseCodeAreEqualMatcher(expected: HttpResponseCode = HttpResponseCode.Ok) extends Matcher[HttpResponseCode] {
     override def apply[S <: HttpResponseCode](r: Expectable[S]): MatchResult[S] = {

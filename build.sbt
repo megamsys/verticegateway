@@ -77,8 +77,9 @@ libraryDependencies ++= Seq(filters, cache,
   "org.yaml" % "snakeyaml" % "1.16",
   "io.megam" %% "libcommon" % "0.12",
   "io.megam" %% "newman" % "1.3.11" % "test",
-  "org.specs2" %% "specs2-core" % "3.6.5-20151108070227-1e34889" % "test",
-  "org.specs2" % "specs2-matcher-extra_2.11" % "3.6.5-20151108070227-1e34889" % "test")
+  "org.specs2" %% "specs2-core" % "3.6.5-20151112214348-18646b2" % "test",
+"org.specs2" %% "specs2-junit" % "3.6.5-20151112214348-18646b2" % "test",
+  "org.specs2" % "specs2-matcher-extra_2.11" % "3.6.5-20151112214348-18646b2" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 
