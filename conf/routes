@@ -7,8 +7,6 @@ GET    /assets/*file                    controllers.Assets.at(path="/public", fi
 
 # Home page, static routes
 GET    /                                controllers.Application.index
-GET    /iluvapis                        controllers.Application.iluvapis
-GET    /avastye                         controllers.Application.avastye
 
 # Account
 POST   /v2/accounts/content             controllers.Accounts.post

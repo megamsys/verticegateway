@@ -33,12 +33,4 @@ object Application extends Controller with controllers.stack.APIAuthElement {
     Ok(Hellow.buccaneer.json)
   }
 
-  def iluvapis = Action { implicit request =>
-    Ok(views.html.apiPage())
-  }
-
-  //does a list of the events.
-  def avastye = Action { implicit request =>
-    Ok(views.html.eventsPage(Hellow.events))
-  }
 }
