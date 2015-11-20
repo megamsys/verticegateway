@@ -14,16 +14,24 @@
 ** limitations under the License.
 */
 
- import org.specs2.mutable._
- import org.specs2.Specification
- import java.net.URL
- import org.specs2.matcher.MatchResult
- import org.specs2.execute.{ Result => SpecsResult }
- import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
- import com.stackmob.newman._
- import com.stackmob.newman.dsl._
- import models.base._
- import test.{ Context }
+package test
+
+import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
+import org.specs2.mutable._
+import org.specs2.Specification
+import java.net.URL
+import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
+import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
+import com.stackmob.newman._
+import com.stackmob.newman.dsl._
+import controllers.stack.HeaderConstants._
+import models.base._
+import test._
+
 
 class MarketPlaceSpec extends Specification {
   def is =
@@ -47,8 +55,8 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new MarketPlaceInput("test-Alfresco", "cattype", "5", "logo.png", "megambox.com", new envs("localhost", "8080"),
-        MarketPlacePlans(new MarketPlacePlan("4.2", "Work in progress."))).json
+      val contentToEncode = new MarketPlaceInput("test-Alfresco", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList.empty,
+        MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("4.2", "Work in progress.")))).json
       Some(contentToEncode)
     }
 
@@ -71,7 +79,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-          val contentToEncode = new MarketPlaceInput("test-Zarafa", "cattype", "5", "logo.png", "megambox.com", MarketPlacePlans(List(new MarketPlacePlan("0", "free")))).json
+      val contentToEncode = new MarketPlaceInput("test-Zarafa", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList.empty,MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("0", "free")))).json
       Some(contentToEncode)
     }
 
@@ -115,7 +123,10 @@ class MarketPlaceSpec extends Specification {
   }
 
 
-    case object PostInvalidUrl extends Context {
+
+
+
+  case object PostInvalidUrl extends Context {
 
     protected override def urlSuffix: String = "marketplaces/contentinvalidurl"
 
@@ -135,8 +146,6 @@ class MarketPlaceSpec extends Specification {
     }
   }
 
-
-   //test case for invalidBody
 
 
   case object PostInvalidBody extends Context {
