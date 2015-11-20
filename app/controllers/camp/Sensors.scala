@@ -19,17 +19,11 @@ package controllers.camp
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
-
 import scalaz.Validation._
-import models._
-import controllers.stack._
-import controllers.stack.APIAuthElement
+
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-import org.megam.common.amqp._
-import play.api._
 import play.api.mvc._
-import play.api.mvc.Result
 import models.tosca._
 
 /**
@@ -37,7 +31,7 @@ import models.tosca._
  *
  */
 
-object Sensors extends Controller with APIAuthElement {
+object Sensors extends Controller with controllers.stack.APIAuthElement {
 
   /*
    * Create or update a new event by email/json input.
@@ -45,15 +39,12 @@ object Sensors extends Controller with APIAuthElement {
    */
 
   def post = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("camp.Sensors", "post:Entry"))
-
-    (Validation.fromTryCatchThrowable[Result, Throwable] {
+   (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("camp.Sensors", "request funneled."))
           models.tosca.Sensors.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
@@ -80,16 +71,11 @@ object Sensors extends Controller with APIAuthElement {
     * and in case of error, a json needs to be sent back.
     **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("nodename", id))
-
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Sensors wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Sensors", "request funneled."))
-
           models.tosca.Sensors.findById(List(id).some) match {
             case Success(succ) =>
               Ok(SensorsResults.toJson(succ, true))

@@ -24,6 +24,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.{HttpClient}
 import com.stackmob.newman.dsl._
+<<<<<<< HEAD
 import org.specs2._
 import org.specs2.Specification
 import org.specs2.matcher.MatchResult
@@ -31,12 +32,12 @@ import org.specs2.execute.{ Result => SpecsResult }
 import models.billing._
 import models.billing.Invoice
 
+=======
+import models.json.billing._
+>>>>>>> origin/0.9
 import test.{ Context }
 
- //* @author rajthilak
- //*
-
-class BilledhistoriesSpec extends Specification {
+ class BilledhistoriesSpec extends Specification {
 
   def is =
     "BilledhistoriesSpec".title ^ end ^ """

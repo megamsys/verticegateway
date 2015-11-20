@@ -1,8 +1,5 @@
 if [ "$1" = "remove" ]; then
+  [ -d /var/lib/megam/megamgateway  ] && rm -rf /var/lib/megam/megamgateway/
   [ -d /var/log/megam/megamgateway/ ] && rm -rf /var/log/megam/megamgateway/
   [ -d /var/run/megam/megamgateway/ ] && rm -rf /var/run/megam/megamgateway/
-fi
-
-if [ "$1" = "purge" ]; then
-  [ -f /var/lib/megam/.megam_auth ] && rm -f /var/lib/megam/.megam_auth
 fi

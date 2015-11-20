@@ -17,46 +17,30 @@ package controllers
 
 import scalaz._
 import Scalaz._
-import scalaz.NonEmptyList._
-
 import scalaz.Validation._
-import models._
-import controllers.stack._
-import controllers.stack.APIAuthElement
+
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-import org.megam.common.amqp._
-import play.api._
 import play.api.mvc._
-import play.api.mvc.Result
 
 /**
  * @author rajthilak
  *
  */
-
-/*
- *
- * If HMAC authentication is true then post or list the market places are executed
- *
- */
-object MarketPlaces extends Controller with APIAuthElement {
+object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
 
   /*
    * Create or update a new MarketPlace by email/json input.
    * Old value for the same key gets wiped out.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaces", "post:Entry"))
-
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+      (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaces", "request funneled."))
-          models.MarketPlaces.create(email, clientAPIBody) match {
+          models.base.MarketPlaces.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
                 FunnelResponse(CREATED, """Market Places created successfully.
@@ -82,19 +66,14 @@ object MarketPlaces extends Controller with APIAuthElement {
    * Output: JSON (MarketPlaceResult)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaces", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
-
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+      (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaces", "request funneled."))
-
-          models.MarketPlaces.findByName(Stream(id).some) match {
+          models.base.MarketPlaces.findByName(Stream(id).some) match {
             case Success(succ) =>
-              Ok(MarketPlaceResults.toJson(succ, true))
+              Ok(models.base.MarketPlaceResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -114,16 +93,14 @@ object MarketPlaces extends Controller with APIAuthElement {
    * Output: JSON (MarketPlacesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.MarketPlaces", "list:Entry"))
-
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+      (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.MarketPlaces.listAll match {
+          models.base.MarketPlaces.listAll match {
             case Success(succ) => {
-              Ok(MarketPlaceResults.toJson(succ, true))
+              Ok(models.base.MarketPlaceResults.toJson(succ, true))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

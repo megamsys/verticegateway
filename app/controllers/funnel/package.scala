@@ -17,15 +17,12 @@ package controllers
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import controllers.funnel.FunnelErrors._
-import controllers.funnel.FunnelResponsesSerialization
 
-import controllers.Constants._
+import controllers.funnel.FunnelErrors._
+import models.json.funnel.FunnelResponsesSerialization
 
 import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, StackableController }
 import java.io.{ StringWriter, PrintWriter }
@@ -50,7 +47,7 @@ package object funnel {
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(fres: FunnelResponses): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import controllers.funnel.FunnelResponsesSerialization.{ writer => FunResponsesWriter }
+      import FunnelResponsesSerialization.{ writer => FunResponsesWriter }
       toJSON(fres)(FunResponsesWriter)
     }
 

@@ -26,13 +26,12 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.billing.{ InvoicesResult }
+import models.billing._
 /**
  * @author ranjitha
  *
  */
-class InvoicesResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[InvoicesResult] {
+class InvoicesResultSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[models.billing.InvoicesResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
@@ -45,9 +44,9 @@ class InvoicesResultSerialization(charset: Charset = UTF8Charset) extends Serial
   protected val CurrencyTypeKey = "currency_type"
   protected val CreatedAtKey = "created_at"
 
-  override implicit val writer = new JSONW[InvoicesResult] {
+  override implicit val writer = new JSONW[models.billing.InvoicesResult] {
 
-    override def write(h: InvoicesResult): JValue = {
+    override def write(h: models.billing.InvoicesResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
         JField(AccountsIdKey, toJSON(h.accounts_id)) ::
@@ -63,9 +62,9 @@ class InvoicesResultSerialization(charset: Charset = UTF8Charset) extends Serial
     }
   }
 
-  override implicit val reader = new JSONR[InvoicesResult] {
+  override implicit val reader = new JSONR[models.billing.InvoicesResult] {
 
-    override def read(json: JValue): Result[InvoicesResult] = {
+    override def read(json: JValue): Result[models.billing.InvoicesResult] = {
 
       val idField = field[String](IdKey)(json)
       val accountsIdField = field[String](AccountsIdKey)(json)
@@ -79,7 +78,7 @@ class InvoicesResultSerialization(charset: Charset = UTF8Charset) extends Serial
 
     (idField |@| accountsIdField |@| fromDateField |@| toDateField |@| monthField |@| billTypeField |@| billingamountField |@| currencytypeField |@| createdAtField) {
          (id: String, accounts_id: String, from_date: String, to_date: String,  month: String, bill_type: String, billing_amount: String, currency_type: String, created_at: String) =>
-          new InvoicesResult(id, accounts_id, from_date, to_date, month, bill_type, billing_amount, currency_type, created_at)
+          new models.billing.InvoicesResult(id, accounts_id, from_date, to_date, month, bill_type, billing_amount, currency_type, created_at)
       }
     }
   }

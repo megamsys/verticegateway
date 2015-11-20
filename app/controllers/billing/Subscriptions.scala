@@ -19,42 +19,30 @@ package controllers.billing
 import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList._
-
 import scalaz.Validation._
-import models._
-import controllers.stack._
-import controllers.stack.APIAuthElement
+
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-import org.megam.common.amqp._
-import play.api._
+import models.billing._
 import play.api.mvc._
-import play.api.mvc.Result
-import models.tosca._
-
 
 /**
  * @author rajthilak
  *
  */
-
-
-object Subscriptions extends Controller with APIAuthElement {
+object Subscriptions extends Controller with controllers.stack.APIAuthElement {
 
   /**
    * Create a new subscription entries by email/json input.
-   **/
+   */
 
-  def post = StackAction(parse.tolerantText) {  implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Subscriptionss", "post:Entry"))
-
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+  def post = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          play.api.Logger.debug(("%-20s -->[%s]").format("billing.Subscriptions", "request funneled."))
           models.billing.Subscriptions.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
@@ -72,11 +60,6 @@ object Subscriptions extends Controller with APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-   }
-
-
-
-
-
+  }
 
 }

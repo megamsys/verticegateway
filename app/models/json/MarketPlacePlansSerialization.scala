@@ -20,8 +20,7 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
-import models._
+import models.base._
 import java.nio.charset.Charset
 /**
  * @author rajthilak
@@ -29,7 +28,7 @@ import java.nio.charset.Charset
  */
 object MarketPlacePlansSerialization extends SerializationBase[MarketPlacePlans] {
 
-  
+
   protected val ResultsKey = "plans"
 
   implicit override val writer = new JSONW[MarketPlacePlans] {

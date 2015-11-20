@@ -15,13 +15,9 @@
 */
 package controllers
 
-import java.nio.charset.Charset
-import play.api.Logger
-import scala.util.{ Try }
+import app.MConfig
 import play.api.http.HeaderNames._
 import controllers.stack.HeaderConstants._
-import controllers.stack.MConfig
-import java.io._
 
 /**
  * @author ram
@@ -32,7 +28,7 @@ object Constants {
 
   val VERSION = "0.9"
 
-  val UTF8Charset = Charset.forName("UTF-8")
+  val UTF8Charset = java.nio.charset.Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
 
   lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
@@ -56,8 +52,16 @@ object Constants {
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megambox.com"
 
-  val DELETE_REQUEST = "DESTROY"
-  val CREATE_REQUEST = "CREATE"
-
   val MEGAM_MKT_YAML = MConfig.marketplaces_yaml
+
+  val CREATE  = "create"
+  val DELETE  = "destroy"
+  val BIND    = "bind"
+  val BUILD   = "build"
+
+  val STATE   = "state"
+  val CONTROL = "control"
+  val CATTYPE_DOCKER = "MICROSERVICES"
+
+  val DOMAIN = "domain"
 }

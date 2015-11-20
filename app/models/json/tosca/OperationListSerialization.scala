@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,21 +20,20 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
 import models.tosca._
 import java.nio.charset.Charset
 /**
  * @author rajthilak
  *
  */
-object OperationListSerialization extends SerializationBase[OperationList] {
+object OperationListSerialization extends models.json.SerializationBase[OperationList] {
 
   implicit override val writer = new JSONW[OperationList] {
     override def write(h: OperationList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: Operation => nrOpt.toJValue
       }.some
-      
+
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }

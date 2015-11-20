@@ -23,20 +23,22 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import scalaz.syntax.SemigroupOps
 import org.megam.util.Time
-import Scalaz._
-import controllers.stack._
+
+import cache._
+import db._
+import models.base.Accounts
+import models.json.billing._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models._
-import models.billing._
-import models.cache._
-import models.riak._
+import app.MConfig
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import controllers.funnel.FunnelErrors._
+import app.MConfig
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -94,8 +96,6 @@ object Balances {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("balances")
 
-  //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
 
   val metadataKey = "Balances"
   val metadataVal = "Balances Creation"
@@ -108,11 +108,7 @@ object Balances {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.billing.Balances", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
-    val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatchThrowable[BalancesInput,Throwable] {
+  val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatchThrowable[BalancesInput,Throwable] {
       parse(input).extract[BalancesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -132,12 +128,7 @@ object Balances {
    * create a new balance entry for the user.
    *
    */
-
   def create(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -146,7 +137,7 @@ object Balances {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[BalancesResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Balances created. success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Balances.created. success",Console.RESET))
               (parse(gs.get.value).extract[BalancesResult].some).successNel[Throwable];
             }
           }
@@ -155,10 +146,6 @@ object Balances {
   }
 
    private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Balance Update", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatchThrowable[BalancesUpdateInput,Throwable] {
       parse(input).extract[BalancesUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -176,7 +163,7 @@ object Balances {
     }
   }
 
-    def NilorNot(rip: String, bal: String): String = {
+  def NilorNot(rip: String, bal: String): String = {
     rip == null match {
       case true => return bal
       case false => return rip
@@ -185,8 +172,6 @@ object Balances {
 
 
   def update(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "update:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
     for {
       gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
@@ -196,7 +181,7 @@ object Balances {
         case Some(thatGS) =>
           BalancesResult(thatGS.key, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
         case None => {
-          play.api.Logger.warn(("%-20s -->[%s]").format("Balances.updated successfully", "Scaliak returned => None. Thats OK."))
+          play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Balances.updated successfully",Console.RESET))
           BalancesResult(nrip.id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
 
         }
@@ -205,8 +190,6 @@ object Balances {
   }
 
   def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BalancesResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Balances", "findByName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("BalancesList", balanceList))
     (balanceList map {
       _.map { balanceName =>
         play.api.Logger.debug("models.BalanceName findByName: Balances:" + balanceName)

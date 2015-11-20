@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,14 +26,13 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
 import models.tosca.{ KeyValueField}
 
 /**
  * @author rajthilak
  *
  */
-class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends SerializationBase[KeyValueField] {
+class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[KeyValueField] {
 
   protected val NameKey = "key"
   protected val ValueKey = "value"

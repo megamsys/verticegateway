@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package models.json.tosca
+package models.json.billing
 
 
 import scalaz._
@@ -21,21 +21,21 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
+import models.json.billing._
 import models.billing._
 
 /**
  * @author morpheyesh
  *
  */
-object DiscountsResultsSerialization extends SerializationBase[DiscountsResults] {
+object DiscountsResultsSerialization extends models.json.SerializationBase[DiscountsResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
   implicit override val writer = new JSONW[DiscountsResults] {
     override def write(h: DiscountsResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[DiscountsResult] =>         
+        nrOpt: Option[DiscountsResult] =>
             (nrOpt.map { nr: DiscountsResult => nr.toJValue }).getOrElse(JNothing)
       }
       JObject(JField(JSONClazKey,JString("Megam::DiscountsCollection")) :: JField(ResultsKey,JArray(nrsList.list)) :: Nil)

@@ -12,7 +12,6 @@
 # Ignore Play! working directory #
 .gradle
 build/
-db
 eclipse
 lib
 log
@@ -28,14 +27,4 @@ server.pid
 *.iml
 *.eml
 *.log
-
-/bin/
-/bin/
-/bin/
-/bin/
-/bin/
-/bin/
-/bin/
-/bin/
-/bin/
 /bin/

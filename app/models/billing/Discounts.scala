@@ -23,19 +23,21 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import scalaz.syntax.SemigroupOps
-import org.megam.util.Time
-import controllers.stack._
+import controllers.funnel.FunnelErrors._
+
+import cache._
+import db._
+import models.base._
+import models.json.billing._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models._
-import models.billing._
-import models.cache._
-import models.riak._
+import app.MConfig
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -87,10 +89,6 @@ object DiscountsResult {
 object Discounts {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("discounts")
-
-  //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
-
   val metadataKey = "Discounts"
   val metadataVal = "Discounts Creation"
   val bindex = "Discounts"
@@ -102,17 +100,13 @@ object Discounts {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.billing.Discounts", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     val DiscountsInput: ValidationNel[Throwable, DiscountsInput] = (Validation.fromTryCatchThrowable[DiscountsInput, Throwable] {
       parse(input).extract[DiscountsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       discount <- DiscountsInput
-      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "dst").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
@@ -127,10 +121,6 @@ object Discounts {
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[DiscountsResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Discounts", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -139,7 +129,7 @@ object Discounts {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[DiscountsResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Discounts created. success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Discounts created. successfully",Console.RESET))
               (parse(gs.get.value).extract[DiscountsResult].some).successNel[Throwable];
             }
           }
@@ -147,10 +137,8 @@ object Discounts {
     }
   }
 
-  
+
   def findById(discID: Option[List[String]]): ValidationNel[Throwable, DiscountsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Discounts", "findByAccId:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("discountsID", discID))
     (discID map {
       _.map { dis_id =>
         play.api.Logger.debug(("%-20s -->[%s]").format("disc ID", dis_id))
@@ -159,7 +147,6 @@ object Discounts {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
                (Validation.fromTryCatchThrowable[DiscountsResult,Throwable] {
                 parse(xs.value).extract[DiscountsResult]
               } leftMap { t: Throwable => new MalformedBodyError(xs.value, t.getMessage) }).toValidationNel.flatMap { j: DiscountsResult =>
@@ -178,11 +165,7 @@ object Discounts {
     }).head //return the folded element in the head.
   }
 
-  
-  
-   def findByEmail(email: String): ValidationNel[Throwable, DiscountsResults] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("billing.Discounts", "findByEmail:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
+  def findByEmail(email: String): ValidationNel[Throwable, DiscountsResults] = {
     val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, DiscountsResults]] {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
@@ -201,5 +184,5 @@ object Discounts {
     }.run.map(_.validation).unsafePerformIO
     res.getOrElse(new ResourceItemNotFound(email, "Discounts = nothing found for the users.").failureNel[DiscountsResults])
   }
-  
+
 }

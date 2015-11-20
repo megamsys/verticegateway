@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,9 +25,9 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
+
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.AccountResult
+import models.base.AccountResult
 
 /**
  * @author ram
@@ -47,25 +47,24 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
   //protected val OrgKey = "org_id"
   protected val PasswordResetKey = "password_reset_key"
   protected val PasswordResetSentAtKey = "password_reset_sent_at"
-  protected val CreatedAtKey ="created_at"  
-  
+  protected val CreatedAtKey = "created_at"
 
   override implicit val writer = new JSONW[AccountResult] {
 
     override def write(h: AccountResult): JValue = {
       JObject(
-          JField(IdKey, toJSON(h.id)) ::
+        JField(IdKey, toJSON(h.id)) ::
           JField(FirstNameKey, toJSON(h.first_name)) ::
           JField(LastNameKey, toJSON(h.last_name)) ::
           JField(PhoneKey, toJSON(h.phone)) ::
           JField(EmailKey, toJSON(h.email)) ::
           JField(APIKey, toJSON(h.api_key)) ::
           JField(PasswordKey, toJSON(h.password)) ::
-          JField(AuthorityKey, toJSON(h.authority))    ::
+          JField(AuthorityKey, toJSON(h.authority)) ::
           //JField(OrgKey, toJSON(h.org_id))    ::
           JField(PasswordResetKey, toJSON(h.password_reset_key)) ::
           JField(PasswordResetSentAtKey, toJSON(h.password_reset_sent_at)) ::
-          JField(CreatedAtKey, toJSON(h.created_at))   :: 
+          JField(CreatedAtKey, toJSON(h.created_at)) ::
           JField(JSONClazKey, toJSON("Megam::Account")) :: Nil)
     }
   }
@@ -88,7 +87,7 @@ class AccountResultSerialization(charset: Charset = UTF8Charset) extends Seriali
       val createdAtField = field[String](CreatedAtKey)(json)
 
       (idField |@| firstNameField |@| lastNameField |@| phoneField |@| emailField |@| apiKeyField |@| passwordField |@| authorityField |@| passwordResetField |@| passwordResetSentAtField |@| createdAtField) {
-        (id: String, first_name: String, last_name: String, phone: String, email: String, apikey: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at:String,  created_at: String) =>
+        (id: String, first_name: String, last_name: String, phone: String, email: String, apikey: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) =>
           new AccountResult(id, first_name, last_name, phone, email, apikey, password, authority, password_reset_key, password_reset_sent_at, created_at)
       }
     }

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,9 @@ package controllers.funnel
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
-import scalaz.NonEmptyList._
+
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -39,7 +37,7 @@ case class FunnelResponse(code: Int, msg: String, more: String, json_claz: Strin
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import controllers.funnel.FunnelResponseSerialization
+    import models.json.funnel.FunnelResponseSerialization
     val funser = new FunnelResponseSerialization()
     toJSON(this)(funser.writer)
   }
@@ -55,12 +53,12 @@ case class FunnelResponse(code: Int, msg: String, more: String, json_claz: Strin
 object FunnelResponse {
 
   def apply(code: Int, message: String, json_claz: String): FunnelResponse = new FunnelResponse(code, message, new String(), json_claz, "info")
-  
+
   def apply(message: String, json_claz: String): FunnelResponse = FunnelResponse(OK, message, json_claz)
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[FunnelResponse] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import controllers.funnel.FunnelResponseSerialization
+    import models.json.funnel.FunnelResponseSerialization
     val funser = new FunnelResponseSerialization()
     fromJSON(jValue)(funser.reader)
   }
@@ -71,5 +69,5 @@ object FunnelResponse {
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
-   
+
 }

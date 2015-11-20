@@ -13,6 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 
+
 package test.tosca
 
 import org.specs2.mutable._
@@ -26,9 +27,6 @@ import com.stackmob.newman.dsl._
 import models.tosca._
 import models.tosca.Component
 import test.{ Context }
-
- * @author rajthilak
- *
 
 class ComponentsSpec extends Specification {
 

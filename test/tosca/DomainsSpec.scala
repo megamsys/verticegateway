@@ -13,6 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 
+
 package test.tosca
 
 import org.specs2.mutable._
@@ -24,16 +25,8 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.tosca._
-import models.tosca.Domains
+import models.team.Domains
 import test.{Context}
-
-
-
-
-
-
- * @author morpheyesh
- *
 
 
 class DomainsSpec extends Specification {
@@ -43,9 +36,9 @@ class DomainsSpec extends Specification {
     """ ^ end ^
   "The Client Should" ^
   "Correctly do POST requests with a valid domains name" ! Post.succeeds ^
-  //"Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-  //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-  //"Correctly do GET requests with a valid domains name" ! Get.succeeds ^
+  "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
+  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+  "Correctly do GET requests with a valid domains name" ! Get.succeeds ^
   end
 
 
@@ -70,10 +63,6 @@ case object Post extends Context {
 }
 
 
-
-   * test case for invalidUrl
-
-
   case object PostInvalidUrl extends Context {
 
     protected override def urlSuffix: String = "domains/contentinvalidurl"
@@ -94,10 +83,6 @@ case object Post extends Context {
     }
 
   }
-
-
-   * test case for invalidBody
-
 
   case object PostInvalidBody extends Context {
 
@@ -133,4 +118,5 @@ case object Post extends Context {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-} */
+}
+*/
