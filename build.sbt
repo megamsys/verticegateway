@@ -95,7 +95,7 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 
 enablePlugins(RpmPlugin)
 rpmVendor := "megam"
-rpmLicense := "ApacheV2"
+rpmLicense := Some("ApacheV2")
 
 
 
