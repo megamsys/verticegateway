@@ -1,5 +1,6 @@
 import sbt._
 import Process._
+import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "megamgateway"
 
@@ -85,6 +86,8 @@ libraryDependencies ++= Seq(filters, cache,
 
 enablePlugins(DebianPlugin)
 
+enablePlugins(RpmPlugin)
+
 NativePackagerKeys.defaultLinuxInstallLocation := "/usr/share/megam/"
 
 NativePackagerKeys.defaultLinuxLogsLocation := "/var/log/megam"
@@ -93,11 +96,6 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
       val nums = (v split "[^\\d]")
       "%s" format (sv)
 }
-
-enablePlugins(RpmPlugin)
-rpmVendor := "megam"
-rpmLicense := Some("ApacheV2")
-
 
 
 maintainer in Linux := "Rajthilak <rajthilak@megam.co.in>"
@@ -110,10 +108,24 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "megamcommon", "megamsnowflake", "apg", "bash")
+debianPackageDependencies in Debian ++= Seq("curl", "megamcommon", "megamsnowflake")
 
 debianPackageRecommends in Debian += "riak"
 
 linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
       packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
 }
+
+rpmVendor := "megam"
+
+rpmUrl := Some("https://www.megam.io")
+
+rpmLicense := Some("Apache v2")
+
+packageArchitecture in Rpm := "x86_64"
+
+serverLoading in Rpm := ServerLoader.Systemd
+
+rpmPost := None // disables starting the server on install
+
+linuxStartScriptTemplate in Rpm := (baseDirectory.value / "src" / "rpm" / "start").asURL
