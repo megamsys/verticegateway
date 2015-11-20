@@ -94,7 +94,9 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 }
 
 enablePlugins(RpmPlugin)
-rpmVendor := "typesafe"
+rpmVendor := "megam"
+rpmLicense := "ApacheV2"
+
 
 
 maintainer in Linux := "Rajthilak <rajthilak@megam.co.in>"
