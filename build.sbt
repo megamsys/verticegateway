@@ -94,6 +94,12 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
       "%s" format (sv)
 }
 
+enablePlugins(RpmPlugin)
+rpmVendor := "megam"
+rpmLicense := Some("ApacheV2")
+
+
+
 maintainer in Linux := "Rajthilak <rajthilak@megam.co.in>"
 
 packageSummary in Linux := "REST based API server - Gateway for Megam."
