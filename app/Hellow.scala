@@ -23,12 +23,11 @@ import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
-
 import db._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models.team.{Organizations, OrganizationsResults}
-import models.base.{RequestResult, MarketPlaceResults}
+import models.team.{ Organizations, OrganizationsResults }
+import models.base.{ RequestResult, MarketPlaceResults }
 
 import org.megam.common.uid.UID
 import org.megam.util.Time
@@ -48,16 +47,16 @@ case object Hellow {
     hunts: Map[String, THunt],
     mkps: MarketPlaceResults) {
 
-   //crude but for now its ok.
+    //crude but for now its ok.
     val stat = (hunts.map { x => (x._1, x._2._2.getOrElse("down")) }).toMap
     val loady = scala.collection.immutable.TreeMap((mkps.list.flatten.sortWith(_.cattype < _.cattype).map { x =>
-        (x.cattype +"."+x.name, x.id  + "|"  + x.image + "." + x.plans.size.toString)
-      }).toMap.toSeq:_*)
+      (x.cattype + "." + x.name, x.image + "." + x.plans.size.toString + "," + x.id)
+    }).toMap.toSeq: _*)
 
-    val json =  Json.prettyPrint(Json.toJson(Map("status" -> stat,
-        "runtime" -> infra,
-        "loaded" ->  loady)))
-   println(json)
+    val json = Json.prettyPrint(Json.toJson(Map("status" -> stat,
+      "runtime" -> infra,
+      "loaded" -> loady)))
+    println(json)
 
   }
 
@@ -84,7 +83,7 @@ case object Hellow {
     import runtime.{ totalMemory, freeMemory, maxMemory, availableProcessors }
     List((TOTAL_MEMORY, (totalMemory / (1024 * 1024) + " MB")), (FREE_MEMORY, (freeMemory / (1024 * 1024)) + " MB"),
 
-    (CPU_CORES, (mxbean.getAvailableProcessors()).toString))   ++
+      (CPU_CORES, (mxbean.getAvailableProcessors()).toString)) ++
       (java.io.File.listRoots map { root =>
         (SPACE, root.getFreeSpace / (1024 * 1024 * 1024) + " of " + (root.getTotalSpace / (1024 * 1024 * 1024)) + " GB")
       }).toList
@@ -103,7 +102,7 @@ case object Hellow {
   }
 
   //ping rabbitmq, by droping a DUM0001 req
-  private val amqp = new wash.AOneWasher(new wash.PQd(RequestResult("r001","001","torpedo","megam.test","start","test","nop"))).wash match {
+  private val amqp = new wash.AOneWasher(new wash.PQd(RequestResult("r001", "001", "torpedo", "megam.test", "start", "test", "nop"))).wash match {
     case Success(succ_uid) => (MConfig.amqpurl, Some(RUNNING))
     case Failure(erruid) => (MConfig.amqpurl, none)
   }
@@ -111,7 +110,7 @@ case object Hellow {
   val sharks = Map(RIAK -> gwr, SNOWFLAKE -> uid, RABBITMQ -> amqp)
 
   //super confusing, all we are trying to do is find the overal status by filte
- val sharkBite = sharks.values.filter(_._2.isEmpty)
+  val sharkBite = sharks.values.filter(_._2.isEmpty)
 
   private val mkps = models.base.MarketPlaces.listAll match {
     case Success(succ_mkps) => succ_mkps
