@@ -14,16 +14,24 @@
 ** limitations under the License.
 */
 
- import org.specs2.mutable._
- import org.specs2.Specification
- import java.net.URL
- import org.specs2.matcher.MatchResult
- import org.specs2.execute.{ Result => SpecsResult }
- import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
- import com.stackmob.newman._
- import com.stackmob.newman.dsl._
- import models.base._
- import test.{ Context }
+package test
+
+import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
+import org.specs2.mutable._
+import org.specs2.Specification
+import java.net.URL
+import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
+import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
+import com.stackmob.newman._
+import com.stackmob.newman.dsl._
+import controllers.stack.HeaderConstants._
+import models.base._
+import test._
+
 
 class MarketPlaceSpec extends Specification {
   def is =
@@ -47,14 +55,8 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new MarketPlaceInput("test-Alfresco",
-        new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/alfresco.png",
-            "ECM",
-            "Alfresco Community Edition allows organizations to manage any type of content from simple office documents to scanned images, photographs, engineering drawings and large video files. It is commonly used as a: Document management system, Content platform, CMIS-compliant repository"),
-        new MarketPlaceFeatures("Many companies have documents stored all over the place – on desktop computers, laptops, network drives, email, USB sticks and various consumer file sharing sites. And with contracts stored by customer, invoices by month, case files by case number, and consulting reports by year, it is difficult to get a 360° view of a customer’s information, which makes effective collaboration almost impossible.",
-            "Alfresco enables you to manage your business critical documents like contracts, proposals, agreements, marketing and sales materials, as well as technical renderings and manuals","Add-Ons — Ability to download and install additional product extensions (see http://addons.alfresco.com/)", "Alfresco saves valuable time otherwise wasted searching for information and recreating misplaced documents, and eliminates mistakes and costs associated with using the wrong version."),
-        MarketPlacePlans(List((new MarketPlacePlan("0", "Alfresco community edition", "free","4.2", "Work in progress.")), ((new MarketPlacePlan("0", "Alfresco community edition", "free","4.2", "Work in progress."))))),
-            new MarketPlaceAppLinks("", "", "", "", "", "", ""), "false", "predefnode", "false").json
+      val contentToEncode = new MarketPlaceInput("test-Alfresco", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList.empty,
+        MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("4.2", "Work in progress.")))).json
       Some(contentToEncode)
     }
 
@@ -77,7 +79,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-          val contentToEncode = new MarketPlaceInput("test-Zarafa", new MarketPlaceCatalog("https://s3-ap-southeast-1.amazonaws.com/megampub/images/market_place_images/zarafa.png", "Email", ""), new MarketPlaceFeatures("", "", "", ""), MarketPlacePlans(List(new MarketPlacePlan("0", "", "free","",""))), new MarketPlaceAppLinks("#", "#", "#", "#", "#", "#", "#"), "false", "predefnode", "false").json
+      val contentToEncode = new MarketPlaceInput("test-Zarafa", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList.empty,MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("0", "free")))).json
       Some(contentToEncode)
     }
 
@@ -121,7 +123,10 @@ class MarketPlaceSpec extends Specification {
   }
 
 
-    case object PostInvalidUrl extends Context {
+
+
+
+  case object PostInvalidUrl extends Context {
 
     protected override def urlSuffix: String = "marketplaces/contentinvalidurl"
 
@@ -141,8 +146,6 @@ class MarketPlaceSpec extends Specification {
     }
   }
 
-
-   * test case for invalidBody
 
 
   case object PostInvalidBody extends Context {
@@ -196,4 +199,3 @@ class MarketPlaceSpec extends Specification {
   }
 
 }
- */

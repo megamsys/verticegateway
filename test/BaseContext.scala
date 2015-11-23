@@ -52,6 +52,12 @@ trait BaseContext {
 
   val X_Megam_EMAIL = "X-Megam-EMAIL"
   val X_Megam_APIKEY = "X-Megam-APIKEY"
+  val X_Megam_DATE = "X-Megam-DATE"
+  val Content_Type = "Content-Type"
+  val application_json = "application/json"
+  val Accept = "Accept"
+  val application_vnd_megam_json = "application/vnd.megam+json"
+
 
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 

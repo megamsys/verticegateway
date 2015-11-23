@@ -23,8 +23,9 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
+import controllers.stack._
 import models.base._
-import test.{ Context }
+import test._
 
 class AccountsSpec extends Specification {
 
@@ -115,9 +116,9 @@ class AccountsSpec extends Specification {
   case object GetInvalidApi extends Context {
     protected override def urlSuffix: String = "accounts/megam@mypaas.io"
 
-    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
+    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> "Content-Type",
       X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
-      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
+      X_Megam_DATE -> "X-Megam-DATE", Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)
       .addHeaders(headers)
