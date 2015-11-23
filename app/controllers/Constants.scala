@@ -51,15 +51,14 @@ object Constants {
 
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megambox.com"
-
   val MEGAM_MKT_YAML = MConfig.marketplaces_yaml
 
-  val CREATE  = "create"
-  val DELETE  = "destroy"
-  val BIND    = "bind"
-  val BUILD   = "build"
+  val CREATE = "create"
+  val DELETE = "destroy"
+  val BIND = "bind"
+  val BUILD = "build"
 
-  val STATE   = "state"
+  val STATE = "state"
   val CONTROL = "control"
   val CATTYPE_DOCKER = "microservices"
 
