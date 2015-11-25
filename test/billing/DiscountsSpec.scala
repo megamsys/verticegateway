@@ -15,17 +15,26 @@
 
 package test.billing
 
+import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.{ Result => SpecsResult }
+ import org.apache.http.impl.execchain.ClientExecChain
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
+import scala.concurrent._
+import scala.concurrent.duration._
+import java.net.URL
+import controllers.stack.HeaderConstants._
+import models.base._
 import models.json.billing._
-import test.{ Context }
-
+import test._
  
 class DiscountsSpec extends Specification {
 

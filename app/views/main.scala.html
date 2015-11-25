@@ -27,56 +27,11 @@
   <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
   <!-- Stylesheet CSS -->
-  <link rel="stylesheet" type="text/css" id="bootstrap-type" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
-  <link rel="stylesheet" href="@routes.Assets.at("stylesheets/jquery.mmenu.css")">
-  <link rel="stylesheet" href="@routes.Assets.at("stylesheets/simple-line-icons.css")">
-  <link rel="stylesheet" href="@routes.Assets.at("stylesheets/font-awesome.min.css")">
   <link rel="stylesheet" href="@routes.Assets.at("stylesheets/style.min.css")">
   <link rel="stylesheet" href="@routes.Assets.at("stylesheets/add-ons.min.css")">
-
-  <!-- Bootstrap/JQuery -->
-  <script src="@routes.Assets.at("javascripts/jquery-2.1.1.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/jquery-migrate-1.2.1.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/bootstrap.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/moment.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/jquery.autosize.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/jquery.placeholder.min.js")" type="text/javascript"></script>
-
-  <!-- theme scripts -->
-  <script src="@routes.Assets.at("javascripts/jquery.mmenu.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/pace.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/core.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/index.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/jquery.cookie.min.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/demo.min.js")" type="text/javascript"></script>
 </head>
 
 <body>
-  <!-- start: Header -->
-  <div class="navbar" role="navigation">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="https://www.megam.io" target="_blank"><i class="icon-rocket"></i> <span>Gateway</span></a>
-    </div>
-    <ul class="nav navbar-nav navbar-actions navbar-left">
-      <li class="visible-md visible-lg"><a href="#" id="main-menu-toggle"><i class="fa fa-bars"></i></a></li>
-      <li class="visible-xs visible-sm"><a href="#" id="sidebar-menu"><i class="fa fa-bars"></i></a></li>
-    </ul>
-    <form class="navbar-form navbar-left" method="get" action="http://www.google.com/search">
-      <i class="fa fa-search"></i>
-      <input type="text" class="form-control" placeholder="Are you looking for something ?" name="q" size="25" maxlength="255" value="">
-    </form>
-    <ul class="nav navbar-nav navbar-right visible-md visible-lg">
-      <li>
-        <button class="btn btn-default"><a href="http://docs.megam.io" target="_blank">Docs</a></button>
-      </li>
-      <li>
-        <button class="btn btn-success"><a href="https://console.megam.io" target="_blank">Launch</a></button>
-      </li>
-      <li><a href="/avastye"><i class="icon-speech"></i></a></li>
-    </ul>
-  </div>
-  <!-- end: Header -->
-  @leftmenu()
   <!-- start: Content -->
   <div class="main">
     @content

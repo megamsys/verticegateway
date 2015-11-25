@@ -13,7 +13,7 @@ API server for "[Megam cloud platform](https://www.megam.io)". The API server pr
 ### Requirements
 
 >
-[RabbitMQ 3.3.0 +](http://www.rabbitmq.com)
+[RabbitMQ 3.5.0 +](http://www.rabbitmq.com)
 [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
 [Riak 2.1.1 +](http://docs.basho.com/riak/latest/downloads/)
 

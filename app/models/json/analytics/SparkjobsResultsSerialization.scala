@@ -52,7 +52,7 @@ object SparkjobsResultsSerialization extends models.json.SerializationBase[Spark
               case Failure(fail) => List[SparkjobsResult]()
             }
           } map { x: SparkjobsResult => x.some }
-          //this is screwy. Making the BalancesResults as Option[NonEmptylist[BalancesResult]] will solve it.
+        
           val nrs: SparkjobsResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
