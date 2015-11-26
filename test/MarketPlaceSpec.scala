@@ -1,18 +1,18 @@
 /**
- ** Copyright [2013-2015] [Megam Systems]
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-** http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ * * Copyright [2013-2015] [Megam Systems]
+ * *
+ * * Licensed under the Apache License, Version 2.0 (the "License");
+ * * you may not use this file except in compliance with the License.
+ * * You may obtain a copy of the License at
+ * *
+ * * http://www.apache.org/licenses/LICENSE-2.0
+ * *
+ * * Unless required by applicable law or agreed to in writing, software
+ * * distributed under the License is distributed on an "AS IS" BASIS,
+ * * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * * See the License for the specific language governing permissions and
+ * * limitations under the License.
+ */
 
 package test
 
@@ -25,7 +25,7 @@ import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.{ Result => SpecsResult }
- import org.apache.http.impl.execchain.ClientExecChain
+import org.apache.http.impl.execchain.ClientExecChain
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
@@ -36,7 +36,6 @@ import controllers.stack.HeaderConstants._
 import models.base._
 import test._
 
-
 class MarketPlaceSpec extends Specification {
   def is =
     "MarketPlacesSpec".title ^ end ^
@@ -45,13 +44,13 @@ class MarketPlaceSpec extends Specification {
     """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests" ! Post0.succeeds ^ br ^
-      /*"Correctly do POST requests" ! Post1.succeeds ^
+      "Correctly do POST requests" ! Post1.succeeds ^
       "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^ */
+      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   case object Post0 extends Context {
@@ -59,30 +58,16 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-      //val contentToEncode = new MarketPlaceInput("test-Alfresco", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList(scala.collection.immutable.List(new models.tosca.KeyValueField("key", "value"))), MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("0", "free")))).json
-      val contentToEncode=  "{" +
-        "\"name\": \"test-Alfresc\"," +
-        "\"cattype\":\"cattype\"," +
-        "\"order\": \"5\"," +
-        "\"image\":\"logo.png\"," +
-        "\"url\":\"megambox.com\"," +
-        "\"image\":\"logo.png\"," +
-        "\"envs\":["+
-        "{"+
-        "\"key\":\"username\","
-        "\"value\" :\"admin\""+
-        "}"+
-        "]," +
-        "\"plans\":["+
-        "{"+
-        "\"price\":\"30\","+
-        "\"description\":\"description\","+
-        "\"plantype\":\"paid\", "+
-        "\"version\":\"0.1\", "+
-        "\"source\":\"source\""+
-        "}"+
-        "]" +
-  "}"
+<
+      val contentToEncode = "{" +
+        "\"name\": \"test-Alfresc\"," +
+        "\"cattype\":\"cattype\"," +
+        "\"order\": \"5\"," +
+        "\"image\":\"logo.png\"," +
+        "\"url\":\"megambox.com\"," +
+        "\"envs\":[{\"key\":\"username\", \"value\" :\"admin\"}]," +
+        "\"plans\":[{\"price\":\"30\", \"description\":\"description\", \"plantype\":\"paid\", \"version\":\"0.1\", \"source\":\"source\"}]" +
+        "}"
       Some(contentToEncode)
     }
 
@@ -105,7 +90,16 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new MarketPlaceInput("test-Zarafa", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList.empty,MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("0", "free")))).json
+      //  val contentToEncode = new MarketPlaceInput("test-Zarafa", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList.empty,MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("0", "free")))).json
+      val contentToEncode = "{" +
+        "\"name\": \"test-Alfresc\"," +
+        "\"cattype\":\"cattype\"," +
+        "\"order\": \"5\"," +
+        "\"image\":\"logo.png\"," +
+        "\"url\":\"megambox.com\"," +
+        "\"envs\":[{\"key\":\"username\", \"value\" :\"admin\"}]," +
+        "\"plans\":[{\"price\":\"30\", \"description\":\"description\", \"plantype\":\"paid\", \"version\":\"0.1\", \"source\":\"source\"}]" +
+        "}"
       Some(contentToEncode)
     }
 
@@ -136,7 +130,7 @@ class MarketPlaceSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "marketplaces/34-Trac"
+    protected override def urlSuffix: String = "marketplaces/test-Alfresc"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -147,10 +141,6 @@ class MarketPlaceSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
-
-
-
-
 
   case object PostInvalidUrl extends Context {
 
@@ -171,8 +161,6 @@ class MarketPlaceSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
-
-
 
   case object PostInvalidBody extends Context {
 
@@ -198,7 +186,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/ec2_rails"
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
+      X_Megam_EMAIL -> "tour@megam.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
       X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)

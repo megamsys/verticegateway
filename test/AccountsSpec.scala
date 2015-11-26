@@ -47,7 +47,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"megam9@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"first_name\":\"Darth\", \"last_name\":\"Vader\", \"phone\":\"19090909090\", \"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -87,7 +87,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\"}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -98,11 +98,11 @@ class AccountsSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
     }
   }
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/a@b.com"
+    protected override def urlSuffix: String = "accounts/m@n.com"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -136,7 +136,7 @@ class AccountsSpec extends Specification {
       .addHeaders(headers)
     def succeeds = {
       val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Unauthorized)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
 
