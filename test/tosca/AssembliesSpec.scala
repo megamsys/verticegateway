@@ -35,8 +35,8 @@ class AssembliesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
-      "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
+      //"Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
+      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
       end
 
 
@@ -50,8 +50,7 @@ class AssembliesSpec extends Specification {
         "\"assemblies\":[ " +
         "{ " +
         "\"name\":\"PaulineHarper\"," +
-        "\"components\":[" +
-        "{" +
+        "\"org_id\":\"ORG123\"," +
         "\"name\":\"GussieMathis\"," +
         "\"tosca_type\":\"tosca.web.riak\"," +
         "\"inputs\":["+
