@@ -1,9 +1,13 @@
-
+#!/bin/bash
 set -e
 
-MEGAMHOME=/var/lib/megam
+MEGAM_HOME=/var/lib/megam
 MEGAM_GROUP=megam
 MEGAM_USER=megam
+
+mkdir -p $MEGAM_HOME/megamgateway
+cp  /usr/share/megam/megamgateway/conf/marketplaces.yaml $MEGAM_HOME/megamgateway/
+cp  /usr/share/megam/megamgateway/conf/gateway.conf  $MEGAM_HOME/megamgateway/
 
 [ -d /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
