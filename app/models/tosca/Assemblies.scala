@@ -143,14 +143,14 @@ object Assemblies {
 
   // A private method which chains computation to make GunnySack when provided with an input json, email.
   // After that flatMap on its success and the account id information is looked up.
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
+  private def mkGunnySack(authBag: Option[controllers.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
     val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput, Throwable] {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
     for {
       rip <- ripNel
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      ams <- (AssemblysList.createLinks(email, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (Accounts.findByEmail(authBag.get.email) leftMap { t: NonEmptyList[Throwable] => t })
+      ams <- (AssemblysList.createLinks(authBag, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id, rip.org_id)
@@ -162,8 +162,8 @@ object Assemblies {
     }
   }
 
-  def create(email: String, input: String): ValidationNel[Throwable, AssembliesResult] = {
-    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
+  def create(authBag: Option[controllers.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
+    (mkGunnySack(authBag, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { wa: WrapAssembliesResult =>
       (riak.store(wa.thatGS.get) leftMap { t: NonEmptyList[Throwable] => t }).
@@ -172,7 +172,7 @@ object Assemblies {
             case Some(thatGS) => wa.ams.get.successNel[Throwable]
             case None => {
               play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assemblies.created success", Console.RESET))
-              pub(email, wa)
+              pub(authBag.get.email, wa)
             }
           }
         }
