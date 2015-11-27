@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 
 package test.tosca
 
@@ -35,12 +35,12 @@ class AssemblySpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-       "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+       //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
       "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "assembly/ASM1149695136490455040"
+    protected override def urlSuffix: String = "assembly/ASM1281994281950773248"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -58,21 +58,20 @@ class AssemblySpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"id\":\"ASM1139235178976247808\"," +
+        "\"id\":\"ASM1282015862542434304\"," +
         "\"json_claz\":\"Megam::Assembly\"," +
         "\"name\":\"calcines\"," +
-        "\"components\":[\"COM1139235178934304768\",\"\"]," +
-        "\"tosca_type\":\"ubuntu\"," +
-         "\"requirements\":[" +
-        "{\"key\":\"host\",\"value\":\"aws516887611449540608\"}," +
-        "]," +
+        "\"components\":[\"COM1282015862571794432\"]," +
+        "\"tosca_type\":\"tosca.torpedo.coreos\"," +
         "\"policies\":[{ " +
         "\"name\":\"bind policy\"," +
         "\"ptype\":\"colocated\"," +
         "\"members\":[\"calcines.megam.co/MattieGarcia\",\"calcines.megam.co/parsnip\"]" +
         "}]," +
-        "\"inputs\":[]," +
-        "\"operations\":\"\"," +
+        "\"inputs\":["+
+        "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
+          "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
+        "]," +
         "\"outputs\":[]," +
         "\"status\":\"Launching\"," +
         "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
@@ -92,4 +91,4 @@ class AssemblySpec extends Specification {
     }
   }
 
-}*/
+}

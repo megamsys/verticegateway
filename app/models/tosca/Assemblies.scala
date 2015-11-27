@@ -170,6 +170,7 @@ object Assemblies {
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {
             case Some(thatGS) => wa.ams.get.successNel[Throwable]
+
             case None => {
               play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assemblies.created success", Console.RESET))
               pub(email, wa)
