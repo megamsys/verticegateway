@@ -102,7 +102,7 @@ class AccountsSpec extends Specification {
     }
   }
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/m@n.com"
+    protected override def urlSuffix: String = "accounts/mm@e.com"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

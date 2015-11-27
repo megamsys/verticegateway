@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 
 package test.tosca
 
@@ -35,12 +35,12 @@ class ComponentsSpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+    //  "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
       "Correctly do POST  requests with an valid Assembly ID" ! updateApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "components/COM1133824040297955328"
+    protected override def urlSuffix: String = "components/COM1282017289125888000"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -58,34 +58,44 @@ class ComponentsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"id\": \"COM1139245887592202240\"," +
+        "\"id\": \"COM1282017289125888000\"," +
         "\"name\":\"NettieMoore\"," +
         "\"tosca_type\":\"tosca.web.redis\"," +
         "\"inputs\":[" +
         "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
         "{\"key\":\"port\",\"value\":\"6379\"}," +
-        "{\"key\":\"design_inputs\",\"value\":{" +
-        "\"id\":\"39bb18e7.c644e8\"," +
-        "\"x\":\"802\"," +
-        "\"y\":\"331\"," +
-        "\"z\":\"3f43bde9.c0bc42\"," +
-        "\"wires\":[\"cae50d7.f351af\"]" +
-        "}}]," +
+        "{\"key\":\"design_inputs\",\"value\":\"39bb18e7.c644e8\"}" +
+        "]," +
         "\"outputs\":[]," +
+        "\"envs\":[ " +
+        "{\"key\":\"host\",\"value\":\"localhost\"}," +
+        "{\"key\":\"port\",\"value\":\"8080\"}," +
+          "{\"key\":\"username\",\"value\":\"admin\"}," +
+          "{\"key\":\"password\",\"value\":\"admin\"}" +
+        "],"+
         "\"artifacts\":{" +
         "\"artifact_type\":\"\"," +
         "\"content\":\"\"," +
         "\"artifact_requirements\":\"\"" +
         "}," +
-        "\"related_components\":\"AntonioMcCormick.megam.co/TimothyHenderson\"," +
+        "\"related_components\":[\"AntonioMcCormick.megam.co/TimothyHenderson\"]," +
         "\"operations\":[" +
-        "{\"key\":\"ci\",\"value\":{" +
-        "\"scm\":\"github\"," +
-        "\"enable\":\"true\"," +
-        "\"token\":\"token\"," +
-        "\"owner\":\"owner\"" +
-        "}}]," +
+        "{" +
+        "\"operation_type\":\"CI\"," +
+        "\"description\":\"continous Integration\"," +
+        "\"operation_requirements\":[" +
+        "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
+        "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
+        "{\"key\":\"ci-token\",\"value\":\"token\"}," +
+        "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
+        "]}]," +
         "\"status\":\"\"" +
+        "\"repo\":{"+
+        "\"rtype\":\"image\"," +
+        "\"source\":\"github\"," +
+         "\"oneclick\":\"yes\"," +
+         "\"url\":\"imagename\"" +
+          "}," +
         "\"created_at\":\"2014-10-29 14:06:39 +0000\"" +
         "}"
 
@@ -103,4 +113,4 @@ class ComponentsSpec extends Specification {
     }
   }
 
-} */
+}
