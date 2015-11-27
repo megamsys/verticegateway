@@ -61,6 +61,13 @@ object Constants {
   val STATE = "state"
   val CONTROL = "control"
   val CATTYPE_DOCKER = "microservices"
-
   val DOMAIN = "domain"
+
+  val EMAIL = "email"
+  val API_KEY = "api_key"
+  val ASSEMBLY_ID = "assembly_id"
+  val COMP_ID = "component_id"
+  val HOST = "host"
+  val SPARK_JOBSERVER = "spark_jobserver"
+
 }

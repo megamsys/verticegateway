@@ -34,4 +34,6 @@ object MConfig {
   val standup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.standup.exchange").get
   val dockerup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.dockerup.queue").get
   val dockerup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.dockerup.exchange").get
+  val spark_jobserver = play.api.Play.application(play.api.Play.current).configuration.getString("spark.jobserver").get
+
   }
