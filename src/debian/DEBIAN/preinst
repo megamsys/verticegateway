@@ -1,3 +1,4 @@
+#!/bin/bash
 [ -d /var/log/megam/megamgateway/ ] ||  mkdir -p /var/log/megam/megamgateway/
 
 [ -d /var/lib/megam/megamgateway/ ] ||  mkdir -p /var/lib/megam/megamgateway/

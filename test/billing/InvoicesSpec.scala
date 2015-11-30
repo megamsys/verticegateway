@@ -34,6 +34,8 @@ InvoicesSpec is the implementation that calls the megam_play API server with the
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST  requests with an valid datas "! create.succeeds^
+      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
       end
 
     case object create extends Context {
@@ -61,6 +63,30 @@ InvoicesSpec is the implementation that calls the megam_play API server with the
     def succeeds: SpecsResult = {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+  case object List extends Context {
+    protected override def urlSuffix: String = "invoices"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+  case object Get extends Context {
+    protected override def urlSuffix: String = "invoices/INV1280838174226120704"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
 

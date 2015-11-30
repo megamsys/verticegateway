@@ -39,7 +39,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.tosca.Assemblies.create(email, clientAPIBody) match {
+          models.tosca.Assemblies.create(apiAccessed, clientAPIBody) match {
             case Success(wrapasm) =>
             Status(CREATED)(FunnelResponse(CREATED, """Submitted successfully.
             |

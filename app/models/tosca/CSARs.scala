@@ -176,12 +176,13 @@ object CSARs {
     }).head //return the folded element in the head.
   }
 
-  def push(email: String, input: String): ValidationNel[Throwable, AssembliesResult] = {
+  def push(authBag: Option[controllers.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
+    val email: String = authBag.get.email
     for {
       csar <- (CSARs.getCSAR(input) leftMap { err: NonEmptyList[Throwable] => err })
       csir <- (getCsarLink(csar) leftMap { err: NonEmptyList[Throwable] => err })
       json <- (getYaml(csir) leftMap { err: NonEmptyList[Throwable] => err })
-      asm <- (Assemblies.create(email, json) leftMap { err: NonEmptyList[Throwable] => err })
+      asm <- (Assemblies.create(authBag, json) leftMap { err: NonEmptyList[Throwable] => err })
     } yield {
       play.api.Logger.debug("tosca.CSARs Pushed: csars:" + json)
       asm

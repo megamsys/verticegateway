@@ -263,26 +263,36 @@ object ComponentsList {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(email: String, input: Component, asm_id: String): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkGunnySack(authBag: Option[controllers.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, Option[GunnySack]] = {
     for {
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (Accounts.findByEmail(authBag.get.email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "com").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-
+      import models.tosca.KeyValueList._
       val bvalue = Set(aor.get.id)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name + "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) + ",\"envs\":" + KeyValueList.toJson(input.envs, true) + ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) + ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status + "\",\"repo\":" + input.repo.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
+      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"name\":\"" + input.name +
+        "\",\"tosca_type\":\"" + input.tosca_type + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"outputs\":" + KeyValueList.toJson(input.outputs, true) +
+        ",\"envs\":" + KeyValueList.toJson(input.envs, true,
+          Map(MKT_FLAG_EMAIL -> authBag.get.email,
+            MKT_FLAG_APIKEY -> authBag.get.api_key,
+            MKT_FLAG_ASSEMBLY_ID -> asm_id,
+            MKT_FLAG_COMP_ID -> (uir.get._1 + uir.get._2),
+            MKT_FLAG_SPARKJOBSERVER -> app.MConfig.spark_jobserver)) +
+          ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) +
+          ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status +
+          "\",\"repo\":" + input.repo.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
 
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
 
-  def createLinks(email: String, input: ComponentsList, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
+  def createLinks(authBag: Option[controllers.stack.AuthBag], input: ComponentsList, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
     var res = (ComponentsResults.empty).successNel[Throwable]
     if (input.isEmpty) {
       res = (ComponentsResults.empty).successNel[Throwable]
     } else {
-      res = (input map { asminp => (create(email, asminp, asm_id))
+      res = (input map { asminp => (create(authBag, asminp, asm_id))
       }).foldRight((ComponentsResults.empty).successNel[Throwable])(_ +++ _)
     }
     play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Components", res))
@@ -293,8 +303,8 @@ object ComponentsList {
    * create new market place item with the 'name' of the item provide as input.
    * A index name assemblies name will point to the "csars" bucket
    */
-  def create(email: String, input: Component, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
-    (mkGunnySack(email, input, asm_id) leftMap { err: NonEmptyList[Throwable] =>
+  def create(authBag: Option[controllers.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
+    (mkGunnySack(authBag, input, asm_id) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input.name, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
 
@@ -303,7 +313,7 @@ object ComponentsList {
           maybeGS match {
             case Some(thatGS) => nels((parse(thatGS.value).extract[ComponentResult]).some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Components.created success", Console.RESET))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Components.created success", Console.RESET))
               nels((parse(gs.get.value).extract[ComponentResult]).some).successNel[Throwable];
             }
           }

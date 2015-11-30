@@ -21,12 +21,10 @@ import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
 import models.json.tosca.CSARResultsSerialization.{ writer => CSARResultsWriter }
 
-
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import controllers.Constants._
-
 
 /**
  * @author ram
@@ -218,7 +216,6 @@ package object tosca {
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
   }
 
-  
   type SensorsResults = NonEmptyList[Option[SensorsResult]]
 
   object SensorsResults {
@@ -241,7 +238,6 @@ package object tosca {
     def apply(m: SensorsResult): SensorsResults = SensorsResults(m.some)
     def empty: SensorsResults = nel(emptyNR.head, emptyNR.tail)
   }
-
 
   type PoliciesList = List[Policy]
 
@@ -301,10 +297,26 @@ package object tosca {
 
   }
 
-
   type KeyValueList = List[KeyValueField]
 
   object KeyValueList {
+
+    val MKT_FLAG_EMAIL = "<email>"
+    val MKT_FLAG_APIKEY = "<api_key>"
+    val MKT_FLAG_ASSEMBLY_ID = "<assembly_id>"
+    val MKT_FLAG_COMP_ID = "<component_id>"
+    val MKT_FLAG_SPARKJOBSERVER = "<spark_jobserver>"
+    val MKT_FLAG_HOST = "<host>"
+
+    //this is boring, actually you can take MKT_FLAG_EMAIL and strip <, > and prefix OJA_ toUpper.
+    val BuiltInEnvsKeys: Map[String, String] = Map(
+      EMAIL -> "OJA_EMAIL",
+      API_KEY -> "OJA_APIKEY",
+      ASSEMBLY_ID -> "OJA_ASSEMBLY_ID",
+      COMP_ID -> "OJA_COMPONENT_ID",
+      HOST -> "OJA_HOST",
+      SPARK_JOBSERVER -> "OJA_SPARK_JOBSERVER")
+
     val emptyRR = List(KeyValueField.empty)
     def toJValue(nres: KeyValueList): JValue = {
 
@@ -319,10 +331,13 @@ package object tosca {
       fromJSON(jValue)(KeyValueListReader)
     }
 
-    def toJson(nres: KeyValueList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
+    def toJson(nres: KeyValueList, prettyPrint: Boolean = false, flagsMap: Map[String, String] = Map()): String = {
+      val nrec = nres.map { x => KeyValueField(BuiltInEnvsKeys.get(x.key).getOrElse(x.key), flagsMap.get(x.value).getOrElse(x.value)) }
+      if (prettyPrint) {
+        pretty(render(toJValue(nrec)))
+      } else {
+        compactRender(toJValue(nrec))
+      }
     }
 
     def apply(plansList: List[KeyValueField]): KeyValueList = plansList

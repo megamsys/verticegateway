@@ -65,8 +65,8 @@ incOptions := incOptions.value.withNameHashing(true)
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
+resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
-resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases"
 resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 resolvers += "Spray repo" at "http://repo.spray.io"
 resolvers += "Spy Repository" at "http://files.couchbase.com/maven2"
@@ -77,9 +77,10 @@ libraryDependencies ++= Seq(filters, cache,
   "jp.t2v" %% "play2-auth" % "0.14.1",
   "org.yaml" % "snakeyaml" % "1.16",
   "io.megam" %% "libcommon" % "0.12",
-  "io.megam" %% "newman" % "1.3.12" % "test",
+  "io.megam" %% "newman" % "1.3.12",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
   "org.specs2" %% "specs2-core" % "3.6.5-20151112214348-18646b2" % "test",
-"org.specs2" %% "specs2-junit" % "3.6.5-20151112214348-18646b2" % "test",
+  "org.specs2" %% "specs2-junit" % "3.6.5-20151112214348-18646b2" % "test",
   "org.specs2" % "specs2-matcher-extra_2.11" % "3.6.5-20151112214348-18646b2" % "test")
 
 //routesGenerator := InjectedRoutesGenerator

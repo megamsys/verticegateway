@@ -196,7 +196,7 @@ case class WrapAssemblyResult(thatGS: Option[GunnySack]) {
 
   val domain = asm.inputs.find(_.key.equalsIgnoreCase(DOMAIN))
 
-  val alma = asm.name +"." + domain.get.value //None is ignore here. dangerous.
+  val alma = asm.name +"." + domain.get.value //None is ignored here. dangerous.
 
 }
 
@@ -333,13 +333,13 @@ object AssemblysList {
   val metadataVal = "Assembly Creation"
   val bindex = "assembly"
 
-  def createLinks(email: String, input: AssemblysList): ValidationNel[Throwable, AssemblysLists] = {
+  def createLinks(authBag: Option[controllers.stack.AuthBag], input: AssemblysList): ValidationNel[Throwable, AssemblysLists] = {
     val res = (input map {
-      asminp => (create(email, asminp))
+      asminp => (create(authBag, asminp))
     }).foldRight((AssemblysLists.empty).successNel[Throwable])(_ +++ _)
 
     play.api.Logger.debug(("%-20s -->[%s]").format("AssemblysLists", res))
-    res.getOrElse(new ResourceItemNotFound(email, "nodes = ah. ouh. ror some reason.").failureNel[AssemblysLists])
+    res.getOrElse(new ResourceItemNotFound(authBag.get.email, "assembly = ah. ouh. for some reason.").failureNel[AssemblysLists])
     res
   }
 
@@ -347,9 +347,9 @@ object AssemblysList {
    * create new market place item with the 'name' of the item provide as input.
    * A index name assemblies name will point to the "csars" bucket
    */
-  def create(email: String, input: Assembly): ValidationNel[Throwable, AssemblysLists] = {
+  def create(authBag: Option[controllers.stack.AuthBag], input: Assembly): ValidationNel[Throwable, AssemblysLists] = {
     for {
-      ogsi <- mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err }
+      ogsi <- mkGunnySack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err }
       nrip <- AssemblyResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>  nels(JSONParsingError(t)) }
       ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t }
     } yield {
@@ -366,12 +366,12 @@ object AssemblysList {
 
   }
 
-  private def mkGunnySack(email: String, rip: Assembly): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkGunnySack(authBag: Option[controllers.stack.AuthBag], rip: Assembly): ValidationNel[Throwable, Option[GunnySack]] = {
     var outlist = rip.outputs
     for {
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (Accounts.findByEmail(authBag.get.email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "asm").get leftMap { ut: NonEmptyList[Throwable] => ut })
-      com <- (ComponentsList.createLinks(email, rip.components, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
+      com <- (ComponentsList.createLinks(authBag, rip.components, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
       var components_links = new ListBuffer[String]()

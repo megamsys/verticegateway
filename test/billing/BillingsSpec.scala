@@ -27,7 +27,7 @@ import com.stackmob.newman.dsl._
 import models.json.billing._
 import test.{ Context }
 
- 
+
 class BillingsSpec extends Specification {
 
   def is =
@@ -67,5 +67,4 @@ class BillingsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-
 }

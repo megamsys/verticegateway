@@ -36,7 +36,10 @@ object Constants {
   lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
 
   val MEGAM_HOME = sys.env.get("MEGAM_HOME")
-
+val TEST_EMAIL = "test@megam.io"
+val TEST_APIKEY = "faketest"
+val TEST_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3"
+val MEGAM_TEST_FIRST_NAME = "Megam Test"
   val DEMO_EMAIL = "tour@megam.io"
   val DEMO_APIKEY = "faketour"
   val MEGAM_FIRST_NAME = "Megam Tour"
@@ -61,6 +64,13 @@ object Constants {
   val STATE = "state"
   val CONTROL = "control"
   val CATTYPE_DOCKER = "microservices"
-
   val DOMAIN = "domain"
+
+  val EMAIL = "email"
+  val API_KEY = "api_key"
+  val ASSEMBLY_ID = "assembly_id"
+  val COMP_ID = "component_id"
+  val HOST = "host"
+  val SPARK_JOBSERVER = "spark_jobserver"
+
 }
