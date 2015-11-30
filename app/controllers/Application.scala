@@ -26,7 +26,7 @@ import play.api.mvc._
  *
  */
 //class Application @Inject() (cache: CacheApi) extends Controller with APIAuthElement {
-object Application extends Controller with controllers.stack.APIAuthElement {
+object Application extends Controller {
 
   //Shows index page. with all the status.
   def index = Action { implicit request =>
