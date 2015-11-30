@@ -7,6 +7,5 @@ After=runlevel3.target
 After=runlevel4.target
 After=runlevel5.target
 [Service]
-ExecStartPre=chdir /usr/share/megam/megamgateway/bin
-ExecStart=./megamgateway -Dconfig.file=/var/lib/megam/megamgateway/gateway.conf >> /var/log/megam/megamgateway/megamgateway.log 2>&1
+ExecStart=/usr/share/megam/megamgateway/bin/megamgateway -Dconfig.file=/var/lib/megam/megamgateway/gateway.conf
 KillMode=mixed

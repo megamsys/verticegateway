@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 package test.tosca
 
 import org.specs2.mutable._
@@ -35,8 +35,8 @@ class AssembliesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
-      "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
+      //"Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
+      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
       end
 
 
@@ -47,142 +47,71 @@ class AssembliesSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       //  val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
       val contentToEncode = "{ \"name\":\"Sheet 1\", " +
-        "\"assemblies\":[ " +
-        "{ " +
-        "\"name\":\"PaulineHarper\"," +
-        "\"components\":[" +
-        "{" +
-        "\"name\":\"GussieMathis\"," +
-        "\"tosca_type\":\"tosca.web.riak\"," +
-        "\"inputs\":["+
-        "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-        "{\"key\":\"version\",\"value\":\"2.0.0\"}," +
-        "{\"key\":\"varai-id\",\"value\":\"46fc26f2.b903d8\"}," +
-        "{\"key\":\"varai-x\",\"value\":\"645\"}," +
-        "{\"key\":\"varai-y\",\"value\":\"184\"}," +
-        "{\"key\":\"varai-z\",\"value\":\"adae6e10.52519\"}," +
-        "{\"key\":\"varai-wires\",\"value\":\"e0e3651f.1f1c98\"}," +
-        "]," +
-        "\"outputs\":[]," +
-        "\"artifacts\":{" +
-        "\"artifact_type\":\"tosca type\"," +
-        "\"content\":\"\"," +
-        "\"artifact_requirements\":[]" +
-        "}," +
-        "\"related_components\":[\"VernonDennis.megam.co/MasonHernandez\"]," +
-        "\"operations\":[" +
-        "{" +
-        "\"operation_type\":\"CI\"," +
-        "\"description\":\"continous Integration\"," +
-        "\"operation_requirements\":[" +
-        "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
-        "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
-        "{\"key\":\"ci-token\",\"value\":\"token\"}," +
-        "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-        "]}]," +
-        "\"status\":\"\"" +
-        "}" +
-        "]," +
-        "\"tosca_type\":\"ubuntu\","+
-        "\"requirements\":[" +
-        "{\"key\":\"host\",\"value\":\"aws516887611449540608\"}," +
-        "]," +
-        "\"policies\":[" +
-        "{" +
-        "\"name\":\"bind policy\"," +
-        "\"ptype\":\"colocated\"," +
-        "\"members\":[" +
-        "\"46fc26f2.b903d8\"" +
-        "]" +
-        "}" +
-        "]," +
-        "\"inputs\":[]," +
-        "\"operations\":[]," +
-        "\"outputs\":[]," +
-        "\"status\":\"Launching\"" +
-        "}," +
-        "{" +
-        "\"name\":\"VernonDennis\"," +
-        "\"components\":[" +
-        "{" +
-        "\"name\":\"AddieOrtega\"," +
-        "\"tosca_type\":\"tosca.web.java\"," +
-        "\"inputs\":[" +
-        "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-        "{\"key\":\"source\",\"value\":\"dfhfgjh\"}," +
-        "{\"key\":\"varai-id\",\"value\":\"e0e3651f.1f1c98\"}," +
-        "{\"key\":\"varai-x\",\"value\":\"428\"}," +
-        "{\"key\":\"varai-y\",\"value\":\"134\"}," +
-        "{\"key\":\"varai-z\",\"value\":\"adae6e10.52519\"}," +
-        "{\"key\":\"varai-wires\",\"value\":\"46fc26f2.b903d8\"}" +
-        "]," +
-        "\"outputs\":[]," +
-        "\"artifacts\":{" +
-        "\"artifact_type\":\"tosca type\"," +
-        "\"content\":\"\"," +
-        "\"artifact_requirements\":[]" +
-        "}," +
-        "\"related_components\":[\"PaulineHarper.megam.co/GussieMathis\"]," +
-        "\"operations\":[" +
-        "{" +
-        "\"operation_type\":\"CI\"," +
-        "\"description\":\"continous Integration\"," +
-        "\"operation_requirements\":[" +
-        "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
-        "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
-        "{\"key\":\"ci-token\",\"value\":\"token\"}," +
-        "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-        "]}]," +
-        "\"status\":\"\"" +
-        "}," +
-        "{" +
-        "\"name\":\"MasonHernandez\"," +
-        "\"tosca_type\":\"tosca.web.akka\"," +
-        "\"inputs\":[" +
-        "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-        "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
-        "]," +
-        "\"outputs\":[]," +
-        "\"artifacts\":{" +
-        "\"artifact_type\":\"tosca type\"," +
-        "\"content\":\"\"," +
-        "\"artifact_requirements\":[]" +
-        "}," +
-        "\"related_components\":[\"PaulineHarper.megam.co/GussieMathis\"]," +
-        "\"operations\":[" +
-        "{" +
-        "\"operation_type\":\"CI\"," +
-        "\"description\":\"continous Integration\"," +
-        "\"operation_requirements\":[" +
-        "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
-        "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
-        "{\"key\":\"ci-token\",\"value\":\"token\"}," +
-        "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-        "]}]," +
-        "\"status\":\"\"" +
-        "}" +
-        "]," +
-        "\"tosca_type\":\"ubuntu\","+
-        "\"policies\":[" +
-        "{" +
-        "\"name\":\"bind policy\"," +
-        "\"ptype\":\"colocated\"," +
-        "\"members\":[" +
-        "\"e0e3651f.1f1c98\"," +
-        "\"3ecdffaf.c132\"" +
-        "]" +
-        "}" +
-        "]," +
-        "\"inputs\":[]," +
-        "\"operations\":[]," +
-        "\"outputs\":[]," +
-        "\"status\":\"Launching\"" +
-        "}" +
-        "]," +
-        "\"inputs\":[]" +
-        "}"
-
-      Some(new String(contentToEncode))
+      "\"org_id\":\"ORG123\"," +
+      "\"assemblies\":[ " +
+      "{ " +
+      "\"name\":\"PaulineHarper\"," +
+      "\"components\":[ " +
+      "{ " +
+      "\"name\":\"GussieMathis\"," +
+      "\"tosca_type\":\"tosca.web.riak\"," +
+      "\"inputs\":["+
+      "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
+      "{\"key\":\"version\",\"value\":\"2.0.0\"}," +
+      "{\"key\":\"varai-id\",\"value\":\"46fc26f2.b903d8\"}," +
+      "{\"key\":\"varai-x\",\"value\":\"645\"}," +
+      "{\"key\":\"varai-y\",\"value\":\"184\"}," +
+      "{\"key\":\"varai-z\",\"value\":\"adae6e10.52519\"}," +
+      "{\"key\":\"varai-wires\",\"value\":\"e0e3651f.1f1c98\"}" +
+      "]," +
+      "\"outputs\":[]," +
+      "\"envs\":[ " +
+      "{\"key\":\"REDIS_HOST\",\"value\":\"tempp.megambox.com\"}" +
+      "],"+
+      "\"artifacts\":{" +
+      "\"artifact_type\":\"tosca type\"," +
+      "\"content\":\"\"," +
+      "\"artifact_requirements\":[]" +
+      "}," +
+      "\"related_components\":[\"VernonDennis.megam.co/MasonHernandez\"]," +
+      "\"operations\":[" +
+      "{" +
+      "\"operation_type\":\"CI\"," +
+      "\"description\":\"continous Integration\"," +
+      "\"operation_requirements\":[" +
+      "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
+      "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
+      "{\"key\":\"ci-token\",\"value\":\"token\"}," +
+      "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
+      "]}]," +
+      "\"repo\":{"+
+      "\"rtype\":\"image\"," +
+      "\"source\":\"github\"," +
+      "\"oneclick\":\"yes\"," +
+      "\"url\":\"imagename\"" +
+      "}," +
+      "\"status\":\"\"" +
+      "}" +
+      "],"+
+      "\"tosca_type\":\"ubuntu\","+
+      "\"policies\":[" +
+      "{" +
+      "\"name\":\"bind policy\"," +
+      "\"ptype\":\"colocated\"," +
+      "\"members\":[" +
+      "\"46fc26f2.b903d8\"" +
+      "]" +
+      "}" +
+      "]," +
+      "\"inputs\":[]," +
+      "\"outputs\":[]," +
+      "\"status\":\"Launching\"" +
+      "}" +
+      "]," +
+      "\"inputs\":[]" +
+      "}"
+      Some(contentToEncode)
+      
     }
     protected override def headersOpt: Option[Map[String, String]] = None
 
@@ -223,4 +152,4 @@ class AssembliesSpec extends Specification {
   }
 
 }
-*/
+

@@ -58,7 +58,7 @@ class MarketPlaceSpec extends Specification {
     protected override def urlSuffix: String = "marketplaces/content"
 
     protected override def bodyToStick: Option[String] = {
-<
+
       val contentToEncode = "{" +
         "\"name\": \"test-Alfresc\"," +
         "\"cattype\":\"cattype\"," +
