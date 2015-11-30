@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,21 +20,20 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
 import models.tosca._
 import java.nio.charset.Charset
 /**
  * @author rajthilak
  *
  */
-object KeyValueListSerialization extends SerializationBase[KeyValueList] {
+object KeyValueListSerialization extends models.json.SerializationBase[KeyValueList] {
 
   implicit override val writer = new JSONW[KeyValueList] {
     override def write(h: KeyValueList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: KeyValueField => nrOpt.toJValue
       }.some
-      
+
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }

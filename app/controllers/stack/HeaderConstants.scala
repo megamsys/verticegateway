@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,11 +21,12 @@ package controllers.stack
  */
 object HeaderConstants {
 
- 
+
   val X_Megam_DATE = "X-Megam-DATE"
   val X_Megam_HMAC = "X-Megam-HMAC"
   val X_Megam_OTTAI = "X-Megam-OTTAI"
-
+  val X_Megam_PUTTUSAVI = "X-Megam-PUTTUSAVI"
+  
   val Content_Type = "Content-Type"
   val application_json = "application/json"
   val application_gzip = "gzip"

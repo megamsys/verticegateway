@@ -1,3 +1,4 @@
+
 /*
 ** Copyright [2013-2015] [Megam Systems]
 **
@@ -13,6 +14,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 package test.billing
 
 import org.specs2.mutable._
@@ -23,14 +25,10 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import models.billing._
-import models.billing.Invoice
+import models.json.billing._
 import test.{ Context }
 
- //* @author rajthilak
- //*
-
-class BilledhistoriesSpec extends Specification {
+ class BilledhistoriesSpec extends Specification {
 
   def is =
     "BilledhistoriesSpec".title ^ end ^ """

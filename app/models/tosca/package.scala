@@ -19,12 +19,14 @@ import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
-import models.json.tosca._
+import models.json.tosca.CSARResultsSerialization.{ writer => CSARResultsWriter }
+
 
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import controllers.Constants._
+
 
 /**
  * @author ram
@@ -48,7 +50,6 @@ package object tosca {
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(prres: CSARResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.CSARResultsSerialization.{ writer => CSARResultsWriter }
       toJSON(prres)(CSARResultsWriter)
     }
 
@@ -63,31 +64,31 @@ package object tosca {
     def empty: CSARResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-  type AssembliesList = List[Assembly]
-
   type ComponentsList = List[Component]
 
-  type AssembliesLists = NonEmptyList[Option[AssemblyResult]]
+  type AssemblysList = List[Assembly]
 
-  object AssembliesLists {
+  type AssemblysLists = NonEmptyList[Option[AssemblyResult]]
+
+  object AssemblysLists {
     val emptyNR = List(Option.empty[AssemblyResult])
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(nres: AssembliesLists): JValue = {
+    def toJValue(nres: AssemblysLists): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.AssembliesListsSerialization.{ writer => AssembliesListsWriter }
-      toJSON(nres)(AssembliesListsWriter)
+      import models.json.tosca.carton.AssemblysListsSerialization.{ writer => AssemblysListsWriter }
+      toJSON(nres)(AssemblysListsWriter)
     }
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: AssembliesLists, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    def toJson(nres: AssemblysLists, prettyPrint: Boolean = false): String = if (prettyPrint) {
       pretty(render(toJValue(nres)))
     } else {
       compactRender(toJValue(nres))
     }
 
     def apply(m: Option[AssemblyResult]) = nels(m)
-    def apply(m: AssemblyResult): AssembliesLists = AssembliesLists(m.some)
-    def empty: AssembliesLists = nel(emptyNR.head, emptyNR.tail)
+    def apply(m: AssemblyResult): AssemblysLists = AssemblysLists(m.some)
+    def empty: AssemblysLists = nel(emptyNR.head, emptyNR.tail)
   }
 
   type AssembliesResults = NonEmptyList[Option[AssembliesResult]]
@@ -97,7 +98,7 @@ package object tosca {
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: AssembliesResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.AssembliesResultsSerialization.{ writer => AssembliesResultsWriter }
+      import models.json.tosca.carton.AssembliesResultsSerialization.{ writer => AssembliesResultsWriter }
       toJSON(nres)(AssembliesResultsWriter)
     }
 
@@ -117,16 +118,16 @@ package object tosca {
 
   object AssemblyLinks {
     val emptyRR = List("")
-    def toJValue(nres: AssemblyLinks): JValue = {
 
+    def toJValue(nres: AssemblyLinks): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.AssemblyLinksSerialization.{ writer => AssemblyLinksWriter }
+      import models.json.tosca.carton.AssemblyLinksSerialization.{ writer => AssemblyLinksWriter }
       toJSON(nres)(AssemblyLinksWriter)
     }
 
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AssemblyLinks] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.AssemblyLinksSerialization.{ reader => AssemblyLinksReader }
+      import models.json.tosca.carton.AssemblyLinksSerialization.{ reader => AssemblyLinksReader }
       fromJSON(jValue)(AssemblyLinksReader)
     }
 
@@ -136,7 +137,7 @@ package object tosca {
       compactRender(toJValue(nres))
     }
 
-    def apply(plansList: List[String]): AssemblyLinks = plansList
+    def apply(assemblysList: List[String]): AssemblyLinks = assemblysList
 
     def empty: List[String] = emptyRR
 
@@ -149,7 +150,7 @@ package object tosca {
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: AssemblyResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.AssemblyResultsSerialization.{ writer => AssemblyResultsWriter }
+      import models.json.tosca.carton.AssemblyResultsSerialization.{ writer => AssemblyResultsWriter }
       toJSON(nres)(AssemblyResultsWriter)
     }
 
@@ -172,13 +173,13 @@ package object tosca {
     def toJValue(nres: ComponentLinks): JValue = {
 
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.ComponentLinksSerialization.{ writer => ComponentLinksWriter }
+      import models.json.tosca.carton.ComponentLinksSerialization.{ writer => ComponentLinksWriter }
       toJSON(nres)(ComponentLinksWriter)
     }
 
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ComponentLinks] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.ComponentLinksSerialization.{ reader => ComponentLinksReader }
+      import models.json.tosca.carton.ComponentLinksSerialization.{ reader => ComponentLinksReader }
       fromJSON(jValue)(ComponentLinksReader)
     }
 
@@ -201,7 +202,7 @@ package object tosca {
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: ComponentsResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.ComponentsResultsSerialization.{ writer => ComponentsResultsWriter }
+      import models.json.tosca.box.ComponentsResultsSerialization.{ writer => ComponentsResultsWriter }
       toJSON(nres)(ComponentsResultsWriter)
     }
 
@@ -216,6 +217,8 @@ package object tosca {
     def apply(m: ComponentResult): ComponentsResults = ComponentsResults(m.some)
     def empty: ComponentsResults = nel(emptyNR.head, emptyNR.tail)
   }
+
+  
   type SensorsResults = NonEmptyList[Option[SensorsResult]]
 
   object SensorsResults {
@@ -223,7 +226,7 @@ package object tosca {
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJValue(nres: SensorsResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.SensorsResultsSerialization.{ writer => SensorsResultsWriter }
+      import models.json.sensors.SensorsResultsSerialization.{ writer => SensorsResultsWriter }
       toJSON(nres)(SensorsResultsWriter)
     }
 
@@ -239,51 +242,6 @@ package object tosca {
     def empty: SensorsResults = nel(emptyNR.head, emptyNR.tail)
   }
 
-  type OrganizationsResults = NonEmptyList[Option[OrganizationsResult]]
-
-  object OrganizationsResults {
-    val emptyPC = List(Option.empty[OrganizationsResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: OrganizationsResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.OrganizationsResultsSerialization.{ writer => OrganizationsResultsWriter }
-      toJSON(prres)(OrganizationsResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: OrganizationsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: OrganizationsResult): OrganizationsResults = nels(m.some)
-    def empty: OrganizationsResults = nel(emptyPC.head, emptyPC.tail)
-  }
-
-  type DomainsResults = NonEmptyList[Option[DomainsResult]]
-
-  object DomainsResults {
-    val emptyPC = List(Option.empty[DomainsResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: DomainsResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.DomainsResultsSerialization.{ writer => DomainsResultsWriter }
-      toJSON(prres)(DomainsResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: DomainsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: DomainsResult): DomainsResults = nels(m.some)
-    def empty: DomainsResults = nel(emptyPC.head, emptyPC.tail)
-  }
 
   type PoliciesList = List[Policy]
 
@@ -292,13 +250,13 @@ package object tosca {
     def toJValue(nres: PoliciesList): JValue = {
 
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.PoliciesListSerialization.{ writer => PoliciesListWriter }
+      import models.json.tosca.carton.PoliciesListSerialization.{ writer => PoliciesListWriter }
       toJSON(nres)(PoliciesListWriter)
     }
 
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[PoliciesList] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.PoliciesListSerialization.{ reader => PoliciesListReader }
+      import models.json.tosca.carton.PoliciesListSerialization.{ reader => PoliciesListReader }
       fromJSON(jValue)(PoliciesListReader)
     }
 
@@ -321,13 +279,13 @@ package object tosca {
     def toJValue(nres: MembersList): JValue = {
 
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.MembersListSerialization.{ writer => MembersListWriter }
+      import models.json.tosca.carton.MembersListSerialization.{ writer => MembersListWriter }
       toJSON(nres)(MembersListWriter)
     }
 
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MembersList] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.MembersListSerialization.{ reader => MembersListReader }
+      import models.json.tosca.carton.MembersListSerialization.{ reader => MembersListReader }
       fromJSON(jValue)(MembersListReader)
     }
 
@@ -343,34 +301,6 @@ package object tosca {
 
   }
 
-  type RelatedOrgsList = List[String]
-
-  object RelatedOrgsList {
-    val emptyRR = List("")
-    def toJValue(nres: RelatedOrgsList): JValue = {
-
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.RelatedOrgsListSerialization.{ writer => RelatedOrgsListWriter }
-      toJSON(nres)(RelatedOrgsListWriter)
-    }
-
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[RelatedOrgsList] = {
-      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.RelatedOrgsListSerialization.{ reader => RelatedOrgsListReader }
-      fromJSON(jValue)(RelatedOrgsListReader)
-    }
-
-    def toJson(nres: RelatedOrgsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(plansList: List[String]): RelatedOrgsList = plansList
-
-    def empty: List[String] = emptyRR
-
-  }
 
   type KeyValueList = List[KeyValueField]
 
@@ -437,13 +367,13 @@ package object tosca {
     def toJValue(nres: MetricList): JValue = {
 
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.MetricListSerialization.{ writer => MetricListWriter }
+      import models.json.sensors.MetricListSerialization.{ writer => MetricListWriter }
       toJSON(nres)(MetricListWriter)
     }
 
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MetricList] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.MetricListSerialization.{ reader => MetricListReader }
+      import models.json.sensors.MetricListSerialization.{ reader => MetricListReader }
       fromJSON(jValue)(MetricListReader)
     }
 
@@ -459,29 +389,6 @@ package object tosca {
 
   }
 
-  type ContiniousIntegrationResults = NonEmptyList[Option[ContiniousIntegrationResult]]
-
-  object ContiniousIntegrationResults {
-    val emptyPC = List(Option.empty[ContiniousIntegrationResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: ContiniousIntegrationResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.ContiniousIntegrationResultsSerialization.{ writer => ContiniousIntegrationResultsWriter }
-      toJSON(prres)(ContiniousIntegrationResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: ContiniousIntegrationResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: ContiniousIntegrationResult): ContiniousIntegrationResults = nels(m.some)
-    def empty: ContiniousIntegrationResults = nel(emptyPC.head, emptyPC.tail)
-  }
-
   type BindLinks = List[String]
 
   object BindLinks {
@@ -489,13 +396,13 @@ package object tosca {
     def toJValue(nres: BindLinks): JValue = {
 
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.BindLinksSerialization.{ writer => BindLinksWriter }
+      import models.json.tosca.box.BindLinksSerialization.{ writer => BindLinksWriter }
       toJSON(nres)(BindLinksWriter)
     }
 
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[BindLinks] = {
       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.BindLinksSerialization.{ reader => BindLinksReader }
+      import models.json.tosca.box.BindLinksSerialization.{ reader => BindLinksReader }
       fromJSON(jValue)(BindLinksReader)
     }
 

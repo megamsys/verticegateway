@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,7 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
-import models._
+import models.base._
 import java.nio.charset.Charset
 /**
  * @author rajthilak
@@ -37,7 +36,7 @@ object MarketPlacePlansSerialization extends SerializationBase[MarketPlacePlans]
       val nrsList: Option[List[JValue]] = h.map {
         nrOpt: MarketPlacePlan => nrOpt.toJValue
       }.some
-      
+
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }

@@ -15,12 +15,9 @@
 */
 package controllers
 
-import java.nio.charset.Charset
-import play.api.Logger
-import scala.util.{ Try }
+import app.MConfig
 import play.api.http.HeaderNames._
 import controllers.stack.HeaderConstants._
-import java.io._
 
 /**
  * @author ram
@@ -31,7 +28,7 @@ object Constants {
 
   val VERSION = "0.9"
 
-  val UTF8Charset = Charset.forName("UTF-8")
+  val UTF8Charset = java.nio.charset.Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
 
   lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
@@ -43,7 +40,7 @@ object Constants {
   val DEMO_EMAIL = "tour@megam.io"
   val DEMO_APIKEY = "faketour"
   val MEGAM_FIRST_NAME = "Megam Tour"
-  val MEGAM_LAST_NAME  = "Call us"
+  val MEGAM_LAST_NAME = "Call us"
   val MEGAM_PHONE = "18006186813"
   val SAMPLE_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/YiBNWP2"
   val MEGAM_PASSWORD_RESET_KEY = "nil"
@@ -54,18 +51,16 @@ object Constants {
 
   val DEFAULT_ORG_NAME = "org.megam"
   val DEFAULT_DOMAIN_NAME = "megambox.com"
+  val MEGAM_MKT_YAML = MConfig.marketplaces_yaml
 
-  val DELETE_REQUEST = "DESTROY"
-  val CREATE_REQUEST = "CREATE"
+  val CREATE = "create"
+  val DELETE = "destroy"
+  val BIND = "bind"
+  val BUILD = "build"
 
+  val STATE = "state"
+  val CONTROL = "control"
+  val CATTYPE_DOCKER = "microservices"
 
- val MEGAM_GW_CONF = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" + File.separator + "gateway.conf"}).getOrElse("gateway.conf")
-
- val MEGAM_MKT_YAML = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" + File.separator + "marketplaces.yaml"}).getOrElse("marketplaces.yaml")
-
- play.api.Logger.info(">>  *******************************************************")
- play.api.Logger.debug(("%-20s ****************************-->[%s]").format("MEGAM_HOME", MEGAM_MKT_YAML))
- play.api.Logger.debug(("%-20s *****************************-->[%s]").format("MEGAM_HOME", MEGAM_GW_CONF))
+  val DOMAIN = "domain"
 }

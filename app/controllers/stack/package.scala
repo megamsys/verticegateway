@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,6 @@
 */
 package controllers.stack
 
-import scalaz._
-import Scalaz._
 
 /*
  * @author ram
@@ -24,12 +22,10 @@ import Scalaz._
  */
 package object stack {
 
-  
   type ResultInError = Option[Tuple2[Int,String]]
 
   object ResultInError {
-    def apply[C](m: Tuple2[Int,String]): ResultInError = m.some
+    def apply[C](m: Tuple2[Int,String]): ResultInError = Some(m)
   }
-  
-  
+
 }
