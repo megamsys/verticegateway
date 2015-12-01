@@ -332,7 +332,7 @@ package object tosca {
     }
 
     def toJson(nres: KeyValueList, prettyPrint: Boolean = false, flagsMap: Map[String, String] = Map()): String = {
-      val nrec = nres.map { x => KeyValueField(BuiltInEnvsKeys.get(x.key).getOrElse(x.key).toUpperCase, flagsMap.get(x.value).getOrElse(x.value)) }
+      val nrec = nres.map { x => KeyValueField(BuiltInEnvsKeys.get(x.key).getOrElse(x.key), flagsMap.get(x.value).getOrElse(x.value)) }
       if (prettyPrint) {
         pretty(render(toJValue(nrec)))
       } else {
