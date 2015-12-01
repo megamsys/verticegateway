@@ -239,20 +239,23 @@ marketplaces:
    0.6.x:
     description: "Use Apache Spark straight from the Browser. "
 
- HotelManangement:
+ HotelAAP:
    cattype: ANALYTICS
    order: 5
    image: spark.png
-   url: http://spark.apache.org/
+   url: https://github.com/megamsys/meglytics_hotel_template.git
    envs:
-    megam_email:
-    megam_apikey:
-    file1:
-    file2:
+    spark_jobserver: "<spark_jobserver>"
+    email: "<email>"
+    api_key: "<api_key>"
+    assembly_id: "<assembly_id>"
+    component_id: "<component_id>"
+    file1: "<file1>"
    plans:
-    1.5.0:
-     description: "HotelManangement is the application that analyze the data by using Spark."
+    1.0.0:
+     description: "HotelAAP is a prediction application that analyze the data by using Spark for the hotel industry vertical."
 
+                                          
  Zarafa:
   cattype: COLLABORATION
   order: 6

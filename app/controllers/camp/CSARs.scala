@@ -97,7 +97,7 @@ object CSARs extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.tosca.CSARs.push(email, id) match {
+          models.tosca.CSARs.push(apiAccessed, id) match {
             case Success(succ) => {
               Status(CREATED)(
                 FunnelResponse(CREATED, """csar pushed successfully.""", "Megam::CSAR").toJson(true))

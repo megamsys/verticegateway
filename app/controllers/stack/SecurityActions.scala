@@ -39,20 +39,22 @@ import play.api.Logger
  * @author rajthilak
  *
  */
+ case class AuthBag(email: String, api_key: String, authority: String)
+
 object SecurityActions {
 
 
-  def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[Throwable, Option[String]] = {
+  def Authenticated[A](req: FunnelRequestBuilder[A]): ValidationNel[Throwable, Option[AuthBag]] = {
     req.funneled match {
       case Success(succ) => {
         (succ map (x => bazookaAtDataSource(x))).getOrElse(
-          Validation.failure[Throwable, Option[String]](CannotAuthenticateError("""Invalid content in header. parse failure.""",
+          Validation.failure[Throwable, Option[AuthBag]](CannotAuthenticateError("""Invalid content in header. parse failure.""",
             "Request can't be funneled.")).toValidationNel)
 
       }
       case Failure(err) =>
         val errm = (err.list.map(m => m.getMessage)).mkString("\n")
-        Validation.failure[Error, Option[String]](CannotAuthenticateError(
+        Validation.failure[Error, Option[AuthBag]](CannotAuthenticateError(
           """Invalid content in header. parse failure.""", errm)).toValidationNel
     }
   }
@@ -65,23 +67,19 @@ object SecurityActions {
    * the string is split on : and the header is parsed
    * else
    */
-  def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Throwable, Option[String]] = {
+  def bazookaAtDataSource(freq: FunneledRequest): ValidationNel[Throwable, Option[AuthBag]] = {
     (for {
       resp <- eitherT[IO, NonEmptyList[Throwable], Option[AccountResult]] { //disjunction Throwabel \/ Option with a Function IO.
         (Accounts.findByEmail(freq.maybeEmail.get).disjunction).pure[IO]
       }
-      found <- eitherT[IO, NonEmptyList[Throwable], Option[String]] {
+      found <- eitherT[IO, NonEmptyList[Throwable], Option[AuthBag]] {
         val fres = resp.get
         val calculatedHMAC = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
         if (calculatedHMAC === freq.clientAPIHmac.get) {
-          (("""Authorization successful for 'email:' HMAC matches:
-            |%-10s -> %s
-            |%-10s -> %s
-            |%-10s -> %s""".format("email", fres.email, "api_key", fres.api_key, "authority", fres.authority).stripMargin)
-            .some).right[NonEmptyList[Throwable]].pure[IO]
+          (AuthBag(fres.email, fres.api_key, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
         } else {
           (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
-            .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[String]].pure[IO]
+            .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[AuthBag]].pure[IO]
         }
       }
     } yield found).run.map(_.validation).unsafePerformIO()

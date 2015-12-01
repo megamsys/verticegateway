@@ -37,7 +37,8 @@ case class AOneWasher(pq: PQd) extends MessageContext {
   def exchangeName = (pq.QrE(cloudFarm).getOrElse(("","")))._2
 
   val msg = Messages(pq.messages.toList)
-
+  
+print(msg)
   def wash(): ValidationNel[Throwable, AMQPResponse] = {
     play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + queueName+"]", msg))
     execute(rmqClient.publish(msg, MConfig.routing_key))

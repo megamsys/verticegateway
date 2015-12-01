@@ -41,7 +41,7 @@ trait APIAuthElement extends StackableController {
 
   self: Controller =>
 
-  case object APIAccessedKey extends RequestAttributeKey[Option[String]]
+  case object APIAccessedKey extends RequestAttributeKey[Option[AuthBag]]
 
   /**
    * If HMAC authentication is true, the req send in super class
@@ -50,7 +50,7 @@ trait APIAuthElement extends StackableController {
   override def proceed[A](req: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[Result]): Future[Result] = {
     play.api.Logger.debug("%s%s====> %s%s%s ".format(Console.CYAN, Console.BOLD, req.host, req.path, Console.RESET))
     play.api.Logger.debug("%s%sHEAD:%s %s%s%s".format(Console.MAGENTA, Console.BOLD, Console.RESET, Console.BLUE, req.headers, Console.RESET))
-      play.api.Logger.debug("%s%sBODY:%s %s%s%s\n".format(Console.MAGENTA, Console.BOLD, Console.RESET, Console.BLUE, req.headers, Console.RESET))
+    play.api.Logger.debug("%s%sBODY:%s %s%s%s\n".format(Console.MAGENTA, Console.BOLD, Console.RESET, Console.BLUE, req.body, Console.RESET))
     SecurityActions.Authenticated(req) match {
       case Success(rawRes) => super.proceed(req.set(APIAccessedKey, rawRes))(f)
       case Failure(err) => {
@@ -68,6 +68,6 @@ trait APIAuthElement extends StackableController {
 
   implicit def reqFunneled[A](implicit req: RequestWithAttributes[A]): ValidationNel[Throwable, Option[FunneledRequest]] = req2FunnelBuilder(req).funneled
 
-  implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): Option[String] = req.get(APIAccessedKey).get
+  implicit def apiAccessed[A](implicit req: RequestWithAttributes[A]): Option[AuthBag] = req.get(APIAccessedKey).get
 
 }
