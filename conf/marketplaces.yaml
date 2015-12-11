@@ -43,8 +43,8 @@ marketplaces:
   envs:
    host: localhost
    port: 8080
-   username: admin
-   password: admin
+   username: megam
+   password: megam
   plans:
    8.x:
     description: "Quickly get started with J2EE Spring framework app."
@@ -80,7 +80,7 @@ marketplaces:
   url: https://github.com/megamsys/etherpad-lite.git
   envs:
    host: localhost
-   port: 7000
+   port: 9001
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
@@ -164,7 +164,7 @@ marketplaces:
    host:
    port: 3306
    username: root
-   password:
+   password: megam
   plans:
    5.x:
     description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
@@ -218,7 +218,7 @@ marketplaces:
   url: http://spark.apache.org/
   envs:
    host:
-   port:
+   port: 9004
    username:
    password:
   plans:
@@ -232,7 +232,7 @@ marketplaces:
   url:  http://spark-notebook.io
   envs:
    host:
-   port:
+   port: 9000
    username:
    password:
   plans:
@@ -255,7 +255,7 @@ marketplaces:
     1.0.0:
      description: "HotelAAP is a prediction application that analyze the data by using Spark for the hotel industry vertical."
 
-                                          
+
  Zarafa:
   cattype: COLLABORATION
   order: 6
@@ -278,8 +278,8 @@ marketplaces:
   envs:
    host:
    port:
-   username:
-   password:
+   username: admin
+   password: admin
   plans:
    8.1:
     description: "Access your data from all your devices, on an open platform you can extend and modify."
