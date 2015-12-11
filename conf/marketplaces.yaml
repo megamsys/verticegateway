@@ -32,7 +32,7 @@ marketplaces:
   image: centos.png
   url: http://debian.com
   plans:
-   7.0:
+   7.1:
     description: "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat."
 
  Java:
