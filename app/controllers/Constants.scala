@@ -60,6 +60,7 @@ object Constants {
   val DELETE = "destroy"
   val BIND = "bind"
   val BUILD = "build"
+  val UPGRADE = "upgrade"
 
   val STATE = "state"
   val CONTROL = "control"

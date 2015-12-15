@@ -36,11 +36,12 @@ class AssemblySpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
        //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-      "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
+      //"Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
+      "Correctly do GET requests with an valid Assembly ID" ! upgradeApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "assembly/ASM1281994281950773248"
+    protected override def urlSuffix: String = "assembly/ASM1286672540365881344"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -88,6 +89,19 @@ class AssemblySpec extends Specification {
     def succeeds: SpecsResult = {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+  
+  case object upgradeApp extends Context {
+    protected override def urlSuffix: String = "assembly/upgrade/ASM1286672540365881344"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
 

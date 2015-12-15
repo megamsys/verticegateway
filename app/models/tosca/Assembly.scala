@@ -51,8 +51,8 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-case class Operation(operation_type: String, description: String, properties: models.tosca.KeyValueList) {
-  val json = "{\"operation_type\":\"" + operation_type + "\",\"description\":\"" + description + "\",\"properties\":\"" + KeyValueList.toJson(properties, true) + "\"}"
+case class Operation(operation_type: String, description: String, properties: models.tosca.KeyValueList, status: String) {
+  val json = "{\"operation_type\":\"" + operation_type + "\",\"description\":\"" + description + "\",\"properties\":" + KeyValueList.toJson(properties, true) + ",\"status\":\"" + status + "\"}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -69,7 +69,7 @@ case class Operation(operation_type: String, description: String, properties: mo
 }
 
 object Operation {
-  def empty: Operation = new Operation(new String(), new String(), KeyValueList.empty)
+  def empty: Operation = new Operation(new String(), new String(), KeyValueList.empty, new String())
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Operation] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
@@ -112,7 +112,8 @@ object AssemblyResult {
 
   def fromJson(json: String): Result[AssemblyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
-  } leftMap { t: Throwable =>   t.printStackTrace();
+  } leftMap { t: Throwable =>
+    t.printStackTrace();
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
@@ -153,12 +154,12 @@ object Policy {
 }
 
 case class Assembly(name: String,
-  components: models.tosca.ComponentsList,
-  tosca_type: String,
-  policies: models.tosca.PoliciesList,
-  inputs: models.tosca.KeyValueList,
-  outputs: models.tosca.KeyValueList,
-  status: String) {
+    components: models.tosca.ComponentsList,
+    tosca_type: String,
+    policies: models.tosca.PoliciesList,
+    inputs: models.tosca.KeyValueList,
+    outputs: models.tosca.KeyValueList,
+    status: String) {
   val json = "{\"name\":\"" + name + "\",\"components\":" + ComponentsList.toJson(components, true) + ",\"tosca_type\":\"" + tosca_type + "\", \"policies\":" + PoliciesList.toJson(policies, true) +
     ",\"inputs\":" + KeyValueList.toJson(inputs, true) + ", \"outputs\":" + KeyValueList.toJson(outputs, true) + ",\"status\":\"" + status + "\"}"
 
@@ -176,30 +177,33 @@ case class Assembly(name: String,
 }
 
 case class AssemblyUpdateInput(id: String,
-  name: String,
-  components: models.tosca.ComponentLinks,
-  tosca_type: String,
-  policies: models.tosca.PoliciesList,
-  inputs: models.tosca.KeyValueList,
-  outputs: models.tosca.KeyValueList, status: String) {
+    name: String,
+    components: models.tosca.ComponentLinks,
+    tosca_type: String,
+    policies: models.tosca.PoliciesList,
+    inputs: models.tosca.KeyValueList,
+    outputs: models.tosca.KeyValueList, status: String) {
   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"components\":" + ComponentLinks.toJson(components, true) + ",\"tosca_type\":\"" + tosca_type + "\", \"policies\":" + PoliciesList.toJson(policies, true) +
     ",\"inputs\":" + KeyValueList.toJson(inputs, true) + ", \"outputs\":" + KeyValueList.toJson(outputs, true) + ",\"status\":\"" + status + "\"}"
 }
 
-case class WrapAssemblyResult(thatGS: Option[GunnySack]) {
+case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
 
   implicit val formats = DefaultFormats
 
-  val asm = parse(thatGS.get.value).extract[AssemblyResult]
+  //val asm = parse(thatGS.get.value).extract[AssemblyResult]
 
+  //val cattype = asm.tosca_type.split('.')(1)
+
+  // val domain = asm.inputs.find(_.key.equalsIgnoreCase(DOMAIN))
+
+  // val alma = asm.name +"." + domain.get.value //None is ignored here. dangerous.
+  val asm = thatGS.get
   val cattype = asm.tosca_type.split('.')(1)
-
   val domain = asm.inputs.find(_.key.equalsIgnoreCase(DOMAIN))
-
-  val alma = asm.name +"." + domain.get.value //None is ignored here. dangerous.
+  val alma = asm.name + "." + domain.get.value //None is ignored here. dangerous.
 
 }
-
 
 object Assembly {
   implicit val formats = DefaultFormats
@@ -281,20 +285,29 @@ object Assembly {
       maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       maybeGS match {
-      case Some(thatGS) =>
-          pub(email, WrapAssemblyResult(maybeGS))
-     case None => {
+        case Some(thatGS) =>
+          parse(maybeGS.get.value).extract[AssemblyResult]
+        case None => {
           play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
-          pub(email, WrapAssemblyResult(maybeGS))
+          parse(maybeGS.get.value).extract[AssemblyResult]
         }
       }
+    }
+  }
+
+  def upgrade(email: String, id: String): ValidationNel[Throwable, AssemblyResult] = {
+    for {
+      asm_collection <- (Assembly.findById(List(id).some) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val asm = asm_collection.head
+      pub(email, WrapAssemblyResult(asm))
     }
   }
 
   /* Lets clean it up in 1.0 using Messageable  */
   private def pub(email: String, wa: WrapAssemblyResult): AssemblyResult = {
     models.base.Requests.createAndPub(email,
-      RequestInput(wa.asm.id, wa.cattype, wa.alma, BIND, CONTROL).json)
+      RequestInput(wa.asm.id, wa.cattype, wa.alma, UPGRADE, CONTROL).json)
     wa.asm
   }
 }
@@ -350,7 +363,7 @@ object AssemblysList {
   def create(authBag: Option[controllers.stack.AuthBag], input: Assembly): ValidationNel[Throwable, AssemblysLists] = {
     for {
       ogsi <- mkGunnySack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err }
-      nrip <- AssemblyResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>  nels(JSONParsingError(t)) }
+      nrip <- AssemblyResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => nels(JSONParsingError(t)) }
       ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t }
     } yield {
       ogsr match {
