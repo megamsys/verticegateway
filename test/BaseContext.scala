@@ -41,6 +41,7 @@ import com.stackmob.newman.dsl._
 import scala.concurrent.Await
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.concurrent.Await
 import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -132,9 +133,11 @@ trait BaseContext {
 }
 
 trait Context extends BaseContext {
-
+  play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("%-20s".format("Context"))
   val httpClient = new ApacheHttpClient
-
+   play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("%-20s".format("client"))
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())
   protected def headersOpt: Option[Map[String, String]]
