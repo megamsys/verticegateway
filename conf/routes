@@ -32,7 +32,7 @@ POST   /v2/requests/content            	controllers.Requests.post
 POST   /v2/organizations/content        controllers.team.Organizations.post
 POST   /v2/organizations/update         controllers.team.Organizations.update
 GET    /v2/organizations/:id            controllers.team.Organizations.show(id: String)
-GET	   /v2/organizations	         			controllers.team.Organizations.list()
+GET    /v2/organizations	              controllers.team.Organizations.list()
 
 #Domains
 POST   /v2/domains/content              controllers.team.Domains.post
@@ -49,20 +49,20 @@ GET    /v2/csars/:id 		                controllers.camp.CSARs.show(id: String)
 GET    /v2/csars/push/:id               controllers.camp.CSARs.push(id: String)
 
 #Assemblies
-POST   /v2/assemblies/content    		    controllers.camp.Assemblies.post
-GET	   /v2/assemblies	          		    controllers.camp.Assemblies.list
-GET    /v2/assemblies/:id         		  controllers.camp.Assemblies.show(id: String)
-GET    /v2/assembly/:id           		  controllers.camp.Assembly.show(id: String)
-POST   /v2/assembly/update       	 	    controllers.camp.Assembly.update
-GET    /v2/assembly/upgrade/:id     	controllers.camp.Assembly.upgrade(id: String)
+POST   /v2/assemblies/content           controllers.camp.Assemblies.post
+GET    /v2/assemblies	                  controllers.camp.Assemblies.list
+GET    /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
+GET    /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
+POST   /v2/assembly/update              controllers.camp.Assembly.update
+GET    /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 POST   /v2/assembly/build/:id/:name     controllers.camp.Assembly.build(id: String, name: String)
-GET    /v2/components/:id         		  controllers.camp.Components.show(id: String)
+GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
 
 #Sensors
 POST   /v2/sensors/content              controllers.camp.Sensors.post
-GET	   /v2/sensors          		        controllers.camp.Sensors.list
-GET    /v2/sensors/:id           		    controllers.camp.Sensors.show(id: String)
+GET    /v2/sensors   		                controllers.camp.Sensors.list
+GET    /v2/sensors/:id                  controllers.camp.Sensors.show(id: String)
 
 #billings
 POST	 /v2/balances/content			        controllers.billing.Balances.post
