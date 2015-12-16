@@ -35,11 +35,13 @@ object Constants {
 
   lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
 
-  val MEGAM_HOME = sys.env.get("MEGAM_HOME")
+  val MEGAM_HOME = sys.env.get("MEGAM_HOME").getOrElse("/var/lib/megam")
+
   val TEST_EMAIL = "test@megam.io"
   val TEST_APIKEY = "faketest"
   val TEST_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3"
   val MEGAM_TEST_FIRST_NAME = "Megam Test"
+
   val DEMO_EMAIL = "tour@megam.io"
   val DEMO_APIKEY = "faketour"
   val MEGAM_FIRST_NAME = "Megam Tour"
@@ -53,8 +55,8 @@ object Constants {
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
   val DEFAULT_ORG_NAME = "org.megam"
-  val DEFAULT_DOMAIN_NAME = "megambox.com"
-  val MEGAM_MKT_YAML = MConfig.marketplaces_yaml
+  val OJA_MKT_YAML = MConfig.marketplaces_yaml
+  val OJA_YONPI_DIR = MEGAM_HOME + java.io.File.separator + "megamgateway" + java.io.File.separator + "yonpis"
 
   val CREATE = "create"
   val DELETE = "destroy"
@@ -65,12 +67,5 @@ object Constants {
   val CONTROL = "control"
   val CATTYPE_DOCKER = "microservices"
   val DOMAIN = "domain"
-
-  val EMAIL = "email"
-  val API_KEY = "api_key"
-  val ASSEMBLY_ID = "assembly_id"
-  val COMP_ID = "component_id"
-  val HOST = "host"
-  val SPARK_JOBSERVER = "spark_jobserver"
 
 }

@@ -55,7 +55,7 @@ case class PromosResult(id: String, code: String, amount: String, created_at: St
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

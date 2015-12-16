@@ -15,37 +15,73 @@
  */
 package spark
 
+import scalaz._
+import Scalaz._
 import java.net.URL
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import controllers.stack._
 
+case class JarUpload(ji: JarsInput) extends JobServerClient {
 
-  case class JarUpload(input: JarsInput) extends JobServerClient {
+  protected override def urlSuffix: String = "/jars/" + ji.uniqName
 
-    protected override def urlSuffix: String = "jars/" + input.name
+  protected override def bodyToStick: Option[Bytes] = asBytes.toOption
 
-    protected override def bodyToStick: Option[Bytes] = Some(input.jars.getBytes())
+  protected override def headersOpt: Option[Map[String, String]] = None
 
-    protected override def headersOpt: Option[Map[String, String]] = None
+  private val post = POST(url)(httpClient)
+    .addHeaders(headers)
+    .addBody(body)
 
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
+  def run: Option[String] = execute(post).bodyString.some
 
-    def run =  execute(post)
+  def asBytes: ValidationNel[Throwable, Bytes] = {
+    val sourcesJar = new java.io.File(ji.location)
+    val fileLength = sourcesJar.length()
+    val bytes = new Array[Byte](fileLength.toInt)
+    val sizeRead = try {
+      val is = new java.io.BufferedInputStream(new java.io.FileInputStream(sourcesJar))
+      val read = is.read(bytes)
+      is.close()
+      read
+    } catch {
+      case ex: java.io.IOException =>
+        ("Failed to read built yonpi jar archive\n" + ex.toString()).failureNel
+    }
+    if (sizeRead != bytes.length) {
+      ("Failed to read the built yonpi jar archive, size read: " + sizeRead).failureNel
+    }
+    bytes.successNel[Throwable]
+  }
+}
 
+case class JarSubmit(ji: JarsInput) extends JobServerClient {
+  protected override def urlSuffix: String = "/jobs?appName=" + ji.uniqName + "&classPath=" + ji.claz
+
+  protected def headersOpt: Option[Map[String, String]] = None
+
+  protected override def bodyToStick: Option[Bytes] = Some((ji.args.map { x => "input."+ x._1 + "=" + x._2 }).mkString(", ").getBytes)
+
+  private val post = POST(url)(httpClient)
+    .addHeaders(headers)
+    .addBody(body)
+
+  def run: Option[Tuple3[Int, String, String]] = {
+    val response = execute(post)
+    Tuple3(response.code.code, ji.uniqName, response.bodyString).some
   }
 
+}
 
-  case class JobResults(job: JobsInput) extends JobServerClient {
-    protected override def urlSuffix: String = "jobs/" + job.id
+case class JobResults(ji: JobsInput) extends JobServerClient {
+  protected override def urlSuffix: String = "/jobs/" + ji.id
 
-    protected def headersOpt: Option[Map[String, String]] = None
+  protected def headersOpt: Option[Map[String, String]] = None
 
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
+  private val get = GET(url)(httpClient)
+    .addHeaders(headers)
 
-    def run =  execute(get)
-  }
+  def run: Option[String] = execute(get).bodyString.some
+}

@@ -58,7 +58,7 @@ case class MarketPlacePlan(description: String, version: String) {
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -107,7 +107,7 @@ case class MarketPlaceResult(id: String, name: String, cattype: String, order: S
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

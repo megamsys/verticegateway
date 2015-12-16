@@ -61,7 +61,7 @@ case class SubscriptionsResult(id: String, accounts_id: String, assembly_id: Str
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

@@ -39,7 +39,7 @@ object MKPData {
   implicit val formats = DefaultFormats
 
 //marketplaceInput and marketplacePlans are loded dynamically to mkMap
-val contentToEncode = scala.io.Source.fromFile(Constants.MEGAM_MKT_YAML).mkString
+val contentToEncode = scala.io.Source.fromFile(Constants.OJA_MKT_YAML).mkString
 val kMap: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(contentToEncode).asInstanceOf[java.util.Map[String, String]]).toMap
 val list = scala.collection.mutable.MutableList[String]()
 val plist = scala.collection.mutable.MutableList[String]()
@@ -48,7 +48,7 @@ val plist = scala.collection.mutable.MutableList[String]()
 
   kMap.get("marketplaces") match {
     case Some(innerlink) => {
-      play.api.Logger.debug(("%s %s").format("YAML ", Constants.MEGAM_MKT_YAML))
+      play.api.Logger.debug(("%s %s").format("YAML ", Constants.OJA_MKT_YAML))
       if (innerlink.asInstanceOf[AnyRef].getClass.getSimpleName == "LinkedHashMap") {
         val hashmapinput: Map[String, String] = mapAsScalaMap[String, String](innerlink.asInstanceOf[java.util.Map[String, String]]).toMap
         val cc = hashmapinput foreach {
@@ -67,6 +67,6 @@ val plist = scala.collection.mutable.MutableList[String]()
         }
       }
     }
-    case None => println("Failed to parse the " + Constants.MEGAM_MKT_YAML)
+    case None => println("Failed to parse the " + Constants.OJA_MKT_YAML)
   }
 }

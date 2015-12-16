@@ -35,5 +35,5 @@ object MConfig {
   val dockerup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.dockerup.queue").get
   val dockerup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.dockerup.exchange").get
   val spark_jobserver = play.api.Play.application(play.api.Play.current).configuration.getString("spark.jobserver").get
-
+  val yonpi_timeout   = play.api.Play.application(play.api.Play.current).configuration.getString("spark.yonpi.timeout").get
   }

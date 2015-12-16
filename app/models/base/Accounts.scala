@@ -55,7 +55,7 @@ case class AccountResult(id: String, first_name: String, last_name: String, phon
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

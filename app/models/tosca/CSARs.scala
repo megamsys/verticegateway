@@ -60,7 +60,7 @@ case class CSARResult(id: String, desc: String, link: String, created_at: String
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

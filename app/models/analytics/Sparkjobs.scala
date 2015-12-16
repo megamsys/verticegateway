@@ -54,22 +54,11 @@ import java.nio.charset.Charset
  *
  */
 
-case class Results(job_id: String, context: String) {
-  val json = "{\"job_id\":\"" + job_id + "\",\"context\":\"" + context + "\"}"
+case class SparkjobsInput(source: String, assembly_id: String, inputs: models.tosca.KeyValueList) {
+  val json = "{\"source\":\"" + source + "\",\"assembly_id\":\"" + assembly_id + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true)+"}"
 }
 
-object Results {
-  def empty: Results = new Results(new String(), new String())
-}
-
-case class SparkjobsInput(inputs: models.tosca.KeyValueList, source: String) {
-  val json = "{\"inputs\":" + KeyValueList.toJson(inputs, true) + ",\"source\":\"" + source + "\"}"
-
-}
-
-case class SparkjobsResult(id: String, inputs: models.tosca.KeyValueList, source: String, status: String, results: Results, created_at: String) {
-  //val json = "{\"id\":\"" + id + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"source\":\"" + source + "\",\"status\":\"" + status + "\",\"results\":" + results.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
-
+case class SparkjobsResult(id: String, code: Int, status: String, job_id: String, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.analytics.SparkjobsResultSerialization
@@ -78,7 +67,7 @@ case class SparkjobsResult(id: String, inputs: models.tosca.KeyValueList, source
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -106,11 +95,9 @@ object Sparkjobs {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("sparkjobs")
   val metadataKey = "sparkjobs"
-  val metadataVal = "Sparkjobs Creation"
-  val bindex = "sparkjobs"
+  val metadataVal = "Sparkjobs create"
+  val bindex = "assembly"
 
-  // A private method which chains computation to make GunnySack when provided with an input json, email.
-  // After that flatMap on its success and the account id information is looked up.
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
     val sparkjobsInput: ValidationNel[Throwable, SparkjobsInput] = (Validation.fromTryCatchThrowable[SparkjobsInput, Throwable] {
       parse(input).extract[SparkjobsInput]
@@ -118,16 +105,18 @@ object Sparkjobs {
 
     for {
       sp <- sparkjobsInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bal").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      su <- spark.SparkSubmitter(sp).submit(false, email, KeyValueList.toMap(sp.inputs))
+      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "spj").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-
-      val bvalue = Set(uir.get._1 + uir.get._2)
-      val json = new SparkjobsResult(uir.get._1 + uir.get._2, sp.inputs, sp.source, "started", Results("", ""), Time.now.toString).toJson(false)
-      //val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\",\"inputs\":" + KeyValueList.toJson(input.inputs, true) + ",\"source\": \"" + input.source + "\",\"status\": \"" + input.status + "\",\"results\": \"" + input.results.json + "\",\"created_at\":\"" + Time.now.toString + "\"}"
-      new GunnySack(email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      val bvalue = Set(sp.assembly_id)
+      su flatMap {  so =>
+      val json = new SparkjobsResult(uir.get._1 + uir.get._2, so._2.code, so._2.status, so._2.result.job_id, Time.now.toString).toJson(false)
+        new GunnySack(so._1, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      }
     }
   }
+
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[SparkjobsResult]] = {
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
@@ -143,6 +132,13 @@ object Sparkjobs {
             }
           }
         }
+    }
+  }
+
+  def findById(sparkJob: Option[String]): ValidationNel[Throwable, Option[String]] = {
+    sparkJob match {
+      case Some(id) => spark.SparkSubmitter(new SparkjobsInput("","",KeyValueList.empty)).job(id)
+      case None =>  new IllegalArgumentException("Missing job id").failureNel[Option[String]]
     }
   }
 
@@ -170,7 +166,6 @@ object Sparkjobs {
     } map {
       _.foldRight((SparkjobsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
-
   }
 
 }

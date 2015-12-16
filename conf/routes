@@ -40,7 +40,8 @@ GET    /v2/domains/:id                  controllers.team.Domains.show(id: String
 
 #Sparkjobs
 POST   /v2/sparkjobs/content            controllers.analytics.Sparkjobs.post
-#GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id: String)
+GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id: String)
+
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post
 GET    /v2/csars                        controllers.camp.CSARs.list

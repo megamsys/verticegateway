@@ -53,7 +53,7 @@ package object tosca {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: CSARResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -79,7 +79,7 @@ package object tosca {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: AssemblysLists, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -102,7 +102,7 @@ package object tosca {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: AssembliesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -130,7 +130,7 @@ package object tosca {
     }
 
     def toJson(nres: AssemblyLinks, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -154,7 +154,7 @@ package object tosca {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: AssemblyResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -182,7 +182,7 @@ package object tosca {
     }
 
     def toJson(nres: ComponentLinks, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -206,7 +206,7 @@ package object tosca {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: ComponentsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -229,7 +229,7 @@ package object tosca {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: SensorsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -257,7 +257,7 @@ package object tosca {
     }
 
     def toJson(nres: PoliciesList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -286,7 +286,7 @@ package object tosca {
     }
 
     def toJson(nres: MembersList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -300,6 +300,11 @@ package object tosca {
   type KeyValueList = List[KeyValueField]
 
   object KeyValueList {
+    val OJA_EMAIL = "email"
+    val OJA_API_KEY = "api_key"
+    val OJA_ASSEMBLY_ID = "assembly_id"
+    val OJA_COMP_ID = "component_id"
+    val OJA_SPARK_JOBSERVER = "spark_jobserver"
 
     val MKT_FLAG_EMAIL = "<email>"
     val MKT_FLAG_APIKEY = "<api_key>"
@@ -308,18 +313,9 @@ package object tosca {
     val MKT_FLAG_SPARKJOBSERVER = "<spark_jobserver>"
     val MKT_FLAG_HOST = "<host>"
 
-    //this is boring, actually you can take MKT_FLAG_EMAIL and strip <, > and prefix OJA_ toUpper.
-    val BuiltInEnvsKeys: Map[String, String] = Map(
-      EMAIL -> "OJA_EMAIL",
-      API_KEY -> "OJA_APIKEY",
-      ASSEMBLY_ID -> "OJA_ASSEMBLY_ID",
-      COMP_ID -> "OJA_COMPONENT_ID",
-      HOST -> "OJA_HOST",
-      SPARK_JOBSERVER -> "OJA_SPARK_JOBSERVER")
-
     val emptyRR = List(KeyValueField.empty)
-    def toJValue(nres: KeyValueList): JValue = {
 
+    def toJValue(nres: KeyValueList): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
       import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
       toJSON(nres)(KeyValueListWriter)
@@ -332,9 +328,9 @@ package object tosca {
     }
 
     def toJson(nres: KeyValueList, prettyPrint: Boolean = false, flagsMap: Map[String, String] = Map()): String = {
-      val nrec = nres.map { x => KeyValueField(BuiltInEnvsKeys.get(x.key).getOrElse(x.key), flagsMap.get(x.value).getOrElse(x.value)) }
+      val nrec = nres.map { x => KeyValueField(x.key, flagsMap.get(x.value).getOrElse(x.value)) }
       if (prettyPrint) {
-        pretty(render(toJValue(nrec)))
+        prettyRender(toJValue(nrec))
       } else {
         compactRender(toJValue(nrec))
       }
@@ -343,6 +339,8 @@ package object tosca {
     def apply(plansList: List[KeyValueField]): KeyValueList = plansList
 
     def empty: List[KeyValueField] = emptyRR
+
+    def toMap(nres: KeyValueList) = (nres.map {x => (x.key, x.value)}).toMap
 
   }
 
@@ -364,7 +362,7 @@ package object tosca {
     }
 
     def toJson(nres: OperationList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -393,7 +391,7 @@ package object tosca {
     }
 
     def toJson(nres: MetricList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -422,7 +420,7 @@ package object tosca {
     }
 
     def toJson(nres: BindLinks, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }

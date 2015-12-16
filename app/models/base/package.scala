@@ -50,7 +50,7 @@ package object base {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: RequestResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -72,7 +72,7 @@ package object base {
     }
 
     def toJson(nres: SshKeyResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -93,7 +93,7 @@ package object base {
     }
 
     def toJson(nres: MarketPlaceResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -121,7 +121,7 @@ package object base {
     }
 
     def toJson(nres: MarketPlacePlans, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }

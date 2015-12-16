@@ -63,7 +63,7 @@ case class BillingsResult(id: String, accounts_id: String, line1: String, line2:
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

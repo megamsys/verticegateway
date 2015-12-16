@@ -31,7 +31,10 @@ import java.net.URL
 
 //@parms jars :  is the jar file
 //@parms name : is the name of the urlsuffix, its actually the last jarname with no extension.
-case class JarsInput(jars: String, name: String) //add a val to retun data--binary of the from the jar file
+case class JarsInput(prefix: String , location: String, name: String, args: Map[String,String] = Map.empty) {
+  val claz: String = "io.megam.sparkbb.WordCountExample"
+  val uniqName = prefix + "_" + name
+}
 
 case class JobsInput(id: String)
 
@@ -69,5 +72,5 @@ trait JobServerClient extends JobServerContext {
 
   implicit private val encoding = Constants.UTF8Charset
 
-  protected def execute[T](t: Builder) = Await.result(t.apply, 30.second)
+  protected def execute[T](t: Builder) = Await.result(t.apply, Integer.parseInt(app.MConfig.yonpi_timeout).second)
 }

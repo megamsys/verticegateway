@@ -63,7 +63,7 @@ case class SshKeyResult(id: String, name: String, accounts_id: String, path: Str
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
