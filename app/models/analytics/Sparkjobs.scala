@@ -99,15 +99,17 @@ object Sparkjobs {
   val bindex = "assembly"
 
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    
     val sparkjobsInput: ValidationNel[Throwable, SparkjobsInput] = (Validation.fromTryCatchThrowable[SparkjobsInput, Throwable] {
       parse(input).extract[SparkjobsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
+    
     for {
       sp <- sparkjobsInput
       su <- spark.SparkSubmitter(sp).submit(false, email, KeyValueList.toMap(sp.inputs))
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "spj").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
+      println(sparkjobsInput)
       val bvalue = Set(sp.assembly_id)
       su flatMap {  so =>
       val json = new SparkjobsResult(uir.get._1 + uir.get._2, so._2.code, so._2.status, so._2.result.job_id, Time.now.toString).toJson(false)
