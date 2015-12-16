@@ -195,7 +195,7 @@ object Component {
     } yield {
       val bvalue = Set(aor.get.id)
       val com = com_collection.head
-      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations, com.get.status, com.get.repo, com.get.created_at).toJson(false)
+      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations ::: rip.operations, com.get.status, com.get.repo, com.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
@@ -217,7 +217,7 @@ object Component {
         }
       }
     }
-  }
+  } 
 
 }
 

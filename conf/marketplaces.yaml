@@ -32,7 +32,7 @@ marketplaces:
   image: centos.png
   url: http://debian.com
   plans:
-   7.0:
+   7.1:
     description: "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat."
 
  Java:
@@ -41,10 +41,9 @@ marketplaces:
   image: java.png
   url: https://github.com/megamsys/java-spring-petclinic.git
   envs:
-   host: localhost
    port: 8080
-   username: admin
-   password: admin
+   tomcat_username: megam
+   tomcat_password: megam
   plans:
    8.x:
     description: "Quickly get started with J2EE Spring framework app."
@@ -54,9 +53,6 @@ marketplaces:
   order: 2
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
-  envs:
-   host: localhost
-   port: 8080
   plans:
    4.x:
     description: "Quickly get started with rails 4.x app."
@@ -67,8 +63,7 @@ marketplaces:
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
   envs:
-   host: localhost
-   port: 3000
+   port: 9000
   plans:
    2.4.x:
     description: "Build robust RESTful API server using Scala."
@@ -78,9 +73,6 @@ marketplaces:
   order: 2
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
-  envs:
-   host: localhost
-   port: 7000
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
@@ -91,10 +83,7 @@ marketplaces:
   image: php.png
   url: https://secure.php.net/
   envs:
-   host:
-   port:
-   username:
-   password:
+   port: 8080
   plans:
    5.x:
     description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
@@ -105,10 +94,9 @@ marketplaces:
   image: postgres.png
   url: https://postgresql.org
   envs:
-   host:
    port: 5432
-   username:
-   password:
+   username: postgres
+   password: megam
   plans:
    9.3:
     description: "PostgreSQL is a powerful, open source object-relational database system."
@@ -119,10 +107,7 @@ marketplaces:
   image: riak.png
   url: http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb
   envs:
-   host:
    port: 8098
-   username:
-   password:
   plans:
    2.1.1:
     description: "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers."
@@ -133,10 +118,7 @@ marketplaces:
   image: redis.png
   url: https://redis.org
   envs:
-   host:
    port: 6379
-   username:
-   password:
   plans:
    2.8.4:
     description: "Redis is a key-value store which acts as a data structure server with keys containing strings, hashes, lists, sets and sorted sets."
@@ -147,8 +129,7 @@ marketplaces:
   image: rabbitmq.png
   url: https://www.rabbitmq.com
   envs:
-   host:
-   port: 15672
+   port: 5672
    username: guest
    password: guest
   plans:
@@ -161,10 +142,9 @@ marketplaces:
   image: mysql.png
   url: https://dev.mysql.com/
   envs:
-   host:
    port: 3306
    username: root
-   password:
+   password: megam
   plans:
    5.x:
     description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
@@ -175,10 +155,7 @@ marketplaces:
   image: dockerbox.png
   url: https://www.docker.com
   envs:
-   host:
-   port:
-   username:
-   password:
+   port: 2375
   plans:
    0.9.0:
     description: "Launch a vm with docker in detached model."
@@ -188,11 +165,6 @@ marketplaces:
   order: 4
   image: dockercontainer.png
   url: https://www.docker.com
-  envs:
-   host:
-   port:
-   username:
-   password:
   plans:
    1.8.x:
     description: "Docker that automates the deployment of applications inside software containers."
@@ -203,10 +175,7 @@ marketplaces:
   image: hadoop.png
   url: https://hadoop.apache.org
   envs:
-   host:
-   port:
-   username:
-   password:
+   port: 50070
   plans:
    2.6.0:
     description: "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware."
@@ -217,10 +186,7 @@ marketplaces:
   image: spark.png
   url: http://spark.apache.org/
   envs:
-   host:
-   port:
-   username:
-   password:
+   port: 9004
   plans:
    1.5.0:
     description: "Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala, Python and R, and an optimized engine that supports general execution graphs."
@@ -231,10 +197,7 @@ marketplaces:
   image: sparknotebook.png
   url:  http://spark-notebook.io
   envs:
-   host:
-   port:
-   username:
-   password:
+   port: 9000
   plans:
    0.6.x:
     description: "Use Apache Spark straight from the Browser. "
@@ -255,17 +218,11 @@ marketplaces:
     1.0.0:
      description: "HotelAAP is a prediction application that analyze the data by using Spark for the hotel industry vertical."
 
-                                          
  Zarafa:
   cattype: COLLABORATION
   order: 6
   image: zarafa.png
   url: https://www.zarafa.com/
-  envs:
-   host:
-   port:
-   username:
-   password:
   plans:
    7.2:
     description: "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."
@@ -276,10 +233,8 @@ marketplaces:
   image: owncloud.png
   url: https://owncloud.org/
   envs:
-   host:
-   port:
-   username:
-   password:
+   username: admin
+   password: admin
   plans:
    8.1:
     description: "Access your data from all your devices, on an open platform you can extend and modify."
@@ -291,9 +246,7 @@ marketplaces:
   url: www.megam.io
   envs:
    host:
-   port:
-   username:
-   password:
+   port: 8069
   plans:
    0.9.0:
     description: "A virtual office provides bundled applications for everyday office use. "
