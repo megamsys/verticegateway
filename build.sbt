@@ -76,12 +76,12 @@ resolvers += "Bintray scalaz" at "https://dl.bintray.com/scalaz/releases/"
 libraryDependencies ++= Seq(filters, cache,
   "jp.t2v" %% "play2-auth" % "0.14.1",
   "org.yaml" % "snakeyaml" % "1.16",
-  "io.megam" %% "libcommon" % "0.12",
+  "io.megam" %% "libcommon" % "0.22",
   "io.megam" %% "newman" % "1.3.12",
-  "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
-  "org.specs2" %% "specs2-core" % "3.6.5-20151112214348-18646b2" % "test",
-  "org.specs2" %% "specs2-junit" % "3.6.5-20151112214348-18646b2" % "test",
-  "org.specs2" % "specs2-matcher-extra_2.11" % "3.6.5-20151112214348-18646b2" % "test")
+  "io.megam" %% "sparkbuilder" % "0.4",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
+  "org.specs2" %% "specs2-core" % "3.6.6-20151204011838-90b7de9" % "test",
+  "org.specs2" % "specs2-matcher-extra_2.11" % "3.6.6-20151204011838-90b7de9" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 

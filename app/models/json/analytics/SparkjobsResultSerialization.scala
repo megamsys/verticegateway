@@ -29,7 +29,6 @@ import controllers.Constants._
 import models.tosca._
 import models.analytics._
 import models.tosca.{ KeyValueList }
-import models.analytics.{ Results }
 /**
  * @author ranjitha
  *
@@ -38,23 +37,18 @@ class SparkjobsResultSerialization(charset: Charset = UTF8Charset) extends model
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
-  protected val InputsKey = "inputs"
-  protected val SourceKey = "source"
+  protected val CodeKey = "code"
   protected val StatusKey = "status"
-  protected val ResultsKey = "results"
+  protected val JobIdKey = "job_id"
   protected val CreatedAtKey = "created_at"
 
   override implicit val writer = new JSONW[SparkjobsResult] {
-    import models.json.tosca.KeyValueListSerialization.{ writer => KeyValueListWriter }
-    import models.json.tosca.box.ResultsSerialization.{ writer => ResultsWriter }
     override def write(h: SparkjobsResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
-          JField(JSONClazKey, toJSON("Megam::Sparkjobs")) ::
-          JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::
-          JField(SourceKey, toJSON(h.source)) ::
+          JField(CodeKey, toJSON(h.code)) ::
           JField(StatusKey, toJSON(h.status)) ::
-          JField(ResultsKey, toJSON(h.results)(ResultsWriter)) ::
+          JField(JobIdKey, toJSON(h.job_id)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) ::
           Nil)
     }
@@ -62,20 +56,17 @@ class SparkjobsResultSerialization(charset: Charset = UTF8Charset) extends model
 
   override implicit val reader = new JSONR[SparkjobsResult] {
 
-    import models.json.tosca.KeyValueListSerialization.{ reader => KeyValueListReader }
-    import models.json.tosca.box.ResultsSerialization.{ reader => ResultsReader }
     override def read(json: JValue): Result[SparkjobsResult] = {
 
       val idField = field[String](IdKey)(json)
-      val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
-      val sourceField = field[String](SourceKey)(json)
+      val codeField = field[Int](CodeKey)(json)
       val statusField = field[String](StatusKey)(json)
-      val resultsField = field[Results](ResultsKey)(json)(ResultsReader)
+      val jobIdField = field[String](JobIdKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| inputsField |@| sourceField |@| statusField |@| resultsField |@| createdAtField) {
-        (id: String, inputs: KeyValueList, source: String, status: String, results: Results, created_at: String) =>
-          new SparkjobsResult(id, inputs, source, status, results, created_at)
+      (idField |@| codeField |@| statusField |@| jobIdField |@|  createdAtField) {
+        (id: String, code: Int, status: String ,job_id: String, created_at: String) =>
+          new SparkjobsResult(id, code, status, job_id, created_at)
       }
     }
   }

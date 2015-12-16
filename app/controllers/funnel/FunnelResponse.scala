@@ -43,7 +43,7 @@ case class FunnelResponse(code: Int, msg: String, more: String, json_claz: Strin
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

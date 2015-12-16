@@ -63,7 +63,7 @@ case class KeyValueField(key: String, value: String) {
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -101,7 +101,7 @@ case class AssembliesResult(id: String,
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -183,7 +183,7 @@ object Assemblies {
   def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
     (assembliesID map {
       _.map { asm_id =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("Assemblies ID", asm_id))
+        play.api.Logger.debug(("%-20s -->[%s]").format("Assemblies Id", asm_id))
         (riak.fetch(asm_id) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>

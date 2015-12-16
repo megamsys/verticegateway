@@ -46,7 +46,7 @@ package object billing {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(pres: BalancesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(pres)))
+      prettyRender(toJValue(pres))
     } else {
       compactRender(toJValue(pres))
     }
@@ -70,7 +70,7 @@ package object billing {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(pres: BilledhistoriesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(pres)))
+      prettyRender(toJValue(pres))
     } else {
       compactRender(toJValue(pres))
     }
@@ -94,7 +94,7 @@ package object billing {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: DiscountsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
@@ -115,7 +115,7 @@ package object billing {
     }
 
     def toJson(nres: InvoicesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }

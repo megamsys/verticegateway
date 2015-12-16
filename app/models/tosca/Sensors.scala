@@ -72,7 +72,7 @@ case class SensorsResult(id: String, sensor_type: String, payload: Payload, crea
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -104,7 +104,7 @@ case class Metric(metric_type: String, metric_value: String, metric_units: Strin
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -137,7 +137,7 @@ case class Sensors(sensor_type: String, payload: Payload) {
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

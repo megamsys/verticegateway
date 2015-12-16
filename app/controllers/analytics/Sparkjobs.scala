@@ -43,11 +43,12 @@ object Sparkjobs extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.analytics.Sparkjobs.create(email, clientAPIBody) match {
-            case Success(succ) =>
+            case Success(succ) => {
+              val sjr = succ.getOrElse(new models.analytics.SparkjobsResult("", BAD_REQUEST,
+                "NONE", "", ""))
               Status(CREATED)(
-                FunnelResponse(CREATED, """Sparkjobs created successfully.
-            |
-            |You can use the the 'Sparkjobs':{%s}.""".format(succ.getOrElse("none")), "Megam::Sparkjobs").toJson(true))
+                FunnelResponse(sjr.code, sjr.job_id, "Megam::Sparkjobs").toJson(true))
+            }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -61,6 +62,26 @@ object Sparkjobs extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-
-
+  // * GET: findById: Show the results of a particular jobid
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.analytics.Sparkjobs.findById(id.some) match {
+            case Success(job) =>
+              Ok(job.get)
+            case Failure(jerr) =>
+              val rn: FunnelResponse = new HttpReturningError(jerr)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
 }

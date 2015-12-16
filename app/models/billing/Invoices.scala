@@ -61,7 +61,7 @@ case class InvoicesResult(id: String, accounts_id: String, from_date: String, to
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

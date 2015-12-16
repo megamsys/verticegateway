@@ -48,7 +48,7 @@ object OrganizationsResults {
   }
 
   def toJson(nres: OrganizationsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue(nres)))
+    prettyRender(toJValue(nres))
   } else {
     compactRender(toJValue(nres))
   }
@@ -69,7 +69,7 @@ object DomainsResults {
   }
 
   def toJson(nres: DomainsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue(nres)))
+    prettyRender(toJValue(nres))
   } else {
     compactRender(toJValue(nres))
   }
@@ -96,7 +96,7 @@ object RelatedOrgsList {
   }
 
   def toJson(nres: RelatedOrgsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue(nres)))
+    prettyRender(toJValue(nres))
   } else {
     compactRender(toJValue(nres))
   }

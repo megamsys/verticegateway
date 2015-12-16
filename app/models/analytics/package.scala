@@ -48,7 +48,7 @@ package object analytics {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(nres: SparkjobsResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(nres)))
+      prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }

@@ -69,7 +69,7 @@ case class BalancesResult(id: String, name: String, credit: String, created_at: 
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

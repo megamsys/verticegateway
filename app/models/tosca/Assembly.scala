@@ -61,7 +61,7 @@ case class Operation(operation_type: String, description: String, properties: mo
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -94,7 +94,7 @@ case class AssemblyResult(id: String, name: String, components: models.tosca.Com
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -129,7 +129,7 @@ case class Policy(name: String, ptype: String, members: models.tosca.MembersList
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -170,7 +170,7 @@ case class Assembly(name: String,
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -332,7 +332,7 @@ object AssemblysList {
   }
 
   def toJson(nres: AssemblysList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue(nres)))
+    prettyRender(toJValue(nres))
   } else {
     compactRender(toJValue(nres))
   }

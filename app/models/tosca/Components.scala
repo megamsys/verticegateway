@@ -90,7 +90,7 @@ case class ComponentResult(id: String, name: String, tosca_type: String, inputs:
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -128,7 +128,7 @@ case class Component(name: String, tosca_type: String, inputs: models.tosca.KeyV
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -242,7 +242,7 @@ object ComponentsList {
   }
 
   def toJson(nres: ComponentsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue(nres)))
+    prettyRender(toJValue(nres))
   } else {
     compactRender(toJValue(nres))
   }

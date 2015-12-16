@@ -78,7 +78,7 @@ case class RequestResult(id: String, cat_id: String, cattype: String, name: Stri
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

@@ -59,7 +59,7 @@ case class DomainsResult(id: String, name: String, created_at: String) {
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }

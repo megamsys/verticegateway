@@ -53,7 +53,7 @@ package object funnel {
 
     //screwy. you pass an instance. may be FunnelResponses needs be to a case class
     def toJson(fres: FunnelResponses, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      pretty(render(toJValue(fres)))
+     prettyRender(toJValue(fres))
     } else {
       compactRender(toJValue(fres))
     }

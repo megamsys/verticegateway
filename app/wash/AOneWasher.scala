@@ -32,15 +32,14 @@ import controllers.Constants._
  */
 case class AOneWasher(pq: PQd) extends MessageContext {
 
-  def queueName = (pq.QrE(cloudFarm).getOrElse(("","")))._1
+  def queueName = (pq.QrE(cloudFarm).getOrElse(("", "")))._1
 
-  def exchangeName = (pq.QrE(cloudFarm).getOrElse(("","")))._2
+  def exchangeName = (pq.QrE(cloudFarm).getOrElse(("", "")))._2
 
   val msg = Messages(pq.messages.toList)
-  
-print(msg)
+
   def wash(): ValidationNel[Throwable, AMQPResponse] = {
-    play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + queueName+"]", msg))
+    play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + queueName + "]", msg))
     execute(rmqClient.publish(msg, MConfig.routing_key))
   }
 }
@@ -56,14 +55,13 @@ case class PQd(reqres: models.base.RequestResult) {
       (cloudFarm + MConfig.standup_queue, cloudFarm + MConfig.standup_exchange).some
     } else if (reqres.name.trim.length > 0) {
       (cloudFarm + reqres.name + "_queue", cloudFarm + reqres.name + "_exchange").some
-    } else  none
+    } else none
   }
 
   val messages = reqres.toMap
 
 }
 
-
 object PQd {
-    def empty: PQd = new PQd(models.base.RequestResult("","","","","","",""))
+  def empty: PQd = new PQd(models.base.RequestResult("", "", "", "", "", "", ""))
 }
