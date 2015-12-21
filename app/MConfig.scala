@@ -17,23 +17,16 @@
  * @author ram
  *
  */
- package app
+package app
 
 object MConfig {
   val baseurl = play.api.Play.application(play.api.Play.current).configuration.getString("application.baseUrl")
   val marketplaces_yaml = play.api.Play.application(play.api.Play.current).configuration.getString("megam.marketplaces").get
   val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get
-  val amqpurl = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.url").get
   val snowflakeHost = play.api.Play.application(play.api.Play.current).configuration.getString("sf.host").get
   val snowflakePort: Int = play.api.Play.application(play.api.Play.current).configuration.getInt("sf.port").get
   val snowflakeurl = snowflakeHost + ":" + snowflakePort
-
-  val amqp_prefix = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.prefix").get
-  val routing_key = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.routing.key").get
-  val standup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.standup.queue").get
-  val standup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.standup.exchange").get
-  val dockerup_queue = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.dockerup.queue").get
-  val dockerup_exchange = play.api.Play.application(play.api.Play.current).configuration.getString("amqp.dockerup.exchange").get
+  val nsqurl = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.url").get
   val spark_jobserver = play.api.Play.application(play.api.Play.current).configuration.getString("spark.jobserver").get
-  val yonpi_timeout   = play.api.Play.application(play.api.Play.current).configuration.getString("spark.yonpi.timeout").get
-  }
+  val yanpi_timeout = play.api.Play.application(play.api.Play.current).configuration.getString("spark.yanpi.timeout").get
+}

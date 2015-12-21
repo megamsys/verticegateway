@@ -160,7 +160,6 @@ object Requests {
       if(!email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL)) {
       (new wash.AOneWasher(pq.get).wash leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: AMQPResponse =>
-
             play.api.Logger.debug(("%-20s -->[%s]").format("Request.published successfully", input))
             pq.successNel[Throwable]
       }
