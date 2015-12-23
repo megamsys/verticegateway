@@ -32,7 +32,7 @@ import java.net.URL
 //@parms jars :  is the jar file
 //@parms name : is the name of the urlsuffix, its actually the last jarname with no extension.
 case class JarsInput(prefix: String , location: String, name: String, args: Map[String,String] = Map.empty) {
-  val claz: String = "io.megam.sparkbb.WordCountExample"
+  val claz: String = args.get("claz").getOrElse("io.megam.sparkbb.WordCountExample")
   val uniqName = prefix + "_" + name
 }
 
