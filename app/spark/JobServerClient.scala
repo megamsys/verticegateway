@@ -72,5 +72,5 @@ trait JobServerClient extends JobServerContext {
 
   implicit private val encoding = Constants.UTF8Charset
 
-  protected def execute[T](t: Builder) = Await.result(t.apply, Integer.parseInt(app.MConfig.yonpi_timeout).second)
+  protected def execute[T](t: Builder) = Await.result(t.apply, Integer.parseInt(app.MConfig.yanpi_timeout).second)
 }
