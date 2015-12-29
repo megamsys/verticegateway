@@ -77,7 +77,7 @@ resolvers += "gradle" at "https://repo.gradle.org/gradle/libs-releases-local"
 libraryDependencies ++= Seq(filters, cache,
   "jp.t2v" %% "play2-auth" % "0.14.1",
   "org.yaml" % "snakeyaml" % "1.16",
-  "io.megam" %% "libcommon" % "0.22",
+  "io.megam" %% "libcommon" % "0.24",
   "io.megam" %% "newman" % "1.3.12",
   "io.megam" %% "sparkbuilder" % "0.4",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",

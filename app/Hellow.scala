@@ -66,11 +66,11 @@ case object Hellow {
   val CPU_CORES = "cores"
 
   val SNOWFLAKE = "snowflake"
-  val RABBITMQ = "rabbitmq"
+  val NSQ = "nsq"
   val RIAK = "riak"
   val RUNNING = "up"
 
-  val What2Hunts = Array(RIAK, SNOWFLAKE, RABBITMQ)
+  val What2Hunts = Array(RIAK, SNOWFLAKE, NSQ)
 
   import java.lang.management.{ ManagementFactory, OperatingSystemMXBean }
   import java.lang.reflect.{ Method, Modifier }
@@ -101,13 +101,13 @@ case object Hellow {
     case Failure(erruid) => (MConfig.snowflakeurl, none)
   }
 
-  //ping rabbitmq, by droping a DUM0001 req
-  private val amqp = new wash.AOneWasher(new wash.PQd(RequestResult("r001", "001", "torpedo", "megam.test", "start", "test", "nop"))).wash match {
-    case Success(succ_uid) => (MConfig.amqpurl, Some(RUNNING))
-    case Failure(erruid) => (MConfig.amqpurl, none)
+  //ping nsq, by droping a DUM0001 req
+  private val nsq = new wash.AOneWasher(new wash.PQd(RequestResult("r001", "001", "torpedo", "test", "start", "test", "nop"))).wash match {
+    case Success(succ_uid) => (MConfig.nsqurl, Some(RUNNING))
+    case Failure(erruid) => (MConfig.nsqurl, none)
   }
 
-  val sharks = Map(RIAK -> gwr, SNOWFLAKE -> uid, RABBITMQ -> amqp)
+  val sharks = Map(RIAK -> gwr, SNOWFLAKE -> uid, NSQ -> nsq)
 
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)

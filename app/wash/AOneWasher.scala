@@ -17,11 +17,11 @@ package wash
 
 import scalaz._
 import Scalaz._
+import app.MConfig
 import org.megam.common._
 import org.megam.common.amqp._
 import org.megam.common.amqp.request._
 import org.megam.common.amqp.response._
-import app.MConfig
 import models.base.RequestResult
 import play.api.Logger
 import controllers.Constants._
@@ -32,29 +32,30 @@ import controllers.Constants._
  */
 case class AOneWasher(pq: PQd) extends MessageContext {
 
-  def queueName = (pq.QrE(cloudFarm).getOrElse(("", "")))._1
-
-  def exchangeName = (pq.QrE(cloudFarm).getOrElse(("", "")))._2
+  def topic = (pq.Tpk.getOrElse(""))
 
   val msg = Messages(pq.messages.toList)
 
   def wash(): ValidationNel[Throwable, AMQPResponse] = {
-    play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + queueName + "]", msg))
-    execute(rmqClient.publish(msg, MConfig.routing_key))
+    play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + topic + "]", msg))
+    execute(nsqClient.publish(msg))
   }
 }
 
 case class PQd(reqres: models.base.RequestResult) {
 
+  val nsqcontainers = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.containers")
+  val nsqvms = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.vms")
+
   val DQACTIONS = Array[String](CREATE, DELETE)
 
-  def QrE(cloudFarm: String): Option[Tuple2[String, String]] = {
+  def Tpk: Option[String] = {
     if (reqres.cattype.equalsIgnoreCase(CATTYPE_DOCKER)) {
-      (cloudFarm + MConfig.dockerup_queue, cloudFarm + MConfig.dockerup_exchange).some
+      nsqcontainers
     } else if (DQACTIONS.contains(reqres.action)) {
-      (cloudFarm + MConfig.standup_queue, cloudFarm + MConfig.standup_exchange).some
+      nsqvms
     } else if (reqres.name.trim.length > 0) {
-      (cloudFarm + reqres.name + "_queue", cloudFarm + reqres.name + "_exchange").some
+      reqres.name.some
     } else none
   }
 
