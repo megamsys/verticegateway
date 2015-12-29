@@ -42,6 +42,9 @@ GET    /v2/domains/:id                  controllers.team.Domains.show(id: String
 POST   /v2/sparkjobs/content            controllers.analytics.Sparkjobs.post
 GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id: String)
 
+#Workbenches
+POST  /v2/workbenches/content           controllers.analytics.Workbenches.post
+
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post
 GET    /v2/csars                        controllers.camp.CSARs.list

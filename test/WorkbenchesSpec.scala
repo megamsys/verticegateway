@@ -36,27 +36,37 @@ import controllers.stack.HeaderConstants._
 import models.base._
 import test._
 
-class SparkJobsSpec extends Specification {
+class WorkbenchesSpec extends Specification {
   def is =
-    "SparkJobsSpec".title ^ end ^
+    "WorkbenchesSpec".title ^ end ^
       """
-      SparkJobsSpec is the implementation that calls the API server with the /sparkjobs url to manage sparkjobs
+      WorkbenchesSpec is the implementation that calls the API server with the /workbenches url to create workbenches
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do upload jar into spark job server" ! Post0.succeeds ^
-      "Correctly do GET sparkjob with a valid userid and api key" ! Get.succeeds ^
+      "Correctly do POST requests" ! Post0.succeeds ^ br ^
       end
 
   case object Post0 extends Context {
 
-    protected override def urlSuffix: String = "sparkjobs/content"
+    protected override def urlSuffix: String = "workbenches/content"
 
     protected override def bodyToStick: Option[String] = {
+
       val contentToEncode = "{" +
-        "\"source\": \"https://github.com/megamsys/meglytics_hotel_template.git\"," +
-        "\"inputs\": [" +
-        "{\"key\":\"string\",\"value\":\"mera nam jokker thumhara nam kya hai\"}]," +
-        "\"assembly_id\": \"ASM000001\"" +
+        "\"id\":\"WOB1282015862542434304\"," +
+        "\"name\": \"test\"," +
+        "\"connector\":[{ " +
+        "\"type\":\"sql\"," +
+        "\"endpoint\":\"192.168.0.0\"," +
+        "\"inputs\":[{\"key\":\"name\", \"value\" :\"cocdb\"}]" +
+        "}]," +
+        "\"tables\":[{ " +
+        "\"name\":\"hotel\"," +
+        "\"table_id\":\"sn145\"," +
+        "\"schemas\":[{\"key\":\"cccc\", \"value\" :\"ssss\"}]," +
+        "\"links\":[{\"key\":\"ddd\", \"value\" : \"tttt\"}]" +
+        "}]," +
+        "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
         "}"
       Some(contentToEncode)
     }
@@ -73,19 +83,4 @@ class SparkJobsSpec extends Specification {
     }
 
   }
-
-  case object Get extends Context {
-    protected override def urlSuffix: String = "sparkjobs/47e01364-7741-4572-a438-b5f2be34fdfb"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }
-
 }
