@@ -1,0 +1,12 @@
+## Tweak this systemd script
+[Unit]
+Description=Megam Gateway - REST API
+After=network.target
+After=runlevel2.target
+After=runlevel3.target
+After=runlevel4.target
+After=runlevel5.target
+[Service]
+ExecStartPre=chdir /usr/share/megam/megamgateway/bin
+ExecStart=./megamgateway  -Dlogger.file=/var/lib/megam/megamgateway/logger.xml -Dconfig.file=/var/lib/megam/megamgateway/gateway.conf >> /var/log/megam/megamgateway/megamgateway.log 2>&1
+KillMode=mixed
