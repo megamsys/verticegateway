@@ -22,7 +22,7 @@ import scalaz.Validation._
 
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
-
+import models.analytics._
 import play.api.mvc._
 
 /**
@@ -33,7 +33,7 @@ import play.api.mvc._
 object Workbenches extends Controller with controllers.stack.APIAuthElement {
 
   /**
-   * Create a new sparkjobs entry by email/json input.
+   * Create a new workbenches entry by email/json input.
    */
   def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
@@ -61,5 +61,26 @@ object Workbenches extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Workbenches wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.analytics.Workbenches.findById(List(id).some) match {
+            case Success(succ) =>
+              Ok(WorkbenchesResults.toJson(succ, true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
+  }
 }

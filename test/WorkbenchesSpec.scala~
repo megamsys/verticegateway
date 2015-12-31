@@ -85,7 +85,7 @@ class WorkbenchesSpec extends Specification {
 
   }
 case object Get extends Context {
-    protected override def urlSuffix: String = "workbenches/WOB1294330014208229376"
+    protected override def urlSuffix: String = "workbenches/WOB1282015862542434304"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
