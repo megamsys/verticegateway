@@ -24,26 +24,28 @@ import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
-import org.megam.util.Time
-import controllers.stack._
+
+import cache._
+import db._
+import models.json.tosca._
+import models.json.tosca.carton._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models._
-import models.cache._
-import models.riak._
+import app.MConfig
+import models.base._
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import scala.collection.JavaConversions._
-import models.cache._
 import org.yaml.snakeyaml.Yaml
-import scala.collection.mutable.LinkedHashMap
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ LinkedHashMap, ListBuffer }
 import java.util.ArrayList
 import scala.util.control.Breaks._
 
@@ -59,7 +61,6 @@ case class CSARListOutput(key: String, value: String) {
 }
 
 case class CSARPolicyOutput(key: String, value: Any) {
-  //  val json = "{\"key\":\"" + key + "\",\"value\":" + value + "}"
   val policykey = key
   val policyvalue = value
 }
@@ -69,7 +70,6 @@ object CSARJson {
   implicit val formats = DefaultFormats
 
   def toJson(input: String): ValidationNel[Throwable, String] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs", "CSAR to JSON"))
     val csarInput: Map[String, String] = mapAsScalaMap[String, String](new Yaml().load(input).asInstanceOf[java.util.Map[String, String]]).toMap
 
     var a = "{\"tosca_definitions_version\":\"tosca_simple_yaml_1_0\",\"description\":\"Template for deploying a two-tier application servers on two\"}";
@@ -129,7 +129,7 @@ object CSARJson {
                 }
             }
         }
-      case None => play.api.Logger.debug("-------***************None case--------------")
+      case None => play.api.Logger.debug("cant parse the yaml")
     }
 
     val afterFitAssembly: scala.collection.mutable.MutableList[Assembly] = assemblyBuilder(inputsList, policylist, templateList)
@@ -142,7 +142,6 @@ object CSARJson {
     var i = 0;
     var j = 0;
     val list = scala.collection.mutable.MutableList[String]()
-    play.api.Logger.debug(("%-20s -->[%s]").format("tosca.CSARs Parse Hash", "CSAR to JSON"))
     list += "{\"key\":\"name\", \"value\":\"" + key + "\"}"
     val csarInput1: Map[String, String] = mapAsScalaMap[String, String](value.asInstanceOf[java.util.Map[String, String]]).toMap
 
@@ -212,14 +211,10 @@ object CSARJson {
     }
 
     val valu = new Component(getValue("name", template), getValue("type", template),
-      component_inputs_lists.toList, List[KeyValueField](), new Artifacts("", "", List[KeyValueField]()),
+      component_inputs_lists.toList, List[KeyValueField](), List[KeyValueField](), new Artifacts("", "", List[KeyValueField]()),
       List[String](), List[Operation](), new Repo("", "", "", ""), "LAUNCHING")
     return valu
 
-    //val value = new Component(getValue("name", template), getValue("type", template),
-      //component_inputs_lists.toList, List[KeyValueField](), new Repo("", "", List[KeyValueField]()),
-      //List[String](), List[Operation](), "LAUNCHING")
-      //return value
   }
 
   def assembliesBuilder(assemblyList: scala.collection.mutable.MutableList[Assembly]): String = {

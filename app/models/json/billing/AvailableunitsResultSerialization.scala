@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,14 +26,12 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.billing.{ AvailableunitsResult }
-
+import models.billing._
 /**
  * @author rajthilak
  *
  */
-class AvailableunitsResultSerialization(charset: Charset = UTF8Charset) extends SerializationBase[AvailableunitsResult] {
+class AvailableunitsResultSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[AvailableunitsResult] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
 
   protected val IdKey = "id"

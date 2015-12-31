@@ -15,45 +15,31 @@
 */
 package controllers
 
-import controllers.stack.APIAuthElement
-import controllers.stack._
-import controllers.funnel.FunnelErrors._
-import controllers.funnel.FunnelResponse
-import models._
-import play.api._
-import play.api.mvc._
-import play.api.mvc.Result
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
-import scalaz.NonEmptyList._
 
-/**
- * @author rajthilak
- *
- */
 
+import controllers.funnel.FunnelResponse
+import controllers.funnel.FunnelErrors._
+import play.api.mvc._
 /*
  * This controller performs onboarding a customer and registers an email/api_key
  * into riak
  * Output: FunnelResponse as JSON with the msg.
  */
-object Accounts extends Controller with APIAuthElement {
+object Accounts extends Controller with stack.APIAuthElement {
 
   /*
    * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
    */
   def post = Action(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Accounts", "post:Entry"))
     val input = (request.body).toString()
-    play.api.Logger.debug(("%-20s -->[%s]").format("input", input))
-    models.Accounts.create(input) match {
-      case Success(succ) => 
-        PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
+    models.base.Accounts.create(input) match {
+      case Success(succ) =>
+        utils.PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
               format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
@@ -63,7 +49,7 @@ object Accounts extends Controller with APIAuthElement {
             val rncpc: FunnelResponse = new HttpReturningError(errcpc)
             Status(rncpc.code)(rncpc.toJson(true))
         }
-      
+
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
@@ -77,12 +63,10 @@ object Accounts extends Controller with APIAuthElement {
    * Output: JSON (AccountsResult)
    **/
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    play.api.Logger.debug(("%-20s -->[%s]").format("controllers.Accounts", "show:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", id))
-    models.Accounts.findByEmail(id) match {
+    models.base.Accounts.findByEmail(id) match {
       case Success(succ) => {
         Ok((succ.map(s => s.toJson(true))).getOrElse(
-          AccountResult(id).toJson(true)))
+          models.base.AccountResult(id).toJson(true)))
       }
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
@@ -99,12 +83,12 @@ object Accounts extends Controller with APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Accounts wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.Accounts.updateAccount(email, clientAPIBody) match {
+          models.base.Accounts.updateAccount(email, clientAPIBody) match {
            case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Accounts got updated successfully.
+                FunnelResponse(CREATED, """Account updated successfully.
             |
-            |You can use the the 'Accounts name':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
+            |You can use the the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -118,5 +102,4 @@ object Accounts extends Controller with APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-
 }

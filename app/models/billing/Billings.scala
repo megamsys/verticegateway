@@ -23,19 +23,21 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import scalaz.syntax.SemigroupOps
+import controllers.funnel.FunnelErrors._
 
-import org.megam.util.Time
-import controllers.stack._
+import cache._
+import db._
+import models.base._
+import models.json.billing._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models.billing._
-import models.cache._
-import models.riak._
+import app.MConfig
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -61,7 +63,7 @@ case class BillingsResult(id: String, accounts_id: String, line1: String, line2:
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -87,10 +89,6 @@ object BillingsResult {
 object Billings {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("billings")
-
-  //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
-
   val metadataKey = "Billings"
   val metadataVal = "Billings Creation"
   val bindex = "Billings"
@@ -102,21 +100,15 @@ object Billings {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.billing.Billings", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     val BillingsInput: ValidationNel[Throwable, BillingsInput] = (Validation.fromTryCatchThrowable[BillingsInput,Throwable] {
       parse(input).extract[BillingsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       billing <- BillingsInput
-      //aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bil").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //val bvalue = Set(aor.get.id)
-       val bvalue = Set(billing.accounts_id)
+      val bvalue = Set(billing.accounts_id)
       val json = new BillingsResult(uir.get._1 + uir.get._2, billing.accounts_id, billing.line1, billing.line2, billing.country_code, billing.postal_code, billing.state, billing.phone, billing.bill_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
@@ -129,10 +121,6 @@ object Billings {
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[BillingsResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Billings", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -141,7 +129,7 @@ object Billings {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[BillingsResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Billings created. success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Billings.created successfully",Console.RESET))
               (parse(gs.get.value).extract[BillingsResult].some).successNel[Throwable];
             }
           }

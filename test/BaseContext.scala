@@ -27,7 +27,6 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import com.stackmob.newman._
 import com.stackmob.newman.response._
 import org.specs2.matcher.{ MatchResult, Expectable, Matcher }
 import org.specs2.execute.{ Failure => SpecsFailure, Result => SpecsResult }
@@ -40,7 +39,9 @@ import com.stackmob.newman._
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman.dsl._
 import scala.concurrent.Await
+import scala.concurrent._
 import scala.concurrent.duration._
+import scala.concurrent.Await
 import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -51,12 +52,17 @@ trait BaseContext {
 
   val X_Megam_EMAIL = "X-Megam-EMAIL"
   val X_Megam_APIKEY = "X-Megam-APIKEY"
+  val X_Megam_DATE = "X-Megam-DATE"
+  val Content_Type = "Content-Type"
+  val application_json = "application/json"
+  val Accept = "Accept"
+  val application_vnd_megam_json = "application/vnd.megam+json"
+
 
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    //X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
-    X_Megam_EMAIL -> "tour@megam.io", X_Megam_APIKEY -> "faketour",
+    X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "faketest",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
@@ -66,6 +72,7 @@ trait BaseContext {
       result(res, "Headers are equal", expected + " does not equal " + other, r)
     }
   }
+
 
   protected class HttpResponseCodeAreEqualMatcher(expected: HttpResponseCode = HttpResponseCode.Ok) extends Matcher[HttpResponseCode] {
     override def apply[S <: HttpResponseCode](r: Expectable[S]): MatchResult[S] = {
@@ -126,9 +133,11 @@ trait BaseContext {
 }
 
 trait Context extends BaseContext {
-
+  play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("%-20s".format("Context"))
   val httpClient = new ApacheHttpClient
-
+   play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("%-20s".format("client"))
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())
   protected def headersOpt: Option[Map[String, String]]

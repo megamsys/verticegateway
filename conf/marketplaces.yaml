@@ -1,20 +1,18 @@
 marketplaces:
- ubuntu:
+ Ubuntu:
   cattype: TORPEDO
   order: 1
   image: ubuntu.png
   url: http://ubuntu.com
-
   plans:
    14.04:
-    description: "Ubuntu 14.04 LTS (Trusty) is the blah..blah."
-   
+    description: "Ubuntu 14.04 LTS (Trusty) is delivers the best value scale-out performance available."
+
  CoreOS:
   cattype: TORPEDO
   order: 1
   image: coreos.png
   url: http://coreos.com
-
   plans:
    633.1.0:
     description: "CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers."
@@ -24,10 +22,7 @@ marketplaces:
   order: 1
   image: debian.png
   url: http://debian.com
-
   plans:
-   7.0:
-    description: "Debian is a free operating system (OS) for your computer. Wheezy is the codename for 7.0 Debian."
    8.0:
     description: "Debian is a free operating system (OS) for your computer. Jessie is the codename for 8.0 Debian."
 
@@ -36,57 +31,59 @@ marketplaces:
   order: 1
   image: centos.png
   url: http://debian.com
-
   plans:
-   7.0:
+   7.1:
     description: "CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat."
 
  Java:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: java.png
   url: https://github.com/megamsys/java-spring-petclinic.git
-
+  envs:
+   port: 8080
+   tomcat_username: megam
+   tomcat_password: megam
   plans:
-   Constants.VERSION:
+   8.x:
     description: "Quickly get started with J2EE Spring framework app."
 
  Rails:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: rails.png
   url: https://github.com/megamsys/aryabhata.git
-
   plans:
    4.x:
     description: "Quickly get started with rails 4.x app."
 
  Play:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: play.png
   url: https://github.com/megamsys/modern-web-template.git
-
+  envs:
+   port: 9000
   plans:
    2.4.x:
     description: "Build robust RESTful API server using Scala."
 
  Nodejs:
-  cattype: BYOC
+  cattype: APP
   order: 2
   image: nodejs.png
   url: https://github.com/megamsys/etherpad-lite.git
-
   plans:
    0.12.x:
     description: "Build fast, scalable, and incredibly efficient realtime app in second."
 
- Php:
-  cattype: BYOC
+ PHP:
+  cattype: APP
   order: 2
   image: php.png
   url: https://secure.php.net/
-
+  envs:
+   port: 8080
   plans:
    5.x:
     description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
@@ -96,7 +93,10 @@ marketplaces:
   order: 3
   image: postgres.png
   url: https://postgresql.org
-
+  envs:
+   port: 5432
+   username: postgres
+   password: megam
   plans:
    9.3:
     description: "PostgreSQL is a powerful, open source object-relational database system."
@@ -106,7 +106,8 @@ marketplaces:
   order: 3
   image: riak.png
   url: http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/ubuntu/trusty/riak_2.1.1-1_amd64.deb
-
+  envs:
+   port: 8098
   plans:
    2.1.1:
     description: "Riak is a distributed database designed to deliver maximum data availability by distributing data across multiple servers."
@@ -116,7 +117,8 @@ marketplaces:
   order: 3
   image: redis.png
   url: https://redis.org
-
+  envs:
+   port: 6379
   plans:
    2.8.4:
     description: "Redis is a key-value store which acts as a data structure server with keys containing strings, hashes, lists, sets and sorted sets."
@@ -126,9 +128,12 @@ marketplaces:
   order: 3
   image: rabbitmq.png
   url: https://www.rabbitmq.com
-
+  envs:
+   port: 5672
+   username: guest
+   password: guest
   plans:
-   3.3.5:
+   3.3.x:
     description: "RabbitMQ is a message broker software  that implements the Advanced Message Queuing Protocol (AMQP)."
 
  Mysql:
@@ -136,17 +141,21 @@ marketplaces:
   order: 3
   image: mysql.png
   url: https://dev.mysql.com/
-
+  envs:
+   port: 3306
+   username: root
+   password: megam
   plans:
-   5.7:
+   5.x:
     description: "MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL). "
 
-  DockerBox:
+ DockerBox:
   cattype: MICROSERVICES
   order: 4
   image: dockerbox.png
   url: https://www.docker.com
-
+  envs:
+   port: 2375
   plans:
    0.9.0:
     description: "Launch a vm with docker in detached model."
@@ -156,9 +165,8 @@ marketplaces:
   order: 4
   image: dockercontainer.png
   url: https://www.docker.com
-
   plans:
-   0.9.0:
+   1.8.x:
     description: "Docker that automates the deployment of applications inside software containers."
 
  Hadoop:
@@ -166,7 +174,8 @@ marketplaces:
   order: 5
   image: hadoop.png
   url: https://hadoop.apache.org
-
+  envs:
+   port: 50070
   plans:
    2.6.0:
     description: "Apache Hadoop is a set of algorithms (an open-source software framework) for distributed storage and distributed processing of very large data sets (Big Data) on computer clusters built from commodity hardware."
@@ -176,27 +185,44 @@ marketplaces:
   order: 5
   image: spark.png
   url: http://spark.apache.org/
-
+  envs:
+   port: 9004
   plans:
    1.5.0:
     description: "Apache Spark is a fast and general-purpose cluster computing system. It provides high-level APIs in Java, Scala, Python and R, and an optimized engine that supports general execution graphs."
 
- Spark-notebook:
+ SparkNotebook:
   cattype: ANALYTICS
   order: 5
   image: sparknotebook.png
   url:  http://spark-notebook.io
-
+  envs:
+   port: 9000
   plans:
    0.6.x:
     description: "Use Apache Spark straight from the Browser. "
+
+ HotelAAP:
+   cattype: ANALYTICS
+   order: 5
+   image: spark.png
+   url: https://github.com/megamsys/meglytics_hotel_template.git
+   envs:
+    spark_jobserver: "<spark_jobserver>"
+    email: "<email>"
+    api_key: "<api_key>"
+    assembly_id: "<assembly_id>"
+    component_id: "<component_id>"
+    file1: "<file1>"
+   plans:
+    1.0.0:
+     description: "HotelAAP is a prediction application that analyze the data by using Spark for the hotel industry vertical."
 
  Zarafa:
   cattype: COLLABORATION
   order: 6
   image: zarafa.png
   url: https://www.zarafa.com/
-
   plans:
    7.2:
     description: "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."
@@ -206,17 +232,21 @@ marketplaces:
   order: 6
   image: owncloud.png
   url: https://owncloud.org/
-
+  envs:
+   username: admin
+   password: admin
   plans:
    8.1:
     description: "Access your data from all your devices, on an open platform you can extend and modify."
 
- Virtual-office:
+ VirtualOffice:
   cattype: COLLABORATION
   order: 6
   image: virtual_office.png
   url: www.megam.io
-
+  envs:
+   host:
+   port: 8069
   plans:
    0.9.0:
-    description: "A virtual office provides bundle application for everyday office use. "
+    description: "A virtual office provides bundled applications for everyday office use. "

@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,18 +26,17 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
 import models.tosca.{ KeyValueField}
 
 /**
  * @author rajthilak
  *
  */
-class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends SerializationBase[KeyValueField] {
+class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[KeyValueField] {
 
   protected val NameKey = "key"
   protected val ValueKey = "value"
- 
+
   override implicit val writer = new JSONW[KeyValueField] {
 
     override def write(h: KeyValueField): JValue = {
@@ -48,12 +47,12 @@ class KeyValueFieldSerialization(charset: Charset = UTF8Charset) extends Seriali
     }
   }
 
-  override implicit val reader = new JSONR[KeyValueField] {    
+  override implicit val reader = new JSONR[KeyValueField] {
 
     override def read(json: JValue): Result[KeyValueField] = {
       val nameField = field[String](NameKey)(json)
       val valueField = field[String](ValueKey)(json)
-    
+
       (nameField |@| valueField ) {
           (name: String, value: String) =>
           new KeyValueField(name, value)

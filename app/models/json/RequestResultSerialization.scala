@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +26,7 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.{RequestResult}
+import models.base.{RequestResult}
 
 /**
  * @author ram
@@ -41,7 +40,7 @@ protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val NameKey = "name"
   protected val ActionKey = "action"
   protected val CategoryKey = "category"
-  protected val CreatedAtKey ="created_at" 
+  protected val CreatedAtKey ="created_at"
 
   override implicit val writer = new JSONW[RequestResult] {
 
@@ -66,7 +65,7 @@ protected val JSONClazKey = controllers.Constants.JSON_CLAZ
       val catTypeField = field[String](CatTypeKey)(json)
       val nameField = field[String](NameKey)(json)
       val actionField = field[String](ActionKey)(json)
-       val categoryField = field[String](CategoryKey)(json)     
+       val categoryField = field[String](CategoryKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
 (idField |@| catIdField |@| catTypeField |@| nameField |@| actionField |@| categoryField |@| createdAtField) {

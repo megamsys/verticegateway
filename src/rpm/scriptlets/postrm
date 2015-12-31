@@ -1,8 +1,19 @@
-if [ "$1" = "remove" ]; then
-  [ -d /var/log/megam/megamgateway/ ] && rm -rf /var/log/megam/megamgateway/
-  [ -d /var/run/megam/megamgateway/ ] && rm -rf /var/run/megam/megamgateway/
+#!/bin/sh
+
+if [ -d "/usr/share/megam/megamgateway" ]; then
+  rm -r /usr/share/megam/megamgateway
 fi
 
-if [ "$1" = "purge" ]; then
-  [ -f /var/lib/megam/.megam_auth ] && rm -f /var/lib/megam/.megam_auth
+if [ -d "/var/lib/megam/megamgateway" ]; then
+  rm -r /var/lib/megam/megamgateway
 fi
+
+if [ -d "/var/log/megam/megamgateway" ]; then
+  rm -r /var/log/megam/megamgateway
+fi
+
+
+if [ -d "/var/run/megam/megamgateway" ]; then
+  rm -r /var/run/megam/megamgateway
+fi
+

@@ -20,14 +20,15 @@ import scalaz.NonEmptyList._
 import Scalaz._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import controllers.funnel.SerializationBase
+import models.json.billing._
 import models.billing._
+
 
 /**
  * @author ranjitha
  *
  */
-object InvoicesResultsSerialization extends SerializationBase[InvoicesResults] {
+object InvoicesResultsSerialization extends models.json.SerializationBase[InvoicesResults] {
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 

@@ -23,18 +23,20 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import scalaz.syntax.SemigroupOps
-import org.megam.util.Time
-import controllers.stack._
+import controllers.funnel.FunnelErrors._
+
+import cache._
+import db._
+import models.json.billing._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models.billing._
-import models.cache._
-import models.riak._
+import app.MConfig
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -44,7 +46,6 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-
 case class CredithistoriesInput(bill_type: String, credit_amount: String, currency_type: String) {
   val json = "{\"bill_type\":\"" + bill_type + "\",\"credit_amount\":\"" + credit_amount + "\",\"currency_type\":\"" + currency_type + "\"}"
 
@@ -60,7 +61,7 @@ case class CredithistoriesResult(id: String, accounts_id: String, bill_type: Str
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -86,10 +87,6 @@ object CredithistoriesResult {
 object Credithistories {
   implicit val formats = DefaultFormats
   private val riak = GWRiak("credithistories")
-
-  //implicit def EventsResultsSemigroup: Semigroup[EventsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
-
   val metadataKey = "Credithistories"
   val metadataVal = "Credithistories Creation"
   val bindex = "Credithistories"
@@ -101,17 +98,13 @@ object Credithistories {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.billing.Credithistories", "mkGunnySack:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     val CredithistoriesInput: ValidationNel[Throwable, CredithistoriesInput] = (Validation.fromTryCatchThrowable[CredithistoriesInput,Throwable] {
       parse(input).extract[CredithistoriesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       chi <- CredithistoriesInput
-      aor <- (models.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "chs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
@@ -126,10 +119,6 @@ object Credithistories {
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[CredithistoriesResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.Credithistories", "create:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("email", email))
-    play.api.Logger.debug(("%-20s -->[%s]").format("json", input))
-
     (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
@@ -138,7 +127,7 @@ object Credithistories {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[CredithistoriesResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%-20s -->[%s]").format("Credithistories created. success", "Scaliak returned => None. Thats OK."))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Credithistories.created successfully",Console.RESET))
               (parse(gs.get.value).extract[CredithistoriesResult].some).successNel[Throwable];
             }
           }

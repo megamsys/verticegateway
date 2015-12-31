@@ -11,24 +11,31 @@
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
+**/
 
 package test.billing
 
+import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
 import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.{ Result => SpecsResult }
+ import org.apache.http.impl.execchain.ClientExecChain
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import models.billing._
-import models.billing.Discounts
-import test.{ Context }
-
- * @author rajthilak
- *
-
+import scala.concurrent._
+import scala.concurrent.duration._
+import java.net.URL
+import controllers.stack.HeaderConstants._
+import models.base._
+import models.json.billing._
+import test._
+ 
 class DiscountsSpec extends Specification {
 
   def is =
@@ -79,5 +86,4 @@ class DiscountsSpec extends Specification {
     }
   }
 
-
-}*/
+}

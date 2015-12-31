@@ -23,19 +23,19 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import org.megam.util.Time
-import Scalaz._
-import controllers.stack._
+
+import cache._
+import db._
+import models.json.billing._
 import controllers.Constants._
 import controllers.funnel.FunnelErrors._
-import models._
-import models.billing._
-import models.cache._
-import models.riak._
+import app.MConfig
+
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.{ GSRiak, GunnySack }
+import org.megam.common.riak.GunnySack
+import org.megam.util.Time
 import org.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -45,13 +45,6 @@ import java.nio.charset.Charset
  * @author morpheyesh
  *
  */
-
-//case class PromosInput(code: String) {
-//  val json = "{\"code\":\"" + code + "\"}"
-
-//}
-
-
 case class PromosResult(id: String, code: String, amount: String, created_at: String) {
 
   def toJValue: JValue = {
@@ -62,7 +55,7 @@ case class PromosResult(id: String, code: String, amount: String, created_at: St
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -87,12 +80,8 @@ object PromosResult {
 
 object Promos {
 
-
   implicit val formats = DefaultFormats
   private val riak = GWRiak("promos")
-
-
-
   val metadataKey = "Promos"
   val metadataVal = "Promos Creation"
   val bindex = "promos"
@@ -101,11 +90,7 @@ object Promos {
   * Only find by name is available now since promos are going to be added manually.
   * FindbyName is used to get the promo data
   */
-
-
    def findByName(name: String): ValidationNel[Throwable, Option[PromosResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.billings.Promos", "findByName:Entry"))
-    play.api.Logger.debug(("%-20s -->[%s]").format("findByName", name))
     InMemory[ValidationNel[Throwable, Option[PromosResult]]]({
       name: String =>
         {
@@ -134,7 +119,6 @@ object Promos {
    implicit val sedimentPromosName = new Sedimenter[ValidationNel[Throwable, Option[PromosResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[PromosResult]]): Boolean = {
       val notSed = maybeASediment.isSuccess
-      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->ACT:sediment:", notSed))
       notSed
     }
   }

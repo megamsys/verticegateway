@@ -1,34 +1,13 @@
-
+#!/bin/bash
 set -e
 
-MEGAMHOME=/var/lib/megam
-MEGAMAUTH=$MEGAMHOME/.megam_auth
-MEGAM_GROUP=megam
-MEGAM_USER=megam
+MEGAM_HOME=/var/lib/megam
 
-LOG=/var/log/megam/megamgateway/megamgateway.log
-
-echo "post initial 1-value--> $1" >/dev/stdout
-
-if [ "$1" = 1 ]; then
-
-    if [ ! -f $MEGAMAUTH ]; then
-         echo "IF if [ ! -f $MEGAMAUTH ] ==> " >> $LOG
-        MEGAM_PASSWORD=`pwgen -s 12 1`
-        if [ -n "${MEGAM_PASSWORD}" ]; then
-         echo "IF if [ ! -f $MEGAM-password ] ==> " >> $LOG
-            echo "${MEGAM_USER}@mypaas.io:${MEGAM_PASSWORD}" > $MEGAMAUTH
-            chown $MEGAM_USER:$MEGAM_GROUP $MEGAMAUTH
-            chmod 600 $MEGAMAUTH
-        fi
-    fi
-fi
-
+mkdir -p $MEGAM_HOME/megamgateway
+cp  /usr/share/megam/megamgateway/conf/marketplaces.yaml $MEGAM_HOME/megamgateway/
+cp  /usr/share/megam/megamgateway/conf/gateway.conf  $MEGAM_HOME/megamgateway/
+cp  /usr/share/megam/megamgateway/conf/logger.xml  $MEGAM_HOME/megamgateway/
 
 [ -d /var/run/megamgateway ] && rm -rf /var/run/megamgateway
 
-
-
-initctl reload-configuration
-
-service megamgateway start || echo "megamgateway arrgh!."
+echo "installed."

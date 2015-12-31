@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 
 package test.billing
 
@@ -24,12 +24,9 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import models.billing._
-import models.billing.Billings
+import models.json.billing._
 import test.{ Context }
 
- * @author rajthilak
- *
 
 class BillingsSpec extends Specification {
 
@@ -70,5 +67,4 @@ class BillingsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-
-}*/
+}

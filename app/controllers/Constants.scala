@@ -15,12 +15,9 @@
 */
 package controllers
 
-import java.nio.charset.Charset
-import play.api.Logger
-import scala.util.{ Try }
+import app.MConfig
 import play.api.http.HeaderNames._
 import controllers.stack.HeaderConstants._
-import java.io._
 
 /**
  * @author ram
@@ -31,19 +28,24 @@ object Constants {
 
   val VERSION = "0.9"
 
-  val UTF8Charset = Charset.forName("UTF-8")
+  val UTF8Charset = java.nio.charset.Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"
 
   lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
 
   lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
 
-  val MEGAM_HOME = sys.env.get("MEGAM_HOME")
+  val MEGAM_HOME = sys.env.get("MEGAM_HOME").getOrElse("/var/lib/megam")
+
+  val TEST_EMAIL = "test@megam.io"
+  val TEST_APIKEY = "faketest"
+  val TEST_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3"
+  val MEGAM_TEST_FIRST_NAME = "Megam Test"
 
   val DEMO_EMAIL = "tour@megam.io"
   val DEMO_APIKEY = "faketour"
   val MEGAM_FIRST_NAME = "Megam Tour"
-  val MEGAM_LAST_NAME  = "Call us"
+  val MEGAM_LAST_NAME = "Call us"
   val MEGAM_PHONE = "18006186813"
   val SAMPLE_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/YiBNWP2"
   val MEGAM_PASSWORD_RESET_KEY = "nil"
@@ -53,16 +55,18 @@ object Constants {
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
   val DEFAULT_ORG_NAME = "org.megam"
-  val DEFAULT_DOMAIN_NAME = "megambox.com"
+  val OJA_MKT_YAML = MConfig.marketplaces_yaml
+  val OJA_YONPI_DIR = MEGAM_HOME + java.io.File.separator + "megamgateway" + java.io.File.separator + "yonpis"
 
-  val DELETE_REQUEST = "DESTROY"
-  val CREATE_REQUEST = "CREATE"
+  val CREATE = "create"
+  val DELETE = "destroy"
+  val BIND = "bind"
+  val BUILD = "build"
+  val UPGRADE = "upgrade"
 
-
- val MEGAM_GW_CONF = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" + File.separator + "gateway.conf"}).getOrElse("gateway.conf")
-
- val MEGAM_MKT_YAML = (for {home <- MEGAM_HOME}
- yield { home + File.separator + "megamgateway" + File.separator + "marketplaces.yaml"}).getOrElse("marketplaces.yaml")
+  val STATE = "state"
+  val CONTROL = "control"
+  val CATTYPE_DOCKER = "microservices"
+  val DOMAIN = "domain"
 
 }

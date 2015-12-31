@@ -1,3 +1,4 @@
+
 /*
 ** Copyright [2013-2015] [Megam Systems]
 **
@@ -13,24 +14,22 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 package test.billing
 
-import org.specs2.mutable._
-import org.specs2.Specification
+/*import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
+import com.stackmob.newman.{HttpClient}
 import com.stackmob.newman.dsl._
-import models.billing._
-import models.billing.Invoice
+import models.json.billing._
 import test.{ Context }
 
- //* @author rajthilak
- //*
-
-class BilledhistoriesSpec extends Specification {
+ class BilledhistoriesSpec extends Specification {
 
   def is =
     "BilledhistoriesSpec".title ^ end ^ """
@@ -56,15 +55,15 @@ BilledhistoriesSpec is the implementation that calls the megam_play API server w
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
-
+    
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
 
-    def succeeds: SpecsResult = {
+    def succeeds: SpecsResult = {   
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
 
-}
+  }*/

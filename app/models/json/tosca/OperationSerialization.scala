@@ -26,7 +26,6 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
 import models.tosca.{ Operation, KeyValueList }
 
 /**
@@ -34,11 +33,12 @@ import models.tosca.{ Operation, KeyValueList }
  *
  */
 
-class OperationSerialization(charset: Charset = UTF8Charset) extends SerializationBase[Operation] {
+class OperationSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[Operation] {
 
   protected val OperationTypeKey = "operation_type"
   protected val DescriptionKey = "description"
   protected val PropertiesKey = "properties"
+  protected val StatusKey = "status"
 
   override implicit val writer = new JSONW[Operation] {
 
@@ -49,6 +49,7 @@ class OperationSerialization(charset: Charset = UTF8Charset) extends Serializati
         JField(OperationTypeKey, toJSON(h.operation_type)) ::
           JField(DescriptionKey, toJSON(h.description)) ::
           JField(PropertiesKey, toJSON(h.properties)(KeyValueListWriter)) ::
+          JField(StatusKey, toJSON(h.status)) ::
            Nil)
     }
   }
@@ -61,10 +62,11 @@ class OperationSerialization(charset: Charset = UTF8Charset) extends Serializati
       val operationtypeField = field[String](OperationTypeKey)(json)
       val descriptionField = field[String](DescriptionKey)(json)
       val propertiesField = field[KeyValueList](PropertiesKey)(json)(KeyValueListReader)
+      val statusField = field[String](StatusKey)(json)
 
-      (operationtypeField |@| descriptionField |@| propertiesField) {
-        (operationtype: String, description: String, properties: KeyValueList) =>
-          new Operation(operationtype, description, properties)
+      (operationtypeField |@| descriptionField |@| propertiesField |@| statusField) {
+        (operationtype: String, description: String, properties: KeyValueList, status: String) =>
+          new Operation(operationtype, description, properties, status)
       }
     }
   }

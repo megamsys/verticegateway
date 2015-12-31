@@ -1,4 +1,4 @@
-/* 
+/*
 ** Copyright [2013-2015] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +26,7 @@ import java.util.Date
 import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
-import controllers.funnel.SerializationBase
-import models.{ SshKeyResult }
+import models.base.{ SshKeyResult }
 
 /**
  * @author rajthilak
@@ -38,19 +37,19 @@ class SshKeyResultSerialization(charset: Charset = UTF8Charset) extends Serializ
   protected val IdKey = "id"
   protected val NameKey = "name"
   protected val AccountIdKey = "accounts_id"
-  protected val PathKey = "path" 
+  protected val PathKey = "path"
     protected val CreatedAtKey ="created_at"
 
-  override implicit val writer = new JSONW[SshKeyResult] {   
+  override implicit val writer = new JSONW[SshKeyResult] {
 
     override def write(h: SshKeyResult): JValue = {
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(AccountIdKey, toJSON(h.accounts_id)) ::
-          JField(JSONClazKey, toJSON("Megam::SshKey")) ::          
+          JField(JSONClazKey, toJSON("Megam::SshKey")) ::
           JField(PathKey, toJSON(h.path)) ::
-          JField(CreatedAtKey, toJSON(h.created_at))   ::         
+          JField(CreatedAtKey, toJSON(h.created_at))   ::
            Nil)
     }
   }
@@ -60,8 +59,8 @@ class SshKeyResultSerialization(charset: Charset = UTF8Charset) extends Serializ
     override def read(json: JValue): Result[SshKeyResult] = {
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
-      val accountIdField = field[String](AccountIdKey)(json)     
-      val pathField = field[String](PathKey)(json)     
+      val accountIdField = field[String](AccountIdKey)(json)
+      val pathField = field[String](PathKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
       (idField |@| nameField |@| accountIdField  |@| pathField |@| createdAtField) {
