@@ -87,6 +87,40 @@ marketplaces:
   plans:
    5.x:
     description: "PHP is a server-side scripting language designed for web development but also used as a general-purpose programming language."
+ 
+ CCPlus:
+  cattype: APP
+  order: 2
+  image: ccplus.png
+  url: https://www.bell-labs.com/
+  envs:
+   port: 80
+  plans:
+   4.9:
+    description: "C/C++ IDE for working with C/C++ programming."
+
+ Python:
+  cattype: APP
+  order: 2
+  image: python.png
+  url: https://www.python.org/
+  envs:
+   port: 80
+  plans:
+   3.4.2:
+    description: "Python is object-oriented, imperative and functional programming language."
+
+ CouchDB:
+  cattype: SERVICE
+  order: 3
+  image: couchdb.png
+  url: http://couchdb.apache.org/
+  envs:
+   port: 5984
+   username: couchdb
+  plans:
+   1.6.1:
+    description: "CouchDB is a powerful, open source document-oriented database system."
 
  PostgreSQL:
   cattype: SERVICE
