@@ -35,7 +35,7 @@ class AssemblySpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-       //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+      //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
       //"Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
       "Correctly do GET requests with an valid Assembly ID" ! upgradeApp.succeeds ^
       end
@@ -69,9 +69,9 @@ class AssemblySpec extends Specification {
         "\"ptype\":\"colocated\"," +
         "\"members\":[\"calcines.megam.co/MattieGarcia\",\"calcines.megam.co/parsnip\"]" +
         "}]," +
-        "\"inputs\":["+
+        "\"inputs\":[" +
         "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-          "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
+        "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
         "]," +
         "\"outputs\":[]," +
         "\"status\":\"Launching\"," +
@@ -91,7 +91,7 @@ class AssemblySpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-  
+
   case object upgradeApp extends Context {
     protected override def urlSuffix: String = "assembly/upgrade/ASM1286672540365881344"
 
