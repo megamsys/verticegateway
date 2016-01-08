@@ -58,17 +58,18 @@ object Constants {
   val OJA_MKT_YAML = MConfig.marketplaces_yaml
   val OJA_YONPI_DIR = MEGAM_HOME + java.io.File.separator + "megamgateway" + java.io.File.separator + "yonpis"
 
+  val STATE = "state"
   val CREATE = "create"
   val DELETE = "destroy"
+
+  val CONTROL = "control"
   val START = "start"
   val STOP = "stop"
   val REBOOT = "restart"
-  val BIND = "bind"
-  val BUILD = "build"
+
+  val OPERTATIONS = "operations"
   val UPGRADE = "upgrade"
 
-  val STATE = "state"
-  val CONTROL = "control"
   val CATTYPE_DOCKER = "microservices"
   val CATTYPE_TORPEDO = "torpedo"
   val DOMAIN = "domain"
