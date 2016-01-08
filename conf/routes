@@ -59,7 +59,6 @@ GET    /v2/assemblies/:id               controllers.camp.Assemblies.show(id: Str
 GET    /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 POST   /v2/assembly/update              controllers.camp.Assembly.update
 GET    /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
-POST   /v2/assembly/build/:id/:name     controllers.camp.Assembly.build(id: String, name: String)
 GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
 
