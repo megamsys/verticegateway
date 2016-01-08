@@ -47,7 +47,7 @@ case class PQd(reqres: models.base.RequestResult) {
   val nsqcontainers = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.containers")
   val nsqvms = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.vms")
 
-  val DQACTIONS = Array[String](CREATE, DELETE)
+  val DQACTIONS = Array[String](CREATE, START, STOP, REBOOT, DELETE)
 
   def Tpk: Option[String] = {
     if (reqres.cattype.equalsIgnoreCase(CATTYPE_DOCKER)) {

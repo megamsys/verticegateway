@@ -60,6 +60,9 @@ object Constants {
 
   val CREATE = "create"
   val DELETE = "destroy"
+  val START = "start"
+  val STOP = "stop"
+  val REBOOT = "restart"
   val BIND = "bind"
   val BUILD = "build"
   val UPGRADE = "upgrade"
@@ -67,6 +70,7 @@ object Constants {
   val STATE = "state"
   val CONTROL = "control"
   val CATTYPE_DOCKER = "microservices"
+  val CATTYPE_TORPEDO = "torpedo"
   val DOMAIN = "domain"
 
 }
