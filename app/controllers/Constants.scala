@@ -68,7 +68,7 @@ object Constants {
   val START = "start"
   val STOP = "stop"
 
-  val REBOOT = "reboot"
+
   val BIND = "bind"
   val BUILD = "build"
   val REBOOT = "restart"
