@@ -1,19 +1,19 @@
 /**
-** Copyright [2013-2015] [Megam Systems]
-
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-** http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ * * Copyright [2013-2015] [Megam Systems]
+ *
+ * *
+ * * Licensed under the Apache License, Version 2.0 (the "License");
+ * * you may not use this file except in compliance with the License.
+ * * You may obtain a copy of the License at
+ * *
+ * * http://www.apache.org/licenses/LICENSE-2.0
+ * *
+ * * Unless required by applicable law or agreed to in writing, software
+ * * distributed under the License is distributed on an "AS IS" BASIS,
+ * * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * * See the License for the specific language governing permissions and
+ * * limitations under the License.
+ */
 /*
  * @author rajthilak
  */
@@ -53,16 +53,16 @@ trait BaseContext {
   val X_Megam_EMAIL = "X-Megam-EMAIL"
   val X_Megam_APIKEY = "X-Megam-APIKEY"
   val X_Megam_DATE = "X-Megam-DATE"
+  val X_Megam_PUTTUSAVI = "X-Megam-PUTTUSAVI"
   val Content_Type = "Content-Type"
   val application_json = "application/json"
   val Accept = "Accept"
   val application_vnd_megam_json = "application/vnd.megam+json"
 
-
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "faketest",
+    X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "faketest", X_Megam_PUTTUSAVI -> "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
@@ -72,7 +72,6 @@ trait BaseContext {
       result(res, "Headers are equal", expected + " does not equal " + other, r)
     }
   }
-
 
   protected class HttpResponseCodeAreEqualMatcher(expected: HttpResponseCode = HttpResponseCode.Ok) extends Matcher[HttpResponseCode] {
     override def apply[S <: HttpResponseCode](r: Expectable[S]): MatchResult[S] = {
@@ -101,8 +100,8 @@ trait BaseContext {
   }
 
   private def errorString(err: Error) = err match {
-    case UnexpectedJSONError(was, expected)  => "unexpected JSON. was %s, expected %s".format(was.toString, expected.toString)
-    case NoSuchFieldError(name, json)        => "no such field %s in json %s".format(name, json.toString)
+    case UnexpectedJSONError(was, expected) => "unexpected JSON. was %s, expected %s".format(was.toString, expected.toString)
+    case NoSuchFieldError(name, json) => "no such field %s in json %s".format(name, json.toString)
     case UncategorizedError(key, desc, args) => "uncategorized JSON error for key %s: %s (args %s)".format(key, desc, args.mkString("&"))
   }
 
@@ -116,19 +115,29 @@ trait BaseContext {
     val headerMap: Map[String, String] = headerOpt.getOrElse(defaultHeaderOpt)
     play.api.Logger.debug("%-20s -->[%s]".format("HEADER MAP", ((for (x <- headerMap) yield (x)).mkString("\n", "\n", ""))))
     play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_APIKEY, headerMap.getOrElse(X_Megam_APIKEY, "blank_key")))
+    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_PUTTUSAVI, headerMap.getOrElse(X_Megam_PUTTUSAVI, "blank_key")))
     play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_DATE, headerMap.getOrElse(X_Megam_DATE, currentDate)))
     play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_EMAIL, headerMap.getOrElse(X_Megam_EMAIL, "blank_email")))
     play.api.Logger.debug("%-20s -->[%s]".format("PATH", path))
 
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + calculateMD5(contentToEncodeOpt).get
     play.api.Logger.debug("%-20s -->[%s]".format("SIGN", signWithHMAC))
+    if (X_Megam_PUTTUSAVI == "") {
+      val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
+      val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
+      play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
 
-    val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
-    val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
-    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
+      (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
+        RawBody(contentToEncodeOpt.getOrElse(new String())))
+    } else {
 
-    (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
-      RawBody(contentToEncodeOpt.getOrElse(new String())))
+      val signedWithPUTTUSAVI = calculateHMAC((headerMap.getOrElse(X_Megam_PUTTUSAVI, "blank_key")), signWithHMAC)
+      val finalPUTTUSAVI = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + signedWithPUTTUSAVI
+      play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_PUTTUSAVI, finalPUTTUSAVI))
+
+      (Headers((headerMap + (X_Megam_PUTTUSAVI -> finalPUTTUSAVI)).toList),
+        RawBody(contentToEncodeOpt.getOrElse(new String())))
+    }
   }
 }
 
@@ -136,7 +145,7 @@ trait Context extends BaseContext {
   play.api.Logger.debug("<---------------------------------------->")
   play.api.Logger.debug("%-20s".format("Context"))
   val httpClient = new ApacheHttpClient
-   play.api.Logger.debug("<---------------------------------------->")
+  play.api.Logger.debug("<---------------------------------------->")
   play.api.Logger.debug("%-20s".format("client"))
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())

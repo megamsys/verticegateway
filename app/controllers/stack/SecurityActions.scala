@@ -31,7 +31,7 @@ import jp.t2v.lab.play2.stackc.{ RequestWithAttributes, RequestAttributeKey, Sta
 import controllers.funnel._
 import controllers.funnel.FunnelErrors._
 import models.base.{Accounts, AccountResult}
-
+import controllers.stack._
 import play.api.mvc._
 import play.api.http.Status._
 import play.api.Logger
@@ -74,10 +74,19 @@ object SecurityActions {
       }
       found <- eitherT[IO, NonEmptyList[Throwable], Option[AuthBag]] {
         val fres = resp.get
-        val calculatedHMAC = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
-        if (calculatedHMAC === freq.clientAPIHmac.get) {
+        var calculatedHMACAPIKEY   = ""
+        var calculatedHMACPASSWORD = ""
+          if (freq.clientAPIPuttusavi == None) {
+            calculatedHMACAPIKEY = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
+      }else {
+        calculatedHMACPASSWORD = GoofyCrypto.calculateHMAC(fres.password, freq.mkSign)
+
+      }
+        if (calculatedHMACAPIKEY === freq.clientAPIHmac.get) {
           (AuthBag(fres.email, fres.api_key, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
-        } else {
+        } else if (calculatedHMACPASSWORD === freq.clientAPIPuttusavi.get) {
+          (AuthBag(fres.email, fres.password, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
+        }else {
           (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""
             .format(fres.email).stripMargin, "", UNAUTHORIZED))): NonEmptyList[Throwable]).left[Option[AuthBag]].pure[IO]
         }
