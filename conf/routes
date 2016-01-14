@@ -44,7 +44,10 @@ GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id:
 
 #Workbenches
 POST  /v2/workbenches/content           controllers.analytics.Workbenches.post
-GET    /v2/workbenches/:id              controllers.analytics.Workbenches.show(id: String)
+POST  /v2/workbenches/execute           controllers.analytics.Workbenches.execute
+GET   /v2/workbenches/:id              controllers.analytics.Workbenches.show(id: String)
+#GET    /v2/workbenches                  controllers.analytics.Workbenches.list
+
 
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post
