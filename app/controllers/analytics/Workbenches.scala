@@ -62,13 +62,13 @@ object Workbenches extends Controller with controllers.stack.APIAuthElement {
   }
 
 
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+  def show(name: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Workbenches wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.analytics.Workbenches.findById(List(id).some) match {
+          models.analytics.Workbenches.findByName(List(name).some) match {
             case Success(succ) =>
               Ok(WorkbenchesResults.toJson(succ, true))
             case Failure(err) =>

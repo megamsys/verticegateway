@@ -286,7 +286,7 @@ object Workbenches {
       val bvalue = Set(aor.get.id)
       //val bvalue = Set(event.a_id)
       val json = new WorkbenchesResult(uir.get._1 + uir.get._2, event.name, event.connectors, Time.now.toString).toJson(false)
-      new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
+      new GunnySack(event.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
         Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
     }
   }
@@ -314,7 +314,7 @@ def execute(email: String, input: String): ValidationNel[Throwable, Option[Yonpi
   for {
     event <- executeInput
     aor <- (models.analytics.Workbenches.findByName(List(input).some) leftMap { t: NonEmptyList[Throwable] => t })
-    uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "wob").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "wbe").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
    new YonpiinputResult(uir.get._1 + uir.get._2, "", YonpiconnectorsList.empty, Time.now.toString).some
   }
