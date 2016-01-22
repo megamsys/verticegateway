@@ -332,13 +332,14 @@ object Workbenches {
   }
 
 def execute(email: String, input: String): ValidationNel[Throwable, Option[SparkjobsResult]] = {
-  val executeInput: ValidationNel[Throwable, Yonpiinput] = (Validation.fromTryCatchThrowable[Yonpiinput, Throwable] {
-    parse(input).extract[Yonpiinput]
+
+  val executeInput: ValidationNel[Throwable, ExecuteInput] = (Validation.fromTryCatchThrowable[ExecuteInput, Throwable] {
+    parse(input).extract[ExecuteInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
 
   for {
     yi <- executeInput
-    aor <- (models.analytics.Workbenches.findByName(List(input).some) leftMap { t: NonEmptyList[Throwable] => t })
+    aor <- (models.analytics.Workbenches.findByName(List(yi.name).some) leftMap { t: NonEmptyList[Throwable] => t })
     //wi <- new WbIntermediateInput(aor.head.get.name, yi)
     su <- spark.SparkSubmitter.empty.wbsubmit(false, email,  new WbIntermediateInput(aor.head.get.name, yi).args)
 
@@ -348,6 +349,16 @@ def execute(email: String, input: String): ValidationNel[Throwable, Option[Spark
      //new Yonpiinput(so._2.query, so._2.connectors).some
   }
 }
+}
+//source: String, credentials: String, tables: String, dbname: String, endpoint: String, port: String
+
+def yonpiinputBuilder(executeInput: ExecuteInput, wks: WorkbenchesResults): ValidationNel[Throwable, Yonpiinput] = {
+  wks.head.get.connectors.foreach { connector: Connectors =>
+     list += new Yonpiconnectors(connector.source, )
+   }.some
+new Yonpiconnectors(wks.head.get.connectors)
+ new Yonpiinput(execute.query, connectorlist)
+
 }
 
  def findByName(workbenchesList: Option[List[String]]): ValidationNel[Throwable, WorkbenchesResults] = {
