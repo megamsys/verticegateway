@@ -44,10 +44,22 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
+import com.stackmob.newman._
+import com.stackmob.newman.response._
+import com.stackmob.newman.dsl._
+import scala.concurrent.Await
+import scala.concurrent._
+import scala.concurrent.duration._
+import java.net.URL
+
+import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
+import controllers.stack._
+import spark._
 /**
  * @author ranjitha
  *
  */
+
 
  case class Yonpiconnectors(source: String, credentials: String, tables: String, dbname: String, endpoint: String, port: String) {
    val json = "{\"source\":\"" + source + "\",\"credentials\":\"" + credentials + "\", \"endpoint\":\"" + endpoint + "\", \"endpoint\":\"" + endpoint + "\"}"
@@ -96,6 +108,11 @@ import java.nio.charset.Charset
      compactRender(toJValue)
    }
  }
+ object Yonpiinput {
+   def empty: Yonpiinput = new Yonpiinput(new String(), YonpiconnectorsList.empty)
+
+}
+
 
 case class YonpiinputResult(id: String, query: String, connectors: YonpiconnectorsList, created_at: String) {
   def toJValue: JValue = {
@@ -160,6 +177,13 @@ object Connectors {
     }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
+
+case class WbIntermediateInput(name: String, yiinput: models.analytics.Yonpiinput){
+  val json = "{\"name\":\"" + name + "\", \"yiinput\":\"" + models.analytics.Yonpiinput + "\" }"
+  val args = Map(cons.WB_SPARKJOBSERVER_INPUT -> json, "claz"-> "bi.megam.main" )
+}
+object WbIntermediateInput {
+  def empty: WbIntermediateInput = new WbIntermediateInput(new String(),  models.analytics.Yonpiinput.empty)}
 
 case class Tables(name: String, table_id: String, schemas: models.tosca.KeyValueList, links: models.tosca.KeyValueList) {
   val json = "{\"name\":\"" + name + "\",\"table_id\":\"" + table_id + "\",\"schemas\":" + models.tosca.KeyValueList.toJson(schemas, true) + ",\"links\":" + models.tosca.KeyValueList.toJson(links, true) + "}"
@@ -306,19 +330,26 @@ object Workbenches {
         }
     }
   }
-def execute(email: String, input: String): ValidationNel[Throwable, Option[YonpiinputResult]] = {
-  val executeInput: ValidationNel[Throwable, ExecuteInput] = (Validation.fromTryCatchThrowable[ExecuteInput, Throwable] {
-    parse(input).extract[ExecuteInput]
+
+def execute(email: String, input: String): ValidationNel[Throwable, Option[SparkjobsResult]] = {
+  val executeInput: ValidationNel[Throwable, Yonpiinput] = (Validation.fromTryCatchThrowable[Yonpiinput, Throwable] {
+    parse(input).extract[Yonpiinput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
 
   for {
-    event <- executeInput
+    yi <- executeInput
     aor <- (models.analytics.Workbenches.findByName(List(input).some) leftMap { t: NonEmptyList[Throwable] => t })
-    uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "wbe").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    //wi <- new WbIntermediateInput(aor.head.get.name, yi)
+    su <- spark.SparkSubmitter.empty.wbsubmit(false, email,  new WbIntermediateInput(aor.head.get.name, yi).args)
+
   } yield {
-   new YonpiinputResult(uir.get._1 + uir.get._2, "", YonpiconnectorsList.empty, Time.now.toString).some
+    su flatMap {  so =>
+      new SparkjobsResult("", so._2.code, so._2.status, so._2.result.job_id, Time.now.toString).some
+     //new Yonpiinput(so._2.query, so._2.connectors).some
   }
 }
+}
+
  def findByName(workbenchesList: Option[List[String]]): ValidationNel[Throwable, WorkbenchesResults] = {
    (workbenchesList map {
      _.map { workbenchesName =>

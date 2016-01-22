@@ -76,15 +76,22 @@ object SecurityActions {
         val fres = resp.get
         var calculatedHMACAPIKEY   = ""
         var calculatedHMACPASSWORD = ""
-          if (freq.clientAPIPuttusavi == None) {
-            calculatedHMACAPIKEY = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
-      }else {
-        calculatedHMACPASSWORD = GoofyCrypto.calculateHMAC(fres.password, freq.mkSign)
-
-      }
+        var flag =false
+      if (freq.clientAPIPuttusavi != None){
+          if (freq.clientAPIPuttusavi.get == "true") {
+            calculatedHMACPASSWORD = GoofyCrypto.calculateHMAC(fres.password, freq.mkSign)
+         }else {
+             flag = true
+        }
+    }else {
+        flag =true
+    }
+    if (flag) {
+    calculatedHMACAPIKEY = GoofyCrypto.calculateHMAC(fres.api_key, freq.mkSign)
+    }
         if (calculatedHMACAPIKEY === freq.clientAPIHmac.get) {
           (AuthBag(fres.email, fres.api_key, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
-        } else if (calculatedHMACPASSWORD === freq.clientAPIPuttusavi.get) {
+        } else if (calculatedHMACPASSWORD === freq.clientAPIHmac.get) {
           (AuthBag(fres.email, fres.password, fres.authority).some).right[NonEmptyList[Throwable]].pure[IO]
         }else {
           (nels((CannotAuthenticateError("""Authorization failure for 'email:' HMAC doesn't match: '%s'."""

@@ -66,7 +66,7 @@ case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[Str
   }
 
   override def toString = {
-    "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
+    "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
       "email", maybeEmail, "apiHMAC", clientAPIHmac, "apiDATE", clientAPIDate,
       "apiPATH", clientAPIPath, "apiBody", clientAPIBody, "apiPUTTUSAVI", clientAPIPuttusavi)
   }

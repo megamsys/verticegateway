@@ -75,6 +75,24 @@ case class JarSubmit(ji: JarsInput) extends JobServerClient {
 
 }
 
+case class wbSubmit(ji: JarsInput) extends JobServerClient {
+
+  protected override def urlSuffix: String = "/jobs?appName=" + ji.uniqName + "&classPath=" + ji.claz
+
+  protected def headersOpt: Option[Map[String, String]] = None
+
+  protected override def bodyToStick: Option[Bytes] = Some((ji.args.getOrElse(cons.WB_SPARKJOBSERVER_INPUT, "")).getBytes)
+
+  private val post = POST(url)(httpClient)
+    .addHeaders(headers)
+    .addBody(body)
+
+  def run: Option[Tuple3[Int, String, String]] = {
+    val response = execute(post)
+    Tuple3(response.code.code, ji.uniqName, response.bodyString).some
+  }
+
+}
 case class JobResults(ji: JobsInput) extends JobServerClient {
   protected override def urlSuffix: String = "/jobs/" + ji.id
 

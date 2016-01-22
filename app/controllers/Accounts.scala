@@ -76,6 +76,13 @@ object Accounts extends Controller with stack.APIAuthElement {
 
   }
 
+  def login = StackAction(parse.tolerantText) { implicit request =>
+  //Ok(models.base.AccountResult.toJson(true))
+  println("***********************************")
+  Status(CREATED)(
+    FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
+      format("", "").stripMargin, "Megam::Account").toJson(true))
+  }
   def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
@@ -94,6 +101,7 @@ object Accounts extends Controller with stack.APIAuthElement {
               Status(rn.code)(rn.toJson(true))
           }
         }
+
         case Failure(err) => {
           val rn: FunnelResponse = new HttpReturningError(err)
           Status(rn.code)(rn.toJson(true))
