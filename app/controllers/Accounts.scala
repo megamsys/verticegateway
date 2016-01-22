@@ -77,8 +77,6 @@ object Accounts extends Controller with stack.APIAuthElement {
   }
 
   def login = StackAction(parse.tolerantText) { implicit request =>
-  //Ok(models.base.AccountResult.toJson(true))
-  println("***********************************")
   Status(CREATED)(
     FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
       format("", "").stripMargin, "Megam::Account").toJson(true))
