@@ -34,12 +34,13 @@ class AccountsSpec extends Specification {
   AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      //"Correctly do GET requests with a valid userid and api key" ! GetLogin.succeeds ^
+      //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   case object Post extends Context {
@@ -102,7 +103,20 @@ class AccountsSpec extends Specification {
     }
   }
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/mm@e.com"
+    protected override def urlSuffix: String = "accounts/test@megam.io"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
+
+  case object GetLogin extends Context {
+    protected override def urlSuffix: String = "accounts/login"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

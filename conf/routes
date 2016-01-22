@@ -12,6 +12,7 @@ GET    /                                controllers.Application.index
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 POST   /v2/accounts/update       	 	    controllers.Accounts.update
+GET    /v2/accounts/login               controllers.Accounts.login  
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
@@ -44,7 +45,10 @@ GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id:
 
 #Workbenches
 POST  /v2/workbenches/content           controllers.analytics.Workbenches.post
-GET    /v2/workbenches/:id              controllers.analytics.Workbenches.show(id: String)
+POST  /v2/workbenches/execute           controllers.analytics.Workbenches.execute
+GET   /v2/workbenches/:name              controllers.analytics.Workbenches.show(name: String)
+#GET    /v2/workbenches                  controllers.analytics.Workbenches.list
+
 
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post

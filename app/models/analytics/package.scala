@@ -111,33 +111,84 @@ package object analytics {
 
   }
 
+  type YonpiconnectorsList = List[Yonpiconnectors]
 
-  type ConnectorsList = List[Connectors]
+     object YonpiconnectorsList {
+       val emptyRR = List(Yonpiconnectors.empty)
+       def toJValue(nres: YonpiconnectorsList): JValue = {
 
-  object ConnectorsList {
-    val emptyRR = List(Connectors.empty)
-    def toJValue(nres: ConnectorsList): JValue = {
+         import net.liftweb.json.scalaz.JsonScalaz.toJSON
+         import models.json.analytics.YonpiconnectorsListSerialization.{ writer => YonpiconnectorsListWriter }
+         toJSON(nres)(YonpiconnectorsListWriter)
+       }
 
+       def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[YonpiconnectorsList] = {
+         import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+         import models.json.analytics.YonpiconnectorsListSerialization.{ reader => YonpiconnectorsListReader }
+         fromJSON(jValue)(YonpiconnectorsListReader)
+       }
+
+       def toJson(nres: YonpiconnectorsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+         prettyRender(toJValue(nres))
+       } else {
+         compactRender(toJValue(nres))
+       }
+
+       def apply(plansList: List[Yonpiconnectors]): YonpiconnectorsList = plansList
+
+       def empty: List[Yonpiconnectors] = emptyRR
+
+     }
+
+  type YonpiinputResults = NonEmptyList[Option[YonpiinputResult]]
+
+  object YonpiinputResults {
+    val emptyNR = List(Option.empty[YonpiinputResult])
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJValue(nres: YonpiinputResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.analytics.ConnectorsListSerialization.{ writer => ConnectorsListWriter }
-      toJSON(nres)(ConnectorsListWriter)
+      import models.json.analytics.YonpiinputResultsSerialization.{ writer => YonpiinputResultsWriter }
+      toJSON(nres)(YonpiinputResultsWriter)
     }
 
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ConnectorsList] = {
-      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.analytics.ConnectorsListSerialization.{ reader => ConnectorsListReader }
-      fromJSON(jValue)(ConnectorsListReader)
-    }
-
-    def toJson(nres: ConnectorsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
+    def toJson(nres: YonpiinputResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
       prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
 
-    def apply(plansList: List[Connectors]): ConnectorsList = plansList
-
-    def empty: List[Connectors] = emptyRR
-
+    def apply(m: Option[YonpiinputResult]) = nels(m)
+    def apply(m: YonpiinputResult): YonpiinputResults = YonpiinputResults(m.some)
+    def empty: YonpiinputResults = nel(emptyNR.head, emptyNR.tail)
   }
+  type ConnectorsList = List[Connectors]
+
+     object ConnectorsList {
+       val emptyRR = List(Connectors.empty)
+       def toJValue(nres: ConnectorsList): JValue = {
+
+         import net.liftweb.json.scalaz.JsonScalaz.toJSON
+         import models.json.analytics.ConnectorsListSerialization.{ writer => ConnectorsListWriter }
+         toJSON(nres)(ConnectorsListWriter)
+       }
+
+       def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[ConnectorsList] = {
+         import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+         import models.json.analytics.ConnectorsListSerialization.{ reader => ConnectorsListReader }
+         fromJSON(jValue)(ConnectorsListReader)
+       }
+
+       def toJson(nres: ConnectorsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+         prettyRender(toJValue(nres))
+       } else {
+         compactRender(toJValue(nres))
+       }
+
+       def apply(plansList: List[Connectors]): ConnectorsList = plansList
+
+       def empty: List[Connectors] = emptyRR
+
+     }
+
 }

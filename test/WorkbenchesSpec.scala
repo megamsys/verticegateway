@@ -43,8 +43,9 @@ class WorkbenchesSpec extends Specification {
       WorkbenchesSpec is the implementation that calls the API server with the /workbenches url to create workbenches
     """ ^ end ^
       "The Client Should" ^
-      //"Correctly do POST requests" ! Post0.succeeds ^ br ^
-      "Correctly do GET workbenches with a valid userid and api key" ! Get.succeeds ^
+      "Correctly do POST requests" ! Post0.succeeds ^ br ^
+      //"Correctly do GET workbenches with a valid userid and api key" ! Get.succeeds ^
+      //"Correctly do POST requests" ! Execute.succeeds ^ br ^
       end
 
   case object Post0 extends Context {
@@ -55,7 +56,7 @@ class WorkbenchesSpec extends Specification {
 
       val contentToEncode = "{" +
         "\"id\":\"WOB1282015862542434304\"," +
-        "\"name\": \"test\"," +
+        "\"name\": \"test1\"," +
         "\"connector\":[{ " +
         "\"type\":\"sql\"," +
         "\"endpoint\":\"192.168.0.0\"," +
@@ -85,7 +86,7 @@ class WorkbenchesSpec extends Specification {
 
   }
 case object Get extends Context {
-    protected override def urlSuffix: String = "workbenches/WOB1294330014208229376"
+    protected override def urlSuffix: String = "workbenches/test1"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -96,5 +97,40 @@ case object Get extends Context {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
+  }
+
+  case object Execute extends Context {
+
+    protected override def urlSuffix: String = "workbenches/execute"
+
+    protected override def bodyToStick: Option[String] = {
+
+      val contentToEncode = "{" +
+      "\"id\":\"test1\"," +
+        "\"query\": \"revenue\"," +
+        "\"connectors\":[{ " +
+        "\"source\":\"sql\"," +
+        "\"credentials\":\"fooUser:megam\"," +
+        "\"tables\":\"pet\"," +
+        "\"dbname\":\"foo\"," +
+        "\"endpoint\":\"192.168.0.0\"," +
+        "\"port\":\"3306\"" +
+        "}]," +
+        "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
+        "}"
+      Some(contentToEncode)
+    }
+
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+
   }
 }
