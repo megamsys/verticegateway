@@ -102,8 +102,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
         _: Option[String] => Validation.success[Error, Option[FunneledRequest]](fr.some).toValidationNel
       }
       case None => (Validation.failure[Throwable, Option[FunneledRequest]](
-        new MalformedHeaderError(rawheader.get(X_Megam_HMAC).get,
-          """We couldn't parse the header. Didn't find %s. """.format(X_Megam_HMAC)))).toValidationNel
+        new MalformedHeaderError("","""We couldn't parse the header. Didn't find %s. """.format(X_Megam_HMAC)))).toValidationNel
     }
 
   }
