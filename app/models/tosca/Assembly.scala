@@ -154,12 +154,12 @@ object Policy {
 }
 
 case class Assembly(name: String,
-    components: models.tosca.ComponentsList,
-    tosca_type: String,
-    policies: models.tosca.PoliciesList,
-    inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList,
-    status: String) {
+  components: models.tosca.ComponentsList,
+  tosca_type: String,
+  policies: models.tosca.PoliciesList,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList,
+  status: String) {
   val json = "{\"name\":\"" + name + "\",\"components\":" + ComponentsList.toJson(components, true) + ",\"tosca_type\":\"" + tosca_type + "\", \"policies\":" + PoliciesList.toJson(policies, true) +
     ",\"inputs\":" + KeyValueList.toJson(inputs, true) + ", \"outputs\":" + KeyValueList.toJson(outputs, true) + ",\"status\":\"" + status + "\"}"
 
@@ -177,12 +177,12 @@ case class Assembly(name: String,
 }
 
 case class AssemblyUpdateInput(id: String,
-    name: String,
-    components: models.tosca.ComponentLinks,
-    tosca_type: String,
-    policies: models.tosca.PoliciesList,
-    inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList, status: String) {
+  name: String,
+  components: models.tosca.ComponentLinks,
+  tosca_type: String,
+  policies: models.tosca.PoliciesList,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList, status: String) {
   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"components\":" + ComponentLinks.toJson(components, true) + ",\"tosca_type\":\"" + tosca_type + "\", \"policies\":" + PoliciesList.toJson(policies, true) +
     ",\"inputs\":" + KeyValueList.toJson(inputs, true) + ", \"outputs\":" + KeyValueList.toJson(outputs, true) + ",\"status\":\"" + status + "\"}"
 }
@@ -190,7 +190,6 @@ case class AssemblyUpdateInput(id: String,
 case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
 
   implicit val formats = DefaultFormats
-
 
   val asm = thatGS.get
   val cattype = asm.tosca_type.split('.')(1)
