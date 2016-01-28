@@ -27,27 +27,27 @@ import java.nio.charset.Charset
 import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import models.analytics._
-import models.analytics.{Yonpiconnectors }
+import models.analytics.{YonpiConnector }
 
 /**
  * @author ranjitha
  *
  */
 
-class YonpiconnectorsSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[Yonpiconnectors] {
+class YonpiConnectorsSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[YonpiConnector] {
 
   protected val SourceKey = "source"
-  protected val CredentialsKey = "credentials"
+  protected val CredentialKey = "credential"
   protected val TablesKey = "tables"
   protected val DbnameKey = "dbname"
   protected val EndpointKey = "endpoint"
   protected val PortKey = "port"
 
-  override implicit val writer = new JSONW[Yonpiconnectors] {
-    override def write(h: Yonpiconnectors): JValue = {
+  override implicit val writer = new JSONW[YonpiConnector] {
+    override def write(h: YonpiConnector): JValue = {
       JObject(
         JField(SourceKey, toJSON(h.source)) ::
-        JField(CredentialsKey, toJSON(h.credentials)) ::
+        JField(CredentialKey, toJSON(h.credential)) ::
         JField(TablesKey, toJSON(h.tables)) ::
         JField(DbnameKey, toJSON(h.dbname)) ::
         JField(EndpointKey, toJSON(h.endpoint)) ::
@@ -56,18 +56,18 @@ class YonpiconnectorsSerialization(charset: Charset = UTF8Charset) extends model
     }
   }
 
-  override implicit val reader = new JSONR[Yonpiconnectors] {
-    override def read(json: JValue): Result[Yonpiconnectors] = {
+  override implicit val reader = new JSONR[YonpiConnector] {
+    override def read(json: JValue): Result[YonpiConnector] = {
       val sourceField = field[String](SourceKey)(json)
-      val credentialsField = field[String](CredentialsKey)(json)
+      val credentialField = field[String](CredentialKey)(json)
       val tablesField = field[String](TablesKey)(json)
       val dbnameField = field[String](DbnameKey)(json)
       val endpointField = field[String](EndpointKey)(json)
       val portField = field[String](PortKey)(json)
 
-      (sourceField |@| credentialsField |@| tablesField |@| dbnameField |@| endpointField |@| portField) {
-        (source: String, credentials: String, tables: String, dbname: String, endpoint: String, port: String) =>
-          new Yonpiconnectors(source, credentials, tables, dbname, endpoint, port)
+      (sourceField |@| credentialField |@| tablesField |@| dbnameField |@| endpointField |@| portField) {
+        (source: String, credential: String, tables: String, dbname: String, endpoint: String, port: String) =>
+          new YonpiConnector(source, credential, tables, dbname, endpoint, port)
       }
     }
   }

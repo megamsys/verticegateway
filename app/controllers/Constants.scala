@@ -79,4 +79,7 @@ object Constants {
   val CATTYPE_TORPEDO = "torpedo"
   val DOMAIN = "domain"
 
+ val USERNAME = "username"
+ val PASSWORD = "password"
+ val SPARKJOBSERVER_INPUT = "SPARKJOBSERVER_INPUT"
 }

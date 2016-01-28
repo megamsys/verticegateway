@@ -29,7 +29,7 @@ import controllers.Constants._
 import models.tosca._
 import models.analytics._
 import models.json._
-import models.analytics.{ YonpiinputResult, YonpiconnectorsList}
+import models.analytics.{ YonpiinputResult, YonpiConnectorsList}
 /**
  * @author ranjitha
  *
@@ -44,14 +44,14 @@ class YonpiinputResultSerialization(charset: Charset = UTF8Charset) extends mode
 
   override implicit val writer = new JSONW[YonpiinputResult] {
 
-    import models.json.analytics.YonpiconnectorsListSerialization.{ writer => YonpiconnectorsListWriter }
+    import models.json.analytics.YonpiConnectorsListSerialization.{ writer => YonpiConnectorsListWriter }
 
     override def write(h: YonpiinputResult): JValue = {
 
       JObject(
         JField(IdKey, toJSON(h.id)) ::
           JField(QueryKey, toJSON(h.query)) ::
-          JField(ConnectorsKey, toJSON(h.connectors)(YonpiconnectorsListWriter)) ::
+          JField(ConnectorsKey, toJSON(h.connectors)(YonpiConnectorsListWriter)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) ::
           Nil)
     }
@@ -59,17 +59,17 @@ class YonpiinputResultSerialization(charset: Charset = UTF8Charset) extends mode
 
   override implicit val reader = new JSONR[YonpiinputResult] {
 
-import models.json.analytics.YonpiconnectorsListSerialization.{ reader => YonpiconnectorsListReader }
+import models.json.analytics.YonpiConnectorsListSerialization.{ reader => YonpiConnectorsListReader }
 
     override def read(json: JValue): Result[YonpiinputResult] = {
 
       val idField = field[String](IdKey)(json)
       val queryField = field[String](QueryKey)(json)
-      val connectorsField = field[YonpiconnectorsList](ConnectorsKey)(json)(YonpiconnectorsListReader)
+      val connectorsField = field[YonpiConnectorsList](ConnectorsKey)(json)(YonpiConnectorsListReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
       (idField |@| queryField |@| connectorsField  |@|  createdAtField) {
-        (id: String, query: String ,connectors: YonpiconnectorsList , created_at: String) =>
+        (id: String, query: String ,connectors: YonpiConnectorsList , created_at: String) =>
           new YonpiinputResult(id, query, connectors, created_at)
       }
     }

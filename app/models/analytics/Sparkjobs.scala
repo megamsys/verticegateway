@@ -49,10 +49,40 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
+
 /**
  * @author ranjitha
  *
  */
+ case class YonpiInputBuilder(query: String, wks: WorkbenchesResults){
+   play.api.Logger.debug("%-20s -->[%s]".format("Q",  query))
+   play.api.Logger.debug("%-20s -->[%s]".format("wk",  wks))
+   play.api.Logger.debug("%-20s -->[%s]".format("wk",  wks.head.get.connectors))
+   val connectors = wks.head.get.connectors.map(x => YonpiConnectors(x))
+   play.api.Logger.debug("%-20s -->[%s]".format("conn",  connectors))
+   val connectorsjson = connectors.map(x => x).mkString("")
+      play.api.Logger.debug("%-20s -->[%s]".format("json",  connectorsjson))
+  val json = "{\"query\":\"" + query + "\",\"connectors\":\"" + connectorsjson + "\"}"
+   val toMap = Map(controllers.Constants.SPARKJOBSERVER_INPUT -> json, "claz"-> "io.megam.meglytics.Main" )
+ }
+
+ case class YonpiConnectors(conn: Connectors) {
+    play.api.Logger.debug("%-20s -->[%s]".format("YC",  "?????????????"))
+    play.api.Logger.debug("%-20s -->[%s]".format("YC",  conn.source))
+  val  source= conn.source
+  val tables = conn.tables.map(x => x.name).mkString(" ")
+  //val credential  =  conn.inputs.map { input =>
+        val user =  conn.inputs.find(_.key.equalsIgnoreCase(USERNAME))
+        val pass = conn.inputs.find(_.key.equalsIgnoreCase(PASSWORD))
+        val credential = user.get.value + ":" + pass.get.value
+         val dbname = conn.dbname
+        val endpoint = conn.endpoint
+        val port = conn.port
+
+   val json = "{\"source\":\"" + source + "\",\"credential\":\"" + credential + "\", \"tables\":\"" + tables + "\", \"dbname\":\"" + dbname + "\", \"endpoint\":\"" + endpoint + "\", \"port\":\"" + port + "\"}"
+play.api.Logger.debug("%-20s -->[%s]".format("YC",  json))
+}
+
 
 case class SparkjobsInput(source: String, assembly_id: String, inputs: models.tosca.KeyValueList) {
   val json = "{\"source\":\"" + source + "\",\"assembly_id\":\"" + assembly_id + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true)+"}"
@@ -99,11 +129,11 @@ object Sparkjobs {
   val bindex = "assembly"
 
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    
+
     val sparkjobsInput: ValidationNel[Throwable, SparkjobsInput] = (Validation.fromTryCatchThrowable[SparkjobsInput, Throwable] {
       parse(input).extract[SparkjobsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    
+
     for {
       sp <- sparkjobsInput
       su <- spark.SparkSubmitter(sp).submit(false, email, KeyValueList.toMap(sp.inputs))
@@ -169,5 +199,6 @@ object Sparkjobs {
       _.foldRight((SparkjobsResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
   }
+
 
 }

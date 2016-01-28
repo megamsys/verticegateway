@@ -43,9 +43,9 @@ class WorkbenchesSpec extends Specification {
       WorkbenchesSpec is the implementation that calls the API server with the /workbenches url to create workbenches
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post0.succeeds ^ br ^
-      //"Correctly do GET workbenches with a valid userid and api key" ! Get.succeeds ^
-      //"Correctly do POST requests" ! Execute.succeeds ^ br ^
+    //  "Correctly do POST requests" ! Post0.succeeds ^ br ^
+    //  "Correctly do GET workbenches with a valid userid and api key" ! Get.succeeds ^
+      "Correctly do POST requests" ! Execute.succeeds ^ br ^
       end
 
   case object Post0 extends Context {
@@ -56,17 +56,23 @@ class WorkbenchesSpec extends Specification {
 
       val contentToEncode = "{" +
         "\"id\":\"WOB1282015862542434304\"," +
-        "\"name\": \"test1\"," +
-        "\"connector\":[{ " +
-        "\"type\":\"sql\"," +
-        "\"endpoint\":\"192.168.0.0\"," +
-        "\"inputs\":[{\"key\":\"name\", \"value\" :\"cocdb\"}]" +
-        "}]," +
+        "\"name\": \"test2\"," +
+        "\"connectors\":[{ " +
+        "\"source\":\"mysql\"," +
+        "\"endpoint\":\"103.56.92.47\"," +
+        "\"port\":\"3306\"," +
+        "\"dbname\":\"fooDatabase\"," +
+        "\"inputs\":["+
+        "{\"key\":\"name\",\"value\":\"cocdb\"}," +
+        "{\"key\":\"username\",\"value\":\"fooUser\"}," +
+        "{\"key\":\"password\",\"value\":\"megam\"}" +
+        "]," +
         "\"tables\":[{ " +
-        "\"name\":\"hotel\"," +
+        "\"name\":\"sales\"," +
         "\"table_id\":\"sn145\"," +
         "\"schemas\":[{\"key\":\"cccc\", \"value\" :\"ssss\"}]," +
         "\"links\":[{\"key\":\"ddd\", \"value\" : \"tttt\"}]" +
+        "}]" +
         "}]," +
         "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
         "}"
@@ -86,7 +92,7 @@ class WorkbenchesSpec extends Specification {
 
   }
 case object Get extends Context {
-    protected override def urlSuffix: String = "workbenches/test1"
+    protected override def urlSuffix: String = "workbenches/foo"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -106,18 +112,9 @@ case object Get extends Context {
     protected override def bodyToStick: Option[String] = {
 
       val contentToEncode = "{" +
-      "\"id\":\"test1\"," +
-        "\"query\": \"revenue\"," +
-        "\"connectors\":[{ " +
-        "\"source\":\"sql\"," +
-        "\"credentials\":\"fooUser:megam\"," +
-        "\"tables\":\"pet\"," +
-        "\"dbname\":\"foo\"," +
-        "\"endpoint\":\"192.168.0.0\"," +
-        "\"port\":\"3306\"" +
-        "}]," +
-        "\"created_at\":\"2014-10-29 13:24:06 +0000\"" +
-        "}"
+        "\"name\": \"test2\"," +
+        "\"query\": \"cost \"" +
+      "}"
       Some(contentToEncode)
     }
 
