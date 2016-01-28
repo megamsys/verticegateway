@@ -93,10 +93,7 @@ object Workbenches extends Controller with controllers.stack.APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.analytics.Workbenches.execute(email, clientAPIBody) match {
             case Success(succ) =>
-              Status(CREATED)(
-                FunnelResponse(CREATED, """Workbenches executed successfully.
-            |
-            |You can use the the 'Workbenches':{%s}.""".format(succ.getOrElse("none")), "Megam::Workbenches").toJson(true))
+               Ok(succ.get)
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

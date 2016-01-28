@@ -35,6 +35,8 @@ object Sparkjobs extends Controller with controllers.stack.APIAuthElement {
   /**
    * Create a new sparkjobs entry by email/json input.
    */
+
+   /*
   def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
@@ -83,5 +85,5 @@ object Sparkjobs extends Controller with controllers.stack.APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
+  } */
 }

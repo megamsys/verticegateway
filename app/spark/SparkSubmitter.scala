@@ -43,14 +43,18 @@ class SparkSubmitter(ospark: models.analytics.SparkjobsInput) {
     }
   }
   def wbsubmit(clean: Boolean = false, email: String, args: Map[String, String]): ValidationNel[Throwable, Option[Tuple2[String,JobSubmitted]]] = {
+
       for {
          ss <- new spark.WbSubmit(new JarsInput(email, "", "", args)).run.successNel
     } yield {
       (ss.get._2, JobSubmittedSerialization.decode(ss.get._1, ss.get._3)).some
     }
   }
-  def job(job_id: String): ValidationNel[Throwable, Option[String]] = {
-    val out = new spark.JobResults(JobsInput(job_id)).run
+
+
+  def job(j: JobSubmitted): ValidationNel[Throwable, Option[String]] = {
+
+    val out = new spark.JobResults(JobsInput(j.result.job_id)).run
     play.api.Logger.debug("%-20s -->[%s]".format("JOB",  out))
     out.successNel
   }

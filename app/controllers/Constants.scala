@@ -82,4 +82,5 @@ object Constants {
  val USERNAME = "username"
  val PASSWORD = "password"
  val SPARKJOBSERVER_INPUT = "SPARKJOBSERVER_INPUT"
+ val JAR_NAME = "meglytics"
 }

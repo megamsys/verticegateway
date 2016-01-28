@@ -27,13 +27,17 @@ import scala.concurrent.Await
 import scala.concurrent._
 import scala.concurrent.duration._
 import java.net.URL
+import app.MConfig
+
 
 
 //@parms jars :  is the jar file
 //@parms name : is the name of the urlsuffix, its actually the last jarname with no extension.
 case class JarsInput(prefix: String , location: String, name: String, args: Map[String,String] = Map.empty) {
+  play.api.Logger.debug("%-20s -->[%s]".format("JarInput",  "Inside jarsInput - appending claz"))
+
   val claz: String = args.get("claz").getOrElse("io.megam.sparkbb.WordCountExample")
-  val uniqName = prefix + "_" + name
+  val uniqName = "meglytics"
 }
 
 case class JobsInput(id: String)
@@ -62,7 +66,7 @@ trait JobServerClient extends JobServerContext {
   protected def bodyToStick: Option[Bytes] = None
   protected def headersOpt: Option[Map[String, String]]
 
-  lazy val url = new URL(app.MConfig.spark_jobserver + urlSuffix)
+  lazy val url = new URL("http://" + app.MConfig.spark_jobserver + urlSuffix)
 
   val headerAndBody = HandB(this.bodyToStick, headersOpt)
 
@@ -72,5 +76,7 @@ trait JobServerClient extends JobServerContext {
 
   implicit private val encoding = Constants.UTF8Charset
 
-  protected def execute[T](t: Builder) = Await.result(t.apply, Integer.parseInt(app.MConfig.yanpi_timeout).second)
+  protected def execute[T](t: Builder) =
+
+    Await.result(t.apply, Integer.parseInt(app.MConfig.yanpi_timeout).second)
 }
