@@ -111,32 +111,32 @@ package object analytics {
 
   }
 
-  type YonpiconnectorsList = List[Yonpiconnectors]
+  type YonpiConnectorsList = List[YonpiConnector]
 
-     object YonpiconnectorsList {
-       val emptyRR = List(Yonpiconnectors.empty)
-       def toJValue(nres: YonpiconnectorsList): JValue = {
+     object YonpiConnectorsList {
+       val emptyRR = List(YonpiConnector.empty)
+       def toJValue(nres: YonpiConnectorsList): JValue = {
 
          import net.liftweb.json.scalaz.JsonScalaz.toJSON
-         import models.json.analytics.YonpiconnectorsListSerialization.{ writer => YonpiconnectorsListWriter }
-         toJSON(nres)(YonpiconnectorsListWriter)
+         import models.json.analytics.YonpiConnectorsListSerialization.{ writer => YonpiConnectorsListWriter }
+         toJSON(nres)(YonpiConnectorsListWriter)
        }
 
-       def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[YonpiconnectorsList] = {
+       def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[YonpiConnectorsList] = {
          import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-         import models.json.analytics.YonpiconnectorsListSerialization.{ reader => YonpiconnectorsListReader }
-         fromJSON(jValue)(YonpiconnectorsListReader)
+         import models.json.analytics.YonpiConnectorsListSerialization.{ reader => YonpiConnectorsListReader }
+         fromJSON(jValue)(YonpiConnectorsListReader)
        }
 
-       def toJson(nres: YonpiconnectorsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
+       def toJson(nres: YonpiConnectorsList, prettyPrint: Boolean = false): String = if (prettyPrint) {
          prettyRender(toJValue(nres))
        } else {
          compactRender(toJValue(nres))
        }
 
-       def apply(plansList: List[Yonpiconnectors]): YonpiconnectorsList = plansList
+       def apply(plansList: List[YonpiConnector]): YonpiConnectorsList = plansList
 
-       def empty: List[Yonpiconnectors] = emptyRR
+       def empty: List[YonpiConnector] = emptyRR
 
      }
 

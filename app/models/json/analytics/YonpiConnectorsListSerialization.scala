@@ -22,39 +22,39 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import models.tosca._
 import java.nio.charset.Charset
-import models.analytics.{YonpiconnectorsList, Yonpiconnectors}
+import models.analytics.{YonpiConnectorsList, YonpiConnector}
 
 /**
  * @author ranjitha
  *
  */
-object YonpiconnectorsListSerialization extends models.json.SerializationBase[YonpiconnectorsList] {
+object YonpiConnectorsListSerialization extends models.json.SerializationBase[YonpiConnectorsList] {
 
-  implicit override val writer = new JSONW[YonpiconnectorsList] {
-    override def write(h: YonpiconnectorsList): JValue = {
+  implicit override val writer = new JSONW[YonpiConnectorsList] {
+    override def write(h: YonpiConnectorsList): JValue = {
       val nrsList: Option[List[JValue]] = h.map {
-        nrOpt: Yonpiconnectors => nrOpt.toJValue
+        nrOpt: YonpiConnector => nrOpt.toJValue
       }.some
 
       JArray(nrsList.getOrElse(List.empty[JValue]))
     }
   }
 
-  implicit override val reader = new JSONR[YonpiconnectorsList] {
-    override def read(json: JValue): Result[YonpiconnectorsList] = {
+  implicit override val reader = new JSONR[YonpiConnectorsList] {
+    override def read(json: JValue): Result[YonpiConnectorsList] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            Yonpiconnectors.fromJValue(jValue) match {
+            YonpiConnector.fromJValue(jValue) match {
               case Success(nr) => List(nr)
-              case Failure(fail) => List[Yonpiconnectors]()
+              case Failure(fail) => List[YonpiConnector]()
             }
           }.some
 
-          val nrs: YonpiconnectorsList = YonpiconnectorsList(list.getOrElse(YonpiconnectorsList.empty))
+          val nrs: YonpiConnectorsList = YonpiConnectorsList(list.getOrElse(YonpiConnectorsList.empty))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[YonpiconnectorsList]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[YonpiConnectorsList]
       }
     }
   }

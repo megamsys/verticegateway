@@ -38,6 +38,7 @@ import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import org.megam.common.riak.GunnySack
+import scala.collection.mutable.{ LinkedHashMap, ListBuffer }
 
 import org.megam.common.uid.UID
 import net.liftweb.json._
@@ -60,42 +61,42 @@ import spark._
  *
  */
 
+ case class YonpiConnector(source: String, credential: String, tables: String, dbname: String, endpoint: String, port: String) {
+    val json = "{\"source\":\"" + source + "\",\"credential\":\"" + credential + "\", \"tables\":\"" + tables + "\",\"dbname\":\"" + dbname + "\", \"endpoint\":\"" + endpoint + "\",\"port\":\"" + port + "\"}"
+    def toJValue: JValue = {
+      import net.liftweb.json.scalaz.JsonScalaz.toJSON
+      val preser = new models.json.analytics.YonpiConnectorsSerialization()
+      toJSON(this)(preser.writer)
+    }
 
- case class Yonpiconnectors(source: String, credentials: String, tables: String, dbname: String, endpoint: String, port: String) {
-   val json = "{\"source\":\"" + source + "\",\"credentials\":\"" + credentials + "\", \"endpoint\":\"" + endpoint + "\", \"endpoint\":\"" + endpoint + "\"}"
+    def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
+      prettyRender(toJValue)
+    } else {
+      compactRender(toJValue)
+    }
+  }
 
-   def toJValue: JValue = {
-     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-     val preser = new models.json.analytics.YonpiconnectorsSerialization()
-     toJSON(this)(preser.writer)
+  object YonpiConnector {
+     def empty: YonpiConnector = new YonpiConnector(new String(), new String(), new String(), new String(), new String(), new String())
+
+
+       def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[YonpiConnector] = {
+         import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+         val preser = new models.json.analytics.YonpiConnectorsSerialization()
+         fromJSON(jValue)(preser.reader)
+       }
+
+       def fromJson(json: String): Result[YonpiConnector] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+         parse(json)
+       } leftMap { t: Throwable =>
+         UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
+       }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+
    }
 
-   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-     prettyRender(toJValue)
-   } else {
-     compactRender(toJValue)
-   }
- }
- object Yonpiconnectors {
-   def empty: Yonpiconnectors = new Yonpiconnectors(new String(), new String(), new String(), new String(), new String(), new String())
 
-
-     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Yonpiconnectors] = {
-       import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-       val preser = new models.json.analytics.YonpiconnectorsSerialization()
-       fromJSON(jValue)(preser.reader)
-     }
-
-     def fromJson(json: String): Result[Yonpiconnectors] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-       parse(json)
-     } leftMap { t: Throwable =>
-       UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-     }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
- }
-
- case class Yonpiinput(query: String, connectors: YonpiconnectorsList) {
-   val json = "{\"query\":\"" + query + "\",\"connectors\":" + YonpiconnectorsList.toJson(connectors, true) + "}"
+ case class Yonpiinput(query: String, connectors: YonpiConnectorsList) {
+   val json = "{\"query\":\"" + query + "\",\"connectors\":" + YonpiConnectorsList.toJson(connectors, true) + "}"
    def toJValue: JValue = {
      import net.liftweb.json.scalaz.JsonScalaz.toJSON
      val preser = new models.json.analytics.YonpiinputSerialization()
@@ -109,12 +110,12 @@ import spark._
    }
  }
  object Yonpiinput {
-   def empty: Yonpiinput = new Yonpiinput(new String(), YonpiconnectorsList.empty)
+   def empty: Yonpiinput = new Yonpiinput(new String(), YonpiConnectorsList.empty)
 
 }
 
 
-case class YonpiinputResult(id: String, query: String, connectors: YonpiconnectorsList, created_at: String) {
+case class YonpiinputResult(id: String, query: String, connectors: YonpiConnectorsList, created_at: String) {
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     val preser = new models.json.analytics.YonpiinputResultSerialization()
@@ -144,8 +145,8 @@ object YonpiinputResult {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-case class Connectors(connector_type: String, endpoint: String, inputs: models.tosca.KeyValueList, tables: TablesList) {
-  val json = "{\"type\":\"" + connector_type + "\",\"endpoint\":\"" + endpoint + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"tables\":" + TablesList.toJson(tables, true) + "}"
+case class Connectors(source: String, endpoint: String, port: String, dbname: String, inputs: models.tosca.KeyValueList, tables: TablesList) {
+  val json = "{\"source\":\"" + source + "\",\"endpoint\":\"" + endpoint + "\",\"port\":\"" + port + "\",\"dbname\":\"" + dbname + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(inputs, true) + ",\"tables\":" + TablesList.toJson(tables, true) + "}"
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
@@ -161,7 +162,7 @@ case class Connectors(connector_type: String, endpoint: String, inputs: models.t
 }
 
 object Connectors {
-  def empty: Connectors = new Connectors(new String(), new String(), models.tosca.KeyValueList.empty, TablesList.empty)
+  def empty: Connectors = new Connectors(new String(), new String(), new String(), new String(), models.tosca.KeyValueList.empty, TablesList.empty)
 
 
     def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[Connectors] = {
@@ -178,12 +179,7 @@ object Connectors {
 
 }
 
-case class WbIntermediateInput(name: String, yiinput: models.analytics.Yonpiinput){
-  val json = "{\"name\":\"" + name + "\", \"yiinput\":\"" + models.analytics.Yonpiinput + "\" }"
-  val args = Map(cons.WB_SPARKJOBSERVER_INPUT -> json, "claz"-> "bi.megam.main" )
-}
-object WbIntermediateInput {
-  def empty: WbIntermediateInput = new WbIntermediateInput(new String(),  models.analytics.Yonpiinput.empty)}
+
 
 case class Tables(name: String, table_id: String, schemas: models.tosca.KeyValueList, links: models.tosca.KeyValueList) {
   val json = "{\"name\":\"" + name + "\",\"table_id\":\"" + table_id + "\",\"schemas\":" + models.tosca.KeyValueList.toJson(schemas, true) + ",\"links\":" + models.tosca.KeyValueList.toJson(links, true) + "}"
@@ -336,29 +332,20 @@ def execute(email: String, input: String): ValidationNel[Throwable, Option[Spark
   val executeInput: ValidationNel[Throwable, ExecuteInput] = (Validation.fromTryCatchThrowable[ExecuteInput, Throwable] {
     parse(input).extract[ExecuteInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
-
+  play.api.Logger.debug("%-20s -->[%s]".format("IN",  "+++++++++++++++++"))
+  play.api.Logger.debug("%-20s -->[%s]".format("INPUT",  executeInput))
   for {
     yi <- executeInput
     aor <- (models.analytics.Workbenches.findByName(List(yi.name).some) leftMap { t: NonEmptyList[Throwable] => t })
-    //wi <- new WbIntermediateInput(aor.head.get.name, yi)
-    su <- spark.SparkSubmitter.empty.wbsubmit(false, email,  new WbIntermediateInput(aor.head.get.name, yi).args)
+    su <- spark.SparkSubmitter.empty.wbsubmit(false, email,  new YonpiInputBuilder(yi.query, aor).toMap)
 
   } yield {
+
     su flatMap {  so =>
       new SparkjobsResult("", so._2.code, so._2.status, so._2.result.job_id, Time.now.toString).some
      //new Yonpiinput(so._2.query, so._2.connectors).some
   }
 }
-}
-//source: String, credentials: String, tables: String, dbname: String, endpoint: String, port: String
-
-def yonpiinputBuilder(executeInput: ExecuteInput, wks: WorkbenchesResults): ValidationNel[Throwable, Yonpiinput] = {
-  wks.head.get.connectors.foreach { connector: Connectors =>
-     list += new Yonpiconnectors(connector.source, )
-   }.some
-new Yonpiconnectors(wks.head.get.connectors)
- new Yonpiinput(execute.query, connectorlist)
-
 }
 
  def findByName(workbenchesList: Option[List[String]]): ValidationNel[Throwable, WorkbenchesResults] = {

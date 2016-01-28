@@ -28,7 +28,7 @@ import controllers.funnel.FunnelErrors._
 import controllers.Constants._
 import models.json.tosca._
 import models.json.analytics._
-import models.analytics.{ Yonpiinput, YonpiconnectorsList }
+import models.analytics.{ Yonpiinput, YonpiConnectorsList }
 
 /**
  * @author ranjitha
@@ -43,13 +43,13 @@ class YonpiinputSerialization(charset: Charset = UTF8Charset) extends models.jso
   override implicit val writer = new JSONW[Yonpiinput] {
 
 
-    import YonpiconnectorsListSerialization.{ writer => YonpiconnectorsListWriter }
+    import YonpiConnectorsListSerialization.{ writer => YonpiConnectorsListWriter }
 
 
     override def write(h: Yonpiinput): JValue = {
       JObject(
         JField(QueryKey, toJSON(h.query)) ::
-          JField(ConnectorsKey, toJSON(h.connectors)(YonpiconnectorsListWriter)) ::
+          JField(ConnectorsKey, toJSON(h.connectors)(YonpiConnectorsListWriter)) ::
              Nil)
     }
   }
@@ -57,16 +57,16 @@ class YonpiinputSerialization(charset: Charset = UTF8Charset) extends models.jso
   override implicit val reader = new JSONR[Yonpiinput] {
 
 
-    import YonpiconnectorsListSerialization.{ reader => YonpiconnectorsListReader }
+    import YonpiConnectorsListSerialization.{ reader => YonpiConnectorsListReader }
 
 
     override def read(json: JValue): Result[Yonpiinput] = {
       val queryField = field[String](QueryKey)(json)
-      val connectorsField = field[YonpiconnectorsList](ConnectorsKey)(json)(YonpiconnectorsListReader)
+      val connectorsField = field[YonpiConnectorsList](ConnectorsKey)(json)(YonpiConnectorsListReader)
 
 
       (queryField |@| connectorsField ) {
-        (query: String, connectors: YonpiconnectorsList) =>
+        (query: String, connectors: YonpiConnectorsList) =>
           new Yonpiinput(query, connectors)
       }
     }

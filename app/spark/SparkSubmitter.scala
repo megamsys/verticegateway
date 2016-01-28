@@ -22,9 +22,9 @@ import java.net.URL
 
 case class JobResult(message: String, job_id: String, context: String, errorClass: String)
 case class JobSubmitted(code: Int, status: String, resultstr: String, result: JobResult)
-object cons{
-  val WB_SPARKJOBSERVER_INPUT = "WB_SPARKJOBSERVER_INPUT"
-}
+
+
+
 
 class SparkSubmitter(ospark: models.analytics.SparkjobsInput) {
   implicit val formats = DefaultFormats
@@ -44,7 +44,7 @@ class SparkSubmitter(ospark: models.analytics.SparkjobsInput) {
   }
   def wbsubmit(clean: Boolean = false, email: String, args: Map[String, String]): ValidationNel[Throwable, Option[Tuple2[String,JobSubmitted]]] = {
       for {
-         ss <- new spark.wbSubmit(new JarsInput(email, "", "", args)).run.successNel
+         ss <- new spark.WbSubmit(new JarsInput(email, "", "", args)).run.successNel
     } yield {
       (ss.get._2, JobSubmittedSerialization.decode(ss.get._1, ss.get._3)).some
     }
