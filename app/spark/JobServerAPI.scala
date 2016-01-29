@@ -22,6 +22,7 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import controllers.stack._
+import scala.concurrent._
 
 case class JarUpload(ji: JarsInput) extends JobServerClient {
 
@@ -76,20 +77,34 @@ case class JarSubmit(ji: JarsInput) extends JobServerClient {
 }
 
 case class WbSubmit(ji: JarsInput) extends JobServerClient {
+//  play.api.Logger.debug("%-20s -->[%s]".format("WbSubmit",  ji))
 
   protected override def urlSuffix: String = "/jobs?appName=" + ji.uniqName + "&classPath=" + ji.claz
 
   protected def headersOpt: Option[Map[String, String]] = None
 
-  protected override def bodyToStick: Option[Bytes] = Some((ji.args.getOrElse(controllers.Constants.SPARKJOBSERVER_INPUT, "")).getBytes)
 
-  private val post = POST(url)(httpClient)
+  protected override def bodyToStick: Option[Bytes] = Some(({ "input.json " + "= " + ji.args.getOrElse(controllers.Constants.SPARKJOBSERVER_INPUT, "")}).mkString("").getBytes)
+
+
+
+ //println({ "input.json " + "= " + ji.args.getOrElse(controllers.Constants.SPARKJOBSERVER_INPUT, "")}).mkString(""))
+
+
+ private val post = POST(url)(httpClient)
     .addHeaders(headers)
     .addBody(body)
 
+
   def run: Option[Tuple3[Int, String, String]] = {
+    play.api.Logger.debug("%-20s -->[%s]".format("run",  "Calling SJS"))
+
+
+
+
     val response = execute(post)
     Tuple3(response.code.code, ji.uniqName, response.bodyString).some
+
   }
 
 }
@@ -98,6 +113,8 @@ case class JobResults(ji: JobsInput) extends JobServerClient {
 
   protected def headersOpt: Option[Map[String, String]] = None
 
+  Thread.sleep(30000) //This is very ugly fix.
+  
   private val get = GET(url)(httpClient)
     .addHeaders(headers)
 

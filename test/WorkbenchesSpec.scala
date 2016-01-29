@@ -68,7 +68,7 @@ class WorkbenchesSpec extends Specification {
         "{\"key\":\"password\",\"value\":\"megam\"}" +
         "]," +
         "\"tables\":[{ " +
-        "\"name\":\"sales\"," +
+        "\"name\":\"product sales\"," +
         "\"table_id\":\"sn145\"," +
         "\"schemas\":[{\"key\":\"cccc\", \"value\" :\"ssss\"}]," +
         "\"links\":[{\"key\":\"ddd\", \"value\" : \"tttt\"}]" +
@@ -113,7 +113,7 @@ case object Get extends Context {
 
       val contentToEncode = "{" +
         "\"name\": \"test2\"," +
-        "\"query\": \"cost \"" +
+        "\"query\": \"product_id year \"" +
       "}"
       Some(contentToEncode)
     }

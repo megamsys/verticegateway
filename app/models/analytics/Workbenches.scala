@@ -327,7 +327,7 @@ object Workbenches {
     }
   }
 
-def execute(email: String, input: String): ValidationNel[Throwable, Option[SparkjobsResult]] = {
+def execute(email: String, input: String): ValidationNel[Throwable, Option[String]] = {
 
   val executeInput: ValidationNel[Throwable, ExecuteInput] = (Validation.fromTryCatchThrowable[ExecuteInput, Throwable] {
     parse(input).extract[ExecuteInput]
@@ -338,13 +338,15 @@ def execute(email: String, input: String): ValidationNel[Throwable, Option[Spark
     yi <- executeInput
     aor <- (models.analytics.Workbenches.findByName(List(yi.name).some) leftMap { t: NonEmptyList[Throwable] => t })
     su <- spark.SparkSubmitter.empty.wbsubmit(false, email,  new YonpiInputBuilder(yi.query, aor).toMap)
+    fl <- spark.SparkSubmitter.empty.job(su.get._2)
 
   } yield {
 
-    su flatMap {  so =>
-      new SparkjobsResult("", so._2.code, so._2.status, so._2.result.job_id, Time.now.toString).some
+    fl //flatMap {  so => return so.some
+
+      //new SparkjobsResult(so._2.result.toString, so._2.code, so._2.status, so._2.result.job_id, Time.now.toString).some
      //new Yonpiinput(so._2.query, so._2.connectors).some
-  }
+//  }
 }
 }
 

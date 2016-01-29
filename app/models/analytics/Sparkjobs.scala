@@ -58,11 +58,12 @@ import java.nio.charset.Charset
    play.api.Logger.debug("%-20s -->[%s]".format("Q",  query))
    play.api.Logger.debug("%-20s -->[%s]".format("wk",  wks))
    play.api.Logger.debug("%-20s -->[%s]".format("wk",  wks.head.get.connectors))
-   val connectors = wks.head.get.connectors.map(x => YonpiConnectors(x))
+
+   val connectors = wks.head.get.connectors.map(x => YonpiConnectors(x).json)
    play.api.Logger.debug("%-20s -->[%s]".format("conn",  connectors))
-   val connectorsjson = connectors.map(x => x).mkString("")
+   val connectorsjson = connectors.mkString("")
       play.api.Logger.debug("%-20s -->[%s]".format("json",  connectorsjson))
-  val json = "{\"query\":\"" + query + "\",\"connectors\":\"" + connectorsjson + "\"}"
+  val json = "{\"query\":\"" + query + "\",\"connectors\":[" + connectorsjson + "]}"
    val toMap = Map(controllers.Constants.SPARKJOBSERVER_INPUT -> json, "claz"-> "io.megam.meglytics.Main" )
  }
 
@@ -79,8 +80,9 @@ import java.nio.charset.Charset
         val endpoint = conn.endpoint
         val port = conn.port
 
-   val json = "{\"source\":\"" + source + "\",\"credential\":\"" + credential + "\", \"tables\":\"" + tables + "\", \"dbname\":\"" + dbname + "\", \"endpoint\":\"" + endpoint + "\", \"port\":\"" + port + "\"}"
-play.api.Logger.debug("%-20s -->[%s]".format("YC",  json))
+   val json = "{\"source\":\"" + source + "\",\"credentials\":\"" + credential + "\", \"tables\":\"" + tables + "\", \"dbname\":\"" + dbname + "\", \"endpoint\":\"" + endpoint + "\", \"port\":\"" + port + "\"}"
+
+   play.api.Logger.debug("%-20s -->[%s]".format("YC",  json))
 }
 
 
@@ -119,7 +121,7 @@ object SparkjobsResult {
   }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
 
 }
-
+/*
 object Sparkjobs {
 
   implicit val formats = DefaultFormats
@@ -201,4 +203,4 @@ object Sparkjobs {
   }
 
 
-}
+} */
