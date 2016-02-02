@@ -1,5 +1,5 @@
 /**
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import java.net.URL
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 import models.{ SshKeyInput }
 
 class SshKeysSpec extends Specification {

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -31,18 +31,18 @@ import db._
 import models.json.tosca._
 import models.json.tosca.carton._
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
 import models.tosca._
 
-import org.megam.util.Time
+import io.megam.util.Time
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
+import io.megam.common.riak.GunnySack
 
-import org.megam.common.uid.UID
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -339,7 +339,7 @@ object AssemblysList {
   val metadataVal = "Assembly Creation"
   val bindex = "assembly"
 
-  def createLinks(authBag: Option[controllers.stack.AuthBag], input: AssemblysList): ValidationNel[Throwable, AssemblysLists] = {
+  def createLinks(authBag: Option[io.megam.auth.stack.AuthBag], input: AssemblysList): ValidationNel[Throwable, AssemblysLists] = {
     val res = (input map {
       asminp => (create(authBag, asminp))
     }).foldRight((AssemblysLists.empty).successNel[Throwable])(_ +++ _)
@@ -353,7 +353,7 @@ object AssemblysList {
    * create new market place item with the 'name' of the item provide as input.
    * A index name assemblies name will point to the "csars" bucket
    */
-  def create(authBag: Option[controllers.stack.AuthBag], input: Assembly): ValidationNel[Throwable, AssemblysLists] = {
+  def create(authBag: Option[io.megam.auth.stack.AuthBag], input: Assembly): ValidationNel[Throwable, AssemblysLists] = {
     for {
       ogsi <- mkGunnySack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err }
       nrip <- AssemblyResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => nels(JSONParsingError(t)) }
@@ -372,11 +372,11 @@ object AssemblysList {
 
   }
 
-  private def mkGunnySack(authBag: Option[controllers.stack.AuthBag], rip: Assembly): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkGunnySack(authBag: Option[io.megam.auth.stack.AuthBag], rip: Assembly): ValidationNel[Throwable, Option[GunnySack]] = {
     var outlist = rip.outputs
     for {
       aor <- (Accounts.findByEmail(authBag.get.email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "asm").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("asm").get leftMap { ut: NonEmptyList[Throwable] => ut })
       com <- (ComponentsList.createLinks(authBag, rip.components, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)

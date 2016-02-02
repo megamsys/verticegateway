@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ import scalaz.NonEmptyList._
 
 import cache._
 import db._
-import app.MConfig
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import controllers.Constants._
 
 import com.stackmob.scaliak._
-import org.megam.common.riak.GunnySack
-import org.megam.common.uid.UID
-import org.megam.util.Time
+import io.megam.auth.stack.AccountResult
+import io.megam.common.riak.GunnySack
+import io.megam.common.uid.UID
+import io.megam.util.Time
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -44,45 +44,6 @@ import com.basho.riak.client.core.util.{ Constants => RiakConstants }
  * authority
  *
  */
-
-case class AccountResult(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String,  password_reset_key: String, password_reset_sent_at: String, created_at: String) {
-
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.AccountResultSerialization
-    val acctser = new AccountResultSerialization()
-    toJSON(this)(acctser.writer)
-  }
-
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-
-}
-
-object AccountResult {
-
-  //def apply(id: String, email: String, api_key: String, authority: String) = new AccountResult(id, email, api_key, authority, Time.now.toString)
-  def apply(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) = new AccountResult(id, first_name, last_name, phone, email, api_key, password, authority, password_reset_key, password_reset_sent_at, Time.now.toString)
-
-  def apply(email: String): AccountResult = AccountResult("not found", new String(), new String(), new String(), new String(), email, new String(), new String(), new String(), new String())
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AccountResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.AccountResultSerialization
-    val acctser = new AccountResultSerialization()
-    fromJSON(jValue)(acctser.reader)
-  }
-
-  def fromJson(json: String): Result[AccountResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
 case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) {
   val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
 }
@@ -116,7 +77,7 @@ object Accounts {
     for {
       m <- accountInput
       bal <- (models.billing.Balances.create(m.email, "{\"credit\":\"0\"}") leftMap { t: NonEmptyList[Throwable] => t })
-      uid <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uid <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
      // org <- models.team.Organizations.create(m.email, OrganizationsInput(DEFAULT_ORG_NAME).json)
     } yield {
       val bvalue = Set(uid.get._1 + uid.get._2)
@@ -209,7 +170,7 @@ object Accounts {
           }).toValidationNel.flatMap { xso: Option[GunnySack] =>
             xso match {
               case Some(xs) => {
-                (Validation.fromTryCatchThrowable[models.base.AccountResult,Throwable] {
+                (Validation.fromTryCatchThrowable[io.megam.auth.stack.AccountResult,Throwable] {
                   //  initiate_default_cloud(email)
                   parse(xs.value).extract[AccountResult]
                 } leftMap { t: Throwable =>

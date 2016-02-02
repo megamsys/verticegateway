@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -310,7 +310,6 @@ package object tosca {
     val MKT_FLAG_APIKEY = "<api_key>"
     val MKT_FLAG_ASSEMBLY_ID = "<assembly_id>"
     val MKT_FLAG_COMP_ID = "<component_id>"
-    val MKT_FLAG_SPARKJOBSERVER = "<spark_jobserver>"
     val MKT_FLAG_HOST = "<host>"
 
     val emptyRR = List(KeyValueField.empty)

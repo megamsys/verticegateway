@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object BindLinksSerialization extends models.json.SerializationBase[BindLinks] {
+object BindLinksSerialization extends io.megam.json.SerializationBase[BindLinks] {
   implicit val formats = DefaultFormats
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "components"

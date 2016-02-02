@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import play.api.http.HeaderNames._
 import play.api.mvc._
 import play.api.mvc.Results._
 import play.filters.gzip.{ GzipFilter }
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 import scala.concurrent.Future
 import controllers._
 import java.io._

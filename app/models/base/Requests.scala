@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,16 +30,16 @@ import cache._
 import app.MConfig
 import app.MConfig
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 
 
-import org.megam.common.amqp.response.AMQPResponse
+import io.megam.common.amqp.response.AMQPResponse
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
-import org.megam.util.Time
-import org.megam.common.uid._
+import io.megam.common.riak.GunnySack
+import io.megam.util.Time
+import io.megam.common.uid._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import java.nio.charset.Charset
@@ -123,7 +123,7 @@ object Requests {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     for {
       rip <- ripNel
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(rip.cat_id)
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\"," + rip.half_json + ",\"created_at\":\"" + Time.now.toString + "\"}"

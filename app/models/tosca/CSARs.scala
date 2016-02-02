@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,20 +30,20 @@ import db._
 import models.json.tosca._
 import models.json.tosca.carton._
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
-import org.megam.util.Time
-import org.megam.common.uid.UID
+import io.megam.common.riak.GunnySack
+import io.megam.util.Time
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-import org.megam.common.amqp.response._
+import io.megam.common.amqp.response._
 
 /**
  * @author rajthilak
@@ -104,7 +104,7 @@ object CSARs {
     for {
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       csir <- (CSARLinks.create(email, input) leftMap { err: NonEmptyList[Throwable] => err })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "csr").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("csr").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val csar_res = new CSARResult(uir.get._1 + uir.get._2, csir.desc, csir.id, Time.now.toString)
       val bvalue = Set(aor.get.id)
@@ -176,7 +176,7 @@ object CSARs {
     }).head //return the folded element in the head.
   }
 
-  def push(authBag: Option[controllers.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
+  def push(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
     val email: String = authBag.get.email
     for {
       csar <- (CSARs.getCSAR(input) leftMap { err: NonEmptyList[Throwable] => err })

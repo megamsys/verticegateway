@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package controllers
 
 import app.MConfig
 import play.api.http.HeaderNames._
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 
 /**
  * @author ram
@@ -26,7 +26,7 @@ import controllers.stack.HeaderConstants._
 
 object Constants {
 
-  val VERSION = "0.9"
+  val VERSION = "1.0"
 
   val UTF8Charset = java.nio.charset.Charset.forName("UTF-8")
   val JSON_CLAZ = "json_claz"

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ import scalaz.effect.IO
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import controllers.funnel.{ FunnelResponse, FunnelResponses }
+import io.megam.auth.funnel.{ FunnelResponse, FunnelResponses }
 import play.api.http.Status._
 import controllers.stack._
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import models.base._
 import play.api.Logger
 import models.base._
@@ -38,13 +38,11 @@ import models.team._
 
 object PlatformAppPrimer {
 
-
   def takeatourAcct = models.base.Accounts.create(
     AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, DEMO_EMAIL, DEMO_APIKEY, SAMPLE_PASSWORD, "demo", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
 
-    def taketestAcct = models.base.Accounts.create(
-      AccountInput(MEGAM_TEST_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, TEST_EMAIL, TEST_APIKEY, TEST_PASSWORD, "test", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
-
+  def taketestAcct = models.base.Accounts.create(
+    AccountInput(MEGAM_TEST_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, TEST_EMAIL, TEST_APIKEY, TEST_PASSWORD, "test", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
 
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     dumact <- takeatourAcct
@@ -56,7 +54,7 @@ object PlatformAppPrimer {
       FunnelResponse(CREATED, """Account/Org created successfully(%s).
             |
             |Your email registered successully.""".
-        format( dumact.get.email).stripMargin, "Megam::Account"))
+        format(dumact.get.email).stripMargin, "Megam::Account"))
     FunnelResponses(chainedComps)
   }
 

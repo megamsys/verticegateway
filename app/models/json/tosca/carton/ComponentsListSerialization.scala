@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object ComponentsListSerialization extends models.json.SerializationBase[ComponentsList] {
+object ComponentsListSerialization extends io.megam.json.SerializationBase[ComponentsList] {
 
   protected val JSONClazKey = controllers.Constants.JSON_CLAZ
   protected val ResultsKey = "components"

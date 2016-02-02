@@ -1,5 +1,5 @@
 /**
- * * Copyright [2013-2015] [Megam Systems]
+ * * Copyright [2013-2016] [Megam Systems]
  *
  * *
  * * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,7 +45,7 @@ import scala.concurrent.Await
 import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 import controllers.stack.GoofyCrypto._
 
 trait BaseContext {

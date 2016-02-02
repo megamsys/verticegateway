@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -23,10 +23,5 @@ object MConfig {
   val baseurl = play.api.Play.application(play.api.Play.current).configuration.getString("application.baseUrl")
   val marketplaces_yaml = play.api.Play.application(play.api.Play.current).configuration.getString("megam.marketplaces").get
   val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get
-  val snowflakeHost = play.api.Play.application(play.api.Play.current).configuration.getString("sf.host").get
-  val snowflakePort: Int = play.api.Play.application(play.api.Play.current).configuration.getInt("sf.port").get
-  val snowflakeurl = snowflakeHost + ":" + snowflakePort
   val nsqurl = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.url").get
-  val spark_jobserver = play.api.Play.application(play.api.Play.current).configuration.getString("spark.jobserver").get
-  val yanpi_timeout = play.api.Play.application(play.api.Play.current).configuration.getString("spark.yanpi.timeout").get
 }
