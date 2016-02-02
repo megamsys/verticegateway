@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "megamgateway"
 
-version := "0.9"
+version := "1.0"
 
 scalaVersion := "2.11.7"
 
@@ -12,8 +12,8 @@ organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))
 
-description := """Megam Gateway : Scalable RESTful API server for megam cloud platform
-                  in a functional way, built using Riak, Snowflake(UID), Memcache
+description := """Vertice Gateway : Scalable RESTful API server for megam vertice
+                  in a functional way, built using Riak, Memcache
                   try: https://console.megam.io
                   web: https://www.megam.io"""
 
@@ -71,19 +71,14 @@ resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.or
 resolvers += "Spray repo" at "http://repo.spray.io"
 resolvers += "Spy Repository" at "http://files.couchbase.com/maven2"
 resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
-resolvers += "Bintray scalaz" at "https://dl.bintray.com/scalaz/releases/"
-resolvers += "gradle" at "https://repo.gradle.org/gradle/libs-releases-local"
 
 libraryDependencies ++= Seq(filters, cache,
-  "jp.t2v" %% "play2-auth" % "0.14.1",
   "org.yaml" % "snakeyaml" % "1.16",
-  "io.megam" %% "libcommon" % "0.24",
+  "io.megam" %% "libcommon" % "0.26",
   "io.megam" %% "newman" % "1.3.12",
-  "io.megam" %% "sparkbuilder" % "0.4",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
-  "org.gradle" % "gradle-tooling-api" % "2.9",
-  "org.specs2" %% "specs2-core" % "3.6.6-20151204011838-90b7de9" % "test",
-  "org.specs2" % "specs2-matcher-extra_2.11" % "3.6.6-20151204011838-90b7de9" % "test")
+  "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",
+  "org.specs2" % "specs2-matcher-extra_2.11" % "3.7-scalaz-7.1.6" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 ** limitations under the License.
 */
 import com.stackmob.scaliak._
-import org.megam.common.riak.GSRiak
+import io.megam.common.riak.GSRiak
 import app.MConfig
 
 /**

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import Scalaz._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 
-import controllers.funnel.{ FunnelResponse, FunnelResponses }
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.{ FunnelResponse, FunnelResponses }
+import io.megam.auth.funnel.FunnelErrors._
 import models.tosca._
 import play.api.mvc._
 

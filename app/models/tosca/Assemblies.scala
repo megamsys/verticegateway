@@ -1,5 +1,5 @@
 /*
- ** Copyright [2013-2015] [Megam Systems]
+ ** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import db._
 import models.json.tosca._
 import models.json.tosca.carton._
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
 import wash._
@@ -38,9 +38,9 @@ import wash._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.util.Time
-import org.megam.common.riak.GunnySack
-import org.megam.common.uid.UID
+import io.megam.util.Time
+import io.megam.common.riak.GunnySack
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -143,7 +143,7 @@ object Assemblies {
 
   // A private method which chains computation to make GunnySack when provided with an input json, email.
   // After that flatMap on its success and the account id information is looked up.
-  private def mkGunnySack(authBag: Option[controllers.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
+  private def mkGunnySack(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
     val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput, Throwable] {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
@@ -151,7 +151,7 @@ object Assemblies {
       rip <- ripNel
       aor <- (Accounts.findByEmail(authBag.get.email) leftMap { t: NonEmptyList[Throwable] => t })
       ams <- (AssemblysList.createLinks(authBag, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id, rip.org_id)
       val asml = ams.flatMap { assembly => nels({ assembly.map { a => (a.id, a.tosca_type) } }) }
@@ -162,7 +162,7 @@ object Assemblies {
     }
   }
 
-  def create(authBag: Option[controllers.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
+  def create(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
     (mkGunnySack(authBag, input) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { wa: WrapAssembliesResult =>

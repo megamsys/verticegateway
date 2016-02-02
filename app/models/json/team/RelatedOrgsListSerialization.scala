@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import models.team._
  * @author morpheyesh
  *
  */
-object RelatedOrgsListSerialization extends models.json.SerializationBase[RelatedOrgsList] {
+object RelatedOrgsListSerialization extends io.megam.json.SerializationBase[RelatedOrgsList] {
   implicit val formats = DefaultFormats
 
   implicit override val writer = new JSONW[RelatedOrgsList] {

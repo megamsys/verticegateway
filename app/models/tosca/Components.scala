@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -29,17 +29,17 @@ import db._
 import models.json.tosca._
 import models.json.tosca.box._
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
 
-import org.megam.util.Time
+import io.megam.util.Time
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
+import io.megam.common.riak.GunnySack
 
-import org.megam.common.uid.UID
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -263,10 +263,10 @@ object ComponentsList {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(authBag: Option[controllers.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkGunnySack(authBag: Option[io.megam.auth.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, Option[GunnySack]] = {
     for {
       aor <- (Accounts.findByEmail(authBag.get.email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "com").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("com").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       import models.tosca.KeyValueList._
       val bvalue = Set(aor.get.id)
@@ -276,8 +276,7 @@ object ComponentsList {
           Map(MKT_FLAG_EMAIL -> authBag.get.email,
             MKT_FLAG_APIKEY -> authBag.get.api_key,
             MKT_FLAG_ASSEMBLY_ID -> asm_id,
-            MKT_FLAG_COMP_ID -> (uir.get._1 + uir.get._2),
-            MKT_FLAG_SPARKJOBSERVER -> app.MConfig.spark_jobserver)) +
+            MKT_FLAG_COMP_ID -> (uir.get._1 + uir.get._2))) +
           ",\"artifacts\":" + input.artifacts.json + ",\"related_components\":" + BindLinks.toJson(input.related_components, true) +
           ",\"operations\":" + OperationList.toJson(input.operations, true) + ",\"status\":\"" + input.status +
           "\",\"repo\":" + input.repo.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
@@ -287,7 +286,7 @@ object ComponentsList {
     }
   }
 
-  def createLinks(authBag: Option[controllers.stack.AuthBag], input: ComponentsList, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
+  def createLinks(authBag: Option[io.megam.auth.stack.AuthBag], input: ComponentsList, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
     var res = (ComponentsResults.empty).successNel[Throwable]
     if (input.isEmpty) {
       res = (ComponentsResults.empty).successNel[Throwable]
@@ -303,7 +302,7 @@ object ComponentsList {
    * create new market place item with the 'name' of the item provide as input.
    * A index name assemblies name will point to the "csars" bucket
    */
-  def create(authBag: Option[controllers.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
+  def create(authBag: Option[io.megam.auth.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, ComponentsResults] = {
     (mkGunnySack(authBag, input, asm_id) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input.name, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>

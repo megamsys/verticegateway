@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ import scalaz.NonEmptyList._
 
 import db._
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import models.team.{ Organizations, OrganizationsResults }
 import models.base.{ RequestResult, MarketPlaceResults }
 
-import org.megam.common.uid.UID
-import org.megam.util.Time
+import io.megam.common.uid.UID
+import io.megam.util.Time
 import play.api.Logger
 import play.api.Play._
 import play.api.libs.json.Json
@@ -65,12 +65,11 @@ case object Hellow {
   val SPACE = "freespace"
   val CPU_CORES = "cores"
 
-  val SNOWFLAKE = "snowflake"
   val NSQ = "nsq"
   val RIAK = "riak"
   val RUNNING = "up"
 
-  val What2Hunts = Array(RIAK, SNOWFLAKE, NSQ)
+  val What2Hunts = Array(RIAK, NSQ)
 
   import java.lang.management.{ ManagementFactory, OperatingSystemMXBean }
   import java.lang.reflect.{ Method, Modifier }
@@ -95,19 +94,14 @@ case object Hellow {
     case Failure(errgwr) => (MConfig.riakurl, none)
   }
 
-  //ping snowflake
-  private val uid = UID(MConfig.snowflakeHost, MConfig.snowflakePort, "act").get match {
-    case Success(succ_uid) => (MConfig.snowflakeurl, Some(RUNNING))
-    case Failure(erruid) => (MConfig.snowflakeurl, none)
-  }
-
+  
   //ping nsq, by droping a DUM0001 req
   private val nsq = new wash.AOneWasher(new wash.PQd(RequestResult("r001", "001", "torpedo", "test", "start", "test", "nop"))).wash match {
     case Success(succ_uid) => (MConfig.nsqurl, Some(RUNNING))
     case Failure(erruid) => (MConfig.nsqurl, none)
   }
 
-  val sharks = Map(RIAK -> gwr, SNOWFLAKE -> uid, NSQ -> nsq)
+  val sharks = Map(RIAK -> gwr, NSQ -> nsq)
 
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)

@@ -39,16 +39,6 @@ GET    /v2/organizations	              controllers.team.Organizations.list()
 POST   /v2/domains/content              controllers.team.Domains.post
 GET    /v2/domains/:id                  controllers.team.Domains.show(id: String)
 
-#Sparkjobs
-#POST   /v2/sparkjobs/content            controllers.analytics.Sparkjobs.post
-#GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id: String)
-
-#Workbenches
-POST  /v2/workbenches/content           controllers.analytics.Workbenches.post
-POST  /v2/workbenches/execute           controllers.analytics.Workbenches.execute
-GET   /v2/workbenches/:name              controllers.analytics.Workbenches.show(name: String)
-
-
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post
 GET    /v2/csars                        controllers.camp.CSARs.list

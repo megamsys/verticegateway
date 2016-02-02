@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package wash
 import scalaz._
 import Scalaz._
 import app.MConfig
-import org.megam.common._
-import org.megam.common.amqp._
-import org.megam.common.amqp.request._
-import org.megam.common.amqp.response._
+import io.megam.common._
+import io.megam.common.amqp._
+import io.megam.common.amqp.request._
+import io.megam.common.amqp.response._
 import models.base.RequestResult
 import play.api.Logger
 import controllers.Constants._

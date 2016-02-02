@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import scalaz._
 import Scalaz._
 import scala.concurrent._
 import scala.concurrent.duration.Duration
-import org.megam.common._
-import org.megam.common.amqp._
-import org.megam.common.amqp.request._
-import org.megam.common.amqp.response._
-import org.megam.common.concurrent._
+import io.megam.common._
+import io.megam.common.amqp._
+import io.megam.common.amqp.request._
+import io.megam.common.amqp.response._
+import io.megam.common.concurrent._
 import play.api.Logger
 
 /**
@@ -41,8 +41,8 @@ trait MessageContext {
     new NSQClient(app.MConfig.nsqurl, topic)
   }
 
-  protected def execute(ampq_request: AMQPRequest, duration: Duration = org.megam.common.concurrent.duration) = {
-    import org.megam.common.concurrent.SequentialExecutionContext
+  protected def execute(ampq_request: AMQPRequest, duration: Duration = io.megam.common.concurrent.duration) = {
+    import io.megam.common.concurrent.SequentialExecutionContext
     val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] = ampq_request.apply
     responseFuture.block(duration)
   }

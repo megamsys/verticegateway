@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -23,22 +23,22 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 
 import cache._
 import db._
 import models.base._
 import models.json.billing._
 import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
-import org.megam.util.Time
-import org.megam.common.uid.UID
+import io.megam.common.riak.GunnySack
+import io.megam.util.Time
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -106,7 +106,7 @@ object Billings {
 
     for {
       billing <- BillingsInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bil").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("bil").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(billing.accounts_id)
       val json = new BillingsResult(uir.get._1 + uir.get._2, billing.accounts_id, billing.line1, billing.line2, billing.country_code, billing.postal_code, billing.state, billing.phone, billing.bill_type, Time.now.toString).toJson(false)

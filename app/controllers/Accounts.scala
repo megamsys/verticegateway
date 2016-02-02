@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import Scalaz._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 
-import controllers.funnel.FunnelResponse
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel._
+import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 /*
  * This controller performs onboarding a customer and registers an email/api_key
@@ -65,7 +65,7 @@ object Accounts extends Controller with stack.APIAuthElement {
     models.base.Accounts.findByEmail(id) match {
       case Success(succ) => {
         Ok((succ.map(s => s.toJson(true))).getOrElse(
-          models.base.AccountResult(id).toJson(true)))
+          io.megam.auth.stack.AccountResult(id).toJson(true)))
       }
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)

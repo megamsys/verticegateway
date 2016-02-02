@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.Date
 import java.nio.charset.Charset
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 import controllers.Constants._
 import models.tosca.{ Payload, MetricList }
 
@@ -33,7 +33,7 @@ import models.tosca.{ Payload, MetricList }
  *
  */
 
-object PayloadSerialization extends models.json.SerializationBase[Payload] {
+object PayloadSerialization extends io.megam.json.SerializationBase[Payload] {
 
   protected val AccountsIdKey = "accounts_id"
   protected val AssembliesIdKey = "assemblies_id"
