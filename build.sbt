@@ -74,7 +74,7 @@ resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
 
 libraryDependencies ++= Seq(filters, cache,
   "org.yaml" % "snakeyaml" % "1.16",
-  "io.megam" %% "libcommon" % "0.26",
+  "io.megam" %% "libcommon" % "0.30",
   "io.megam" %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
   "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",

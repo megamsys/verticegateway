@@ -44,20 +44,19 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
 //for our 1.0 rewrite of gwy.
-trait Messageble[I] {
+trait Messageble {
 
   /**
-   * Return the queuename to publish
-   * @return the {{{String}}} the string name of the queue
+   * Return the option wrapped queuename to publish
+   * @return the {{{Option[String]}}} the Option[string] name of the queue
    */
-  def queue: String
+  def topic(x: Unit): Option[String]
 
   /**
-   * Performs a fetch by email
-   * @param input the input payload to publish
-   * @return the {{{AMQPResponse}}} the published response
+   * Return the payload as a Map
+   * @return the {{{String}}} the published response
    */
-  def publish(input: I): String
+  def messages(): String
 
 
 }

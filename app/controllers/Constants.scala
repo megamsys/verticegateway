@@ -58,7 +58,6 @@ object Constants {
 
   val DEFAULT_ORG_NAME = "org.megam"
   val OJA_MKT_YAML = MConfig.marketplaces_yaml
-  val OJA_YONPI_DIR = MEGAM_HOME + java.io.File.separator + "megamgateway" + java.io.File.separator + "yonpis"
 
   val STATE = "state"
   val CREATE = "create"
@@ -67,7 +66,6 @@ object Constants {
   val CONTROL = "control"
   val START = "start"
   val STOP = "stop"
-
 
   val BIND = "bind"
   val BUILD = "build"
@@ -79,8 +77,4 @@ object Constants {
   val CATTYPE_TORPEDO = "torpedo"
   val DOMAIN = "domain"
 
- val USERNAME = "username"
- val PASSWORD = "password"
- val SPARKJOBSERVER_INPUT = "SPARKJOBSERVER_INPUT"
- val JAR_NAME = "meglytics"
 }

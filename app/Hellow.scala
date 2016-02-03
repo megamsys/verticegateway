@@ -94,9 +94,10 @@ case object Hellow {
     case Failure(errgwr) => (MConfig.riakurl, none)
   }
 
-  
+  private  def topic(x: Unit) = "testing".some
+
   //ping nsq, by droping a DUM0001 req
-  private val nsq = new wash.AOneWasher(new wash.PQd(RequestResult("r001", "001", "torpedo", "test", "start", "test", "nop"))).wash match {
+  private val nsq = new wash.AOneWasher(new wash.PQd(topic, "test pub")).wash match {
     case Success(succ_uid) => (MConfig.nsqurl, Some(RUNNING))
     case Failure(erruid) => (MConfig.nsqurl, none)
   }

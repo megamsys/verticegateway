@@ -32,8 +32,8 @@ import app.MConfig
 import controllers.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 
-
 import io.megam.common.amqp.response.AMQPResponse
+import io.megam.common.amqp._
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
@@ -54,7 +54,7 @@ case class RequestInput(cat_id: String,
   category: String) {
   val half_json = "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
 
-  val json = "{"+half_json +"}"
+  val json = "{" + half_json + "}"
 }
 
 case class RequestResult(id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: String) {
@@ -82,13 +82,29 @@ case class RequestResult(id: String, cat_id: String, cattype: String, name: Stri
   } else {
     compactRender(toJValue)
   }
+
+  def topicFunc(x: Unit): Option[String] = {
+    val nsqcontainers = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.containers")
+    val nsqvms = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.vms")
+    val DQACTIONS = Array[String](CREATE, DELETE)
+
+    if (cattype.equalsIgnoreCase(CATTYPE_DOCKER)) {
+      nsqcontainers
+    } else if (cattype.equalsIgnoreCase(CATTYPE_TORPEDO)) {
+      nsqvms
+    } else if (DQACTIONS.contains(action)) {
+      nsqvms
+    } else if (name.trim.length > 0) {
+      name.some
+    } else none
+  }
 }
 
 object RequestResult {
 
   def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), new String)
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[RequestResult] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = controllers.Constants.UTF8Charset): Result[RequestResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.RequestResultSerialization
     val nrsser = new RequestResultSerialization()
@@ -141,15 +157,14 @@ object Requests {
     } yield {
       ogsr match {
         case Some(thatGS) => {
-          new wash.PQd(nrip).some
+          new wash.PQd(nrip.topicFunc, MessagePayLoad(Messages(nrip.toMap.toList)).toJson(false)).some
         }
         case None => {
           play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Request.created successfully", Console.RESET))
-          new wash.PQd(nrip).some
+          new wash.PQd(nrip.topicFunc, MessagePayLoad(Messages(nrip.toMap.toList)).toJson(false)).some
         }
       }
     }
-
   }
 
   // create a request and publish
@@ -157,13 +172,13 @@ object Requests {
     (create(input) leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { pq: Option[wash.PQd] =>
-      if(!email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL)) {
-      (new wash.AOneWasher(pq.get).wash leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: AMQPResponse =>
+      if (!email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL)) {
+        (new wash.AOneWasher(pq.get).wash leftMap { t: NonEmptyList[Throwable] => t }).
+          flatMap { maybeGS: AMQPResponse =>
             play.api.Logger.debug(("%-20s -->[%s]").format("Request.published successfully", input))
             pq.successNel[Throwable]
-      }
-    } else {
+          }
+      } else {
         play.api.Logger.debug(("%-20s -->[%s]").format("Request.publish skipped", input))
         wash.PQd.empty.some.successNel[Throwable]
       }

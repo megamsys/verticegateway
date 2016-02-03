@@ -27,6 +27,7 @@ import cache._
 import db._
 import io.megam.auth.funnel.FunnelErrors._
 import controllers.Constants._
+import models.base.Events._
 
 import com.stackmob.scaliak._
 import io.megam.auth.stack.AccountResult
@@ -57,7 +58,7 @@ object Accounts {
 
   val metadataKey = "ACC"
   val metadataVal = "1002"
-  val bindex = "accountId"
+  val bindex = "AccountsId"
 
   implicit val formats = DefaultFormats
 
@@ -70,7 +71,7 @@ object Accounts {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val accountInput: ValidationNel[Throwable, AccountInput] = (Validation.fromTryCatchThrowable[AccountInput,Throwable] {
+    val accountInput: ValidationNel[Throwable, AccountInput] = (Validation.fromTryCatchThrowable[AccountInput, Throwable] {
       parse(input).extract[AccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -78,7 +79,7 @@ object Accounts {
       m <- accountInput
       bal <- (models.billing.Balances.create(m.email, "{\"credit\":\"0\"}") leftMap { t: NonEmptyList[Throwable] => t })
       uid <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
-     // org <- models.team.Organizations.create(m.email, OrganizationsInput(DEFAULT_ORG_NAME).json)
+      // org <- models.team.Organizations.create(m.email, OrganizationsInput(DEFAULT_ORG_NAME).json)
     } yield {
       val bvalue = Set(uid.get._1 + uid.get._2)
       val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString).toJson(false)
@@ -87,25 +88,17 @@ object Accounts {
     }
   }
 
-  /*
-   * create new account item with the 'name' of the item provide as input.
-   * A index name account id will point to the "account bucket" bucket.
-   */
+  //create request from input
   def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    (mkGunnySack(input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Account.created success",Console.RESET))
-              (parse(gs.get.value).extract[AccountResult].some).successNel[Throwable];
-            }
-          }
-        }
-     }
+    for {
+      ogsi <- mkGunnySack(input) leftMap { err: NonEmptyList[Throwable] => err }
+      ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t }
+      arr <- AccountResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => nels(JSONParsingError(t)) }
+      evn <- Events(arr.id, EVENTUSER, Events.CREATE, Map(EVTEMAIL -> arr.email)).createAndPub()
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Account.created success", Console.RESET))
+      arr.some
+    }
   }
 
   /**
@@ -115,7 +108,7 @@ object Accounts {
    */
 
   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatchThrowable[updateAccountInput,Throwable] {
+    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatchThrowable[updateAccountInput, Throwable] {
       parse(input).extract[updateAccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -130,13 +123,12 @@ object Accounts {
     }
   }
 
- def NilorNot(rip: String, aor: String): String = {
+  def NilorNot(rip: String, aor: String): String = {
     rip == null match {
       case true => return aor
       case false => return rip
     }
   }
-
 
   def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
@@ -147,7 +139,7 @@ object Accounts {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Account.updated success",Console.RESET))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Account.updated success", Console.RESET))
               (parse(gs.get.value).extract[AccountResult].some).successNel[Throwable];
             }
           }
@@ -170,7 +162,7 @@ object Accounts {
           }).toValidationNel.flatMap { xso: Option[GunnySack] =>
             xso match {
               case Some(xs) => {
-                (Validation.fromTryCatchThrowable[io.megam.auth.stack.AccountResult,Throwable] {
+                (Validation.fromTryCatchThrowable[io.megam.auth.stack.AccountResult, Throwable] {
                   //  initiate_default_cloud(email)
                   parse(xs.value).extract[AccountResult]
                 } leftMap { t: Throwable =>
@@ -184,7 +176,6 @@ object Accounts {
           }
         }
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
-
   }
 
   /**
@@ -216,5 +207,4 @@ object Accounts {
       notSed
     }
   }
-
 }
