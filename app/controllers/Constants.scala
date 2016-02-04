@@ -33,7 +33,9 @@ object Constants {
 
   lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
 
-  lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
+  lazy val WithGzipHoleHeader1: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
+
+  lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_PUTTUSAVI -> X_Megam_PUTTUSAVI)
 
   val MEGAM_HOME = sys.env.get("MEGAM_HOME").getOrElse("/var/lib/megam")
 
@@ -58,19 +60,27 @@ object Constants {
   val OJA_MKT_YAML = MConfig.marketplaces_yaml
   val OJA_YONPI_DIR = MEGAM_HOME + java.io.File.separator + "megamgateway" + java.io.File.separator + "yonpis"
 
+  val STATE = "state"
   val CREATE = "create"
   val DELETE = "destroy"
+
+  val CONTROL = "control"
   val START = "start"
   val STOP = "stop"
-  val REBOOT = "restart"
+
+
   val BIND = "bind"
   val BUILD = "build"
+  val REBOOT = "restart"
+  val OPERTATIONS = "operations"
   val UPGRADE = "upgrade"
 
-  val STATE = "state"
-  val CONTROL = "control"
   val CATTYPE_DOCKER = "microservices"
   val CATTYPE_TORPEDO = "torpedo"
   val DOMAIN = "domain"
 
+ val USERNAME = "username"
+ val PASSWORD = "password"
+ val SPARKJOBSERVER_INPUT = "SPARKJOBSERVER_INPUT"
+ val JAR_NAME = "meglytics"
 }

@@ -154,12 +154,12 @@ object Policy {
 }
 
 case class Assembly(name: String,
-    components: models.tosca.ComponentsList,
-    tosca_type: String,
-    policies: models.tosca.PoliciesList,
-    inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList,
-    status: String) {
+  components: models.tosca.ComponentsList,
+  tosca_type: String,
+  policies: models.tosca.PoliciesList,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList,
+  status: String) {
   val json = "{\"name\":\"" + name + "\",\"components\":" + ComponentsList.toJson(components, true) + ",\"tosca_type\":\"" + tosca_type + "\", \"policies\":" + PoliciesList.toJson(policies, true) +
     ",\"inputs\":" + KeyValueList.toJson(inputs, true) + ", \"outputs\":" + KeyValueList.toJson(outputs, true) + ",\"status\":\"" + status + "\"}"
 
@@ -177,12 +177,12 @@ case class Assembly(name: String,
 }
 
 case class AssemblyUpdateInput(id: String,
-    name: String,
-    components: models.tosca.ComponentLinks,
-    tosca_type: String,
-    policies: models.tosca.PoliciesList,
-    inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList, status: String) {
+  name: String,
+  components: models.tosca.ComponentLinks,
+  tosca_type: String,
+  policies: models.tosca.PoliciesList,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList, status: String) {
   val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"components\":" + ComponentLinks.toJson(components, true) + ",\"tosca_type\":\"" + tosca_type + "\", \"policies\":" + PoliciesList.toJson(policies, true) +
     ",\"inputs\":" + KeyValueList.toJson(inputs, true) + ", \"outputs\":" + KeyValueList.toJson(outputs, true) + ",\"status\":\"" + status + "\"}"
 }
@@ -191,13 +191,6 @@ case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
 
   implicit val formats = DefaultFormats
 
-  //val asm = parse(thatGS.get.value).extract[AssemblyResult]
-
-  //val cattype = asm.tosca_type.split('.')(1)
-
-  // val domain = asm.inputs.find(_.key.equalsIgnoreCase(DOMAIN))
-
-  // val alma = asm.name +"." + domain.get.value //None is ignored here. dangerous.
   val asm = thatGS.get
   val cattype = asm.tosca_type.split('.')(1)
   val domain = asm.inputs.find(_.key.equalsIgnoreCase(DOMAIN))
@@ -307,7 +300,7 @@ object Assembly {
   /* Lets clean it up in 1.0 using Messageable  */
   private def pub(email: String, wa: WrapAssemblyResult): AssemblyResult = {
     models.base.Requests.createAndPub(email,
-      RequestInput(wa.asm.id, wa.cattype, wa.alma, UPGRADE, CONTROL).json)
+      RequestInput(wa.asm.id, wa.cattype, wa.alma, UPGRADE, OPERTATIONS).json)
     wa.asm
   }
 }

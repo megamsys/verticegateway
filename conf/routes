@@ -12,6 +12,7 @@ GET    /                                controllers.Application.index
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 POST   /v2/accounts/update       	 	    controllers.Accounts.update
+GET    /v2/accounts/login               controllers.Accounts.login
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
@@ -39,12 +40,14 @@ POST   /v2/domains/content              controllers.team.Domains.post
 GET    /v2/domains/:id                  controllers.team.Domains.show(id: String)
 
 #Sparkjobs
-POST   /v2/sparkjobs/content            controllers.analytics.Sparkjobs.post
-GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id: String)
+#POST   /v2/sparkjobs/content            controllers.analytics.Sparkjobs.post
+#GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id: String)
 
 #Workbenches
 POST  /v2/workbenches/content           controllers.analytics.Workbenches.post
-GET    /v2/workbenches/:id              controllers.analytics.Workbenches.show(id: String)
+POST  /v2/workbenches/execute           controllers.analytics.Workbenches.execute
+GET   /v2/workbenches/:name              controllers.analytics.Workbenches.show(name: String)
+
 
 #CSARs
 POST   /v2/csars/content                controllers.camp.CSARs.post
@@ -58,8 +61,7 @@ GET    /v2/assemblies	                  controllers.camp.Assemblies.list
 GET    /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
 GET    /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 POST   /v2/assembly/update              controllers.camp.Assembly.update
-GET    /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
-POST   /v2/assembly/build/:id/:name     controllers.camp.Assembly.build(id: String, name: String)
+POST   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
 

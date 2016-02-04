@@ -20,7 +20,6 @@ import Scalaz._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 
-
 import controllers.funnel.FunnelResponse
 import controllers.funnel.FunnelErrors._
 import play.api.mvc._
@@ -76,15 +75,20 @@ object Accounts extends Controller with stack.APIAuthElement {
 
   }
 
+  def login = StackAction(parse.tolerantText) { implicit request =>
+    Status(CREATED)(
+      FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
+        format("", "").stripMargin, "Megam::Account").toJson(true))
+  }
   def update = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Accounts wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.base.Accounts.updateAccount(email, clientAPIBody) match {
-           case Success(succ) =>
+            case Success(succ) =>
               Status(CREATED)(
                 FunnelResponse(CREATED, """Account updated successfully.
             |
@@ -94,6 +98,7 @@ object Accounts extends Controller with stack.APIAuthElement {
               Status(rn.code)(rn.toJson(true))
           }
         }
+
         case Failure(err) => {
           val rn: FunnelResponse = new HttpReturningError(err)
           Status(rn.code)(rn.toJson(true))

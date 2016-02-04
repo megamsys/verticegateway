@@ -77,47 +77,19 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
-  
-  def upgrade(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result, Throwable] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.tosca.Assembly.upgrade(email, id) match {
-            case Success(succ) => {
-              Status(CREATED)(FunnelResponse(CREATED, """Upgrade initiation submitted successfully.
+
+  //publicly exposed API. Tighten it later.
+  def upgrade(id: String) = Action(parse.tolerantText) { implicit request =>
+    models.tosca.Assembly.upgrade("", id) match {
+      case Success(succ) => {
+        Status(CREATED)(FunnelResponse(CREATED, """Your upgrade is in process.
             |
             |Engine is cranking.""", "Megam::Assembly").toJson(true))
-            }
-            case Failure(err) => {
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-            }
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
       }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }  
- 
-
-  def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result, Throwable] {
-      models.base.Requests.createAndPub("",models.base.RequestInput(id, "",name, controllers.Constants.BUILD, controllers.Constants.CONTROL).json) match {
-        case Success(succ) =>
-          Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
-             |
-             |Engine is cranking.. It will be ready shortly.""", "Megam::Requests").toJson(true))
-        case Failure(err) =>
-          Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
-             |
-             |Retry again, our queue servers are crowded""", "Megam::Requests").toJson(true))
+      case Failure(err) => {
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
       }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    }
   }
 }

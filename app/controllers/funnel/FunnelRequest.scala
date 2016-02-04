@@ -39,7 +39,7 @@ import controllers.stack.GoofyCrypto._
  *            clientAPIPath, clientAPIBody)
  */
 case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[String],
-  clientAPIDate: Option[String], clientAPIPath: Option[String], clientAPIBody: Option[String]) {
+  clientAPIDate: Option[String], clientAPIPath: Option[String], clientAPIBody: Option[String], clientAPIPuttusavi: Option[String]) {
 
   /**
    * We massage the email to check if it has a valid format
@@ -66,9 +66,9 @@ case class FunneledRequest(maybeEmail: Option[String], clientAPIHmac: Option[Str
   }
 
   override def toString = {
-    "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
+    "%-16s%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n [%-8s=%s]%n".format("FunneledRequest",
       "email", maybeEmail, "apiHMAC", clientAPIHmac, "apiDATE", clientAPIDate,
-      "apiPATH", clientAPIPath, "apiBody", clientAPIBody)
+      "apiPATH", clientAPIPath, "apiBody", clientAPIBody, "apiPUTTUSAVI", clientAPIPuttusavi)
   }
 }
 case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
@@ -77,8 +77,8 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
 
   private val clientAPIReqBody = ((req.body).toString()).some
   private val clientAPIReqDate: Option[String] = rawheader.get(X_Megam_DATE)
+  private val clientAPIPuttusavi: Option[String] = rawheader.get(X_Megam_PUTTUSAVI)
   private val clientAPIReqPath: Option[String] = req.path.some
-
   //Look for the X_Megam_HMAC field. If not the FunneledRequest will be None.
   private lazy val frOpt: Option[FunneledRequest] = (for {
     hmac <- rawheader.get(X_Megam_HMAC)
@@ -87,7 +87,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
     if (res.indexOf(":") > 0)
   } yield {
     val res1 = res.split(":").take(2)
-    FunneledRequest(res1(0).some, res1(1).some, clientAPIReqDate, clientAPIReqPath, clientAPIReqBody)
+    FunneledRequest(res1(0).some, res1(1).some, clientAPIReqDate, clientAPIReqPath, clientAPIReqBody, clientAPIPuttusavi)
   })
 
   /**
@@ -102,8 +102,7 @@ case class FunnelRequestBuilder[A](req: RequestWithAttributes[A]) {
         _: Option[String] => Validation.success[Error, Option[FunneledRequest]](fr.some).toValidationNel
       }
       case None => (Validation.failure[Throwable, Option[FunneledRequest]](
-        new MalformedHeaderError(rawheader.get(X_Megam_HMAC).get,
-          """We couldn't parse the header. Didn't find %s. """.format(X_Megam_HMAC)))).toValidationNel
+        new MalformedHeaderError("","""We couldn't parse the header. Didn't find %s. """.format(X_Megam_HMAC)))).toValidationNel
     }
 
   }

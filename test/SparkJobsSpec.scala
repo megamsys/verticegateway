@@ -44,7 +44,7 @@ class SparkJobsSpec extends Specification {
     """ ^ end ^
       "The Client Should" ^
       "Correctly do upload jar into spark job server" ! Post0.succeeds ^
-      "Correctly do GET sparkjob with a valid userid and api key" ! Get.succeeds ^
+      //"Correctly do GET sparkjob with a valid userid and api key" ! Get.succeeds ^
       end
 
   case object Post0 extends Context {

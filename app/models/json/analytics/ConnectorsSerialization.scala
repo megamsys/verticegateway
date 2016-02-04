@@ -37,8 +37,10 @@ import models.analytics.{ Connectors }
 
 class ConnectorsSerialization(charset: Charset = UTF8Charset) extends models.json.SerializationBase[Connectors] {
 
-  protected val ConnectorTypeKey = "connector_type"
+  protected val SourceKey = "source"
   protected val EndpointKey = "endpoint"
+  protected val PortKey    = "port"
+  protected val DbnameKey  = "dbname"
   protected val InputsKey = "inputs"
   protected val TablesKey = "tables"
 
@@ -50,8 +52,10 @@ class ConnectorsSerialization(charset: Charset = UTF8Charset) extends models.jso
 
     override def write(h: Connectors): JValue = {
       JObject(
-        JField(ConnectorTypeKey, toJSON(h.connector_type)) ::
+        JField(SourceKey, toJSON(h.source)) ::
           JField(EndpointKey, toJSON(h.endpoint)) ::
+          JField(PortKey, toJSON(h.port)) ::
+          JField(DbnameKey, toJSON(h.dbname)) ::
           JField(InputsKey, toJSON(h.inputs)(KeyValueListWriter)) ::
           JField(TablesKey, toJSON(h.tables)(TablesListWriter))::
            Nil)
@@ -64,14 +68,16 @@ class ConnectorsSerialization(charset: Charset = UTF8Charset) extends models.jso
      import TablesListSerialization.{ reader => TablesListReader}
 
     override def read(json: JValue): Result[Connectors] = {
-      val connectortypeField = field[String](ConnectorTypeKey)(json)
+      val sourceField = field[String](SourceKey)(json)
       val endpointField = field[String](EndpointKey)(json)
+      val portField = field[String](PortKey)(json)
+      val dbnameField = field[String](DbnameKey)(json)
       val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
       val tablesField = field[TablesList](TablesKey)(json)(TablesListReader)
 
-      (connectortypeField |@| endpointField |@| inputsField |@| tablesField) {
-        (connector_type: String, endpoint: String, inputs: KeyValueList, tables: TablesList) =>
-          new Connectors(connector_type, endpoint, inputs, tables)
+      (sourceField |@| endpointField |@| portField |@| dbnameField |@| inputsField |@| tablesField) {
+        (source: String, endpoint: String, port: String, dbname: String, inputs: KeyValueList, tables: TablesList) =>
+          new Connectors(source, endpoint, port, dbname, inputs, tables)
       }
     }
   }
