@@ -4,10 +4,37 @@ set -e
 MEGAM_HOME=/var/lib/megam
 MEGAM_USER=megam
 
-mkdir -p $MEGAM_HOME/megamgateway
-cp  /usr/share/megam/megamgateway/conf/marketplaces.yaml $MEGAM_HOME/megamgateway/marketplaces.yaml
-cp  /usr/share/megam/megamgateway/conf/gateway.conf  $MEGAM_HOME/megamgateway/gateway.conf
-cp  /usr/share/megam/megamgateway/conf/logger.xml  $MEGAM_HOME/megamgateway/
+mkdir -p $MEGAM_HOME/verticegateway
+cp  /usr/share/megam/verticegateway/conf/marketplaces.yaml $MEGAM_HOME/verticegateway/marketplaces.yaml
+cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/gateway.conf
+cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
+
+dist=`grep PRETTY_NAME /etc/*-release | awk -F '="' '{print $2}'`
+os=$(echo $dist | awk '{print $1;}')
+if [ "$os" == "Ubuntu" ]; then
+  echo $os
+else if [ "$os" == "Debian" ]; then
+cat > /etc/systemd/system/verticegateway.service <<EOF
+## Tweak this systemd script
+[Unit]
+Description=Megam Gateway - REST API
+After=network.target
+After=runlevel2.target
+After=runlevel3.target
+After=runlevel4.target
+After=runlevel5.target
+[Service]
+ExecStart=/usr/share/megam/verticegateway/bin/verticegateway -Dlogger.file=/var/lib/megam/verticegateway/logger.xml -Dconfig.file=/var/lib/megam/verticegateway/gateway.conf
+KillMode=mixed
+EOF
+rm /etc/init/verticegateway.conf
+
+else
+   echo "Unsupported Linux OS"
+fi
+fi
+
+
 
 if [ "$1" = "configure" ]; then
     if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then

@@ -1,4 +1,4 @@
 #!/bin/bash
-[ -d /var/lib/megam/megamgateway]   || mkdir  -p /var/lib/megam/megamgateway/
-[ -d /var/run/megam/megamgateway/ ] ||  mkdir -p /var/run/megam/megamgateway/
-[ -d /var/log/megam/megamgateway/ ] ||  mkdir -p /var/log/megam/megamgateway/
+[ -d /var/lib/megam/verticegateway]   || mkdir  -p /var/lib/megam/verticegateway/
+[ -d /var/run/megam/verticegateway/ ] ||  mkdir -p /var/run/megam/verticegateway/
+[ -d /var/log/megam/verticegateway/ ] ||  mkdir -p /var/log/megam/verticegateway/

@@ -58,7 +58,7 @@ object Constants {
 
   val DEFAULT_ORG_NAME = "org.megam"
   val OJA_MKT_YAML = MConfig.marketplaces_yaml
-  val OJA_YONPI_DIR = MEGAM_HOME + java.io.File.separator + "megamgateway" + java.io.File.separator + "yonpis"
+  val OJA_YONPI_DIR = MEGAM_HOME + java.io.File.separator + "verticegateway" + java.io.File.separator + "yonpis"
 
   val STATE = "state"
   val CREATE = "create"
