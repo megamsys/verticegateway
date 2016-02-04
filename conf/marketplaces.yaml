@@ -110,6 +110,17 @@ marketplaces:
    3.4.2:
     description: "Python is object-oriented, imperative and functional programming language."
 
+ Apache:
+  cattype: APP
+  order: 2
+  image: apache.png
+  url: http://www.apache.org/
+  envs:
+   port: 80
+  plans:
+   2.4.18:
+    description: "Apache Server is an open-source HTTP server for modern operating systems "
+
  CouchDB:
   cattype: SERVICE
   order: 3
