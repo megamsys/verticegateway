@@ -27,7 +27,7 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import models.json.billing._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -81,10 +81,12 @@ object PromosResult {
 object Promos {
 
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("promos")
-  val metadataKey = "Promos"
-  val metadataVal = "Promos Creation"
-  val bindex = "promos"
+  
+  private lazy val bucker = "promos"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private val idxedBy = idxAccountsId
 
  /**
   * Only find by name is available now since promos are going to be added manually.

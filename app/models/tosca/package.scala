@@ -19,48 +19,17 @@ import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
-import models.json.tosca.CSARResultsSerialization.{ writer => CSARResultsWriter }
 
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-import controllers.Constants._
+import models.Constants._
 
 /**
  * @author ram
  *
  */
 package object tosca {
-
-  type CSARLinkResults = NonEmptyList[Option[CSARLinkResult]]
-
-  object CSARLinkResults {
-    val emptyPC = List(Option.empty[CSARLinkResult])
-    def apply(m: CSARLinkResult): CSARLinkResults = nels(m.some)
-    def empty: CSARLinkResults = nel(emptyPC.head, emptyPC.tail)
-  }
-
-  type CSARResults = NonEmptyList[Option[CSARResult]]
-
-  object CSARResults {
-    val emptyPC = List(Option.empty[CSARResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(prres: CSARResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      toJSON(prres)(CSARResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(nres: CSARResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      prettyRender(toJValue(nres))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: CSARResult): CSARResults = nels(m.some)
-    def empty: CSARResults = nel(emptyPC.head, emptyPC.tail)
-  }
 
   type ComponentsList = List[Component]
 
@@ -334,6 +303,8 @@ package object tosca {
         compactRender(toJValue(nrec))
       }
     }
+
+    def apply(m: Map[String,String]): KeyValueList = m.toList.map{ x => KeyValueField(x._1, x._2)}
 
     def apply(plansList: List[KeyValueField]): KeyValueList = plansList
 

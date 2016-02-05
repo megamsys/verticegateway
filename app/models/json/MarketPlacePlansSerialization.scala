@@ -28,7 +28,7 @@ import java.nio.charset.Charset
  */
 object MarketPlacePlansSerialization extends io.megam.json.SerializationBase[MarketPlacePlans] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "plans"
 
   implicit override val writer = new JSONW[MarketPlacePlans] {

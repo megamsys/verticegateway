@@ -29,7 +29,7 @@ import java.nio.charset.Charset
  */
 object AssemblysListSerialization extends io.megam.json.SerializationBase[AssemblysList] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "assemblies"
 
   implicit override val writer = new JSONW[AssemblysList] {

@@ -28,7 +28,7 @@ import cache._
 import db._
 import models.json.team._
 import models.team._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -91,13 +91,14 @@ object OrganizationsResult {
 
 object Organizations {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("organizations")
 
   implicit def OrganizationsResultsSemigroup: Semigroup[OrganizationsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  val metadataKey = "Organizations"
-  val metadataVal = "Organizations Creation"
-  val bindex = "organization"
+  private lazy val bucker = "organizations"
+
+  private lazy val idxedBy = idxAccountsId
+
+  private lazy val riak = GWRiak(bucker)
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -118,7 +119,7 @@ object Organizations {
       val bvalue = Set(aor.get.id)
       val json = new OrganizationsResult(uir.get._1 + uir.get._2, aor.get.id, org.name, List(), Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -176,11 +177,9 @@ object Organizations {
       (((for {
         aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = ""
-        val bvalue = Set("")
         play.api.Logger.debug(("%-20s -->[%s]").format(" Organizations result", aor.get))
-        new GunnySack("organization", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        new GunnySack(idxedBy, aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map.empty, Map(("", Set("")))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>
@@ -204,7 +203,7 @@ object Organizations {
 
       val json = OrganizationsResult(rip.id, aor.get.id, rip.name, rip.related_orgs, Time.now.toString).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 

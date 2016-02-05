@@ -27,7 +27,7 @@ import models.billing._
  *
  */
 object BilledhistoriesResultsSerialization extends io.megam.json.SerializationBase[BilledhistoriesResults] {
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
   implicit override val writer = new JSONW[BilledhistoriesResults] {

@@ -29,7 +29,7 @@ import cache._
 import db._
 import models.json.tosca._
 import models.json.tosca.carton._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
@@ -125,6 +125,7 @@ object AssembliesResult {
 }
 
 case class WrapAssembliesResult(thatGS: Option[GunnySack], idPair: Map[String,String]) {
+  
   implicit val formats = DefaultFormats
 
   val ams = parse(thatGS.get.value).extract[AssembliesResult].some
@@ -136,13 +137,13 @@ case class WrapAssembliesResult(thatGS: Option[GunnySack], idPair: Map[String,St
 object Assemblies {
 
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("assemblies")
-  val metadataKey = "assemblies"
-  val metadataVal = "Assemblies Creation"
-  val bindex = "assemblies"
 
-  // A private method which chains computation to make GunnySack when provided with an input json, email.
-  // After that flatMap on its success and the account id information is looked up.
+  private lazy val bucker = "assemblies"
+
+  private lazy val idxedBy = idxTeamId
+
+  private val riak = GWRiak(bucker)
+
   private def mkGunnySack(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
     val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput, Throwable] {
       parse(input).extract[AssembliesInput]
@@ -158,7 +159,7 @@ object Assemblies {
       val asmlist = asml.toList.filterNot(_.isEmpty)
       val json = new AssembliesResult(uir.get._1 + uir.get._2, aor.get.id, rip.name, asmlist.map(_.get._1), rip.inputs, Time.now.toString).toJson(false)
       new WrapAssembliesResult((new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8,
-      None,Map(metadataKey -> metadataVal), Map((bindex, bvalue)))).some, asmlist.map(_.get).toMap)
+      None,Map.empty, Map((idxedBy, bvalue)))).some, asmlist.map(_.get).toMap)
     }
   }
 
@@ -219,11 +220,9 @@ object Assemblies {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = ""
-        val bvalue = Set("")
         play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Assemblies", "findByEmail" + aor.get.id))
-        new GunnySack("assemblies", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        new GunnySack(idxTeamId, aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map.empty, Map(("",  Set("")))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>

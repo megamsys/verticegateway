@@ -30,7 +30,7 @@ import java.nio.charset.Charset
  */
 object ComponentLinksSerialization extends io.megam.json.SerializationBase[ComponentLinks] {
   implicit val formats = DefaultFormats
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "components"
 
   implicit override val writer = new JSONW[ComponentLinks] {

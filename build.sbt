@@ -2,7 +2,7 @@ import sbt._
 import Process._
 import com.typesafe.sbt.packager.archetypes.ServerLoader
 
-name := "megamgateway"
+name := "verticegateway"
 
 version := "1.0"
 
@@ -30,14 +30,14 @@ javaOptions ++= Seq("-Dconfig.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val gwconfPath = Path(home)
-  val gwconf = gwconfPath / "megamgateway" /  "gateway.conf"
+  val gwconf = gwconfPath / "verticegateway" /  "gateway.conf"
   gwconf.toString
 },
 "-Dlogger.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val logconfPath = Path(home)
-  val logconf = logconfPath / "megamgateway" /  "logger.xml"
+  val logconf = logconfPath / "verticegateway" /  "logger.xml"
   logconf.toString
 })
 
@@ -74,7 +74,7 @@ resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
 
 libraryDependencies ++= Seq(filters, cache,
   "org.yaml" % "snakeyaml" % "1.16",
-  "io.megam" %% "libcommon" % "0.26",
+  "io.megam" %% "libcommon" % "0.30",
   "io.megam" %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
   "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",
@@ -107,7 +107,7 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "megamcommon", "megamsnowflake")
+debianPackageDependencies in Debian ++= Seq("curl", "verticecommon", "verticesnowflake")
 
 debianPackageRecommends in Debian += "riak"
 
