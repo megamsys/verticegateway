@@ -78,6 +78,7 @@ libraryDependencies ++= Seq(filters, cache,
   "io.megam" %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
   "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",
+  "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.5",
   "org.specs2" % "specs2-matcher-extra_2.11" % "3.7-scalaz-7.1.6" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
