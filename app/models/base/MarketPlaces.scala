@@ -29,9 +29,8 @@ import models.base._
 import db._
 import cache._
 import app.MConfig
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
@@ -136,12 +135,13 @@ object MarketPlaces {
 
   implicit val formats = DefaultFormats
 
-  private val riak = GWRiak("marketplaces")
   implicit def MarketPlacesSemigroup: Semigroup[MarketPlaceResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  val metadataKey = "MarketPlace"
-  val metadataVal = "MarketPlaces Creation"
-  val bindex = "marketplace"
+  private lazy val idxedBy = idxMarketplaceName
+
+  private lazy val bucker = "marketplaces"
+
+  private lazy val riak = GWRiak(bucker)
 
 
   /**
@@ -162,23 +162,19 @@ object MarketPlaces {
       val bvalue = Set(mkp.name)
       val json = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.envs, mkp.plans, Time.now.toString).toJson(false)
       new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
   private def mkGunnySack_init(input: MarketPlaceInput): ValidationNel[Throwable, Option[GunnySack]] = {
-    val marketplaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.base.MarketPlaceInput, Throwable] {
-      parse(input.json).extract[MarketPlaceInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input.json, t.getMessage) }).toValidationNel //capture failure
-
     for {
-      mkp <- marketplaceInput
+      mkp <- input.successNel[Throwable]
       uir <- (UID("mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(mkp.name)
       val mkpJson = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.envs, mkp.plans, Time.now.toString).toJson(false)
       new GunnySack(mkp.name, mkpJson, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -232,7 +228,6 @@ object MarketPlaces {
         InMemory[ValidationNel[Throwable, MarketPlaceResults]]({
           cname: String =>
             {
-              play.api.Logger.debug("models.base.MarketPlaceName findByName: marketplaces:" + marketplacesName)
               (riak.fetch(marketplacesName) leftMap { t: NonEmptyList[Throwable] =>
                 new ServiceUnavailableError(marketplacesName, (t.list.map(m => m.getMessage)).mkString("\n"))
               }).toValidationNel.flatMap { xso: Option[GunnySack] =>
@@ -255,7 +250,6 @@ object MarketPlaces {
     } map {
       _.foldRight((MarketPlaceResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
-
   }
 
   def listAll: ValidationNel[Throwable, MarketPlaceResults] = {

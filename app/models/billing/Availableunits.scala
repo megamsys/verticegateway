@@ -27,7 +27,7 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import models.json.billing._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -77,7 +77,7 @@ object AvailableunitsResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[AvailableunitsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[AvailableunitsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -87,10 +87,12 @@ object AvailableunitsResult {
 
 object Availableunits {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("availableunits")
-  val metadataKey = "Availableunits"
-  val metadataVal = "Availableunits Creation"
-  val bindex = "Availableunits"
+
+  private lazy val bucker = "availableunits"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private lazy val idxedBy = idxAccountsId
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -99,7 +101,7 @@ object Availableunits {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val AvailableunitsInput: ValidationNel[Throwable, AvailableunitsInput] = (Validation.fromTryCatchThrowable[AvailableunitsInput,Throwable] {
+    val AvailableunitsInput: ValidationNel[Throwable, AvailableunitsInput] = (Validation.fromTryCatchThrowable[AvailableunitsInput, Throwable] {
       parse(input).extract[AvailableunitsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -110,7 +112,7 @@ object Availableunits {
       val bvalue = Set(uir.get._1 + uir.get._2)
       val json = new AvailableunitsResult(uir.get._1 + uir.get._2, aui.name, aui.duration, aui.charges_per_duration, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -128,7 +130,7 @@ object Availableunits {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[AvailableunitsResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Availableunits.created success",Console.RESET))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Availableunits.created success", Console.RESET))
               (parse(gs.get.value).extract[AvailableunitsResult].some).successNel[Throwable];
             }
           }

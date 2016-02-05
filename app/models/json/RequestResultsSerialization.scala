@@ -27,7 +27,7 @@ import models.base._
  *
  */
 object RequestResultsSerialization extends io.megam.json.SerializationBase[RequestResults] {
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
   implicit override val writer = new JSONW[RequestResults] {

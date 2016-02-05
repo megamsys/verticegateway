@@ -25,7 +25,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.Date
 import java.nio.charset.Charset
 import io.megam.auth.funnel.FunnelErrors._
-import controllers.Constants._
+import models.Constants._
 import models.json.tosca._
 import models.tosca.{ ComponentResult, ComponentsList, Artifacts, KeyValueList, OperationList, BindLinks, Repo }
 
@@ -35,7 +35,7 @@ import models.tosca.{ ComponentResult, ComponentsList, Artifacts, KeyValueList, 
  */
 class ComponentResultSerialization(charset: Charset = UTF8Charset) extends io.megam.json.SerializationBase[ComponentResult] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val NameKey = "name"
   protected val ToscaTypeKey = "tosca_type"

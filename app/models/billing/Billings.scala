@@ -29,7 +29,7 @@ import cache._
 import db._
 import models.base._
 import models.json.billing._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -88,10 +88,12 @@ object BillingsResult {
 
 object Billings {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("billings")
-  val metadataKey = "Billings"
-  val metadataVal = "Billings Creation"
-  val bindex = "Billings"
+
+  private lazy val bucker = "billings"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private val idxedBy = idxAccountsId
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -111,7 +113,7 @@ object Billings {
       val bvalue = Set(billing.accounts_id)
       val json = new BillingsResult(uir.get._1 + uir.get._2, billing.accounts_id, billing.line1, billing.line2, billing.country_code, billing.postal_code, billing.state, billing.phone, billing.bill_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 

@@ -19,7 +19,7 @@ import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
-import controllers.Constants._
+import models.Constants._
 import models.json.billing._
 import models.billing._
 import net.liftweb.json._

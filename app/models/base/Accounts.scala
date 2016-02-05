@@ -26,7 +26,8 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import io.megam.auth.funnel.FunnelErrors._
-import controllers.Constants._
+import models.Constants._
+import models.base.Events._
 
 import com.stackmob.scaliak._
 import io.megam.auth.stack.AccountResult
@@ -48,20 +49,27 @@ case class AccountInput(first_name: String, last_name: String, phone: String, em
   val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
 }
 
-case class updateAccountInput(id: String, first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String, created_at: String) {
-  val json = "{\"id\":\"" + id + "\",\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\",\"created_at\":\"" + created_at + "\"}"
-
+case class AccountWrapper(s: AccountResult) {
+  val askForReset = s.password_reset_key != null && s.password_reset_key.trim.length > 0
 }
 
 object Accounts {
 
-  val metadataKey = "ACC"
-  val metadataVal = "1002"
-  val bindex = "accountId"
-
   implicit val formats = DefaultFormats
 
-  private val riak = GWRiak("accounts")
+  private lazy val bucker = "accounts"
+
+  private lazy val idxedBy = idxAccountsId
+
+  private val riak = GWRiak(bucker)
+
+  private def pubEvent(accounts_id: String, action: String, evtMap: Map[String, String]) = Events(accounts_id, EVENTUSER, action, evtMap).createAndPub()
+
+  private def accountNel(input: String): ValidationNel[Throwable, AccountInput] = {
+    (Validation.fromTryCatchThrowable[AccountInput, Throwable] {
+      parse(input).extract[AccountInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  }
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -69,89 +77,64 @@ object Accounts {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val accountInput: ValidationNel[Throwable, AccountInput] = (Validation.fromTryCatchThrowable[AccountInput,Throwable] {
-      parse(input).extract[AccountInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
+  private def mkGunnySack(input: String): ValidationNel[Throwable, Option[(GunnySack, AccountResult)]] = {
     for {
-      m <- accountInput
-      bal <- (models.billing.Balances.create(m.email, "{\"credit\":\"0\"}") leftMap { t: NonEmptyList[Throwable] => t })
+      m <- accountNel(input)
       uid <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
-     // org <- models.team.Organizations.create(m.email, OrganizationsInput(DEFAULT_ORG_NAME).json)
+      // org <- models.team.Organizations.create(m.email, OrganizationsInput(DEFAULT_ORG_NAME).json)
     } yield {
       val bvalue = Set(uid.get._1 + uid.get._2)
-      val json = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString).toJson(false)
-      new GunnySack(m.email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      val are = AccountResult(uid.get._1 + uid.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString())
+      (new GunnySack(m.email, are.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map.empty, Map((idxedBy, bvalue))), are).some
     }
   }
 
-  /*
-   * create new account item with the 'name' of the item provide as input.
-   * A index name account id will point to the "account bucket" bucket.
-   */
-  def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    (mkGunnySack(input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Account.created success",Console.RESET))
-              (parse(gs.get.value).extract[AccountResult].some).successNel[Throwable];
-            }
-          }
-        }
-     }
-  }
-
-  /**
-   * Parse the input body when you start, if its ok, then we process it.
-   * Or else send back a bad return code saying "the body contains invalid character, with the message received.
-   * If there is an error in the snowflake connection, we need to send one.
-   */
-
-  private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val ripNel: ValidationNel[Throwable, updateAccountInput] = (Validation.fromTryCatchThrowable[updateAccountInput,Throwable] {
-      parse(input).extract[updateAccountInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
+  private def updGunnySack(email: String, input: String): ValidationNel[Throwable, Option[(GunnySack, AccountResult)]] = {
     for {
-      rip <- ripNel
+      m <- accountNel(input)
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
-      val json = AccountResult(NilorNot(rip.id, aor.get.id), NilorNot(rip.first_name, aor.get.first_name), NilorNot(rip.last_name, aor.get.last_name), NilorNot(rip.phone, aor.get.phone), NilorNot(rip.email, aor.get.email), NilorNot(rip.api_key, aor.get.api_key), NilorNot(rip.password, aor.get.password), NilorNot(rip.authority, aor.get.authority), NilorNot(rip.password_reset_key, aor.get.password_reset_key), NilorNot(rip.password_reset_sent_at, aor.get.password_reset_sent_at), NilorNot(rip.created_at, aor.get.created_at)).toJson(false)
-      new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      val are = AccountResult(aor.get.id, swap(m.first_name, aor.get.first_name),
+        swap(m.last_name, aor.get.last_name), swap(m.phone, aor.get.phone),
+        swap(m.email, aor.get.email), swap(m.api_key, aor.get.api_key),
+        swap(m.password, aor.get.password), swap(m.authority, aor.get.authority),
+        swap(m.password_reset_key, aor.get.password_reset_key),
+        swap(m.password_reset_sent_at, aor.get.password_reset_sent_at),
+        Time.now.toString)
+      (new GunnySack(email, are.toJson(false), RiakConstants.CTYPE_TEXT_UTF8, None,
+        Map.empty, Map((idxedBy, bvalue))), are).some
     }
   }
 
- def NilorNot(rip: String, aor: String): String = {
-    rip == null match {
-      case true => return aor
-      case false => return rip
+  //create request from input
+  def create(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    for {
+      gae <- mkGunnySack(input)
+      ogsr <- (riak.store(gae.get._1) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      pubEvent(gae.get._2.id, Events.CREATE, Map(EVTEMAIL -> gae.get._2.email)) flatMap { x =>
+        (play.api.Logger.warn(("%s%s%-20s%s").format(Console.BLUE, Console.BOLD, "NSQ.published success", Console.RESET))).successNel[Throwable]
+      } //we ignore errors
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Account.created success", Console.RESET))
+      gae.get._2.some
     }
   }
 
-
-  def updateAccount(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[AccountResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Account.updated success",Console.RESET))
-              (parse(gs.get.value).extract[AccountResult].some).successNel[Throwable];
-            }
-          }
-        }
+  def update(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    for {
+      gae <- updGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err }
+      ogsr <- riak.store(gae.get._1) leftMap { t: NonEmptyList[Throwable] => t }
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Account.updated success", Console.RESET))
+      if (new AccountWrapper(gae.get._2).askForReset) {
+        pubEvent(gae.get._2.id, Events.RESET, Map(EVTEMAIL -> gae.get._2.email,
+          EVTCLICK -> ("reset?email=" + gae.get._2.email + "&resettoken=" + gae.get._2.password_reset_key))) flatMap { x =>
+          (play.api.Logger.warn(("%s%s%-20s%s").format(Console.BLUE, Console.BOLD, "NSQ.published success", Console.RESET))).successNel[Throwable]
+        } //we ignore errors
+      }
+      gae.get._2.some
     }
   }
 
@@ -170,8 +153,7 @@ object Accounts {
           }).toValidationNel.flatMap { xso: Option[GunnySack] =>
             xso match {
               case Some(xs) => {
-                (Validation.fromTryCatchThrowable[io.megam.auth.stack.AccountResult,Throwable] {
-                  //  initiate_default_cloud(email)
+                (Validation.fromTryCatchThrowable[io.megam.auth.stack.AccountResult, Throwable] {
                   parse(xs.value).extract[AccountResult]
                 } leftMap { t: Throwable =>
                   new ResourceItemNotFound(email, t.getMessage)
@@ -184,20 +166,14 @@ object Accounts {
           }
         }
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
-
   }
 
   /**
    * Find by the accounts id.
    */
   def findByAccountsId(id: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    val metadataKey = "Field"
-    val metadataVal = "1002"
-    val bindex = ""
-    val bvalue = Set("")
-    val fetchValue = riak.fetchIndexByValue(new GunnySack("accountId", id,
-      RiakConstants.CTYPE_TEXT_UTF8, None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))))
-
+    val fetchValue = riak.fetchIndexByValue(new GunnySack(idxedBy, id,
+      RiakConstants.CTYPE_TEXT_UTF8, None, Map.empty, Map(("", Set("")))))
     fetchValue match {
       case Success(msg) => {
         val key = msg match {
@@ -217,4 +193,10 @@ object Accounts {
     }
   }
 
+  private def swap(old: String, aor: String): String = {
+    old == null match {
+      case true => return aor
+      case false => return old
+    }
+  }
 }

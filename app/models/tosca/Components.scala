@@ -28,7 +28,7 @@ import cache._
 import db._
 import models.json.tosca._
 import models.json.tosca.box._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
@@ -136,11 +136,13 @@ case class Component(name: String, tosca_type: String, inputs: models.tosca.KeyV
 
 object Component {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("components")
 
-  val metadataKey = "Component"
-  val metadataVal = "Component Creation"
-  val bindex = "component"
+  private lazy val bucker = "components"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private lazy val idxedBy = idxAccountsId
+
 
   def empty: Component = new Component(new String(), new String(), KeyValueList.empty, KeyValueList.empty, KeyValueList.empty, Artifacts.empty, BindLinks.empty, OperationList.empty, Repo.empty, new String())
 
@@ -197,7 +199,7 @@ object Component {
       val com = com_collection.head
       val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations ::: rip.operations, com.get.status, com.get.repo, com.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -227,9 +229,19 @@ object ComponentsList {
 
   implicit def ComponentsResultsSemigroup: Semigroup[ComponentsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  val emptyRR = List(Component.empty)
-  def toJValue(nres: ComponentsList): JValue = {
+  private lazy val bucker = "components"
 
+  private lazy val riak = GWRiak(bucker)
+
+  private lazy val idxedBy = idxAccountsId
+
+  def apply(componentList: List[Component]): ComponentsList = { componentList }
+
+  def empty: List[Component] = emptyRR
+
+  val emptyRR = List(Component.empty)
+
+  def toJValue(nres: ComponentsList): JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.tosca.carton.ComponentsListSerialization.{ writer => ComponentsListWriter }
     toJSON(nres)(ComponentsListWriter)
@@ -247,17 +259,8 @@ object ComponentsList {
     compactRender(toJValue(nres))
   }
 
-  def apply(componentList: List[Component]): ComponentsList = { componentList }
 
-  def empty: List[Component] = emptyRR
-
-  private val riak = GWRiak("components")
-
-  val metadataKey = "COMPONENT"
-  val metadataVal = "Component Creation"
-  val bindex = "component"
-
-  /**
+    /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
    * After that flatMap on its success and the account id information is looked up.
@@ -282,7 +285,7 @@ object ComponentsList {
           "\",\"repo\":" + input.repo.json + ",\"created_at\":\"" + Time.now.toString + "\"}"
 
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -306,7 +309,6 @@ object ComponentsList {
     (mkGunnySack(authBag, input, asm_id) leftMap { err: NonEmptyList[Throwable] =>
       new ServiceUnavailableError(input.name, (err.list.map(m => m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-
       (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
         flatMap { maybeGS: Option[GunnySack] =>
           maybeGS match {

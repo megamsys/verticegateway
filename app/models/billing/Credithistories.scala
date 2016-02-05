@@ -28,7 +28,7 @@ import io.megam.auth.funnel.FunnelErrors._
 import cache._
 import db._
 import models.json.billing._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -86,10 +86,12 @@ object CredithistoriesResult {
 
 object Credithistories {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("credithistories")
-  val metadataKey = "Credithistories"
-  val metadataVal = "Credithistories Creation"
-  val bindex = "Credithistories"
+
+  private lazy val bucker = "credithistories"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private val idxedBy = idxAccountsId
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -110,7 +112,7 @@ object Credithistories {
       val bvalue = Set(aor.get.id)
       val json = new CredithistoriesResult(uir.get._1 + uir.get._2, aor.get.id, chi.bill_type, chi.credit_amount, chi.currency_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
