@@ -25,7 +25,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.Date
 import java.nio.charset.Charset
 import io.megam.auth.funnel.FunnelErrors._
-import controllers.Constants._
+import models.Constants._
 import models.tosca.{ Operation, KeyValueList }
 
 /**

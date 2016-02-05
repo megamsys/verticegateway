@@ -26,7 +26,7 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import models.json.team._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -83,12 +83,15 @@ object DomainsResult {
 }
 
 object Domains {
-  implicit val formats = DefaultFormats
-  private val riak = GWRiak("domains")
+
   implicit def DomainsResultsSemigroup: Semigroup[DomainsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-  val metadataKey = "Domains"
-  val metadataVal = "Domains Creation"
-  val bindex = "domains"
+  implicit val formats = DefaultFormats
+
+  private lazy val idxedBy = idxDomainName
+
+  private lazy val bucker = "domains"
+
+  private lazy val riak  = GWRiak(bucker)
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -108,7 +111,7 @@ object Domains {
       val bvalue = Set(domain.name)
       val json = new DomainsResult(uir.get._1 + uir.get._2, domain.name, Time.now.toString).toJson(false)
       new GunnySack(domain.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 

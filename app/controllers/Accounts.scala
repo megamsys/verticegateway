@@ -36,7 +36,7 @@ object Accounts extends Controller with stack.APIAuthElement {
    */
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    models.base.Accounts.create(input) match {
+     models.base.Accounts.create(input) match {
       case Success(succ) =>
         utils.PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
           Status(CREATED)(
@@ -87,7 +87,7 @@ object Accounts extends Controller with stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Accounts wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.base.Accounts.updateAccount(email, clientAPIBody) match {
+           models.base.Accounts.update(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
                 FunnelResponse(CREATED, """Account updated successfully.

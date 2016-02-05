@@ -29,7 +29,7 @@ import models.team._
  *
  */
 object DomainsResultsSerialization extends io.megam.json.SerializationBase[DomainsResults] {
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
   implicit override val writer = new JSONW[DomainsResults] {

@@ -28,7 +28,7 @@ import java.nio.charset.Charset
  */
 object ComponentsListSerialization extends io.megam.json.SerializationBase[ComponentsList] {
 
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "components"
 
   implicit override val writer = new JSONW[ComponentsList] {

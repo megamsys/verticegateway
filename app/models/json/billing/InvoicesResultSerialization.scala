@@ -25,14 +25,14 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.Date
 import java.nio.charset.Charset
 import io.megam.auth.funnel.FunnelErrors._
-import controllers.Constants._
+import models.Constants._
 import models.billing._
 /**
  * @author ranjitha
  *
  */
 class InvoicesResultSerialization(charset: Charset = UTF8Charset) extends io.megam.json.SerializationBase[models.billing.InvoicesResult] {
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
 
   protected val IdKey = "id"
   protected val AccountsIdKey = "accounts_id"

@@ -28,8 +28,7 @@ import models.base._
 import db._
 import cache._
 import app.MConfig
-import app.MConfig
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 
 import io.megam.common.amqp.response.AMQPResponse
@@ -104,7 +103,7 @@ object RequestResult {
 
   def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), new String)
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = controllers.Constants.UTF8Charset): Result[RequestResult] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = models.Constants.UTF8Charset): Result[RequestResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
     import models.json.RequestResultSerialization
     val nrsser = new RequestResultSerialization()
@@ -125,11 +124,11 @@ object Requests {
 
   implicit def RequestResultsSemigroup: Semigroup[RequestResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  private val riak = GWRiak("requests")
+  private lazy val bucker = "requests"
 
-  val metadataKey = "Request"
-  val newreq_metadataVal = "New Request"
-  val newAMS_bindex = "amsId"
+  private val riak = GWRiak(bucker)
+
+  private lazy val idxedBy = idxAssemblyId
 
   // A private method which chains computation to make GunnySack parses the json, and converts it to requestinput, if there is an error during parsing, a MalformedBodyError is sent back.
   // After that flatMap on its success and the GunnySack object is built.
@@ -144,7 +143,7 @@ object Requests {
       val bvalue = Set(rip.cat_id)
       val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\"," + rip.half_json + ",\"created_at\":\"" + Time.now.toString + "\"}"
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> newreq_metadataVal), Map((newAMS_bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -173,11 +172,10 @@ object Requests {
       err
     }).flatMap { pq: Option[wash.PQd] =>
       if (!email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL)) {
-        (new wash.AOneWasher(pq.get).wash leftMap { t: NonEmptyList[Throwable] => t }).
-          flatMap { maybeGS: AMQPResponse =>
-            play.api.Logger.debug(("%-20s -->[%s]").format("Request.published successfully", input))
-            pq.successNel[Throwable]
-          }
+        new wash.AOneWasher(pq.get).wash flatMap { maybeGS: AMQPResponse =>
+          play.api.Logger.debug(("%-20s -->[%s]").format("Request.published successfully", input))
+          pq.successNel[Throwable]
+        }
       } else {
         play.api.Logger.debug(("%-20s -->[%s]").format("Request.publish skipped", input))
         wash.PQd.empty.some.successNel[Throwable]

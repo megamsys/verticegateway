@@ -89,7 +89,7 @@ case object Hellow {
   }).toMap
 
   //pings riak
-  private val gwr = GWRiak("accounts").ping match {
+  private def gwr = GWRiak("accounts").ping match {
     case Success(succ_gwr) => (MConfig.riakurl, Some(RUNNING))
     case Failure(errgwr) => (MConfig.riakurl, none)
   }
@@ -97,7 +97,7 @@ case object Hellow {
   private  def topic(x: Unit) = "testing".some
 
   //ping nsq, by droping a DUM0001 req
-  private val nsq = new wash.AOneWasher(new wash.PQd(topic, "test pub")).wash match {
+  private def nsq = new wash.AOneWasher(new wash.PQd(topic, "test pub")).wash match {
     case Success(succ_uid) => (MConfig.nsqurl, Some(RUNNING))
     case Failure(erruid) => (MConfig.nsqurl, none)
   }
@@ -107,12 +107,12 @@ case object Hellow {
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)
 
-  private val mkps = models.base.MarketPlaces.listAll match {
+  private def mkps = models.base.MarketPlaces.listAll match {
     case Success(succ_mkps) => succ_mkps
     case Failure(errmkps) => MarketPlaceResults.empty
   }
 
-  val buccaneer = Treasure(infra, sharks, mkps)
+  def buccaneer = Treasure(infra, sharks, mkps)
 
   val events = Map[String, String]("events" -> "none")
 

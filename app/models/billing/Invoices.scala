@@ -27,7 +27,7 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import models.json.billing._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -86,11 +86,12 @@ object InvoicesResult {
 
 object Invoices {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("invoices")
-  val metadataKey = "Invoices"
-  val metadataVal = "Invoices Creation"
-  val bindex = "Invoices"
 
+  private lazy val bucker = "invoices"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private val idxedBy = idxAccountsId
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -110,7 +111,7 @@ object Invoices {
       val bvalue = Set(aor.get.id)
       val json = new InvoicesResult(uir.get._1 + uir.get._2, aor.get.id, bhi.from_date, bhi.to_date, bhi.month, bhi.bill_type, bhi.billing_amount, bhi.currency_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -174,11 +175,9 @@ object Invoices {
       (((for {
         aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = ""
-        val bvalue = Set("")
          play.api.Logger.debug(("%-20s -->[%s]").format("Invoices result", aor.get))
-        new GunnySack("Invoices", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        new GunnySack(idxedBy, aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map.empty, Map(("", Set("")))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>

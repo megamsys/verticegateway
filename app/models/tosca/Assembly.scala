@@ -30,7 +30,7 @@ import cache._
 import db._
 import models.json.tosca._
 import models.json.tosca.carton._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
@@ -200,11 +200,12 @@ case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
 
 object Assembly {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("assembly")
 
-  val metadataKey = "Assembly"
-  val metadataVal = "Assembly Creation"
-  val bindex = "assembly"
+  private lazy val bucker = "assembly"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private lazy val idxedBy = idxAccountsId
 
   def empty: Assembly = new Assembly(new String(), ComponentsList.empty, new String(), PoliciesList.empty, KeyValueList.empty, KeyValueList.empty, new String())
 
@@ -262,7 +263,7 @@ object Assembly {
       val asm = asm_collection.head
       val json = AssemblyResult(rip.id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.created_at).toJson(false)
       new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
 
     }
   }
@@ -308,11 +309,21 @@ object Assembly {
 object AssemblysList {
   implicit val formats = DefaultFormats
 
+  private lazy val bucker = "assembly"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private lazy val idxedBy = idxAccountsId
+
   implicit def AssemblysListsSemigroup: Semigroup[AssemblysLists] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  val emptyRR = List(Assembly.empty)
-  def toJValue(nres: AssemblysList): JValue = {
+  def apply(assemblyList: List[Assembly]): AssemblysList = { assemblyList }
 
+  def empty: List[Assembly] = emptyRR
+
+  val emptyRR = List(Assembly.empty)
+
+  def toJValue(nres: AssemblysList): JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import AssemblysListSerialization.{ writer => AssemblysListWriter }
     toJSON(nres)(AssemblysListWriter)
@@ -330,20 +341,12 @@ object AssemblysList {
     compactRender(toJValue(nres))
   }
 
-  def apply(assemblyList: List[Assembly]): AssemblysList = { assemblyList }
 
-  def empty: List[Assembly] = emptyRR
-
-  private val riak = GWRiak("assembly")
-  val metadataKey = "Assembly"
-  val metadataVal = "Assembly Creation"
-  val bindex = "assembly"
 
   def createLinks(authBag: Option[io.megam.auth.stack.AuthBag], input: AssemblysList): ValidationNel[Throwable, AssemblysLists] = {
     val res = (input map {
       asminp => (create(authBag, asminp))
     }).foldRight((AssemblysLists.empty).successNel[Throwable])(_ +++ _)
-
     play.api.Logger.debug(("%-20s -->[%s]").format("AssemblysLists", res))
     res.getOrElse(new ResourceItemNotFound(authBag.get.email, "assembly = ah. ouh. for some reason.").failureNel[AssemblysLists])
     res
@@ -389,10 +392,9 @@ object AssemblysList {
           }
         }
       }
-
       val json = AssemblyResult(uir.get._1 + uir.get._2, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, Time.now.toString).toJson(false)
       new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 

@@ -27,7 +27,7 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import models.json.billing._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -86,12 +86,11 @@ object SubscriptionsResult {
 
 object Subscriptions {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("subscriptions")
+  private lazy val bucker = "subscriptions"
 
-  val metadataKey = "Subscriptions"
-  val metadataVal = "Subscriptions Creation"
-  val bindex = "Subscriptions"
+  private lazy val riak = GWRiak(bucker)
 
+  private val idxedBy = idxAccountsId
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -112,7 +111,7 @@ object Subscriptions {
       val bvalue = Set(sub.accounts_id)
       val json = new SubscriptionsResult(uir.get._1 + uir.get._2, sub.accounts_id, sub.assembly_id, sub.start_date, sub.end_date, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 

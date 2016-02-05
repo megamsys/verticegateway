@@ -29,7 +29,7 @@ import db._
 import cache._
 import app.MConfig
 import app.MConfig
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 
 import com.stackmob.scaliak._
@@ -91,12 +91,15 @@ object SshKeyResult {
 object SshKeys {
 
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("sshkeys")
+
+  private lazy val bucker = "sshkeys"
+
+  private lazy val idxedBy = idxAccountsId
+
+  private val riak = GWRiak(bucker)
+
   implicit def SshKeyResultsSemigroup: Semigroup[SshKeyResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  val metadataKey = "SshKey"
-  val metadataVal = "SshKeys Creation"
-  val bindex = "sshkey"
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -111,15 +114,13 @@ object SshKeys {
 
     for {
       pdc <- sshKeyInput
-      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       uir <- (UID("ssh").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
       val bvalue = Set(aor.get.id)
       val json = new SshKeyResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.path, Time.now.toString).toJson(false)
       new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxAccountsId, bvalue))).some
     }
   }
 
@@ -148,7 +149,6 @@ object SshKeys {
   def findByName(sshKeysNameList: Option[List[String]]): ValidationNel[Throwable, SshKeyResults] = {
     (sshKeysNameList map {
       _.map { sshKeysName =>
-        play.api.Logger.debug("models.SshKeysName findByName: SshKeys:" + sshKeysName)
         (riak.fetch(sshKeysName) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(sshKeysName, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
@@ -183,18 +183,16 @@ object SshKeys {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = ""
-        val bvalue = Set("")
-        new GunnySack("sshkey", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        new GunnySack(idxedBy, aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map.empty, Map(("", Set("")))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>
         (if (!nm.isEmpty) findByName(nm.some) else
-          new ResourceItemNotFound(email, "SshKeys = nothing found.").failureNel[SshKeyResults])
+          new ResourceItemNotFound(email, "SSHkeys = nothing found.").failureNel[SshKeyResults])
       }).disjunction).pure[IO]
     }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(email, "SshKeys = nothing found.").failureNel[SshKeyResults])
+    res.getOrElse(new ResourceItemNotFound(email, "SSHkeys = nothing found.").failureNel[SshKeyResults])
   }
 
 }

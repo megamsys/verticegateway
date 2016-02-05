@@ -28,9 +28,6 @@ object Constants {
 
   val VERSION = "1.0"
 
-  val UTF8Charset = java.nio.charset.Charset.forName("UTF-8")
-  val JSON_CLAZ = "json_claz"
-
   lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
 
   lazy val WithGzipHoleHeader1: Map[String, String] = WithGzipHeader + (X_Megam_OTTAI -> X_Megam_OTTAI)
@@ -46,7 +43,7 @@ object Constants {
 
   val DEMO_EMAIL = "tour@megam.io"
   val DEMO_APIKEY = "faketour"
-  val MEGAM_FIRST_NAME = "Megam Tour"
+  val MEGAM_FIRST_NAME = "Vertis Tour"
   val MEGAM_LAST_NAME = "Call us"
   val MEGAM_PHONE = "18006186813"
   val SAMPLE_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/YiBNWP2"
@@ -56,25 +53,6 @@ object Constants {
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
-  val DEFAULT_ORG_NAME = "org.megam"
+  val DEFAULT_ORG_NAME = "com.megambox"
   val OJA_MKT_YAML = MConfig.marketplaces_yaml
-
-  val STATE = "state"
-  val CREATE = "create"
-  val DELETE = "destroy"
-
-  val CONTROL = "control"
-  val START = "start"
-  val STOP = "stop"
-
-  val BIND = "bind"
-  val BUILD = "build"
-  val REBOOT = "restart"
-  val OPERTATIONS = "operations"
-  val UPGRADE = "upgrade"
-
-  val CATTYPE_DOCKER = "microservices"
-  val CATTYPE_TORPEDO = "torpedo"
-  val DOMAIN = "domain"
-
 }

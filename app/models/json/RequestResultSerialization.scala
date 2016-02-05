@@ -25,7 +25,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.util.Date
 import java.nio.charset.Charset
 import io.megam.auth.funnel.FunnelErrors._
-import controllers.Constants._
+import models.Constants._
 import models.base.{RequestResult}
 
 /**
@@ -33,7 +33,7 @@ import models.base.{RequestResult}
  *
  */
 class RequestResultSerialization(charset: Charset = UTF8Charset) extends io.megam.json.SerializationBase[RequestResult] {
-protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val CatIDKey = "cat_id"
   protected val CatTypeKey = "cattype"

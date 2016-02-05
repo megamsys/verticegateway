@@ -19,7 +19,6 @@ import scalaz.State
 import cache._
 import play.api.Play.current
 import play.api.cache._
-import models.base.Accounts._
 
 /**
  * @author ram (don't ask me, i don't remember - nada!)

@@ -27,7 +27,7 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import models.json.billing._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
@@ -87,11 +87,12 @@ object BilledhistoriesResult {
 
 object Billedhistories {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("billedhistories")
-  val metadataKey = "Billedhistories"
-  val metadataVal = "Billedhistories Creation"
-  val bindex = "Billedhistories"
 
+  private lazy val bucker = "billedhistories"
+
+  private lazy val riak = GWRiak("billedhistories")
+
+  private lazy val idxedBy = idxAccountsId
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
@@ -110,7 +111,7 @@ object Billedhistories {
       val bvalue = Set(bhi.accounts_id)
       val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, bhi.accounts_id, bhi.assembly_id, bhi.bill_type, bhi.billing_amount, bhi.currency_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -172,11 +173,9 @@ object Billedhistories {
       (((for {
         aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = ""
-        val bvalue = Set("")
          play.api.Logger.debug(("%-20s -->[%s]").format("Billedhistories result", aor.get))
-        new GunnySack("Billedhistories", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        new GunnySack(idxedBy,aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map.empty, Map(("", Set("")))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>

@@ -24,7 +24,7 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
 import models.base._
-import controllers.Constants._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import io.megam.common.amqp.response.AMQPResponse
 import io.megam.common.riak.GunnySack
@@ -40,9 +40,9 @@ case class EventInput(id: String, accounts_id: String, etype: String, action: St
 case class EventResult(id: String, accounts_id: String, etype: String, action: String, inputs: Map[String, String],
   created_at: String) {
 
-  def toMap: Map[String, String] = inputs
+  def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(inputs)
 
-  val toJson = ""
+  val json = "{\"id\":\"" + id + "\",\"accounts_id\":\"" + accounts_id + "\",\"type\":\"" + etype + "\",\"action\":\"" + action + "\",\"inputs\":" + models.tosca.KeyValueList.toJson(toKeyList) + "}"
 
   def topicFunc(x: Unit): Option[String] = "events".some
 
@@ -57,7 +57,7 @@ class Events(evi: EventInput) {
     } yield {
       eres match {
         case Some(thatER) => {
-          new wash.PQd(thatER.topicFunc, thatER.toJson).some
+          new wash.PQd(thatER.topicFunc, thatER.json).some
         }
         case None => {
           None //shouldn't happen
@@ -90,6 +90,7 @@ object Events {
   val EVENTUSER = "user"
   //inputs
   val EVTEMAIL = "email"
+  val EVTCLICK = "click_url"
   //actions
   val CREATE = "0"
   val DESTROY = "1"
