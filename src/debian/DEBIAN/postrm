@@ -1,18 +1,18 @@
 #!/bin/sh
 
-if [ -d "/usr/share/megam/megamgateway" ]; then
-  rm -r /usr/share/megam/megamgateway
+if [ -d "/usr/share/megam/verticegateway" ]; then
+  rm -r /usr/share/megam/verticegateway
 fi
 
-if [ -d "/var/lib/megam/megamgateway" ]; then
-  rm -r /var/lib/megam/megamgateway
+if [ -d "/var/lib/megam/verticegateway" ]; then
+  rm -r /var/lib/megam/verticegateway
 fi
 
-if [ -d "/var/log/megam/megamgateway" ]; then
-  rm -r /var/log/megam/megamgateway
+if [ -d "/var/log/megam/verticegateway" ]; then
+  rm -r /var/log/megam/verticegateway
 fi
 
 
-if [ -d "/var/run/megam/megamgateway" ]; then
-  rm -r /var/run/megam/megamgateway
+if [ -d "/var/run/megam/verticegateway" ]; then
+  rm -r /var/run/megam/verticegateway
 fi

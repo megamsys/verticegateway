@@ -2,7 +2,7 @@ import sbt._
 import Process._
 import com.typesafe.sbt.packager.archetypes.ServerLoader
 
-name := "megamgateway"
+name := "verticegateway"
 
 version := "1.0"
 
@@ -30,14 +30,14 @@ javaOptions ++= Seq("-Dconfig.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val gwconfPath = Path(home)
-  val gwconf = gwconfPath / "megamgateway" /  "gateway.conf"
+  val gwconf = gwconfPath / "verticegateway" /  "gateway.conf"
   gwconf.toString
 },
 "-Dlogger.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val logconfPath = Path(home)
-  val logconf = logconfPath / "megamgateway" /  "logger.xml"
+  val logconf = logconfPath / "verticegateway" /  "logger.xml"
   logconf.toString
 })
 
@@ -106,7 +106,7 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "megamcommon", "megamsnowflake")
+debianPackageDependencies in Debian ++= Seq("curl", "verticecommon", "verticesnowflake")
 
 debianPackageRecommends in Debian += "riak"
 

@@ -7,5 +7,5 @@ After=runlevel3.target
 After=runlevel4.target
 After=runlevel5.target
 [Service]
-ExecStart=/usr/share/megam/megamgateway/bin/megamgateway -Dlogger.file=/var/lib/megam/megamgateway/logger.xml -Dconfig.file=/var/lib/megam/megamgateway/gateway.conf
+ExecStart=/usr/share/megam/verticegateway/bin/verticegateway -Dlogger.file=/var/lib/megam/verticegateway/logger.xml -Dconfig.file=/var/lib/megam/verticegateway/gateway.conf
 KillMode=mixed
