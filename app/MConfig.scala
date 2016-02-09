@@ -24,4 +24,8 @@ object MConfig {
   val marketplaces_yaml = play.api.Play.application(play.api.Play.current).configuration.getString("megam.marketplaces").get
   val riakurl = play.api.Play.application(play.api.Play.current).configuration.getString("riak.url").get
   val nsqurl = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.url").get
+  val scyllaurl = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.host").get
+  val scylla_keyspace = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.keyspace").get
+  val scylla_username = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.username").get
+  val scylla_password = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.password").get
 }

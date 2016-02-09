@@ -72,11 +72,16 @@ resolvers += "Spray repo" at "http://repo.spray.io"
 resolvers += "Spy Repository" at "http://files.couchbase.com/maven2"
 resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
 
+val phantomV = "1.16.0"
+
 libraryDependencies ++= Seq(filters, cache,
   "org.yaml" % "snakeyaml" % "1.16",
   "io.megam" %% "libcommon" % "0.30",
   "io.megam" %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
+  "com.websudos"      %%  "phantom-dsl"               % phantomV,
+  "com.websudos"      %%  "phantom-testkit"           % phantomV,
+  "com.websudos"      %%  "phantom-connectors"        % phantomV,
   "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",
   "org.specs2" % "specs2-matcher-extra_2.11" % "3.7-scalaz-7.1.6" % "test")
 
