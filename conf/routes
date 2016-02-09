@@ -10,9 +10,9 @@ GET    /                                controllers.Application.index
 
 # Account
 POST   /v2/accounts/content             controllers.Accounts.post
-GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
-POST   /v2/accounts/update       	 	    controllers.Accounts.update
-GET    /v2/accounts/login               controllers.Accounts.login
+#GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
+#POST   /v2/accounts/update       	 	    controllers.Accounts.update
+#GET    /v2/accounts/login               controllers.Accounts.login
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post

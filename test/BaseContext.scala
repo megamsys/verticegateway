@@ -46,7 +46,7 @@ import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import io.megam.auth.stack.HeaderConstants._
-import controllers.stack.GoofyCrypto._
+import io.megam.auth.stack.GoofyCrypto._
 
 trait BaseContext {
 

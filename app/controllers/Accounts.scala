@@ -23,6 +23,10 @@ import scalaz.Validation.FlatMap._
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
+import org.apache.commons.codec.binary.Base64
+
+import com.datastax.driver.core.{ ResultSet, Row }
+import com.websudos.phantom.connectors.{ContactPoint, KeySpaceDef}
 /*
  * This controller performs onboarding a customer and registers an email/api_key
  * into riak
@@ -36,33 +40,46 @@ object Accounts extends Controller with stack.APIAuthElement {
    */
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-     models.base.Accounts.create(input) match {
-      case Success(succ) =>
-        utils.PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
+
+     new models.base.AccountsDatabase(ContactPoint("103.56.92.24", 9042).keySpace("vertice")).create(input)
+      
           Status(CREATED)(
             FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
-              format(succ.get.email, succ.get.api_key).stripMargin, "Megam::Account").toJson(true)).successNel[Error]
-        } match {
-          case Success(succ_cpc) => succ_cpc
-          case Failure(errcpc) =>
-            val rncpc: FunnelResponse = new HttpReturningError(errcpc)
-            Status(rncpc.code)(rncpc.toJson(true))
-        }
+              format("", "").stripMargin, "Megam::Account").toJson(true))
+       
 
-      case Failure(err) => {
-        val rn: FunnelResponse = new HttpReturningError(err)
-        Status(rn.code)(rn.toJson(true))
-      }
-    }
+    // How do we create a Result from a Future[Result]?
   }
+
+  //def post12 = Action(parse.tolerantText) { implicit request =>
+    //val input = (request.body).toString()
+    // models.base.AccountsDatabase.create(input) match {
+     // case Success(succ) =>
+        //utils.PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
+         // Status(CREATED)(
+           // FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
+            //  format("", "").stripMargin, "Megam::Account").toJson(true))
+        //} match {
+         // case Success(succ_cpc) => succ_cpc
+         // case Failure(errcpc) =>
+         //   val rncpc: FunnelResponse = new HttpReturningError(errcpc)
+         //   Status(rncpc.code)(rncpc.toJson(true))
+       // }
+
+     // case Failure(err) => {
+       // val rn: FunnelResponse = new HttpReturningError(err)
+       // Status(rn.code)(rn.toJson(true))
+     // }
+   // }
+ // }
 
   /*
    * GET: findByEmail: Show a particular account by email
    * Email provided in the URI.
    * Output: JSON (AccountsResult)
    **/
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    models.base.Accounts.findByEmail(id) match {
+  /*def show(id: String) = StackAction(parse.tolerantText) { implicit request =>  
+     models.base.Accounts.findByEmail(id) match {
       case Success(succ) => {
         Ok((succ.map(s => s.toJson(true))).getOrElse(
           io.megam.auth.stack.AccountResult(id).toJson(true)))
@@ -73,13 +90,8 @@ object Accounts extends Controller with stack.APIAuthElement {
       }
     }
 
-  }
-
-  def login = StackAction(parse.tolerantText) { implicit request =>
-    Status(CREATED)(
-      FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
-        format("", "").stripMargin, "Megam::Account").toJson(true))
-  }
+  } 
+  
   def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
@@ -106,5 +118,5 @@ object Accounts extends Controller with stack.APIAuthElement {
 
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
+  }*/
 }

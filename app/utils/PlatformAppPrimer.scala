@@ -38,15 +38,15 @@ import models.team._
 
 object PlatformAppPrimer {
 
-  def takeatourAcct = models.base.Accounts.create(
+  /*def takeatourAcct = models.base.Accounts.create(
     AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, DEMO_EMAIL, DEMO_APIKEY, SAMPLE_PASSWORD, "demo", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
 
   def taketestAcct = models.base.Accounts.create(
     AccountInput(MEGAM_TEST_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, TEST_EMAIL, TEST_APIKEY, TEST_PASSWORD, "test", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
-
+*/
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    dumact <- takeatourAcct
-    testacct <- taketestAcct
+    //dumact <- takeatourAcct
+    //testacct <- taketestAcct
     dumorg <- clone_organizations(DEMO_EMAIL)
     testorg <- clone_organizations(TEST_EMAIL)
   } yield {
@@ -54,7 +54,7 @@ object PlatformAppPrimer {
       FunnelResponse(CREATED, """Account/Org created successfully(%s).
             |
             |Your email registered successully.""".
-        format(dumact.get.email).stripMargin, "Megam::Account"))
+        format("").stripMargin, "Megam::Account"))
     FunnelResponses(chainedComps)
   }
 

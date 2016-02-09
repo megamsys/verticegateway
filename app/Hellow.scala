@@ -69,7 +69,7 @@ case object Hellow {
   val RIAK = "riak"
   val RUNNING = "up"
 
-  val What2Hunts = Array(RIAK, NSQ)
+  val What2Hunts = Array(NSQ)
 
   import java.lang.management.{ ManagementFactory, OperatingSystemMXBean }
   import java.lang.reflect.{ Method, Modifier }
@@ -89,10 +89,10 @@ case object Hellow {
   }).toMap
 
   //pings riak
-  private def gwr = GWRiak("accounts").ping match {
+ /* private def gwr = GWRiak("accounts").ping match {
     case Success(succ_gwr) => (MConfig.riakurl, Some(RUNNING))
     case Failure(errgwr) => (MConfig.riakurl, none)
-  }
+  }*/
 
   private  def topic(x: Unit) = "testing".some
 
@@ -102,7 +102,7 @@ case object Hellow {
     case Failure(erruid) => (MConfig.nsqurl, none)
   }
 
-  val sharks = Map(RIAK -> gwr, NSQ -> nsq)
+  val sharks = Map(NSQ -> nsq)
 
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)
