@@ -71,6 +71,8 @@ resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.or
 resolvers += "Spray repo" at "http://repo.spray.io"
 resolvers += "Spy Repository" at "http://files.couchbase.com/maven2"
 resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
+resolvers += "Websudos" at "https://dl.bintray.com/websudos/oss-releases/"
+
 
 val phantomV = "1.16.0"
 

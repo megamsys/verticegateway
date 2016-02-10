@@ -41,59 +41,49 @@ import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+//import scala.concurrent.{Await, Future}
+import com.twitter.util.{Future, Await}
+import com.twitter.conversions.time._
 
-/**
- * @author rajthilak
- *
- */
+import com.websudos.phantom.dsl._
+import com.websudos.phantom.iteratee.Iteratee
+import com.websudos.phantom.connectors.{ContactPoint, KeySpaceDef}
 
-case class MarketPlacePlan(description: String, version: String) {
-  val json = "{\"description\":\"" + description + "\",\"version\":\"" + version + "\"}"
 
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.MarketPlacePlanSerialization.{ writer => MarketPlacePlanWriter }
-    toJSON(this)(MarketPlacePlanWriter)
-  }
 
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-}
+case class MarketPlaceSack (
+  name: String
+)
 
-object MarketPlacePlan {
-  def empty: MarketPlacePlan = new MarketPlacePlan(new String(), new String())
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MarketPlacePlan] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import MarketPlacePlanSerialization.{ reader => MarketPlacePlanReader }
-    fromJSON(jValue)(MarketPlacePlanReader)
-  }
+//table class for holding the ds of a particular type(mkp in our case)
+sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPlaceSack] {
 
-  def fromJson(json: String): Result[MarketPlacePlan] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
+  object name extends StringColumn(this)
+
+ override def fromRow(r: Row): MarketPlaceSack = { MarketPlaceSack(name(r)) }
+
 
 }
 
+//Needs -> DS CLASS (MkpSacks)
+//      -> Connector class
+//This class talks to the cassandra and performs the actions
+abstract class ConcreteMkp extends MarketPlaceSacks with RootConnector {
 
+  override lazy val tableName = "mkpt"
+  override implicit def space: KeySpace = scyllaConnection.space
+  override implicit def session: Session = scyllaConnection.session
 
-case class MarketPlaceInput(name: String, cattype: String, order: String, image: String, url: String, envs: models.tosca.KeyValueList, plans: models.base.MarketPlacePlans) {
-  val json = "{\"name\":\"" + name + "\",\"cattype\":\"" + cattype + "\",\"order\":\"" + order + "\",\"image\":\"" + image + "\",\"url\":\"" + url + "\",\"envs\":" + models.tosca.KeyValueList.toJson(envs, true) + ",\"plans\":" + MarketPlacePlans.toJson(plans, true) + "}"
+  def findAll(): ValidationNel[Throwable, List[MarketPlaceSack]] = {
+  val resp =  select.collect()
+   Await.result(resp, 5.second).successNel
+ }
+
 }
 
-//init the default market place addons
-object MarketPlaceInput {
 
-  val toMap = utils.MKPData.mkMap
 
-  val toStream = toMap.keySet.toStream
-
-}
 
 //case class MarketPlaceResult(id: String, name: String, catalog: MarketPlaceCatalog, features: MarketPlaceFeatures, plans: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) {
 case class MarketPlaceResult(id: String, name: String, cattype: String, order: String, image: String, url: String, envs: models.tosca.KeyValueList, plans: MarketPlacePlans, created_at: String) {
@@ -131,136 +121,15 @@ object MarketPlaceResult {
 }
 
 
-object MarketPlaces {
-
-  implicit val formats = DefaultFormats
-
-  implicit def MarketPlacesSemigroup: Semigroup[MarketPlaceResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
-  private lazy val idxedBy = idxMarketplaceName
-
-  private lazy val bucker = "marketplaces"
-
-  private lazy val riak = GWRiak(bucker)
 
 
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to marketplaceinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val mktPlaceInput: ValidationNel[Throwable, MarketPlaceInput] = (Validation.fromTryCatchThrowable[models.base.MarketPlaceInput, Throwable] {
-      parse(input).extract[MarketPlaceInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+class Marketplaces extends ConcreteMkp {
 
-    for {
-      mkp <- mktPlaceInput
-      uir <- (UID("mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
-    } yield {
-      val bvalue = Set(mkp.name)
-      val json = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.envs, mkp.plans, Time.now.toString).toJson(false)
-      new GunnySack(mkp.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
-    }
-  }
 
-  private def mkGunnySack_init(input: MarketPlaceInput): ValidationNel[Throwable, Option[GunnySack]] = {
-    for {
-      mkp <- input.successNel[Throwable]
-      uir <- (UID("mkp").get leftMap { ut: NonEmptyList[Throwable] => ut })
-    } yield {
-      val bvalue = Set(mkp.name)
-      val mkpJson = new MarketPlaceResult(uir.get._1 + uir.get._2, mkp.name, mkp.cattype, mkp.order, mkp.image, mkp.url, mkp.envs, mkp.plans, Time.now.toString).toJson(false)
-      new GunnySack(mkp.name, mkpJson, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
-    }
-  }
-
-  /*
-   * create new market place item with the 'name' of the item provide as input.
-   * A index name marketplace name will point to the "marketplaces" bucket.
-   */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
-    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }). //riak storage
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[MarketPlaceResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"MarketPlace.created success",Console.RESET))
-              (parse(gs.get.value).extract[MarketPlaceResult].some).successNel[Throwable];
-            }
-          }
-        }
-    }
-  }
-
-  def createMany(mktPlaceInput: Map[String, MarketPlaceInput]): ValidationNel[Throwable, MarketPlaceResults] = {
-    (mktPlaceInput.toMap.some map {
-      _.map { p =>
-        (mkGunnySack_init(p._2) leftMap { t: NonEmptyList[Throwable] => t
-        }).flatMap { gs: Option[GunnySack] =>
-          (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-            flatMap { maybeGS: Option[GunnySack] =>
-              maybeGS match {
-                case Some(thatGS) => MarketPlaceResults(parse(thatGS.value).extract[MarketPlaceResult]).successNel[Throwable]
-                case None => {
-                  play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"MarketPlaces.created success", Console.RESET))
-                  MarketPlaceResults(MarketPlaceResult(new String(), p._2.name, p._2.cattype, p._2.order, p._2.image, p._2.url, p._2.envs, p._2.plans, new String())).successNel[Throwable]
-                }
-              }
-            }
-        }
-      }
-    } map {
-      _.fold((MarketPlaceResults.empty).successNel[Throwable])(_ +++ _) //fold or foldRight ?
-    }).head //return the folded element in the head.
-
-  }
-
-  def findByName(marketPlacesNameList: Option[Stream[String]]): ValidationNel[Throwable, MarketPlaceResults] = {
-    (marketPlacesNameList map {
-      _.map { marketplacesName =>
-        InMemory[ValidationNel[Throwable, MarketPlaceResults]]({
-          cname: String =>
-            {
-              (riak.fetch(marketplacesName) leftMap { t: NonEmptyList[Throwable] =>
-                new ServiceUnavailableError(marketplacesName, (t.list.map(m => m.getMessage)).mkString("\n"))
-              }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-                xso match {
-                  case Some(xs) => {
-                    (Validation.fromTryCatchThrowable[models.base.MarketPlaceResult, Throwable] {
-                      parse(xs.value).extract[MarketPlaceResult]
-                    } leftMap { t: Throwable =>
-                      new ResourceItemNotFound(marketplacesName, t.getMessage)
-                    }).toValidationNel.flatMap { j: MarketPlaceResult =>
-                      Validation.success[Throwable, MarketPlaceResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-                    }
-                  }
-                  case None => Validation.failure[Throwable, MarketPlaceResults](new ResourceItemNotFound(marketplacesName, "")).toValidationNel
-                }
-              }
-            }
-        }).get(marketplacesName).eval(InMemoryCache[ValidationNel[Throwable, MarketPlaceResults]]())
-      }
-    } map {
-      _.foldRight((MarketPlaceResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head.
-  }
-
-  def listAll: ValidationNel[Throwable, MarketPlaceResults] = {
-    findByName(MarketPlaceInput.toStream.some) //return the folded element in the head.
-  }
-
-  implicit val sedimentMarketPlacesResults = new Sedimenter[ValidationNel[Throwable, MarketPlaceResults]] {
-    def sediment(maybeASediment: ValidationNel[Throwable, MarketPlaceResults]): Boolean = {
-      val notSed = maybeASediment.isSuccess
-      notSed
-    }
-  }
-
+ def listAll(): ValidationNel[Throwable, List[MarketPlaceSack]] = {
+   for {
+     mkp <- findAll()
+   } yield {
+       mkp }
+ }
 }

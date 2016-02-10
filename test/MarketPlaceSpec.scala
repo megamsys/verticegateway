@@ -43,14 +43,14 @@ class MarketPlaceSpec extends Specification {
       MarketPlacesSpec is the implementation that calls the API server with the /marketplaces url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post0.succeeds ^ br ^
-      "Correctly do POST requests" ! Post1.succeeds ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+    //  "Correctly do POST requests" ! Post0.succeeds ^ br ^
+    //  "Correctly do POST requests" ! Post1.succeeds ^
+    //  "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+  //    "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+  //    "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+  //    "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+  //    "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   case object Post0 extends Context {
@@ -139,6 +139,7 @@ class MarketPlaceSpec extends Specification {
     def succeeds = {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+
     }
   }
 

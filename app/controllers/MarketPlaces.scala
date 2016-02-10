@@ -45,7 +45,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
               Status(CREATED)(
                 FunnelResponse(CREATED, """Market Places created successfully.
             |
-            |You can use the the 'market place name':{%s}.""".format(succ.getOrElse("none")), "Megam::MarketPlace").toJson(true))
+            |You can use  the 'market place name':{%s}.""".format(succ.getOrElse("none")), "Megam::MarketPlace").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

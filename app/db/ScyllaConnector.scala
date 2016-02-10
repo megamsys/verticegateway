@@ -1,4 +1,4 @@
-package app.db
+package db
 
 import java.net.InetAddress
 
@@ -9,26 +9,17 @@ import com.websudos.phantom.dsl.Session
 import scala.collection.JavaConversions._
 import app.MConfig
 
-/**
- * Created by Thiago Pereira on 6/9/15.
- *
- * Cassandra Connector extends the [[SessionProvider]] from phantom-dsl,
- * establishing a connection to a secure cluster with username and password
- */
-trait CassandraConnector extends SessionProvider {
+
+trait ScyllaConnector extends SessionProvider {
 
   implicit val space: KeySpace = Connector.keyspace
-
   val cluster = Connector.cluster
-
   override implicit lazy val session: Session = Connector.session
 }
 
 object Connector {
 
   val hosts = MConfig.scyllaurl
-  //val inets = hosts.map(InetAddress.getByName)
- 
   val keyspace: KeySpace = KeySpace(MConfig.scylla_keyspace)
 
   val cluster =
@@ -39,3 +30,5 @@ object Connector {
    println(cluster)
   val session: Session = cluster.connect(keyspace.name)
 }
+
+object scyllaConnection extends ScyllaConnector {}
