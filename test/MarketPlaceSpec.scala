@@ -130,16 +130,14 @@ class MarketPlaceSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "marketplaces/test-Alfresc"
+    protected override def urlSuffix: String = "marketplaces"
 
     protected def headersOpt: Option[Map[String, String]] = None
-
     private val get = GET(url)(httpClient)
       .addHeaders(headers)
     def succeeds = {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-
     }
   }
 

@@ -31,6 +31,8 @@ import cache._
 import app.MConfig
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
@@ -42,56 +44,26 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 //import scala.concurrent.{Await, Future}
-import com.twitter.util.{Future, Await}
+import com.twitter.util.{ Future, Await }
 import com.twitter.conversions.time._
 
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.iteratee.Iteratee
-import com.websudos.phantom.connectors.{ContactPoint, KeySpaceDef}
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 
-
-
-case class MarketPlaceSack (
-  name: String
-)
-
-
-//table class for holding the ds of a particular type(mkp in our case)
-sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPlaceSack] {
-
-  object name extends StringColumn(this)
-
- override def fromRow(r: Row): MarketPlaceSack = { MarketPlaceSack(name(r)) }
-
-
-}
-
-//Needs -> DS CLASS (MkpSacks)
-//      -> Connector class
-//This class talks to the cassandra and performs the actions
-abstract class ConcreteMkp extends MarketPlaceSacks with RootConnector {
-
-  override lazy val tableName = "mkpt"
-  override implicit def space: KeySpace = scyllaConnection.space
-  override implicit def session: Session = scyllaConnection.session
-
-  def findAll(): ValidationNel[Throwable, List[MarketPlaceSack]] = {
-  val resp =  select.collect()
-   Await.result(resp, 5.second).successNel
- }
-
-}
-
-
-
-
-//case class MarketPlaceResult(id: String, name: String, catalog: MarketPlaceCatalog, features: MarketPlaceFeatures, plans: MarketPlacePlans, applinks: MarketPlaceAppLinks, attach: String, predefnode: String, approved: String, created_at: String) {
-case class MarketPlaceResult(id: String, name: String, cattype: String, order: String, image: String, url: String, envs: models.tosca.KeyValueList, plans: MarketPlacePlans, created_at: String) {
+case class MarketPlaceSack(
+  settings_name: String,
+  cattype: String,
+  flavor: String,
+  image: String,
+  url: String,
+  envs: Map[String, String],
+  plans: Map[String, String]) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.MarketPlaceResultSerialization
-    val preser = new MarketPlaceResultSerialization()
+    import models.json.MarketPlaceSackSerialization
+    val preser = new MarketPlaceSackSerialization()
     toJSON(this)(preser.writer)
   }
 
@@ -102,17 +74,17 @@ case class MarketPlaceResult(id: String, name: String, cattype: String, order: S
   }
 }
 
-object MarketPlaceResult {
+object MarketPlaceSack {
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MarketPlaceResult] = {
+  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MarketPlaceSack] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
 
-    import models.json.MarketPlaceResultSerialization
-    val preser = new MarketPlaceResultSerialization()
+    import models.json.MarketPlaceSackSerialization
+    val preser = new MarketPlaceSackSerialization()
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[MarketPlaceResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
+  def fromJson(json: String): Result[MarketPlaceSack] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -120,16 +92,53 @@ object MarketPlaceResult {
 
 }
 
+//table class for holding the ds of a particular type(mkp in our case)
+sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] {
 
+  object settings_name extends StringColumn(this)
+  object cattype extends StringColumn(this)
+  object flavor extends StringColumn(this)
+  object image extends StringColumn(this)
+  object url extends StringColumn(this)
+  object envs extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
+  object plans extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
 
+  override def fromRow(r: Row): MarketPlaceSack = {
+    MarketPlaceSack(
+      settings_name(r),
+      cattype(r),
+      flavor(r),
+      image(r),
+      url(r),
+      envs(r),
+      plans(r))
+  }
+}
 
-class Marketplaces extends ConcreteMkp {
+/*
+ *   This class talks to the cassandra and performs the actions
+ */
+abstract class ConcreteMkp extends MarketPlaceT with RootConnector {
 
+  override lazy val tableName = "mkplaces"
+  override implicit def space: KeySpace = scyllaConnection.space
+  override implicit def session: Session = scyllaConnection.session
 
- def listAll(): ValidationNel[Throwable, List[MarketPlaceSack]] = {
-   for {
-     mkp <- findAll()
-   } yield {
-       mkp }
- }
+  def findAll(): ValidationNel[Throwable, MarketPlaceSacks] = {
+    val resp = select.collect()
+
+    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
+    return Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
+  }
+}
+
+object MarketPlaces extends ConcreteMkp {
+
+  def listAll(): ValidationNel[Throwable, MarketPlaceSacks] = {
+    for {
+      mkp <- findAll()
+    } yield {
+      mkp
+    }
+  }
 }

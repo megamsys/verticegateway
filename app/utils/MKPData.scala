@@ -15,7 +15,7 @@ import scala.collection.mutable.ListBuffer
 import java.nio.charset.Charset
 import scala.util.control._
 import java.io.{ File, FileInputStream }
-import models.base.{ MarketPlaceInput, MarketPlacePlans, MarketPlacePlan }
+//import models.base.{ MarketPlaceInput, MarketPlacePlans, MarketPlacePlan }
 import models.tosca.{ KeyValueList, KeyValueField }
 
 /**
@@ -37,5 +37,6 @@ import models.tosca.{ KeyValueList, KeyValueField }
 object MKPData {
 
   implicit val formats = DefaultFormats
-  var mkMap = Map[String, MarketPlaceInput]()
+//  var mkMap = Map[String, MarketPlaceInput]()
+var mkMap = ""
 }

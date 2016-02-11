@@ -29,78 +29,22 @@ import play.api.mvc._
  */
 object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
 
-  /*
-   * Create or update a new MarketPlace by email/json input.
-   * Old value for the same key gets wiped out.
-   */
-  def post = StackAction(parse.tolerantText) { implicit request =>
-      (Validation.fromTryCatchThrowable[Result,Throwable] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.base.MarketPlaces.create(email, clientAPIBody) match {
-            case Success(succ) =>
-              Status(CREATED)(
-                FunnelResponse(CREATED, """Market Places created successfully.
-            |
-            |You can use  the 'market place name':{%s}.""".format(succ.getOrElse("none")), "Megam::MarketPlace").toJson(true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-
-  }
-
-  /*
-   * GET: findByName: Show a particular market place by name
-   * Email provided in the URI.
-   * Output: JSON (MarketPlaceResult)
-   **/
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-      (Validation.fromTryCatchThrowable[Result,Throwable] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.base.MarketPlaces.findByName(Stream(id).some) match {
-            case Success(succ) =>
-              Ok(models.base.MarketPlaceResults.toJson(succ, true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
-
   /**
    * GET: findbyEmail: List all the market place names per email
    * Email grabbed from header.
    * Output: JSON (MarketPlacesResult)
    */
   def list = StackAction(parse.tolerantText) { implicit request =>
-      (Validation.fromTryCatchThrowable[Result,Throwable] {
+    play.api.Logger.info("[+] Fetching all the MarketPlaceItems")
+
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.MarketPlaces.listAll match {
             case Success(succ) => {
-              Ok(models.base.MarketPlaceResults.toJson(succ, true))
+                Ok(models.base.MarketPlaceSacks.toJson(succ, true))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

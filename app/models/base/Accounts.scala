@@ -43,7 +43,7 @@ import java.util.UUID
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
 import scala.concurrent.{ Future => ScalaFuture }
-import com.websudos.phantom.connectors.{ContactPoint, KeySpaceDef}
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -53,20 +53,18 @@ import scala.concurrent.duration._
  *
  */
 case class AccountSack(
-    id: String, 
-    first_name: String, 
-    last_name: String, 
-    phone: String, 
-    email: String, 
-    api_key: String, 
-    password: String, 
-    authority: String, 
-    password_reset_key: String, 
-    password_reset_sent_at: String, 
-    created_at: String
-    ) 
-    
-    
+  id: String,
+  first_name: String,
+  last_name: String,
+  phone: String,
+  email: String,
+  api_key: String,
+  password: String,
+  authority: String,
+  password_reset_key: String,
+  password_reset_sent_at: String,
+  created_at: String)
+
 sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   //object id extends  UUIDColumn(this) with PartitionKey[UUID] {
   //  override lazy val name = "id"
@@ -80,7 +78,7 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   object password extends StringColumn(this)
   object authority extends StringColumn(this)
   object password_reset_key extends StringColumn(this)
-  object password_reset_sent_at extends StringColumn(this)  
+  object password_reset_sent_at extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   def fromRow(row: Row): AccountResult = {
@@ -95,11 +93,9 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
       authority(row),
       password_reset_key(row),
       password_reset_sent_at(row),
-      created_at(row)
-    )
+      created_at(row))
   }
 }
-
 
 abstract class ConcreteAccounts extends AccountSacks with RootConnector {
   // you can even rename the table in the schema to whatever you like.
@@ -118,34 +114,34 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .value(_.password_reset_sent_at, account.password_reset_sent_at)
       .value(_.created_at, account.created_at)
       .future()
-       Await.result(res, 5.seconds).successNel
+    Await.result(res, 5.seconds).successNel
   }
- 
- // def getRecipeById(id: UUID): ScalaFuture[Option[AccountInput]] = {
- //   select.where(_.id eqs id).one()
- // } 
+
+  // def getRecipeById(id: UUID): ScalaFuture[Option[AccountInput]] = {
+  //   select.where(_.id eqs id).one()
+  // }
 
   //def deleteRecipeById(id: UUID): ScalaFuture[ResultSet] = {
- //   delete.where(_.id eqs id).future()
+  //   delete.where(_.id eqs id).future()
   //}
 }
 
 class AccountsDatabase(override val connector: KeySpaceDef) extends Database(connector) {
 
   object AccountSacks extends ConcreteAccounts with connector.Connector
- implicit val formats = DefaultFormats
- 
- private def accountNel(input: String): ValidationNel[Throwable, AccountResult] = {
+  implicit val formats = DefaultFormats
+
+  private def accountNel(input: String): ValidationNel[Throwable, AccountResult] = {
     (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
- 
+
   def create(input: String): ValidationNel[Throwable, ResultSet] = {
     for {
       acc <- accountNel(input)
       insert <- AccountSacks.insertNewRecord(acc)
-    } yield {    
+    } yield {
       insert
     }
   }
@@ -153,19 +149,19 @@ class AccountsDatabase(override val connector: KeySpaceDef) extends Database(con
 
 //object AccountsDatabase extends AccountsDatabase(ContactPoint.local.keySpace("accounts"))
 
-object Accounts { 
+object Accounts {
 
   private val riak = GWRiak("accounts")
- implicit val formats = DefaultFormats
-  
+  implicit val formats = DefaultFormats
+
   //def create(input: String): ValidationNel[Throwable, Option[ResultSet]] = {
-   // for {
-      //acc <- parse(input).extract[AccountSack]
-    //  insert <- AccountSacks.insertNewRecord(acc)
-   // } yield insert.some.successNel[Throwable]
- // }
-  
-   def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+  // for {
+  //acc <- parse(input).extract[AccountSack]
+  //  insert <- AccountSacks.insertNewRecord(acc)
+  // } yield insert.some.successNel[Throwable]
+  // }
+
+  def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
     InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
       name: String =>
         {
@@ -189,13 +185,12 @@ object Accounts {
         }
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
   }
-  
+
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
       val notSed = maybeASediment.isSuccess
       notSed
     }
   }
-  
-}  
-  
+
+}

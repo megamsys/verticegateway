@@ -27,7 +27,7 @@ import db._
 import controllers.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import models.team.{ Organizations, OrganizationsResults }
-import models.base.{ RequestResult, MarketPlaceResults }
+import models.base.{ RequestResult }
 
 import io.megam.common.uid.UID
 import io.megam.util.Time
@@ -44,18 +44,17 @@ case object Hellow {
   type THunt = (String, Option[String])
 
   case class Treasure(infra: Map[String, String],
-    hunts: Map[String, THunt],
-    mkps: MarketPlaceResults) {
+    hunts: Map[String, THunt]) {
 
     //crude but for now its ok.
     val stat = (hunts.map { x => (x._1, x._2._2.getOrElse("down")) }).toMap
-    val loady = scala.collection.immutable.TreeMap((mkps.list.flatten.sortWith(_.cattype < _.cattype).map { x =>
-      (x.cattype + "." + x.name, x.image + "." + x.plans.size.toString + "," + x.id)
-    }).toMap.toSeq: _*)
+  //  val loady = scala.collection.immutable.TreeMap((mkps.list.flatten.sortWith(_.cattype < _.cattype).map { x =>
+  //    (x.cattype + "." + x.name, x.image + "." + x.plans.size.toString + "," + x.id)
+  //  }).toMap.toSeq: _*)
 
     val json = Json.prettyPrint(Json.toJson(Map("status" -> stat,
-      "runtime" -> infra,
-      "loaded" -> loady)))
+      "runtime" -> infra
+      )))
     println(json)
 
   }
@@ -107,12 +106,12 @@ case object Hellow {
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)
 
-  private def mkps = models.base.MarketPlaces.listAll match {
-    case Success(succ_mkps) => succ_mkps
-    case Failure(errmkps) => MarketPlaceResults.empty
-  }
+//  private def mkps = models.base.MarketPlaces.listAll match {
+//  case Success(succ_mkps) => succ_mkps
+//    case Failure(errmkps) => MarketPlaceResults.empty
+//  }
 
-  def buccaneer = Treasure(infra, sharks, mkps)
+  def buccaneer = Treasure(infra, sharks)
 
   val events = Map[String, String]("events" -> "none")
 
