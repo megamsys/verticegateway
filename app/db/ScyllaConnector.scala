@@ -5,11 +5,12 @@ import java.net.InetAddress
 import com.datastax.driver.core.Cluster
 import com.websudos.phantom.connectors.{ KeySpace, SessionProvider }
 import com.websudos.phantom.dsl.Session
+import com.websudos.phantom.dsl._
 
 import scala.collection.JavaConversions._
 import app.MConfig
 
-trait ScyllaConnector extends SessionProvider {
+trait ScyllaConnector extends SessionProvider with RootConnector {
 
   implicit val space: KeySpace = Connector.keyspace
   val cluster = Connector.cluster

@@ -43,7 +43,6 @@ import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-//import scala.concurrent.{Await, Future}
 import com.twitter.util.{ Future, Await }
 import com.twitter.conversions.time._
 
@@ -95,7 +94,6 @@ object MarketPlaceSack {
 //table class for holding the ds of a particular type(mkp in our case)
 sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] {
 
-  //object mkpName extends StringColumn(this) with PartitionKey[String]
   object settings_name extends StringColumn(this)
   object cattype extends StringColumn(this)
   object flavor extends StringColumn(this) with PrimaryKey[String]
@@ -117,13 +115,11 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
 }
 
 /*
- *   This class talks to the cassandra and performs the actions
+ *   This class talks to scylla and performs the actions
  */
-abstract class ConcreteMkp extends MarketPlaceT with RootConnector {
+abstract class ConcreteMkp extends MarketPlaceT with ScyllaConnector {
 
   override lazy val tableName = "mkplaces"
-  override implicit def space: KeySpace = scyllaConnection.space
-  override implicit def session: Session = scyllaConnection.session
 
 }
 
@@ -133,7 +129,7 @@ object MarketPlaces extends ConcreteMkp {
     val resp = select.collect()
 
     val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
-    return Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
+    Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
   }
 
   def findByName(flavor: String): ValidationNel[Throwable, MarketPlaceSacks] = {
@@ -141,6 +137,5 @@ object MarketPlaces extends ConcreteMkp {
     val resp = select.allowFiltering().where(_.flavor eqs flavor).get()
     val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
     Validation.success[Throwable, MarketPlaceSacks](nels(p.head)).toValidationNel
-
   }
 }
