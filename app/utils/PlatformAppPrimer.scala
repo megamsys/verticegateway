@@ -38,12 +38,7 @@ import models.team._
 
 object PlatformAppPrimer {
 
-  /*def takeatourAcct = models.base.Accounts.create(
-    AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, DEMO_EMAIL, DEMO_APIKEY, SAMPLE_PASSWORD, "demo", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
 
-  def taketestAcct = models.base.Accounts.create(
-    AccountInput(MEGAM_TEST_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, TEST_EMAIL, TEST_APIKEY, TEST_PASSWORD, "test", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
-*/
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     //dumact <- takeatourAcct
     //testacct <- taketestAcct
@@ -58,18 +53,6 @@ object PlatformAppPrimer {
     FunnelResponses(chainedComps)
   }
 
-  //populate the marketplace catalogue
-  def marketplace_catalogs = models.base.MarketPlaces.createMany(MarketPlaceInput.toMap)
-
-  def mkp_prep: ValidationNel[Throwable, FunnelResponses] = for {
-    mkp <- marketplace_catalogs
-  } yield {
-    val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Marketpace catalogs created successfully. Cache gets loaded upon first fetch.
-            |
-            |%nLoaded results are ----->%n[%s]""".format(mkp.list.size + " catalogs primed.").stripMargin, "Megam::MarketPlaces"))
-    FunnelResponses(chainedComps)
-  }
 
   def clone_organizations = { clonefor_email: String =>
     models.team.Organizations.create(clonefor_email,

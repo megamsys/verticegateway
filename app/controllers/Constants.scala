@@ -34,7 +34,7 @@ object Constants {
 
   lazy val WithGzipHoleHeader: Map[String, String] = WithGzipHeader + (X_Megam_PUTTUSAVI -> X_Megam_PUTTUSAVI)
 
-  val MEGAM_HOME = sys.env.get("MEGAM_HOME").getOrElse("/var/lib/megam")
+  val MEGAM_HOME = sys.env.get("MEGAM_HOME").getOrElse("/var/lib/megam") //THIS
 
   val TEST_EMAIL = "test@megam.io"
   val TEST_APIKEY = "faketest"
@@ -53,6 +53,6 @@ object Constants {
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
-  val DEFAULT_ORG_NAME = "com.megambox"
-  val OJA_MKT_YAML = MConfig.marketplaces_yaml
+  val DEFAULT_ORG_NAME = "com.megambox" //THIS
+  //val OJA_MKT_YAML = MConfig.marketplaces_yaml
 }

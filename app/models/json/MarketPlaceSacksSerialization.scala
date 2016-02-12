@@ -13,6 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 package models.json
 
 import scalaz._
@@ -23,53 +24,42 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import models.base._
 
 /**
- * @author rajthilak
+ * @author morpheyesh
  *
  */
-object MarketPlaceResultsSerialization extends io.megam.json.SerializationBase[MarketPlaceResults] {
-  protected val JSONClazKey = models.Constants.JSON_CLAZ
-  protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[MarketPlaceResults] {
-    override def write(h: MarketPlaceResults): JValue = {
+object MarketPlaceSacksSerialization extends io.megam.json.SerializationBase[MarketPlaceSacks] {
+  protected val ResultsKey = "results"
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
+
+  implicit override val writer = new JSONW[MarketPlaceSacks] {
+    override def write(h: MarketPlaceSacks): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[MarketPlaceResult] =>
-          (nrOpt.map { nr: MarketPlaceResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[MarketPlaceSack] =>
+          (nrOpt.map { nr: MarketPlaceSack => nr.toJValue }).getOrElse(JNothing)
       }
 
       JObject(JField(JSONClazKey, JString("Megam::MarketPlaceCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
-  /* Read - JArray(List[NodeResult]) which translates to :
-        JArray(List(
-          JObject(
-            List(
-              JField(name,JInt(code)),
-              JField(value,JString(msg))
-              .....
-            )
-          )
-        )
-      )
-      PredefResult already has an implicit reader, hence use it.
-       */
-  implicit override val reader = new JSONR[MarketPlaceResults] {
-    override def read(json: JValue): Result[MarketPlaceResults] = {
+  implicit override val reader = new JSONR[MarketPlaceSacks] {
+    override def read(json: JValue): Result[MarketPlaceSacks] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            MarketPlaceResult.fromJValue(jValue) match {
-              case Success(nr)   => List(nr)
-              case Failure(fail) => List[MarketPlaceResult]()
+            MarketPlaceSack.fromJValue(jValue) match {
+              case Success(nr) => List(nr)
+              case Failure(fail) => List[MarketPlaceSack]()
             }
-          } map { x: MarketPlaceResult => x.some }
+          } map { x: MarketPlaceSack => x.some }
           //this is screwy. Making the MarketPlaceResults as Option[NonEmptylist[MarketPlaceResult]] will solve it.
-          val nrs: MarketPlaceResults = list.toNel.getOrElse(nels(none))
+          val nrs: MarketPlaceSacks = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[MarketPlaceResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[MarketPlaceSacks]
       }
     }
   }
+
 }

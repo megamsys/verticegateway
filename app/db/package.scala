@@ -22,7 +22,7 @@ import app.MConfig
  *
  */
 package object db {
-  
+
     val GatewayScaliakPool = Scaliak.clientPool(List(MConfig.riakurl))
 
     def GWRiak(bucketName: String) = new GSRiak(MConfig.riakurl, bucketName)(GatewayScaliakPool)

@@ -21,7 +21,7 @@ megam.marketplaces="/var/lib/megam/vertisgateway/marketplaces.yaml"
 
 # Riak
 # ~~~~~
-riak.url="192.168.1.105"
+riak.url="localhost"
 
 # Nsq
 # ~~~~~

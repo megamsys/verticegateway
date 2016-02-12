@@ -35,7 +35,6 @@ import models.Constants._
  */
 package object base {
 
-
   type RequestResults = NonEmptyList[Option[RequestResult]]
 
   object RequestResults {
@@ -81,54 +80,29 @@ package object base {
     def empty: SshKeyResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-  type MarketPlaceResults = NonEmptyList[Option[MarketPlaceResult]]
+  
 
-  object MarketPlaceResults {
-    val emptyPC = List(Option.empty[MarketPlaceResult])
+  type MarketPlaceSacks = NonEmptyList[Option[MarketPlaceSack]]
 
-    def toJValue(prres: MarketPlaceResults): JValue = {
+  object MarketPlaceSacks {
+    val emptyPC = List(Option.empty[MarketPlaceSack])
+
+    def toJValue(prres: MarketPlaceSacks): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import MarketPlaceResultsSerialization.{ writer => MarketPlaceResultsWriter }
-      toJSON(prres)(MarketPlaceResultsWriter)
+      import MarketPlaceSacksSerialization.{ writer => MarketPlaceSacksWriter }
+      toJSON(prres)(MarketPlaceSacksWriter)
     }
 
-    def toJson(nres: MarketPlaceResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      prettyRender(toJValue(nres))
-    } else {
-      compactRender(toJValue(nres))
+    def toJson(nres: MarketPlaceSacks, prettyPrint: Boolean = false): String = {
+      //if (prettyPrint) { prettyRender(toJValue(nres))} else {compatRender(toJValue(nres))}
+      prettyPrint match {
+        case (prettyPrint) => prettyRender(toJValue(nres))
+        case _ => compactRender(toJValue(nres))
+      }
     }
 
-    def apply(m: MarketPlaceResult): MarketPlaceResults = nels(m.some)
-    def empty: MarketPlaceResults = nel(emptyPC.head, emptyPC.tail)
-  }
-
-
-  type MarketPlacePlans = List[MarketPlacePlan]
-
-  object MarketPlacePlans {
-    val emptyRR = List(MarketPlacePlan.empty)
-    def toJValue(nres: MarketPlacePlans): JValue = {
-
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import MarketPlacePlansSerialization.{ writer => MarketPlacePlansWriter }
-      toJSON(nres)(MarketPlacePlansWriter)
-    }
-
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MarketPlacePlans] = {
-      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import MarketPlacePlansSerialization.{ reader => MarketPlacePlansReader }
-      fromJSON(jValue)(MarketPlacePlansReader)
-    }
-
-    def toJson(nres: MarketPlacePlans, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      prettyRender(toJValue(nres))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(plansList: List[MarketPlacePlan]): MarketPlacePlans = plansList
-
-    def empty: List[MarketPlacePlan] = emptyRR
+    def apply(m: MarketPlaceSack): MarketPlaceSacks = nels(m.some)
+    def empty: MarketPlaceSacks = nel(emptyPC.head, emptyPC.tail)
   }
 
 }
