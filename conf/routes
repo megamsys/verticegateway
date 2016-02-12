@@ -21,8 +21,8 @@ GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: Strin
 
 #MarketPlaces
 #POST   /v2/marketplaces/content         controllers.MarketPlaces.post
-GET    /v2/marketplaces                 controllers.MarketPlaces.list
-#GET    /v2/marketplaces/:id             controllers.MarketPlaces.show(id: String)
+GET    /v2/marketplaces                  controllers.MarketPlaces.list
+GET    /v2/marketplaces/:flavor             controllers.MarketPlaces.show(flavor: String)
 
 # Requests
 POST   /v2/requests/content            	controllers.Requests.post

@@ -95,9 +95,10 @@ object MarketPlaceSack {
 //table class for holding the ds of a particular type(mkp in our case)
 sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] {
 
+  //object mkpName extends StringColumn(this) with PartitionKey[String]
   object settings_name extends StringColumn(this)
   object cattype extends StringColumn(this)
-  object flavor extends StringColumn(this)
+  object flavor extends StringColumn(this) with PrimaryKey[String]
   object image extends StringColumn(this)
   object url extends StringColumn(this)
   object envs extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
@@ -124,21 +125,22 @@ abstract class ConcreteMkp extends MarketPlaceT with RootConnector {
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
-  def findAll(): ValidationNel[Throwable, MarketPlaceSacks] = {
-    val resp = select.collect()
-
-    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
-    return Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
-  }
 }
 
 object MarketPlaces extends ConcreteMkp {
 
   def listAll(): ValidationNel[Throwable, MarketPlaceSacks] = {
-    for {
-      mkp <- findAll()
-    } yield {
-      mkp
-    }
+    val resp = select.collect()
+
+    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
+    return Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
+  }
+
+  def findByName(flavor: String): ValidationNel[Throwable, MarketPlaceSacks] = {
+
+    val resp = select.allowFiltering().where(_.flavor eqs flavor).get()
+    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
+    Validation.success[Throwable, MarketPlaceSacks](nels(p.head)).toValidationNel
+
   }
 }
