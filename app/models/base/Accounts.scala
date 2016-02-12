@@ -30,7 +30,6 @@ import controllers.Constants._
 
 import com.stackmob.scaliak._
 import io.megam.auth.stack.AccountResult
-import io.megam.common.riak.GunnySack
 import io.megam.common.uid.UID
 import io.megam.util.Time
 import net.liftweb.json._
@@ -52,18 +51,10 @@ import scala.concurrent.duration._
  * authority
  *
  */
-case class AccountSack(
-  id: String,
-  first_name: String,
-  last_name: String,
-  phone: String,
-  email: String,
-  api_key: String,
-  password: String,
-  authority: String,
-  password_reset_key: String,
-  password_reset_sent_at: String,
-  created_at: String)
+
+case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) {
+  val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
+}
 
 sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   //object id extends  UUIDColumn(this) with PartitionKey[UUID] {
@@ -73,7 +64,7 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   object first_name extends StringColumn(this)
   object last_name extends StringColumn(this)
   object phone extends StringColumn(this)
-  object email extends StringColumn(this)
+  object email extends StringColumn(this) with PrimaryKey[String]
   object api_key extends StringColumn(this)
   object password extends StringColumn(this)
   object authority extends StringColumn(this)
@@ -100,8 +91,10 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
 abstract class ConcreteAccounts extends AccountSacks with RootConnector {
   // you can even rename the table in the schema to whatever you like.
   override lazy val tableName = "accounts"
+  override implicit def space: KeySpace = scyllaConnection.space
+  override implicit def session: Session = scyllaConnection.session
 
-  def insertNewRecord(account: AccountResult): ValidationNel[Throwable, ResultSet] = {
+  def insertNewRecord(account: AccountResult): ResultSet = {
     val res = insert.value(_.id, account.id)
       .value(_.first_name, account.first_name)
       .value(_.last_name, account.last_name)
@@ -114,83 +107,48 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .value(_.password_reset_sent_at, account.password_reset_sent_at)
       .value(_.created_at, account.created_at)
       .future()
-    Await.result(res, 5.seconds).successNel
+    Await.result(res, 5.seconds)
   }
 
-  // def getRecipeById(id: UUID): ScalaFuture[Option[AccountInput]] = {
-  //   select.where(_.id eqs id).one()
-  // }
+  def getRecord(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    val res = select.where(_.email eqs email).one()
+    Await.result(res, 5.seconds).successNel
+  }
 
   //def deleteRecipeById(id: UUID): ScalaFuture[ResultSet] = {
   //   delete.where(_.id eqs id).future()
   //}
 }
 
-class AccountsDatabase(override val connector: KeySpaceDef) extends Database(connector) {
+object Accounts extends ConcreteAccounts {
 
-  object AccountSacks extends ConcreteAccounts with connector.Connector
+  private val riak = GWRiak("accounts")
   implicit val formats = DefaultFormats
 
-  private def accountNel(input: String): ValidationNel[Throwable, AccountResult] = {
-    (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
-      parse(input).extract[AccountResult]
+  private def accountNel(input: String): ValidationNel[Throwable, AccountInput] = {
+    (Validation.fromTryCatchThrowable[AccountInput, Throwable] {
+      parse(input).extract[AccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
 
   def create(input: String): ValidationNel[Throwable, ResultSet] = {
     for {
-      acc <- accountNel(input)
-      insert <- AccountSacks.insertNewRecord(acc)
+      m <- accountNel(input)
+      uir <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      insert
+      val acc = AccountResult(uir.get._1 + uir.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString)
+      insertNewRecord(acc)
     }
   }
-}
-
-//object AccountsDatabase extends AccountsDatabase(ContactPoint.local.keySpace("accounts"))
-
-object Accounts {
-
-  private val riak = GWRiak("accounts")
-  implicit val formats = DefaultFormats
-
-  //def create(input: String): ValidationNel[Throwable, Option[ResultSet]] = {
-  // for {
-  //acc <- parse(input).extract[AccountSack]
-  //  insert <- AccountSacks.insertNewRecord(acc)
-  // } yield insert.some.successNel[Throwable]
-  // }
 
   def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
-      name: String =>
-        {
-          play.api.Logger.debug(("%-20s -->[%s]").format("InMemory", email))
-          (riak.fetch(email) leftMap { t: NonEmptyList[Throwable] =>
-            new ServiceUnavailableError(email, (t.list.map(m => m.getMessage)).mkString("\n"))
-          }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-            xso match {
-              case Some(xs) => {
-                (Validation.fromTryCatchThrowable[io.megam.auth.stack.AccountResult, Throwable] {
-                  parse(xs.value).extract[AccountResult]
-                } leftMap { t: Throwable =>
-                  new ResourceItemNotFound(email, t.getMessage)
-                }).toValidationNel.flatMap { j: AccountResult =>
-                  Validation.success[Throwable, Option[AccountResult]](j.some).toValidationNel
-                }
-              }
-              case None => Validation.failure[Throwable, Option[AccountResult]](new ResourceItemNotFound(email, "")).toValidationNel
-            }
-          }
-        }
-    }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
-  }
-
-  implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
-    def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
-      val notSed = maybeASediment.isSuccess
-      notSed
+    for {
+      acc <- getRecord(email)
+    } yield {
+      acc
     }
+
   }
 
 }
+
