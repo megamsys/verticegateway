@@ -26,7 +26,7 @@ import play.api.mvc._
 import org.apache.commons.codec.binary.Base64
 
 import com.datastax.driver.core.{ ResultSet, Row }
-import com.websudos.phantom.connectors.{ContactPoint, KeySpaceDef}
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 /*
  * This controller performs onboarding a customer and registers an email/api_key
  * into riak
@@ -41,37 +41,49 @@ object Accounts extends Controller with stack.APIAuthElement {
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
 
-     new models.base.AccountsDatabase(ContactPoint("103.56.92.24", 9042).keySpace("vertice")).create(input)
-      
-          Status(CREATED)(
-            FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
-              format("", "").stripMargin, "Megam::Account").toJson(true))
-       
+    models.base.Accounts.create(input)
 
-    // How do we create a Result from a Future[Result]?
+    Status(CREATED)(
+      FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
+        format("", "").stripMargin, "Megam::Account").toJson(true))
+
+  }
+
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    models.base.Accounts.findByEmail(id) match {
+      case Success(succ) => {
+        Ok((succ.map(s => s.toJson(true))).getOrElse(
+          io.megam.auth.stack.AccountResult(id).toJson(true)))
+      }
+      case Failure(err) => {
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+      }
+    }
+
   }
 
   //def post12 = Action(parse.tolerantText) { implicit request =>
-    //val input = (request.body).toString()
-    // models.base.AccountsDatabase.create(input) match {
-     // case Success(succ) =>
-        //utils.PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
-         // Status(CREATED)(
-           // FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
-            //  format("", "").stripMargin, "Megam::Account").toJson(true))
-        //} match {
-         // case Success(succ_cpc) => succ_cpc
-         // case Failure(errcpc) =>
-         //   val rncpc: FunnelResponse = new HttpReturningError(errcpc)
-         //   Status(rncpc.code)(rncpc.toJson(true))
-       // }
+  //val input = (request.body).toString()
+  // models.base.AccountsDatabase.create(input) match {
+  // case Success(succ) =>
+  //utils.PlatformAppPrimer.clone_organizations(succ.get.email).flatMap { x =>
+  // Status(CREATED)(
+  // FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
+  //  format("", "").stripMargin, "Megam::Account").toJson(true))
+  //} match {
+  // case Success(succ_cpc) => succ_cpc
+  // case Failure(errcpc) =>
+  //   val rncpc: FunnelResponse = new HttpReturningError(errcpc)
+  //   Status(rncpc.code)(rncpc.toJson(true))
+  // }
 
-     // case Failure(err) => {
-       // val rn: FunnelResponse = new HttpReturningError(err)
-       // Status(rn.code)(rn.toJson(true))
-     // }
-   // }
- // }
+  // case Failure(err) => {
+  // val rn: FunnelResponse = new HttpReturningError(err)
+  // Status(rn.code)(rn.toJson(true))
+  // }
+  // }
+  // }
 
   /*
    * GET: findByEmail: Show a particular account by email
