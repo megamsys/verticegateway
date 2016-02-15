@@ -38,7 +38,6 @@ class AccountsSpec extends Specification {
       //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! GetLogin.succeeds ^
       //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
       //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
@@ -115,18 +114,7 @@ class AccountsSpec extends Specification {
     }
   }
 
-  case object GetLogin extends Context {
-    protected override def urlSuffix: String = "accounts/login"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }
+ 
   case object GetInvalidApi extends Context {
     protected override def urlSuffix: String = "accounts/megam@mypaas.io"
 
