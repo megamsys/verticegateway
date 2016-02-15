@@ -46,6 +46,8 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import models.team._
+
 /**
  * @author rajthilak
  * authority
@@ -132,10 +134,13 @@ object Accounts extends ConcreteAccounts {
   }
 
   def create(input: String): ValidationNel[Throwable, ResultSet] = {
+    val json = "{\"name\":\"" + "defaultOrg" + "\"}"
     for {
       m <- accountNel(input)
       uir <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      orgc <- models.team.Organizations.create(m.email, json.toString)
     } yield {
+      println(orgc)
       val acc = AccountResult(uir.get._1 + uir.get._2, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString)
       insertNewRecord(acc)
     }
@@ -151,4 +156,3 @@ object Accounts extends ConcreteAccounts {
   }
 
 }
-

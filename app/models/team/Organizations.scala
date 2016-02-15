@@ -63,6 +63,10 @@ case class OrganizationsInput(name: String) {
   val json = "{\"name\":\"" + name + "\"}"
 }
 
+case class OrganizationsInviteInput(id: String) {
+  val json = "{\"id\":\"" + id + "\"}"
+}
+
 case class OrganizationsResult(
   id: String,
   accounts_id: String,
@@ -103,9 +107,9 @@ object OrganizationsResult {
 
 sealed class OrganizationsT extends CassandraTable[OrganizationsT, OrganizationsResult] {
 
-  object id extends StringColumn(this)
+  object id extends StringColumn(this) with PrimaryKey[String]
   object accounts_id extends StringColumn(this) with PartitionKey[String]
-  object name extends StringColumn(this) with PrimaryKey[String]
+  object name extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   override def fromRow(r: Row): OrganizationsResult = {
@@ -146,6 +150,12 @@ object Organizations extends ConcreteOrg {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
 
+  private def inviteNel(input: String): ValidationNel[Throwable, OrganizationsInviteInput] = {
+    (Validation.fromTryCatchThrowable[OrganizationsInviteInput, Throwable] {
+      parse(input).extract[OrganizationsInviteInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  }
+
   def create(email: String, input: String): ValidationNel[Throwable, ResultSet] = {
     for {
       c <- orgNel(input)
@@ -153,13 +163,30 @@ object Organizations extends ConcreteOrg {
     } yield {
       val org = new OrganizationsResult(uir.get._1 + uir.get._2, email, c.name, Time.now.toString)
       insertNewRecord(org)
+
     }
   }
 
   def findByEmail(accounts_id: String): ValidationNel[Throwable, OrganizationsResults] = {
     val resp = select.allowFiltering().where(_.accounts_id eqs accounts_id).fetch()
-    println(Await.result(resp, 5.seconds))
     val p = (Await.result(resp, 5.seconds)) map { i: OrganizationsResult => (i.some) }
     Validation.success[Throwable, OrganizationsResults](nel(p.head, p.tail)).toValidationNel
   }
+
+  def findById(id: String): ValidationNel[Throwable, OrganizationsResults] = {
+    val resp = select.allowFiltering().where(_.id eqs id).one()
+    val p = (Await.result(resp, 5.second)) map { i: OrganizationsResult => (i.some) }
+    Validation.success[Throwable, OrganizationsResults](nels(p.head)).toValidationNel
+  }
+
+  def inviteOrganization(email: String, input: String): ValidationNel[Throwable, ResultSet] = {
+    for {
+      c <- inviteNel(input)
+      upd <- findById(c.id)
+    } yield {
+      val org = new OrganizationsResult(upd.head.get.id, email, upd.head.get.name, Time.now.toString)
+      insertNewRecord(org)
+    }
+  }
+
 }

@@ -39,8 +39,8 @@ class OrganizationsSpec extends Specification {
     //  "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
     //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
     //  "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
-      "Correctly do LIST request with a valid email id" ! List.succeeds ^
-    //  "Correctly do UPDATE request with a valid related orgs body" ! Update.succeeds ^
+    //  "Correctly do LIST request with a valid email id" ! List.succeeds ^
+      "Correctly do INVITE request with a valid related orgs body" ! Invite.succeeds ^
       end
 
   case object Post extends Context {
@@ -132,12 +132,12 @@ class OrganizationsSpec extends Specification {
   }
 
 
-   case object Update extends Context {
+   case object Invite extends Context {
 
-    protected override def urlSuffix: String = "organizations/content"
+    protected override def urlSuffix: String = "organizations/invite"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"data\":\"somedata\"}"
+      val contentToEncode = "{\"id\":\"ORG5744095754737729825\"}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
