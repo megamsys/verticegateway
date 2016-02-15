@@ -43,7 +43,6 @@ import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-//import scala.concurrent.{Await, Future}
 import com.twitter.util.{ Future, Await }
 import com.twitter.conversions.time._
 
@@ -97,7 +96,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
 
   object settings_name extends StringColumn(this)
   object cattype extends StringColumn(this)
-  object flavor extends StringColumn(this)
+  object flavor extends StringColumn(this) with PrimaryKey[String]
   object image extends StringColumn(this)
   object url extends StringColumn(this)
   object envs extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
@@ -116,29 +115,27 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
 }
 
 /*
- *   This class talks to the cassandra and performs the actions
+ *   This class talks to scylla and performs the actions
  */
-abstract class ConcreteMkp extends MarketPlaceT with RootConnector {
+abstract class ConcreteMkp extends MarketPlaceT with ScyllaConnector {
 
   override lazy val tableName = "mkplaces"
-  override implicit def space: KeySpace = scyllaConnection.space
-  override implicit def session: Session = scyllaConnection.session
 
-  def findAll(): ValidationNel[Throwable, MarketPlaceSacks] = {
-    val resp = select.collect()
-
-    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
-    return Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
-  }
 }
 
 object MarketPlaces extends ConcreteMkp {
 
   def listAll(): ValidationNel[Throwable, MarketPlaceSacks] = {
-    for {
-      mkp <- findAll()
-    } yield {
-      mkp
-    }
+    val resp = select.collect()
+
+    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
+    Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
+  }
+
+  def findByName(flavor: String): ValidationNel[Throwable, MarketPlaceSacks] = {
+
+    val resp = select.allowFiltering().where(_.flavor eqs flavor).get()
+    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
+    Validation.success[Throwable, MarketPlaceSacks](nels(p.head)).toValidationNel
   }
 }

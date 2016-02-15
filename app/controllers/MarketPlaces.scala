@@ -44,7 +44,8 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.MarketPlaces.listAll match {
             case Success(succ) => {
-                Ok(models.base.MarketPlaceSacks.toJson(succ, true))
+              println(models.base.MarketPlaceSacks.toJson(succ, true))
+              Ok(models.base.MarketPlaceSacks.toJson(succ, true))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -59,4 +60,27 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.base.MarketPlaces.findByName(id) match {
+            case Success(succ) =>
+            println(models.base.MarketPlaceSacks.toJson(succ, true))
+              Ok(models.base.MarketPlaceSacks.toJson(succ, true))
+          //  Ok("done")
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
 }
