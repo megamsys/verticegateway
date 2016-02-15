@@ -43,9 +43,7 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
           models.team.Organizations.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Organizations created successfully.
-            |
-            |You can use the the 'Organizations id':{%s}.""".format(succ.get.id).stripMargin, "Megam::Organizations").toJson(true))
+                FunnelResponse(CREATED, """Organizations created successfully""", "Megam::Organizations").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -65,7 +63,7 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
    * Email provided in the URI.
    * Output: JSON (OrganizationsResult)
    **/
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+/*  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
@@ -85,14 +83,14 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
+  } */
 
   /**
    * GET: findbyEmail: List all the organizations names per email
    * Email grabbed from header.
    * Output: JSON (OrganizationsResult)
    */
-  def list = StackAction(parse.tolerantText) { implicit request =>
+/*  def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
@@ -113,10 +111,10 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
+  } */
 
 
-  def update = StackAction(parse.tolerantText) { implicit request =>
+/*  def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
@@ -142,6 +140,6 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
 
-  }
+  } */
 
 }

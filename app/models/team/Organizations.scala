@@ -13,7 +13,6 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-
 package models.team
 
 import scalaz._
@@ -23,14 +22,17 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 
-import cache._
+import models.json._
+import models.base._
 import db._
-import models.json.team._
-import models.team._
+import cache._
+import app.MConfig
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
@@ -41,27 +43,37 @@ import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+//import com.twitter.util.{ Future, Await }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+//import com.twitter.conversions.time._
+import org.joda.time.DateTime
+
+import com.websudos.phantom.dsl._
+import com.websudos.phantom.iteratee.Iteratee
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 
 /**
- * @author morpheyesh
  *
+ * @author morpheyesh
  */
 
 case class OrganizationsInput(name: String) {
   val json = "{\"name\":\"" + name + "\"}"
 }
 
-case class updateOrganizationsInput(id: String, accounts_id: String, name: String, related_orgs: models.team.RelatedOrgsList, created_at: String) {
-  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"accounts_id\":\"" + accounts_id + "\",\"related_orgs\":" + RelatedOrgsList.toJson(related_orgs, true) + ",\"created_at\":\"" + created_at + "\"}"
-}
-
-case class OrganizationsResult(id: String, accounts_id: String, name: String, related_orgs: models.team.RelatedOrgsList, created_at: String) {
+case class OrganizationsResult(
+  id: String,
+  accounts_id: String,
+  name: String,
+  created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.team.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from?
+    toJSON(this)(preser.writer)
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -69,13 +81,13 @@ case class OrganizationsResult(id: String, accounts_id: String, name: String, re
   } else {
     compactRender(toJValue)
   }
-
 }
 
 object OrganizationsResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OrganizationsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+
     import models.json.team.OrganizationsResultSerialization
     val preser = new OrganizationsResultSerialization()
     fromJSON(jValue)(preser.reader)
@@ -89,138 +101,65 @@ object OrganizationsResult {
 
 }
 
-object Organizations {
+sealed class OrganizationsT extends CassandraTable[OrganizationsT, OrganizationsResult] {
+
+  object id extends StringColumn(this)
+  object accounts_id extends StringColumn(this) with PartitionKey[String]
+  object name extends StringColumn(this) with PrimaryKey[String]
+  object created_at extends StringColumn(this)
+
+  override def fromRow(r: Row): OrganizationsResult = {
+    OrganizationsResult(
+      id(r),
+      accounts_id(r),
+      name(r),
+      created_at(r))
+  }
+}
+
+/*
+ *   This class talks to scylla and performs the actions
+ */
+
+abstract class ConcreteOrg extends OrganizationsT with ScyllaConnector {
+
+  override lazy val tableName = "organizations"
+
+  def insertNewRecord(org: OrganizationsResult): ResultSet = {
+    val res = insert.value(_.id, org.id)
+      .value(_.accounts_id, org.accounts_id)
+      .value(_.name, org.name)
+      .value(_.created_at, org.created_at)
+      .future()
+    Await.result(res, 5.seconds)
+  }
+
+}
+
+object Organizations extends ConcreteOrg {
+
   implicit val formats = DefaultFormats
 
-  implicit def OrganizationsResultsSemigroup: Semigroup[OrganizationsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
-
-  private lazy val bucker = "organizations"
-
-  private lazy val idxedBy = idxAccountsId
-
-  private lazy val riak = GWRiak(bucker)
-
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to organizationsinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-   val organizationsInput: ValidationNel[Throwable, OrganizationsInput] = (Validation.fromTryCatchThrowable[OrganizationsInput, Throwable] {
+  private def orgNel(input: String): ValidationNel[Throwable, OrganizationsInput] = {
+    (Validation.fromTryCatchThrowable[OrganizationsInput, Throwable] {
       parse(input).extract[OrganizationsInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  }
 
+  def create(email: String, input: String): ValidationNel[Throwable, ResultSet] = {
     for {
-      org <- organizationsInput
-      aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID("org").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      c <- orgNel(input)
+      uir <- (UID("org").get leftMap { u: NonEmptyList[Throwable] => u })
     } yield {
-      val bvalue = Set(aor.get.id)
-      val json = new OrganizationsResult(uir.get._1 + uir.get._2, aor.get.id, org.name, List(), Time.now.toString).toJson(false)
-      new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
+      val org = new OrganizationsResult(uir.get._1 + uir.get._2, email, c.name, Time.now.toString)
+      insertNewRecord(org)
     }
   }
 
-  /*
-   * create new organization item with the 'name' of the item provide as input.
-   * A index name organization name will point to the "organization bucket" bucket.
-   */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
-    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[OrganizationsResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Organizations.created success", Console.RESET))
-              (parse(gs.get.value).extract[OrganizationsResult].some).successNel[Throwable];
-            }
-          }
-        }
-    }
-  }
+  /* def findByName(flavor: String): ValidationNel[Throwable, OrganizationsResults] = {
 
-  def findById(organizationsList: Option[List[String]]): ValidationNel[Throwable, OrganizationsResults] = {
-    (organizationsList map {
-      _.map { org_id =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("organizationsId", org_id))
-        (riak.fetch(org_id) leftMap { t: NonEmptyList[Throwable] =>
-
-          new ServiceUnavailableError(org_id, (t.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-          xso match {
-            case Some(xs) => {
-              (OrganizationsResult.fromJson(xs.value) leftMap
-                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>    JSONParsingError(t)
-                }).toValidationNel.flatMap { j: OrganizationsResult =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("organizationsResult", j))
-                  Validation.success[Throwable, OrganizationsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-                }
-            }
-            case None => {
-              Validation.failure[Throwable, OrganizationsResults](new ResourceItemNotFound(org_id, "")).toValidationNel
-            }
-          }
-        }
-      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
-    } map {
-      _.foldRight((OrganizationsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head.
-  }
-
-  def findByEmail(email: String): ValidationNel[Throwable, OrganizationsResults] = {
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, OrganizationsResults]] {
-      (((for {
-        aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-      } yield {
-        play.api.Logger.debug(("%-20s -->[%s]").format(" Organizations result", aor.get))
-        new GunnySack(idxedBy, aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map.empty, Map(("", Set("")))).some
-      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
-        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
-      } map { nm: List[String] =>
-        (if (!nm.isEmpty) findById(nm.some) else
-          new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
-      }).disjunction).pure[IO]
-    }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(email, "organizations = nothing found.").failureNel[OrganizationsResults])
-  }
-
-  private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val ripNel: ValidationNel[Throwable, updateOrganizationsInput] = (Validation.fromTryCatchThrowable[updateOrganizationsInput, Throwable] {
-      parse(input).extract[updateOrganizationsInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
-    for {
-      rip <- ripNel
-      aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-    } yield {
-      val bvalue = Set(aor.get.id)
-
-      val json = OrganizationsResult(rip.id, aor.get.id, rip.name, rip.related_orgs, Time.now.toString).toJson(false)
-      new GunnySack((rip.id), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
-    }
-  }
-
-  def updateOrganization(email: String, input: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
-    (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[OrganizationsResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Organization.updated success", Console.RESET))
-              (parse(gs.get.value).extract[OrganizationsResult].some).successNel[Throwable];
-            }
-          }
-        }
-    }
-  }
+    val resp = select.allowFiltering().where(_.flavor eqs flavor).get()
+    val p = (Await.result(resp, 5.second)) map { i: OrganizationsResult => (i.some) }
+    Validation.success[Throwable, OrganizationsResults](nels(p.head)).toValidationNel
+  } */
 }

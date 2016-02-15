@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 
 package test.tosca
 
@@ -36,11 +36,11 @@ class OrganizationsSpec extends Specification {
     """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
-      "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
-      "Correctly do LIST request with a valid email id" ! List.succeeds ^
-      "Correctly do UPDATE request with a valid related orgs body" ! Update.succeeds ^
+    //  "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
+    //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+    //  "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+    //  "Correctly do LIST request with a valid email id" ! List.succeeds ^
+    //  "Correctly do UPDATE request with a valid related orgs body" ! Update.succeeds ^
       end
 
   case object Post extends Context {
@@ -48,7 +48,7 @@ class OrganizationsSpec extends Specification {
     protected override def urlSuffix: String = "organizations/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"name\":\"Megam6\" }"
+      val contentToEncode = "{\"name\":\"megamTeam\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -154,4 +154,3 @@ class OrganizationsSpec extends Specification {
 
 
 }
-*/
