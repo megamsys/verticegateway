@@ -59,38 +59,11 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
   }
 
   /**
-   * GET: findById: Show a particular Organization by Id
-   * Email provided in the URI.
-   * Output: JSON (OrganizationsResult)
-   **/
-/*  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result,Throwable] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.team.Organizations.findById(List(id).some) match {
-            case Success(succ) =>
-              Ok(models.team.OrganizationsResults.toJson(succ, true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  } */
-
-  /**
    * GET: findbyEmail: List all the organizations names per email
    * Email grabbed from header.
    * Output: JSON (OrganizationsResult)
    */
-/*  def list = StackAction(parse.tolerantText) { implicit request =>
+  def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
@@ -111,8 +84,10 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  } */
+  }
 
+//update org will actually create another org with the same org id, name but different accounts_id
+//this is called when the user is invited into the org.
 
 /*  def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {

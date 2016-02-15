@@ -33,7 +33,7 @@ POST   /v2/requests/content            	controllers.Requests.post
 POST   /v2/organizations/content        controllers.team.Organizations.post
 #POST   /v2/organizations/update         controllers.team.Organizations.update
 #GET    /v2/organizations/:id            controllers.team.Organizations.show(id: String)
-#GET    /v2/organizations	              controllers.team.Organizations.list()
+GET    /v2/organizations	              controllers.team.Organizations.list()
 
 #Domains
 POST   /v2/domains/content              controllers.team.Domains.post

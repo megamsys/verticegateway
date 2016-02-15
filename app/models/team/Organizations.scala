@@ -156,10 +156,10 @@ object Organizations extends ConcreteOrg {
     }
   }
 
-  /* def findByName(flavor: String): ValidationNel[Throwable, OrganizationsResults] = {
-
-    val resp = select.allowFiltering().where(_.flavor eqs flavor).get()
-    val p = (Await.result(resp, 5.second)) map { i: OrganizationsResult => (i.some) }
-    Validation.success[Throwable, OrganizationsResults](nels(p.head)).toValidationNel
-  } */
+  def findByEmail(accounts_id: String): ValidationNel[Throwable, OrganizationsResults] = {
+    val resp = select.allowFiltering().where(_.accounts_id eqs accounts_id).fetch()
+    println(Await.result(resp, 5.seconds))
+    val p = (Await.result(resp, 5.seconds)) map { i: OrganizationsResult => (i.some) }
+    Validation.success[Throwable, OrganizationsResults](nel(p.head, p.tail)).toValidationNel
+  }
 }
