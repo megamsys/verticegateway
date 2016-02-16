@@ -139,7 +139,7 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
 
   implicit val formats = DefaultFormats
 
-  object id extends StringColumn(this)
+  object id extends StringColumn(this) with PrimaryKey[String]
   object accounts_id extends StringColumn(this) with PartitionKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
@@ -192,13 +192,18 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def getRecord(id: String): ValidationNel[Throwable, Option[AssembliesResult]] = {
+    val res = select.allowFiltering().where(_.id eqs id).one()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
-case class WrapAssembliesResult(thatGS: Option[GunnySack], idPair: Map[String, String]) {
+case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[String, String]) {
 
   implicit val formats = DefaultFormats
 
-  val ams = parse(thatGS.get.value).extract[AssembliesResult].some
+  val ams = thatGS
 
   def cattype = idPair.map(x => x._2.split('.')(1)).head
 }
@@ -213,7 +218,7 @@ object Assemblies extends ConcreteAssemblies {
 
   private val riak = GWRiak(bucker)
 
-  private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
+  private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
     val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput, Throwable] {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
@@ -225,16 +230,18 @@ object Assemblies extends ConcreteAssemblies {
     } yield {
       val asml = ams.flatMap { assembly => nels({ assembly.map { a => (a.id, a.tosca_type) } }) }
       val asmlist = asml.toList.filterNot(_.isEmpty)
-      AssembliesResult(uir.get._1 + uir.get._2, aor.get.email, rip.org_id, rip.name, asmlist.map(_.get._1), rip.inputs)
+      new WrapAssembliesResult((AssembliesResult(uir.get._1 + uir.get._2, aor.get.email, rip.org_id, rip.name, asmlist.map(_.get._1), rip.inputs)).some, asmlist.map(_.get).toMap)
     }
-  }
+  }  
 
   def create(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
     for {
-      ams <- (mkAssembliesSack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err })
-      set <- (insertNewRecord(ams) leftMap { t: NonEmptyList[Throwable] => t })
+      wa <- (mkAssembliesSack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (insertNewRecord(wa.thatGS.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      ams
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assemblies.created success", Console.RESET))
+      pub(authBag.get.email, wa)
+      wa.ams.get
     }
   }
 
@@ -242,18 +249,13 @@ object Assemblies extends ConcreteAssemblies {
     (assembliesID map {
       _.map { asm_id =>
         play.api.Logger.debug(("%-20s -->[%s]").format("Assemblies Id", asm_id))
-        (riak.fetch(asm_id) leftMap { t: NonEmptyList[Throwable] =>
+        (getRecord(asm_id) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+        }).toValidationNel.flatMap { xso: Option[AssembliesResult] =>
           xso match {
             case Some(xs) => {
-              (AssembliesResult.fromJson(xs.value) leftMap
-                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
-                  JSONParsingError(t)
-                }).toValidationNel.flatMap { j: AssembliesResult =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("AssembliesResult", j))
-                  Validation.success[Throwable, AssembliesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-                }
+              play.api.Logger.debug(("%-20s -->[%s]").format("AssembliesResult", xs))
+              Validation.success[Throwable, AssembliesResults](nels(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
               Validation.failure[Throwable, AssembliesResults](new ResourceItemNotFound(asm_id, "")).toValidationNel
