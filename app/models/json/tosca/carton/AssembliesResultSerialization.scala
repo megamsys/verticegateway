@@ -37,6 +37,7 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends io.m
   protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val IdKey = "id"
   protected val AccountIdKey = "accounts_id"
+  protected val OrgIdKey = "org_id"
   protected val NameKey = "name"
   protected val AssembliesKey = "assemblies"
   protected val InputsKey = "inputs"
@@ -52,6 +53,7 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends io.m
       JObject(
         JField(IdKey, toJSON(h.id)) ::
         JField(AccountIdKey, toJSON(h.accounts_id)) ::
+        JField(OrgIdKey, toJSON(h.org_id)) ::
         JField(JSONClazKey, toJSON("Megam::Assemblies")) ::
           JField(NameKey, toJSON(h.name)) ::
           JField(AssembliesKey, toJSON(h.assemblies)(AssemblyLinksWriter)) ::
@@ -69,14 +71,15 @@ class AssembliesResultSerialization(charset: Charset = UTF8Charset) extends io.m
     override def read(json: JValue): Result[AssembliesResult] = {
       val idField = field[String](IdKey)(json)
       val accountIdField = field[String](AccountIdKey)(json)
+      val orgIdField = field[String](OrgIdKey)(json)
       val nameField = field[String](NameKey)(json)
       val assembliesField = field[AssemblyLinks](AssembliesKey)(json)(AssemblyLinksReader)
       val inputsField = field[KeyValueList](InputsKey)(json)(KeyValueListReader)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| accountIdField |@| nameField |@| assembliesField |@| inputsField |@| createdAtField) {
-        (id: String, accountId: String, name: String, assemblies: AssemblyLinks, inputs: KeyValueList, created_at: String) =>
-          new AssembliesResult(id, accountId, name, assemblies, inputs, created_at)
+      (idField |@| orgIdField |@| accountIdField |@| nameField |@| assembliesField |@| inputsField |@| createdAtField) {
+        (id: String, accountId: String, org_id: String, name: String, assemblies: AssemblyLinks, inputs: KeyValueList, created_at: String) =>
+          new AssembliesResult(id, accountId, org_id, name, assemblies, inputs, created_at)
       }
     }
   }

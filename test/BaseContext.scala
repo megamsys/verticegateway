@@ -53,6 +53,7 @@ trait BaseContext {
   val X_Megam_EMAIL = "X-Megam-EMAIL"
   val X_Megam_APIKEY = "X-Megam-APIKEY"
   val X_Megam_DATE = "X-Megam-DATE"
+  val X_Megam_ORG = "X-Megam-ORG"
   val X_Megam_PUTTUSAVI = "X-Megam-PUTTUSAVI"
   val X_Megam_PASSWORD = "X-Megam-PASSWORD"
   val Content_Type = "Content-Type"
@@ -64,7 +65,7 @@ trait BaseContext {
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
     X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "faketest",
-
+    X_Megam_ORG -> "ORG123",
   //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
