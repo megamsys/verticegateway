@@ -107,7 +107,7 @@ case object Post extends Context {
 
 
    case object Get extends Context {
-    protected override def urlSuffix: String = "domains/test@megam.io" 
+    protected override def urlSuffix: String = "domains"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

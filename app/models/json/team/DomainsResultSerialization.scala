@@ -27,6 +27,7 @@ import java.nio.charset.Charset
 import io.megam.auth.funnel.FunnelErrors._
 import models.Constants._
 import models.team.{ DomainsResult }
+
 /**
  * @author morpheyesh
  *

@@ -43,11 +43,9 @@ import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-//import com.twitter.util.{ Future, Await }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-//import com.twitter.conversions.time._
 import org.joda.time.DateTime
 
 import com.websudos.phantom.dsl._
@@ -167,8 +165,8 @@ object Domains extends ConcreteDmn {
     }
   }
 
-  def findByOrgId(id: String): ValidationNel[Throwable, DomainsResults] = {
-    val resp = select.allowFiltering().where(_.id eqs id).fetch()
+  def findByOrgId(org_id: String): ValidationNel[Throwable, DomainsResults] = {
+    val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
     val p = (Await.result(resp, 5.seconds)) map { i: DomainsResult => (i.some) }
     Validation.success[Throwable, DomainsResults](nel(p.head, p.tail)).toValidationNel
   }
