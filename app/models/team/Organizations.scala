@@ -156,14 +156,21 @@ object Organizations extends ConcreteOrg {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
 
-  def create(email: String, input: String): ValidationNel[Throwable, ResultSet] = {
+  private def organizationsSet(id: String, email: String, c: OrganizationsInput): ValidationNel[Throwable, OrganizationsResult] = {
+    (Validation.fromTryCatchThrowable[OrganizationsResult, Throwable] {
+      OrganizationsResult(id, email, c.name, Time.now.toString)
+    } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
+  }
+
+  def create(email: String, input: String): ValidationNel[Throwable, OrganizationsResult] = {
     for {
       c <- orgNel(input)
       uir <- (UID("org").get leftMap { u: NonEmptyList[Throwable] => u })
+      org <- organizationsSet(uir.get._1 + uir.get._2, email, c)
+    //  s <-
     } yield {
-      val org = new OrganizationsResult(uir.get._1 + uir.get._2, email, c.name, Time.now.toString)
       insertNewRecord(org)
-
+      org
     }
   }
 
@@ -188,5 +195,4 @@ object Organizations extends ConcreteOrg {
       insertNewRecord(org)
     }
   }
-
 }
