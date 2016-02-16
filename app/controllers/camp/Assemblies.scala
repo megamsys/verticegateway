@@ -98,7 +98,8 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.tosca.Assemblies.findByEmail(email) match {
+          val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
+          models.tosca.Assemblies.findByEmail(email, org) match {
             case Success(succ) => Ok(AssembliesResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
