@@ -22,40 +22,58 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
 
-import cache._
+import models.json._
+import models.base._
 import db._
-import models.json.team._
+import cache._
+import app.MConfig
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import io.megam.common.riak.GunnySack
-import io.megam.common.uid.UID
 import io.megam.util.Time
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+//import com.twitter.util.{ Future, Await }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+//import com.twitter.conversions.time._
+import org.joda.time.DateTime
+
+import com.websudos.phantom.dsl._
+import com.websudos.phantom.iteratee.Iteratee
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 
 /**
- * @author morpheyesh
  *
+ * @author morpheyesh
  */
 
 case class DomainsInput(name: String) {
   val json = "{\"name\":\"" + name + "\"}"
 }
 
-case class DomainsResult(id: String, name: String, created_at: String) {
+case class DomainsResult(
+  id: String,
+  org_id: String,
+  name: String,
+  created_at: String) {
 
   def toJValue: JValue = {
     import net.liftweb.json.scalaz.JsonScalaz.toJSON
     import models.json.team.DomainsResultSerialization
     val preser = new DomainsResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from?
+    toJSON(this)(preser.writer)
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
@@ -69,6 +87,7 @@ object DomainsResult {
 
   def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[DomainsResult] = {
     import net.liftweb.json.scalaz.JsonScalaz.fromJSON
+
     import models.json.team.DomainsResultSerialization
     val preser = new DomainsResultSerialization()
     fromJSON(jValue)(preser.reader)
@@ -82,88 +101,76 @@ object DomainsResult {
 
 }
 
-object Domains {
+sealed class DomainsT extends CassandraTable[DomainsT, DomainsResult] {
 
-  implicit def DomainsResultsSemigroup: Semigroup[DomainsResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  object id extends StringColumn(this) with PrimaryKey[String]
+  object org_id extends StringColumn(this) with PartitionKey[String]
+  object name extends StringColumn(this)
+  object created_at extends StringColumn(this)
+
+  override def fromRow(r: Row): DomainsResult = {
+    DomainsResult(
+      id(r),
+      org_id(r),
+      name(r),
+      created_at(r))
+  }
+}
+
+/*
+ *   This class talks to scylla and performs the actions
+ */
+
+abstract class ConcreteDmn extends DomainsT with ScyllaConnector {
+
+  override lazy val tableName = "domains"
+
+  def insertNewRecord(d: DomainsResult): ResultSet = {
+    val res = insert.value(_.id, d.id)
+      .value(_.org_id, d.org_id)
+      .value(_.name, d.name)
+      .value(_.created_at, d.created_at)
+      .future()
+    Await.result(res, 5.seconds)
+  }
+
+}
+
+object Domains extends ConcreteDmn {
+
   implicit val formats = DefaultFormats
 
-  private lazy val idxedBy = idxDomainName
-
-  private lazy val bucker = "domains"
-
-  private lazy val riak  = GWRiak(bucker)
-
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to domainsinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val domainsInput: ValidationNel[Throwable, DomainsInput] = (Validation.fromTryCatchThrowable[DomainsInput, Throwable] {
+  private def dmnNel(input: String): ValidationNel[Throwable, DomainsInput] = {
+    (Validation.fromTryCatchThrowable[DomainsInput, Throwable] {
       parse(input).extract[DomainsInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  }
 
-    for {
-      domain <- domainsInput
-      uir <- (UID("dom").get leftMap { ut: NonEmptyList[Throwable] => ut })
-    } yield {
-      val bvalue = Set(domain.name)
-      val json = new DomainsResult(uir.get._1 + uir.get._2, domain.name, Time.now.toString).toJson(false)
-      new GunnySack(domain.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
-    }
+  private def domainsSet(id: String, org_id: String, c: DomainsInput): ValidationNel[Throwable, DomainsResult] = {
+    (Validation.fromTryCatchThrowable[DomainsResult, Throwable] {
+      DomainsResult(id, org_id, c.name, Time.now.toString)
+    } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
   /*
-   * create new organization item with the 'name' of the item provide as input.
-   * A index name organization name will point to the "organization bucket" bucket.
+   * org_id is set as the partition key - orgId is retrieved from header
    */
 
-  def create(email: String, input: String): ValidationNel[Throwable, Option[DomainsResult]] = {
-    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[DomainsResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Domains.created success", Console.RESET))
-              (parse(gs.get.value).extract[DomainsResult].some).successNel[Throwable];
-            }
-          }
-        }
+  def create(org_id: String, input: String): ValidationNel[Throwable, DomainsResult] = {
+    for {
+      c <- dmnNel(input)
+      uir <- (UID("DMN").get leftMap { u: NonEmptyList[Throwable] => u })
+      dmn <- domainsSet(uir.get._1 + uir.get._2, org_id, c)
+    } yield {
+      insertNewRecord(dmn)
+      dmn
     }
   }
 
-  def findByName(domainsList: Option[List[String]]): ValidationNel[Throwable, DomainsResults] = {
-    (domainsList map {
-      _.map { domainsName =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("domainsName", domainsName))
-        (riak.fetch(domainsName) leftMap { t: NonEmptyList[Throwable] =>
-          new ServiceUnavailableError(domainsName, (t.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-          xso match {
-            case Some(xs) => {
-              //JsonScalaz.Error doesn't descend from java.lang.Error or Throwable. Screwy.
-              (DomainsResult.fromJson(xs.value) leftMap
-                { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] =>
-                  JSONParsingError(t)
-                }).toValidationNel.flatMap { j: DomainsResult =>
-                  play.api.Logger.debug(("%-20s -->[%s]").format("domainsresult", j))
-                  Validation.success[Throwable, DomainsResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-                }
-            }
-            case None => {
-              Validation.failure[Throwable, DomainsResults](new ResourceItemNotFound(domainsName, "")).toValidationNel
-            }
-          }
-        }
-      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
-    } map {
-      _.foldRight((DomainsResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head.
+  def findByOrgId(id: String): ValidationNel[Throwable, DomainsResults] = {
+    val resp = select.allowFiltering().where(_.id eqs id).fetch()
+    val p = (Await.result(resp, 5.seconds)) map { i: DomainsResult => (i.some) }
+    Validation.success[Throwable, DomainsResults](nel(p.head, p.tail)).toValidationNel
   }
 
 }

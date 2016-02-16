@@ -37,7 +37,7 @@ GET    /v2/organizations	              controllers.team.Organizations.list()
 
 #Domains
 POST   /v2/domains/content              controllers.team.Domains.post
-GET    /v2/domains/:id                  controllers.team.Domains.show(id: String)
+GET    /v2/domains/:id                  controllers.team.Domains.list(id: String)
 
 #Assemblies
 POST   /v2/assemblies/content           controllers.camp.Assemblies.post

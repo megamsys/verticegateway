@@ -36,6 +36,7 @@ class DomainsResultSerialization(charset: Charset = UTF8Charset) extends io.mega
 
   protected val NameKey = "name"
   protected val IdKey = "id"
+  protected val OrgIdKey = "org_id"
   protected val CreatedAtKey = "created_at"
 
   override implicit val writer = new JSONW[DomainsResult] {
@@ -45,6 +46,7 @@ class DomainsResultSerialization(charset: Charset = UTF8Charset) extends io.mega
 
         JField(NameKey, toJSON(h.name)) ::
           JField(IdKey, toJSON(h.id)) ::
+          JField(IdKey, toJSON(h.org_id)) ::
           JField(CreatedAtKey, toJSON(h.created_at)) ::
           Nil)
     }
@@ -56,11 +58,12 @@ class DomainsResultSerialization(charset: Charset = UTF8Charset) extends io.mega
 
       val idField = field[String](IdKey)(json)
       val nameField = field[String](NameKey)(json)
+      val orgIdField = field[String](OrgIdKey)(json)
       val createdAtField = field[String](CreatedAtKey)(json)
 
-      (idField |@| nameField |@| createdAtField) {
-        (id: String, name: String, created_at: String) =>
-          new DomainsResult(id, name, created_at)
+      (idField |@| nameField |@| orgIdField |@| createdAtField) {
+        (id: String, name: String, org_id: String, created_at: String) =>
+          new DomainsResult(id, name, org_id, created_at)
       }
     }
   }
