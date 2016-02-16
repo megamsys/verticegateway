@@ -46,6 +46,8 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import models.team._
+
 /**
  * @author rajthilak
  * authority
@@ -114,8 +116,8 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     val res = select.where(_.email eqs email).one()
     Await.result(res, 5.seconds).successNel
   }
-  
-  
+
+
   def updateRecord(email: String, rip: AccountResult, aor: Option[AccountResult]): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.email eqs NilorNot(rip.email, aor.get.email))
       .modify(_.id setTo NilorNot(rip.id, aor.get.id))
@@ -131,14 +133,14 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .future()
       Await.result(res, 5.seconds).successNel
   }
-  
+
   def NilorNot(rip: String, aor: String): String = {
     rip == null match {
       case true => return aor
       case false => return rip
     }
   }
- 
+
 }
 
 object Accounts extends ConcreteAccounts {
@@ -152,6 +154,7 @@ object Accounts extends ConcreteAccounts {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
 
+
   private def generateAccountSet(id: String, m: AccountInput): ValidationNel[Throwable, AccountResult] = {
     (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       AccountResult(id, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString)
@@ -159,22 +162,25 @@ object Accounts extends ConcreteAccounts {
   }
 
   def create(input: String): ValidationNel[Throwable, AccountResult] = {
+    val json = "{\"name\":\"" + "defaultOrg" + "\"}"
+
     for {
       m <- parseAccountInput(input)
       uir <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
       acc <- generateAccountSet(uir.get._1 + uir.get._2, m)
       set <- insertNewRecord(acc)
+      orgc <- models.team.Organizations.create(m.email, json.toString)
     } yield {
       acc
     }
   }
-  
+
   def update(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult,Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    
-    for {  
+
+    for {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       set <- updateRecord(email, rip, aor)
@@ -207,7 +213,7 @@ object Accounts extends ConcreteAccounts {
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
 
   }
- 
+
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
@@ -217,4 +223,3 @@ object Accounts extends ConcreteAccounts {
   }
 
 }
-

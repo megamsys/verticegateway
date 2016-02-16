@@ -50,6 +50,12 @@ import com.websudos.phantom.dsl._
 import com.websudos.phantom.iteratee.Iteratee
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 
+/**
+ *
+ * @author morpheyesh
+ */
+
+ 
 case class MarketPlaceSack(
   settings_name: String,
   cattype: String,
