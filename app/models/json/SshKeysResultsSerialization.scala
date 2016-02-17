@@ -26,18 +26,18 @@ import models.base._
  * @author ram
  *
  */
-object SshKeyResultsSerialization extends io.megam.json.SerializationBase[SshKeyResults] {
+object SshKeysResultsSerialization extends io.megam.json.SerializationBase[SshKeysResults] {
   protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
-  implicit override val writer = new JSONW[SshKeyResults] {
-    override def write(h: SshKeyResults): JValue = {
+  implicit override val writer = new JSONW[SshKeysResults] {
+    override def write(h: SshKeysResults): JValue = {
       val nrsList: NonEmptyList[JValue] = h.map {
-        nrOpt: Option[SshKeyResult] =>
-          (nrOpt.map { nr: SshKeyResult => nr.toJValue }).getOrElse(JNothing)
+        nrOpt: Option[SshKeysResult] =>
+          (nrOpt.map { nr: SshKeysResult => nr.toJValue }).getOrElse(JNothing)
       }
 
-      JObject(JField(JSONClazKey, JString("Megam::SshKeyCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
+      JObject(JField(JSONClazKey, JString("Megam::SshKeysCollection")) :: JField(ResultsKey, JArray(nrsList.list)) :: Nil)
     }
   }
 
@@ -54,21 +54,21 @@ object SshKeyResultsSerialization extends io.megam.json.SerializationBase[SshKey
       )
       PredefResult already has an implicit reader, hence use it.
        */
-  implicit override val reader = new JSONR[SshKeyResults] {
-    override def read(json: JValue): Result[SshKeyResults] = {
+  implicit override val reader = new JSONR[SshKeysResults] {
+    override def read(json: JValue): Result[SshKeysResults] = {
       json match {
         case JArray(jObjectList) => {
           val list = jObjectList.flatMap { jValue: JValue =>
-            SshKeyResult.fromJValue(jValue) match {
+            SshKeysResult.fromJValue(jValue) match {
               case Success(nr)   => List(nr)
-              case Failure(fail) => List[SshKeyResult]()
+              case Failure(fail) => List[SshKeysResult]()
             }
-          } map { x: SshKeyResult => x.some }
+          } map { x: SshKeysResult => x.some }
           //this is screwy. Making the PredefCloudResults as Option[NonEmptylist[NodeResult]] will solve it.
-          val nrs: SshKeyResults = list.toNel.getOrElse(nels(none))
+          val nrs: SshKeysResults = list.toNel.getOrElse(nels(none))
           nrs.successNel[Error]
         }
-        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[SshKeyResults]
+        case j => UnexpectedJSONError(j, classOf[JArray]).failureNel[SshKeysResults]
       }
     }
   }

@@ -81,7 +81,7 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
 
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Domains", "request funneled."))
 
-          models.team.Domains.findByOrgId(org) match {
+          models.team.Domains.findByOrgId(apiAccessed) match {
             case Success(succ) =>
             println(models.team.DomainsResults.toJson(succ, true))
               Ok(models.team.DomainsResults.toJson(succ, true))

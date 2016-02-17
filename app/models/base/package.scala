@@ -59,28 +59,28 @@ package object base {
     def empty: RequestResults = nel(emptyRR.head, emptyRR.tail)
   }
 
-  type SshKeyResults = NonEmptyList[Option[SshKeyResult]]
+  type SshKeysResults = NonEmptyList[Option[SshKeysResult]]
 
-  object SshKeyResults {
-    val emptyPC = List(Option.empty[SshKeyResult])
+  object SshKeysResults {
+    val emptyPC = List(Option.empty[SshKeysResult])
 
-    def toJValue(prres: SshKeyResults): JValue = {
+    def toJValue(prres: SshKeysResults): JValue = {
       import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import SshKeyResultsSerialization.{ writer => SshKeyResultsWriter }
-      toJSON(prres)(SshKeyResultsWriter)
+      import models.json.SshKeysResultsSerialization.{ writer => SshKeysResultsWriter }
+      toJSON(prres)(SshKeysResultsWriter)
     }
 
-    def toJson(nres: SshKeyResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
+    def toJson(nres: SshKeysResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
       prettyRender(toJValue(nres))
     } else {
       compactRender(toJValue(nres))
     }
 
-    def apply(m: SshKeyResult): SshKeyResults = nels(m.some)
-    def empty: SshKeyResults = nel(emptyPC.head, emptyPC.tail)
+    def apply(m: SshKeysResult): SshKeysResults = nels(m.some)
+    def empty: SshKeysResults = nel(emptyPC.head, emptyPC.tail)
   }
 
-  
+
 
   type MarketPlaceSacks = NonEmptyList[Option[MarketPlaceSack]]
 

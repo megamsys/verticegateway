@@ -132,6 +132,12 @@ abstract class ConcreteDmn extends DomainsT with ScyllaConnector {
     Await.result(res, 5.seconds)
   }
 
+  def listRecords(org_id: String): ValidationNel[Throwable, DomainsResults] = {
+    val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
+    val p = (Await.result(resp, 5.seconds)) map { i: DomainsResult => (i.some) }
+    Validation.success[Throwable, DomainsResults](nel(p.head, p.tail)).toValidationNel
+  }
+
 }
 
 object Domains extends ConcreteDmn {
@@ -165,10 +171,12 @@ object Domains extends ConcreteDmn {
     }
   }
 
-  def findByOrgId(org_id: String): ValidationNel[Throwable, DomainsResults] = {
-    val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
-    val p = (Await.result(resp, 5.seconds)) map { i: DomainsResult => (i.some) }
-    Validation.success[Throwable, DomainsResults](nel(p.head, p.tail)).toValidationNel
+  def findByOrgId(authBag: Option[io.megam.auth.stack.AuthBag]): ValidationNel[Throwable, DomainsResults] = {
+    (listRecords(authBag.get.org_id) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(authBag.get.email, "Domains = nothing found.")
+    }).toValidationNel.flatMap { nm: DomainsResults =>
+        Validation.success[Throwable, DomainsResults](nm).toValidationNel
+    }
   }
 
 }

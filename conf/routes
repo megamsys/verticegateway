@@ -17,7 +17,7 @@ GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
-GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
+#GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
 
 #MarketPlaces
 #POST   /v2/marketplaces/content         controllers.MarketPlaces.post
