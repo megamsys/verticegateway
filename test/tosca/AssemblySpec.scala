@@ -35,13 +35,13 @@ class AssemblySpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+     // "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
       //"Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
       "Correctly do GET requests with an valid Assembly ID" ! upgradeApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "assembly/ASM1286672540365881344"
+    protected override def urlSuffix: String = "assembly/ASM6638507573519508616"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -59,8 +59,8 @@ class AssemblySpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"id\":\"ASM1282015862542434304\"," +
-        "\"json_claz\":\"Megam::Assembly\"," +
+        "\"id\":\"ASM4669538364206151823\"," +
+        "\"org_id\":\"ORG123\"," +
         "\"name\":\"calcines\"," +
         "\"components\":[\"COM1282015862571794432\"]," +
         "\"tosca_type\":\"tosca.torpedo.coreos\"," +
@@ -93,7 +93,7 @@ class AssemblySpec extends Specification {
   }
 
   case object upgradeApp extends Context {
-    protected override def urlSuffix: String = "assembly/upgrade/ASM1286672540365881344"
+    protected override def urlSuffix: String = "assembly/upgrade/ASM4669538364206151823"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

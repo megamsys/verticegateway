@@ -42,8 +42,8 @@ class AssembliesSpec extends Specification {
   AssembliesSpec is the implementation that calls the megam_play API server with the /assemblies url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
-     // "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
+      //"Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
+      "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
       //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
       end
 
@@ -86,7 +86,7 @@ class AssembliesSpec extends Specification {
   }
 
   case object findById extends Context {
-    protected override def urlSuffix: String = "assemblies/AMS7709264154923634058"
+    protected override def urlSuffix: String = "assemblies/AMS4787058345706799380"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

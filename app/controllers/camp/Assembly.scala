@@ -20,6 +20,7 @@ import Scalaz._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import net.liftweb.json._
 
 import models.tosca._
 import io.megam.auth.funnel.{ FunnelResponse, FunnelResponses }
@@ -27,7 +28,7 @@ import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 
 object Assembly extends Controller with controllers.stack.APIAuthElement {
-
+  implicit val formats = DefaultFormats
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
@@ -36,7 +37,8 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.tosca.Assembly.findById(List(id).some) match {
             case Success(succ) =>
-              Ok(AssemblyResults.toJson(succ, true))
+              Ok(compactRender(Extraction.decompose(succ)))
+            //Ok(AssemblyResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -58,7 +60,8 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.tosca.Assembly.update(email, clientAPIBody) match {
+          val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
+          models.tosca.Assembly.update(org, clientAPIBody) match {
             case Success(succ) => {
               Status(CREATED)(FunnelResponse(CREATED, """Bind initiation submitted successfully.
             |

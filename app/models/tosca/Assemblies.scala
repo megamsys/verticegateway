@@ -45,7 +45,6 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
-import java.util.UUID
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
 import scala.concurrent.{ Future => ScalaFuture }
@@ -58,7 +57,6 @@ import scala.concurrent.duration._
  *
  */
 case class AssembliesInput(name: String, org_id: String, assemblies: models.tosca.AssemblysList, inputs: KeyValueList) {
-  val json = "{\"name\":\"" + name + "\",\"org_id\":\"" + org_id + "\", \"assemblies\":" + AssemblysList.toJson(assemblies, true) + ",\"inputs\":" + KeyValueList.toJson(inputs, true) + "}"
 }
 
 case class KeyValueField(key: String, value: String) {
@@ -96,43 +94,15 @@ object KeyValueField {
 }
 
 case class AssembliesResult(id: String,
-    accounts_id: String,
     org_id: String,
     name: String,
     assemblies: models.tosca.AssemblyLinks,
     inputs: KeyValueList,
     created_at: String) {
-
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    val preser = new AssembliesResultSerialization()
-    toJSON(this)(preser.writer)
-  }
-
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-
 }
 
 object AssembliesResult {
-
-  def apply(id: String, accounts_id: String, org_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList) = new AssembliesResult(id, accounts_id, org_id, name, assemblies, inputs, Time.now.toString)
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AssembliesResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    val preser = new AssembliesResultSerialization()
-    fromJSON(jValue)(preser.reader)
-  }
-
-  def fromJson(json: String): Result[AssembliesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
+  def apply(id: String, org_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList) = new AssembliesResult(id, org_id, name, assemblies, inputs, Time.now.toString)
 }
 
 sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesResult] {
@@ -140,7 +110,6 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
   implicit val formats = DefaultFormats
 
   object id extends StringColumn(this) with PrimaryKey[String]
-  object accounts_id extends StringColumn(this) with PartitionKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
   object assemblies extends ListColumn[AssembliesSacks, AssembliesResult, String](this)
@@ -160,7 +129,6 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
   def fromRow(row: Row): AssembliesResult = {
     AssembliesResult(
       id(row),
-      accounts_id(row),
       org_id(row),
       name(row),
       assemblies(row),
@@ -177,7 +145,6 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
 
   def insertNewRecord(ams: AssembliesResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, ams.id)
-      .value(_.accounts_id, ams.accounts_id)
       .value(_.org_id, ams.org_id)
       .value(_.name, ams.name)
       .value(_.assemblies, ams.assemblies)
@@ -188,7 +155,7 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
   }
 
   def listRecords(email: String, org: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
-    val res = select.allowFiltering().where(_.accounts_id eqs email).and(_.org_id eqs org).fetch()
+    val res = select.allowFiltering().where(_.org_id eqs org).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -210,29 +177,20 @@ case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[St
 
 object Assemblies extends ConcreteAssemblies {
 
-  // implicit val formats = DefaultFormats
-
-  private lazy val bucker = "assemblies"
-
-  private lazy val idxedBy = idxTeamId
-
-  private val riak = GWRiak(bucker)
-
   private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
     val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput, Throwable] {
       parse(input).extract[AssembliesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
     for {
       rip <- ripNel
-      aor <- (Accounts.findByEmail(authBag.get.email) leftMap { t: NonEmptyList[Throwable] => t })
       ams <- (AssemblysList.createLinks(authBag, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID("ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val asml = ams.flatMap { assembly => nels({ assembly.map { a => (a.id, a.tosca_type) } }) }
       val asmlist = asml.toList.filterNot(_.isEmpty)
-      new WrapAssembliesResult((AssembliesResult(uir.get._1 + uir.get._2, aor.get.email, rip.org_id, rip.name, asmlist.map(_.get._1), rip.inputs)).some, asmlist.map(_.get).toMap)
+      new WrapAssembliesResult((AssembliesResult(uir.get._1 + uir.get._2, rip.org_id, rip.name, asmlist.map(_.get._1), rip.inputs)).some, asmlist.map(_.get).toMap)
     }
-  }  
+  }
 
   def create(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
     for {
@@ -255,7 +213,7 @@ object Assemblies extends ConcreteAssemblies {
           xso match {
             case Some(xs) => {
               play.api.Logger.debug(("%-20s -->[%s]").format("AssembliesResult", xs))
-              Validation.success[Throwable, AssembliesResults](nels(xs.some)).toValidationNel //screwy kishore, every element in a list ?
+              Validation.success[Throwable, AssembliesResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
               Validation.failure[Throwable, AssembliesResults](new ResourceItemNotFound(asm_id, "")).toValidationNel
@@ -274,14 +232,14 @@ object Assemblies extends ConcreteAssemblies {
    * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
-  def findByEmail(email: String, org: String): ValidationNel[Throwable, AssembliesResults] = {
+  def findByEmail(email: String, org: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
     (listRecords(email, org) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(email, "Assemblies = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[AssembliesResult] =>
       if (!nm.isEmpty)
-        Validation.success[Throwable, AssembliesResults](nels(nm.map(x => x.some).head)).toValidationNel
+        Validation.success[Throwable, Seq[AssembliesResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, AssembliesResults](new ResourceItemNotFound(email, "Assemblies = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[AssembliesResult]](new ResourceItemNotFound(email, "Assemblies = nothing found.")).toValidationNel
     }
 
   }

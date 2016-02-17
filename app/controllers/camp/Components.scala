@@ -19,6 +19,7 @@ import scalaz._
 import Scalaz._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
+import net.liftweb.json._
 
 import models.tosca._
 import io.megam.auth.funnel.{ FunnelResponse, FunnelResponses }
@@ -26,7 +27,7 @@ import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 
 object Components extends Controller with controllers.stack.APIAuthElement {
-
+  implicit val formats = DefaultFormats
   /*
    * GET: findById: Show component for a compid per user(by email)
    * Email grabbed from header
@@ -40,7 +41,8 @@ object Components extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.tosca.Component.findById(List(id).some) match {
             case Success(succ) =>
-              Ok(ComponentsResults.toJson(succ, true))
+              Ok(compactRender(Extraction.decompose(succ)))
+              //Ok(ComponentsResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -63,7 +65,7 @@ object Components extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.tosca.Component.update(email, clientAPIBody) match {
-            case Success(succ) => Ok(ComponentsResults.toJson(succ, true))
+            case Success(succ) => Ok(compactRender(Extraction.decompose(succ))) //Ok(ComponentsResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
