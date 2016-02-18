@@ -86,11 +86,7 @@ case object Hellow {
       }).toList
   }).toMap
 
-  //pings riak
- /* private def gwr = GWRiak("accounts").ping match {
-    case Success(succ_gwr) => (MConfig.riakurl, Some(RUNNING))
-    case Failure(errgwr) => (MConfig.riakurl, none)
-  }*/
+
 
   private  def topic(x: Unit) = "testing".some
 

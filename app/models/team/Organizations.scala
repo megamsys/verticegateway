@@ -71,6 +71,7 @@ case class OrganizationsResult(
   id: String,
   accounts_id: String,
   name: String,
+  json_claz: String,
   created_at: String) {}
 
 sealed class OrganizationsT extends CassandraTable[OrganizationsT, OrganizationsResult] {
@@ -78,6 +79,7 @@ sealed class OrganizationsT extends CassandraTable[OrganizationsT, Organizations
   object id extends StringColumn(this) with PrimaryKey[String]
   object accounts_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
+  object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   override def fromRow(r: Row): OrganizationsResult = {
@@ -85,6 +87,7 @@ sealed class OrganizationsT extends CassandraTable[OrganizationsT, Organizations
       id(r),
       accounts_id(r),
       name(r),
+      json_claz(r),
       created_at(r))
   }
 }
@@ -101,6 +104,7 @@ abstract class ConcreteOrg extends OrganizationsT with ScyllaConnector {
     val res = insert.value(_.id, org.id)
       .value(_.accounts_id, org.accounts_id)
       .value(_.name, org.name)
+      .value(_.json_claz, org.json_claz)
       .value(_.created_at, org.created_at)
       .future()
     Await.result(res, 5.seconds)
@@ -126,7 +130,7 @@ object Organizations extends ConcreteOrg {
 
   private def organizationsSet(id: String, email: String, c: OrganizationsInput): ValidationNel[Throwable, OrganizationsResult] = {
     (Validation.fromTryCatchThrowable[OrganizationsResult, Throwable] {
-      OrganizationsResult(id, email, c.name, Time.now.toString)
+      OrganizationsResult(id, email, c.name, "Megam::Organizations", Time.now.toString)
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
@@ -157,7 +161,7 @@ object Organizations extends ConcreteOrg {
       c <- inviteNel(input)
       upd <- findById(c.id)
     } yield {
-      val org = new OrganizationsResult(upd.head.id, email, upd.head.name, Time.now.toString)
+      val org = new OrganizationsResult(upd.head.id, email, upd.head.name, upd.head.json_claz, Time.now.toString)
       insertNewRecord(org)
     }
   }

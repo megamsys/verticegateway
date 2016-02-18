@@ -23,6 +23,8 @@ import net.liftweb.json._
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
+import controllers.stack.Results
+
 
 /**
  * @author ram
@@ -73,9 +75,7 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
           models.team.Organizations.findByEmail(email) match {
             case Success(succ) => {
               implicit val formats = DefaultFormats
-
-              Ok(compactRender(Extraction.decompose(succ)))
-
+              Ok(Results.resultset(models.Constants.ORGANIZATIONSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -118,7 +118,5 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
 
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-
   }
-
 }

@@ -50,7 +50,7 @@ object Constants {
   val idxAssemblyId = "AssemblyId"
   //index used by assemblies bucket a set of (accountsid, orgid)
   val idxTeamId = "TeamId"
-  
+
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ASSEMBLIESCLAZ                  = "Megam::Assemblies"
   val ASSEMBLIESCOLLECTIONCLAZ        = "Megam::AssembliesCollection"
@@ -72,6 +72,7 @@ object Constants {
   val CSARCLAZ                        = "Megam::CSAR"
   val CSARCOLLECTIONCLAZ              = "Megam::CSARCollection"
   val DOMAINCLAZ                      = "Megam::Domains"
+  val DOMAINCOLLECTIONCLAZ            = "Megam::DomainsCollection"
   val DISCOUNTSCLAZ                   = "Megam::Discounts"
   val DISCOUNTSCOLLECTIONCLAZ         = "Megam::DiscountsCollection"
   val ERRORCLAZ                       = "Megam::Error"

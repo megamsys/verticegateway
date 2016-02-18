@@ -70,6 +70,7 @@ case class SshKeysResult(
   name: String,
   privatekey: String,
   publickey: String,
+  json_claz: String,
   created_at: String) {}
 
 
@@ -81,6 +82,7 @@ sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
   object name extends StringColumn(this)
   object privatekey extends StringColumn(this)
   object publickey extends StringColumn(this)
+  object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   override def fromRow(r: Row): SshKeysResult = {
@@ -90,6 +92,7 @@ sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
       name(r),
       privatekey(r),
       publickey(r),
+      json_claz(r),
       created_at(r))
   }
 }
@@ -108,6 +111,7 @@ abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
       .value(_.name, sk.name)
       .value(_.privatekey, sk.privatekey)
       .value(_.publickey, sk.publickey)
+      .value(_.json_claz, sk.json_claz)
       .value(_.created_at, sk.created_at)
       .future()
     Await.result(res, 5.seconds)
@@ -134,7 +138,7 @@ object SshKeys extends ConcreteOrg {
 
   private def SshKeysSet(id: String, org_id: String, c: SshKeysInput): ValidationNel[Throwable, SshKeysResult] = {
     (Validation.fromTryCatchThrowable[SshKeysResult, Throwable] {
-      SshKeysResult(id, org_id, c.name, c.privatekey, c.publickey, Time.now.toString)
+      SshKeysResult(id, org_id, c.name, c.privatekey, c.publickey, "Megam::SshKeys", Time.now.toString)
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
