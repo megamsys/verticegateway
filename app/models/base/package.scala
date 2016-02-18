@@ -60,28 +60,4 @@ package object base {
   }
 
 
-
-  type MarketPlaceSacks = NonEmptyList[Option[MarketPlaceSack]]
-
-  object MarketPlaceSacks {
-    val emptyPC = List(Option.empty[MarketPlaceSack])
-
-    def toJValue(prres: MarketPlaceSacks): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import MarketPlaceSacksSerialization.{ writer => MarketPlaceSacksWriter }
-      toJSON(prres)(MarketPlaceSacksWriter)
-    }
-
-    def toJson(nres: MarketPlaceSacks, prettyPrint: Boolean = false): String = {
-      //if (prettyPrint) { prettyRender(toJValue(nres))} else {compatRender(toJValue(nres))}
-      prettyPrint match {
-        case (prettyPrint) => prettyRender(toJValue(nres))
-        case _ => compactRender(toJValue(nres))
-      }
-    }
-
-    def apply(m: MarketPlaceSack): MarketPlaceSacks = nels(m.some)
-    def empty: MarketPlaceSacks = nel(emptyPC.head, emptyPC.tail)
-  }
-
 }

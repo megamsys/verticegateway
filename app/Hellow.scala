@@ -26,7 +26,6 @@ import scalaz.NonEmptyList._
 import db._
 import controllers.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import models.team.{ Organizations, OrganizationsResults }
 import models.base.{ RequestResult }
 
 import io.megam.common.uid.UID
