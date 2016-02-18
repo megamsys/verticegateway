@@ -22,6 +22,8 @@ import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 import net.liftweb.json._
+import controllers.stack.Results
+
 
 /**
  * @author morpheyesh
@@ -84,7 +86,7 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
           models.team.Domains.findByOrgId(apiAccessed) match {
             case Success(succ) =>
             implicit val formats = DefaultFormats
-            Ok(compactRender(Extraction.decompose(succ)))
+            Ok(Results.resultset(models.Constants.DOMAINCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

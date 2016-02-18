@@ -24,6 +24,8 @@ import net.liftweb.json._
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
+import controllers.stack.Results
+
 
 /**
  * @author rajthilak
@@ -47,8 +49,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
           models.base.MarketPlaces.listAll match {
             case Success(succ) => {
               implicit val formats = DefaultFormats
-              Ok(compactRender(Extraction.decompose(succ)))
-
+              Ok(Results.resultset(models.Constants.MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -72,8 +73,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
           models.base.MarketPlaces.findByName(id) match {
             case Success(succ) =>
             implicit val formats = DefaultFormats
-            Ok(compactRender(Extraction.decompose(succ)))
-
+            Ok(Results.resultset(models.Constants.MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

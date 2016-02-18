@@ -25,6 +25,8 @@ import net.liftweb.json._
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
+import controllers.stack.Results
+
 
 object SshKeys extends Controller with controllers.stack.APIAuthElement {
 
@@ -62,7 +64,7 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
           models.base.SshKeys.findByOrgId(apiAccessed) match {
             case Success(succ) =>
             implicit val formats = DefaultFormats
-            Ok(compactRender(Extraction.decompose(succ)))
+            Ok(Results.resultset(models.Constants.SSHKEYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
