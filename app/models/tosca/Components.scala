@@ -86,6 +86,7 @@ case class ComponentResult(
     operations: models.tosca.OperationList,
     status: String,
     repo: Repo,
+    json_claz: String,
     created_at: String) {
 }
 
@@ -161,6 +162,7 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
     }
   }
 
+  object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   def fromRow(row: Row): ComponentResult = {
@@ -176,6 +178,7 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
       operations(row),
       status(row),
       repo(row),
+      json_claz(row),
       created_at(row))
   }
 }
@@ -198,6 +201,7 @@ abstract class ConcreteComponent extends ComponentSacks with RootConnector {
       .value(_.operations, ams.operations)
       .value(_.status, ams.status)
       .value(_.repo, ams.repo)
+      .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
       .future()
     Await.result(res, 5.seconds).successNel
@@ -291,7 +295,7 @@ object Component extends ConcreteComponent {
       com_collection <- (Component.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val com = com_collection.head
-      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations ::: rip.operations, com.get.status, com.get.repo, com.get.created_at)
+      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations ::: rip.operations, com.get.status, com.get.repo, com.get.json_claz, com.get.created_at)
       json.some
     }
   }
@@ -333,7 +337,7 @@ object ComponentsList extends ConcreteComponent {
             MKT_FLAG_APIKEY -> authBag.get.api_key,
             MKT_FLAG_ASSEMBLY_ID -> asm_id,
             MKT_FLAG_COMP_ID -> (uir.get._1 + uir.get._2))), input.artifacts,
-        input.related_components, input.operations, input.status, input.repo, Time.now.toString)
+        input.related_components, input.operations, input.status, input.repo, "Megam::Components", Time.now.toString)
       json.some
     }
   }

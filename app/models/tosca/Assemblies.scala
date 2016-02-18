@@ -98,11 +98,12 @@ case class AssembliesResult(id: String,
     name: String,
     assemblies: models.tosca.AssemblyLinks,
     inputs: KeyValueList,
+    json_claz: String,
     created_at: String) {
 }
 
 object AssembliesResult {
-  def apply(id: String, org_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList) = new AssembliesResult(id, org_id, name, assemblies, inputs, Time.now.toString)
+  def apply(id: String, org_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList) = new AssembliesResult(id, org_id, name, assemblies, inputs, "Megam::Assemblies", Time.now.toString)
 }
 
 sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesResult] {
@@ -123,7 +124,8 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
       compactRender(Extraction.decompose(obj))
     }
   }
-
+  
+  object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   def fromRow(row: Row): AssembliesResult = {
@@ -133,6 +135,7 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
       name(row),
       assemblies(row),
       inputs(row),
+      json_claz(row),
       created_at(row))
   }
 }
@@ -149,6 +152,7 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
       .value(_.name, ams.name)
       .value(_.assemblies, ams.assemblies)
       .value(_.inputs, ams.inputs)
+      .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
       .future()
     Await.result(res, 5.seconds).successNel

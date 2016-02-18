@@ -86,7 +86,7 @@ class AssembliesSpec extends Specification {
   }
 
   case object findById extends Context {
-    protected override def urlSuffix: String = "assemblies/AMS4787058345706799380"
+    protected override def urlSuffix: String = "assemblies/AMS4910703635659237712"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

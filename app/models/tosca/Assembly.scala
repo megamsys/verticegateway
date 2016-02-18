@@ -71,6 +71,7 @@ case class AssemblyResult(
     inputs: models.tosca.KeyValueList,
     outputs: models.tosca.KeyValueList,
     status: String,
+    json_claz: String,
     created_at: String) {
 }
 
@@ -114,6 +115,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
   }
 
   object status extends StringColumn(this)
+  object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   def fromRow(row: Row): AssemblyResult = {
@@ -127,6 +129,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
       inputs(row),
       outputs(row),
       status(row),
+      json_claz(row),
       created_at(row))
   }
 }
@@ -147,6 +150,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
       .value(_.inputs, ams.inputs)
       .value(_.outputs, ams.outputs)
       .value(_.status, ams.status)
+      .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
       .future()
     Await.result(res, 5.seconds).successNel
@@ -248,7 +252,7 @@ object Assembly extends ConcreteAssembly {
       asm_collection <- (Assembly.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val asm = asm_collection.head
-      val json = AssemblyResult(rip.id, rip.org_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.created_at)
+      val json = AssemblyResult(rip.id, rip.org_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.json_claz, asm.get.created_at)
       json.some
     }
   }
@@ -326,7 +330,7 @@ object AssemblysList extends ConcreteAssembly {
           }
         }
       }
-      val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, Time.now.toString)
+      val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, "Megam::Assembly", Time.now.toString)
       json.some
     }
   }

@@ -21,6 +21,7 @@ import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import net.liftweb.json._
+import controllers.stack.Results
 
 import models.tosca._
 import io.megam.auth.funnel.{ FunnelResponse, FunnelResponses }
@@ -37,8 +38,7 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.tosca.Assembly.findById(List(id).some) match {
             case Success(succ) =>
-              Ok(compactRender(Extraction.decompose(succ)))
-            //Ok(AssemblyResults.toJson(succ, true))
+              Ok(Results.resultset(models.Constants.ASSEMBLYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
