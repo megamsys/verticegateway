@@ -65,39 +65,9 @@ case class DomainsResult(
   id: String,
   org_id: String,
   name: String,
-  created_at: String) {
+  created_at: String) {}
 
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.team.DomainsResultSerialization
-    val preser = new DomainsResultSerialization()
-    toJSON(this)(preser.writer)
-  }
 
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-}
-
-object DomainsResult {
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[DomainsResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-
-    import models.json.team.DomainsResultSerialization
-    val preser = new DomainsResultSerialization()
-    fromJSON(jValue)(preser.reader)
-  }
-
-  def fromJson(json: String): Result[DomainsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
 
 sealed class DomainsT extends CassandraTable[DomainsT, DomainsResult] {
 
@@ -132,10 +102,9 @@ abstract class ConcreteDmn extends DomainsT with ScyllaConnector {
     Await.result(res, 5.seconds)
   }
 
-  def listRecords(org_id: String): ValidationNel[Throwable, DomainsResults] = {
+  def listRecords(org_id: String): ValidationNel[Throwable, Seq[DomainsResult]] = {
     val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
-    val p = (Await.result(resp, 5.seconds)) map { i: DomainsResult => (i.some) }
-    Validation.success[Throwable, DomainsResults](nel(p.head, p.tail)).toValidationNel
+    (Await.result(resp, 5.seconds)).successNel
   }
 
 }
@@ -171,11 +140,11 @@ object Domains extends ConcreteDmn {
     }
   }
 
-  def findByOrgId(authBag: Option[io.megam.auth.stack.AuthBag]): ValidationNel[Throwable, DomainsResults] = {
+  def findByOrgId(authBag: Option[io.megam.auth.stack.AuthBag]): ValidationNel[Throwable, Seq[DomainsResult]] = {
     (listRecords(authBag.get.org_id) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(authBag.get.email, "Domains = nothing found.")
-    }).toValidationNel.flatMap { nm: DomainsResults =>
-        Validation.success[Throwable, DomainsResults](nm).toValidationNel
+    }).toValidationNel.flatMap { nm: Seq[DomainsResult] =>
+        Validation.success[Throwable, Seq[DomainsResult]](nm).toValidationNel
     }
   }
 

@@ -113,7 +113,7 @@ abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
     Await.result(res, 5.seconds)
   }
 /*
- * Instead of Seq[X], got Xs itself, the final type.
+ * Lists all the record
  */
   def listRecords(org_id: String): ValidationNel[Throwable, Seq[SshKeysResult]] = {
     val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
