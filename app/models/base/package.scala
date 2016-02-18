@@ -59,50 +59,5 @@ package object base {
     def empty: RequestResults = nel(emptyRR.head, emptyRR.tail)
   }
 
-  type SshKeysResults = NonEmptyList[Option[SshKeysResult]]
-
-  object SshKeysResults {
-    val emptyPC = List(Option.empty[SshKeysResult])
-
-    def toJValue(prres: SshKeysResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.SshKeysResultsSerialization.{ writer => SshKeysResultsWriter }
-      toJSON(prres)(SshKeysResultsWriter)
-    }
-
-    def toJson(nres: SshKeysResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      prettyRender(toJValue(nres))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(m: SshKeysResult): SshKeysResults = nels(m.some)
-    def empty: SshKeysResults = nel(emptyPC.head, emptyPC.tail)
-  }
-
-
-
-  type MarketPlaceSacks = NonEmptyList[Option[MarketPlaceSack]]
-
-  object MarketPlaceSacks {
-    val emptyPC = List(Option.empty[MarketPlaceSack])
-
-    def toJValue(prres: MarketPlaceSacks): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import MarketPlaceSacksSerialization.{ writer => MarketPlaceSacksWriter }
-      toJSON(prres)(MarketPlaceSacksWriter)
-    }
-
-    def toJson(nres: MarketPlaceSacks, prettyPrint: Boolean = false): String = {
-      //if (prettyPrint) { prettyRender(toJValue(nres))} else {compatRender(toJValue(nres))}
-      prettyPrint match {
-        case (prettyPrint) => prettyRender(toJValue(nres))
-        case _ => compactRender(toJValue(nres))
-      }
-    }
-
-    def apply(m: MarketPlaceSack): MarketPlaceSacks = nels(m.some)
-    def empty: MarketPlaceSacks = nel(emptyPC.head, emptyPC.tail)
-  }
 
 }

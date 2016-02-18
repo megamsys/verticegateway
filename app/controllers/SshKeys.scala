@@ -19,6 +19,8 @@ package controllers
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
+import net.liftweb.json._
+
 
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
@@ -59,8 +61,8 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.SshKeys.findByOrgId(apiAccessed) match {
             case Success(succ) =>
-            println(models.base.SshKeysResults.toJson(succ, true))
-              Ok(models.base.SshKeysResults.toJson(succ, true))
+            implicit val formats = DefaultFormats
+            Ok(compactRender(Extraction.decompose(succ)))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

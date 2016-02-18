@@ -71,39 +71,7 @@ case class OrganizationsResult(
   id: String,
   accounts_id: String,
   name: String,
-  created_at: String) {
-
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.team.OrganizationsResultSerialization
-    val preser = new OrganizationsResultSerialization()
-    toJSON(this)(preser.writer)
-  }
-
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-}
-
-object OrganizationsResult {
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[OrganizationsResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-
-    import models.json.team.OrganizationsResultSerialization
-    val preser = new OrganizationsResultSerialization()
-    fromJSON(jValue)(preser.reader)
-  }
-
-  def fromJson(json: String): Result[OrganizationsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
+  created_at: String) {}
 
 sealed class OrganizationsT extends CassandraTable[OrganizationsT, OrganizationsResult] {
 
@@ -167,23 +135,21 @@ object Organizations extends ConcreteOrg {
       c <- orgNel(input)
       uir <- (UID("org").get leftMap { u: NonEmptyList[Throwable] => u })
       org <- organizationsSet(uir.get._1 + uir.get._2, email, c)
-    //  s <-
+      //  s <-
     } yield {
       insertNewRecord(org)
       org
     }
   }
 
-  def findByEmail(accounts_id: String): ValidationNel[Throwable, OrganizationsResults] = {
+  def findByEmail(accounts_id: String): ValidationNel[Throwable, Seq[OrganizationsResult]] = {
     val resp = select.allowFiltering().where(_.accounts_id eqs accounts_id).fetch()
-    val p = (Await.result(resp, 5.seconds)) map { i: OrganizationsResult => (i.some) }
-    Validation.success[Throwable, OrganizationsResults](nel(p.head, p.tail)).toValidationNel
+    (Await.result(resp, 5.seconds)).successNel
   }
 
-  def findById(id: String): ValidationNel[Throwable, OrganizationsResults] = {
+  private def findById(id: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
     val resp = select.allowFiltering().where(_.id eqs id).one()
-    val p = (Await.result(resp, 5.second)) map { i: OrganizationsResult => (i.some) }
-    Validation.success[Throwable, OrganizationsResults](nels(p.head)).toValidationNel
+    (Await.result(resp, 5.second)).successNel
   }
 
   def inviteOrganization(email: String, input: String): ValidationNel[Throwable, ResultSet] = {
@@ -191,7 +157,7 @@ object Organizations extends ConcreteOrg {
       c <- inviteNel(input)
       upd <- findById(c.id)
     } yield {
-      val org = new OrganizationsResult(upd.head.get.id, email, upd.head.get.name, Time.now.toString)
+      val org = new OrganizationsResult(upd.head.id, email, upd.head.name, Time.now.toString)
       insertNewRecord(org)
     }
   }

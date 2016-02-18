@@ -70,39 +70,9 @@ case class SshKeysResult(
   name: String,
   privatekey: String,
   publickey: String,
-  created_at: String) {
+  created_at: String) {}
 
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.SshKeysResultSerialization
-    val preser = new SshKeysResultSerialization()
-    toJSON(this)(preser.writer)
-  }
 
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-}
-
-object SshKeysResult {
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[SshKeysResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-
-    import models.json.SshKeysResultSerialization
-    val preser = new SshKeysResultSerialization()
-    fromJSON(jValue)(preser.reader)
-  }
-
-  def fromJson(json: String): Result[SshKeysResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
 
 sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
 
@@ -143,12 +113,11 @@ abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
     Await.result(res, 5.seconds)
   }
 /*
- * Instead of Seq[X], got Xs itself, the final type. 
+ * Lists all the record
  */
-  def listRecords(org_id: String): ValidationNel[Throwable, SshKeysResults] = {
+  def listRecords(org_id: String): ValidationNel[Throwable, Seq[SshKeysResult]] = {
     val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
-    val p = (Await.result(resp, 5.seconds)) map { i: SshKeysResult => (i.some) }
-    Validation.success[Throwable, SshKeysResults](nel(p.head, p.tail)).toValidationNel
+    (Await.result(resp, 5.seconds)).successNel
   }
 }
 
@@ -162,8 +131,6 @@ object SshKeys extends ConcreteOrg {
       parse(input).extract[SshKeysInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
-
-
 
   private def SshKeysSet(id: String, org_id: String, c: SshKeysInput): ValidationNel[Throwable, SshKeysResult] = {
     (Validation.fromTryCatchThrowable[SshKeysResult, Throwable] {
@@ -182,11 +149,11 @@ object SshKeys extends ConcreteOrg {
     }
   }
 
-  def findByOrgId(authBag: Option[io.megam.auth.stack.AuthBag]): ValidationNel[Throwable, SshKeysResults] = {
+  def findByOrgId(authBag: Option[io.megam.auth.stack.AuthBag]): ValidationNel[Throwable, Seq[SshKeysResult]] = {
     (listRecords(authBag.get.org_id) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(authBag.get.email, "Sshkeys = nothing found.")
-    }).toValidationNel.flatMap { nm: SshKeysResults =>
-        Validation.success[Throwable, SshKeysResults](nm).toValidationNel
+    }).toValidationNel.flatMap { nm: Seq[SshKeysResult] =>
+        Validation.success[Throwable, Seq[SshKeysResult]](nm).toValidationNel
     }
  }
 }
