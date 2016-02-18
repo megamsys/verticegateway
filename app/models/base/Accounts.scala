@@ -72,6 +72,7 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   object authority extends StringColumn(this)
   object password_reset_key extends StringColumn(this)
   object password_reset_sent_at extends StringColumn(this)
+  //object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   def fromRow(row: Row): AccountResult = {
@@ -86,6 +87,7 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
       authority(row),
       password_reset_key(row),
       password_reset_sent_at(row),
+     // json_claz(row),
       created_at(row))
   }
 }
@@ -107,6 +109,7 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .value(_.authority, account.authority)
       .value(_.password_reset_key, account.password_reset_key)
       .value(_.password_reset_sent_at, account.password_reset_sent_at)
+     // .value(_.json_claz, account.json_claz)
       .value(_.created_at, account.created_at)
       .future()
     Await.result(res, 5.seconds).successNel

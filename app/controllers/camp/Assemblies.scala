@@ -19,15 +19,17 @@ import scalaz._
 import Scalaz._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
+import net.liftweb.json._
+import net.liftweb.json.JsonParser._
 
 import io.megam.auth.funnel.{ FunnelResponse, FunnelResponses }
 import io.megam.auth.funnel.FunnelErrors._
 import models.tosca._
 import play.api.mvc._
-
+import controllers.stack.Results
 
 object Assemblies extends Controller with controllers.stack.APIAuthElement {
-
+  implicit val formats = DefaultFormats
   /*
    * parse.tolerantText to parse the RawBody
    * get requested body and put into the riak bucket
@@ -41,7 +43,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.tosca.Assemblies.create(apiAccessed, clientAPIBody) match {
             case Success(wrapasm) =>
-            Status(CREATED)(FunnelResponse(CREATED, """Submitted successfully.
+              Status(CREATED)(FunnelResponse(CREATED, """Submitted successfully.
             |
             |
             |Our engine is cranking up.""", "Megam::Assemblies").toJson(true))
@@ -72,7 +74,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.tosca.Assemblies.findById(List(id).some) match {
             case Success(succ) =>
-              Ok(AssembliesResults.toJson(succ, true))
+              Ok(Results.resultset(models.Constants.ASSEMBLIESCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -100,7 +102,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
           models.tosca.Assemblies.findByEmail(email, org) match {
-            case Success(succ) => Ok(AssembliesResults.toJson(succ, true))
+            case Success(succ) => Ok(Results.resultset(models.Constants.ASSEMBLIESCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
