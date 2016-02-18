@@ -62,6 +62,7 @@ case class MarketPlaceSack(
   flavor: String,
   image: String,
   url: String,
+  json_claz: String,
   envs: Map[String, String],
   plans: Map[String, String]) {}
 
@@ -75,6 +76,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
   object flavor extends StringColumn(this) with PrimaryKey[String]
   object image extends StringColumn(this)
   object url extends StringColumn(this)
+  object json_claz extends StringColumn(this)
   object envs extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
   object plans extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
 
@@ -85,6 +87,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
       flavor(r),
       image(r),
       url(r),
+      json_claz(r),
       envs(r),
       plans(r))
   }
@@ -95,7 +98,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
  */
 abstract class ConcreteMkp extends MarketPlaceT with ScyllaConnector {
 
-  override lazy val tableName = "mkplaces"
+  override lazy val tableName = "marketplaces"
 
 }
 

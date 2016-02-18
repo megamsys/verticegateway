@@ -59,5 +59,4 @@ package object base {
     def empty: RequestResults = nel(emptyRR.head, emptyRR.tail)
   }
 
-
 }

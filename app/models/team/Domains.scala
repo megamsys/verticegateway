@@ -65,6 +65,7 @@ case class DomainsResult(
   id: String,
   org_id: String,
   name: String,
+  json_claz: String,
   created_at: String) {}
 
 
@@ -74,6 +75,7 @@ sealed class DomainsT extends CassandraTable[DomainsT, DomainsResult] {
   object id extends StringColumn(this) with PrimaryKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
+  object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
   override def fromRow(r: Row): DomainsResult = {
@@ -81,6 +83,7 @@ sealed class DomainsT extends CassandraTable[DomainsT, DomainsResult] {
       id(r),
       org_id(r),
       name(r),
+      json_claz(r),
       created_at(r))
   }
 }
@@ -97,6 +100,7 @@ abstract class ConcreteDmn extends DomainsT with ScyllaConnector {
     val res = insert.value(_.id, d.id)
       .value(_.org_id, d.org_id)
       .value(_.name, d.name)
+      .value(_.json_claz, d.json_claz)
       .value(_.created_at, d.created_at)
       .future()
     Await.result(res, 5.seconds)
@@ -121,7 +125,7 @@ object Domains extends ConcreteDmn {
 
   private def domainsSet(id: String, org_id: String, c: DomainsInput): ValidationNel[Throwable, DomainsResult] = {
     (Validation.fromTryCatchThrowable[DomainsResult, Throwable] {
-      DomainsResult(id, org_id, c.name, Time.now.toString)
+      DomainsResult(id, org_id, c.name, "Megam::Domains", Time.now.toString)
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 

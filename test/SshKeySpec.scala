@@ -40,7 +40,7 @@ class SshKeysSpec extends Specification {
       SshKeySpec is the implementation that calls the megam_play API server with the /SshKey url to create SshKeys
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post0.succeeds ^
+    //  "Correctly do POST requests" ! Post0.succeeds ^
       //"Correctly do POST requests" ! Post1.succeeds ^
       "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
