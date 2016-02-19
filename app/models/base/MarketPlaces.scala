@@ -55,47 +55,18 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
  * @author morpheyesh
  */
 
- 
+
 case class MarketPlaceSack(
   settings_name: String,
   cattype: String,
   flavor: String,
   image: String,
   url: String,
+  json_claz: String,
   envs: Map[String, String],
-  plans: Map[String, String]) {
+  plans: Map[String, String]) {}
 
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.MarketPlaceSackSerialization
-    val preser = new MarketPlaceSackSerialization()
-    toJSON(this)(preser.writer)
-  }
 
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
-}
-
-object MarketPlaceSack {
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MarketPlaceSack] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-
-    import models.json.MarketPlaceSackSerialization
-    val preser = new MarketPlaceSackSerialization()
-    fromJSON(jValue)(preser.reader)
-  }
-
-  def fromJson(json: String): Result[MarketPlaceSack] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
 
 //table class for holding the ds of a particular type(mkp in our case)
 sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] {
@@ -105,6 +76,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
   object flavor extends StringColumn(this) with PrimaryKey[String]
   object image extends StringColumn(this)
   object url extends StringColumn(this)
+  object json_claz extends StringColumn(this)
   object envs extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
   object plans extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
 
@@ -115,6 +87,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
       flavor(r),
       image(r),
       url(r),
+      json_claz(r),
       envs(r),
       plans(r))
   }
@@ -125,23 +98,20 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
  */
 abstract class ConcreteMkp extends MarketPlaceT with ScyllaConnector {
 
-  override lazy val tableName = "mkplaces"
+  override lazy val tableName = "marketplaces"
 
 }
 
 object MarketPlaces extends ConcreteMkp {
 
-  def listAll(): ValidationNel[Throwable, MarketPlaceSacks] = {
+  def listAll(): ValidationNel[Throwable, Seq[MarketPlaceSack]] = {
     val resp = select.collect()
-
-    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
-    Validation.success[Throwable, MarketPlaceSacks](nel(p.head, p.tail)).toValidationNel
+    (Await.result(resp, 5.second)).successNel
   }
 
-  def findByName(flavor: String): ValidationNel[Throwable, MarketPlaceSacks] = {
+  def findByName(flavor: String): ValidationNel[Throwable, MarketPlaceSack] = {
 
     val resp = select.allowFiltering().where(_.flavor eqs flavor).get()
-    val p = (Await.result(resp, 5.second)) map { i: MarketPlaceSack => (i.some) }
-    Validation.success[Throwable, MarketPlaceSacks](nels(p.head)).toValidationNel
+    (Await.result(resp, 5.second)).get.successNel
   }
 }

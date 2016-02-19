@@ -13,25 +13,35 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-
-package models
+package controllers.stack
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import scalaz.EitherT._
-import scalaz.Validation
-import scalaz.Validation.FlatMap._
-import scalaz.NonEmptyList._
-import models.json._
-
+import scalaz.Validation._
+import scala.concurrent.Future
 import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import java.nio.charset.Charset
-import models.Constants._
+import net.liftweb.json.JsonParser._
+
+
+import controllers.Constants._
+import io.megam.auth.funnel._
+import io.megam.auth.funnel.FunnelErrors._
+import io.megam.auth.stack.AccountResult
+import play.api.mvc._
+import play.api.libs.iteratee.Enumerator
+import models.base.Accounts
 
 /**
  * @author rajthilak
  *
  */
-package object team {}
+object Results {
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
+  protected val ResultsKey = "results"
+
+ def resultset(jsonclaz: String, result: String): String = {
+    val res = JsonParser.parse(result)
+    pretty(render(JObject(JField(JSONClazKey, JString(jsonclaz)) :: JField(ResultsKey, res) :: Nil)))
+  }
+
+}

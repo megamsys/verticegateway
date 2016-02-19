@@ -21,6 +21,8 @@ import scalaz.Validation._
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
+import net.liftweb.json._
+import controllers.stack.Results
 
 
 /**
@@ -43,13 +45,12 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Domains", "request funneled."))
-          models.team.Domains.create(email, clientAPIBody) match {
+          models.team.Domains.create(org, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Domains created successfully.
-            |
-            |You can use the the 'Domains name':{%s}.""".format(succ.getOrElse("none")), "Megam::Domains").toJson(true))
+                FunnelResponse(CREATED, """Domains created successfully.""", "Megam::Domains").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -65,11 +66,11 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
   }
 
   /*
-   * GET: findByName: Show a particular domain by name
+   * GET: List: Show all domains by orgId
    * Email provided in the URI.
    * Output: JSON (DomainsResult)
    **/
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+  def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.debug(("%-20s -->[%s]").format("camp.Domains", "show:Entry"))
     play.api.Logger.debug(("%-20s -->[%s]").format("name", id))
 
@@ -78,11 +79,14 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
+
           play.api.Logger.debug(("%-20s -->[%s]").format("camp.Domains", "request funneled."))
 
-          models.team.Domains.findByName(List(id).some) match {
+          models.team.Domains.findByOrgId(apiAccessed) match {
             case Success(succ) =>
-              Ok(models.team.DomainsResults.toJson(succ, true))
+            implicit val formats = DefaultFormats
+            Ok(Results.resultset(models.Constants.DOMAINCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

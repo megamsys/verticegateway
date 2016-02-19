@@ -18,10 +18,13 @@ package controllers.team
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
+import net.liftweb.json._
 
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
+import controllers.stack.Results
+
 
 /**
  * @author ram
@@ -71,7 +74,8 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.team.Organizations.findByEmail(email) match {
             case Success(succ) => {
-              Ok(models.team.OrganizationsResults.toJson(succ, true))
+              implicit val formats = DefaultFormats
+              Ok(Results.resultset(models.Constants.ORGANIZATIONSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -114,7 +118,5 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
 
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-
   }
-
 }

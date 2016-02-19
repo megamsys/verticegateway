@@ -17,7 +17,7 @@ GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
-GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
+#GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
 
 #MarketPlaces
 #POST   /v2/marketplaces/content         controllers.MarketPlaces.post
@@ -37,7 +37,7 @@ GET    /v2/organizations	              controllers.team.Organizations.list()
 
 #Domains
 POST   /v2/domains/content              controllers.team.Domains.post
-GET    /v2/domains/:id                  controllers.team.Domains.show(id: String)
+GET    /v2/domains                  controllers.team.Domains.list()
 
 #Assemblies
 POST   /v2/assemblies/content           controllers.camp.Assemblies.post
@@ -45,7 +45,7 @@ GET    /v2/assemblies	                  controllers.camp.Assemblies.list
 GET    /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
 GET    /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 POST   /v2/assembly/update              controllers.camp.Assembly.update
-POST   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
+GET   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
 

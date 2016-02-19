@@ -19,19 +19,19 @@
  *
  */
 
- /*
+
 package test
 
 //import org.specs2.mutable._
-//import org.specs2.Specification
+import org.specs2.Specification
 import java.net.URL
-//import org.specs2.matcher.MatchResult
-//import org.specs2.execute.{ Result => SpecsResult }
+import org.specs2.matcher.MatchResult
+import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import io.megam.auth.stack.HeaderConstants._
-import models.{ SshKeyInput }
+import models.base.{ SshKeysInput }
 
 class SshKeysSpec extends Specification {
   def is =
@@ -40,9 +40,9 @@ class SshKeysSpec extends Specification {
       SshKeySpec is the implementation that calls the megam_play API server with the /SshKey url to create SshKeys
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post0.succeeds ^
+    //  "Correctly do POST requests" ! Post0.succeeds ^
       //"Correctly do POST requests" ! Post1.succeeds ^
-      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
      // "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
@@ -56,8 +56,9 @@ class SshKeysSpec extends Specification {
     protected override def urlSuffix: String = "sshkeys/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new SshKeyInput("sample", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/megam@mypaas.io").json
-      Some(contentToEncode)
+      val contentToEncode = new SshKeysInput("sample", "PRIVKEY0012", "PUBKEY0012").json
+    Some(new String(contentToEncode))
+
     }
 
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -70,134 +71,18 @@ class SshKeysSpec extends Specification {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
-
-  }
-
-  //post the headers and their body for specifing url (insert one more record)
-  case object Post1 extends Context {
-
-    protected override def urlSuffix: String = "sshkeys/content"
-
-    protected override def bodyToStick: Option[String] = {
-      val contentToEncode = new SshKeyInput("sample", "https://s3-ap-southeast-1.amazonaws.com/cloudkeys/megam@mypaas.io").json
-      Some(contentToEncode)
-    }
-
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
-    }
-
   }
 
   case object List extends Context {
-    protected override def urlSuffix: String = "sshkeys"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }
-
-  case object Get extends Context {
-    protected override def urlSuffix: String = "sshkeys/ec2_rails"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }*/
-
-  /**
-   * test case for invalidUrl
+   protected override def urlSuffix: String = "sshkeys"
+   protected def headersOpt: Option[Map[String, String]] = None
+   private val get = GET(url)(httpClient)
+     .addHeaders(headers)
+   def succeeds = {
+     val resp = execute(get)
+     resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+   }
+ }
 
 
-  case object PostInvalidUrl extends Context {
-
-    protected override def urlSuffix: String = "sshkeys/contentinvalidurl"
-
-    protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
-      Some(new String(contentToEncode))
-    }
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
-    }
-  }*/
-
-  /**
-   * test case for invalidBody
-
-
-  case object PostInvalidBody extends Context {
-
-    protected override def urlSuffix: String = "sshkeys/content"
-
-    protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
-      Some(new String(contentToEncode))
-    }
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
-    }
-  }
-
-  case object GetInvalidApi extends Context {
-    protected override def urlSuffix: String = "sshkeys/ec2_rails"
-
-    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
-      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Unauthorized)
-    }
-  }
-
-  case object GetInvalidEmail extends Context {
-    protected override def urlSuffix: String = "sshkeys/meg-rails"
-
-    protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> application_json,
-      X_Megam_EMAIL -> "sandy@bogusandbox.com", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
-      X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json))
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
-    }
-  }
-
-}*/
+}
