@@ -113,7 +113,7 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "verticecommon", "verticesnowflake")
+debianPackageDependencies in Debian ++= Seq("curl", "verticecommon")
 
 debianPackageRecommends in Debian += "riak"
 
