@@ -1,3 +1,5 @@
+//Run command in myfile.cql
+//cqlsh 103.56.92.24 -f /root/myfile.cql
 
 CREATE KEYSPACE IF NOT EXISTS TestMegam
   WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }
@@ -84,7 +86,7 @@ insert into marketplaces (settings_name, cattype, flavor, image, url, json_claz,
 
 insert into marketplaces (settings_name, cattype, flavor, image, url, json_claz, envs, plan) values ('vertice', 'SERVICE', 'RabbitMQ', 'rabbitmq.png', 'https://www.rabbitmq.com', 'MEGAM::MarketPlace' , {'port':'5672', 'username':'guest', 'password':'guest'}, {'3.3.x':'RabbitMQ is a message broker software  that implements the Advanced Message Queuing Protocol (AMQP).'});
 
-insert into marketplaces (settings_name, cattype, flavor, image, url, json_claz, envs, plan) values ('vertice', 'SERVICE', 'Mysql', 'mysql.png', 'https://dev.mysql.com/', 'MEGAM::MarketPlace' , {'port':'3306', 'username':'root', 'password':'megam'}, {'5.x':MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL).'});
+insert into marketplaces (settings_name, cattype, flavor, image, url, json_claz, envs, plan) values ('vertice', 'SERVICE', 'Mysql', 'mysql.png', 'https://dev.mysql.com/', 'MEGAM::MarketPlace' , {'port':'3306', 'username':'root', 'password':'megam'}, {'5.x':'MySQL is a freely available open source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL).'});
 
 
 insert into marketplaces (settings_name, cattype, flavor, image, url, json_claz, envs, plan) values ('vertice', 'MICROSERVICES', 'DockerBox', 'dockerbox.png', 'https://www.docker.com', 'MEGAM::MarketPlace' , {'port':'2375'}, {'0.9.0':'Launch a vm with docker in detached model.'});
