@@ -1,5 +1,5 @@
 /**
- * * Copyright [2013-2015] [Megam Systems]
+ * * Copyright [2013-2016] [Megam Systems]
  * *
  * * Licensed under the Apache License, Version 2.0 (the "License");
  * * you may not use this file except in compliance with the License.
@@ -34,12 +34,13 @@ class AccountsSpec extends Specification {
   AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      //"Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      //"Correctly do GET requests with a valid userid and api key" ! GetLogin.succeeds ^
+      //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   case object Post extends Context {
@@ -47,7 +48,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"first_name\":\"Darth\", \"last_name\":\"Vader\", \"phone\":\"19090909090\", \"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\" }"
+      val contentToEncode = "{\"first_name\":\"Darth\", \"last_name\":\"Vader\", \"phone\":\"19090909090\", \"email\":\"tee@test.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -102,7 +103,7 @@ class AccountsSpec extends Specification {
     }
   }
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/mm@e.com"
+    protected override def urlSuffix: String = "accounts/test@megam.io"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -113,6 +114,8 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
+
+
   case object GetInvalidApi extends Context {
     protected override def urlSuffix: String = "accounts/megam@mypaas.io"
 

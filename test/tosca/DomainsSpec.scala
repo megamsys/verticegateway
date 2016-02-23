@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-
+*/
 
 package test.tosca
 
@@ -35,10 +35,10 @@ class DomainsSpec extends Specification {
       DomainsSpec is the implementation that calls the megam_play API server with the /Domains url to create Domains
     """ ^ end ^
   "The Client Should" ^
-  "Correctly do POST requests with a valid domains name" ! Post.succeeds ^
-  "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-  "Correctly do GET requests with a valid domains name" ! Get.succeeds ^
+//  "Correctly do POST requests with a valid domains name" ! Post.succeeds ^
+//  "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
+//  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+  "Correctly do GET requests with a valid orgid" ! Get.succeeds ^
   end
 
 
@@ -47,7 +47,7 @@ case object Post extends Context {
   protected override def urlSuffix: String = "domains/content"
 
   protected override def bodyToStick: Option[String] = {
-    val contentToEncode = "{\"name\":\"megam.co\" }"
+    val contentToEncode = "{\"name\":\"megambox.com\" }"
     Some(new String(contentToEncode))
   }
   protected override def headersOpt: Option[Map[String, String]] = None
@@ -107,7 +107,7 @@ case object Post extends Context {
 
 
    case object Get extends Context {
-    protected override def urlSuffix: String = "domains/megam.org"
+    protected override def urlSuffix: String = "domains"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -119,4 +119,3 @@ case object Post extends Context {
     }
   }
 }
-*/

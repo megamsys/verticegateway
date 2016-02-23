@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ class ComponentsSpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-    //  "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-      "Correctly do POST  requests with an valid Assembly ID" ! updateApp.succeeds ^
+      "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+      //"Correctly do POST  requests with an valid Assembly ID" ! updateApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "components/COM1282017289125888000"
+    protected override def urlSuffix: String = "components/COM7940692507005379013"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -58,7 +58,7 @@ class ComponentsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"id\": \"COM1282017289125888000\"," +
+        "\"id\": \"COM7270123887781796531\"," +
         "\"name\":\"NettieMoore\"," +
         "\"tosca_type\":\"tosca.web.redis\"," +
         "\"inputs\":[" +
@@ -88,8 +88,10 @@ class ComponentsSpec extends Specification {
         "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
         "{\"key\":\"ci-token\",\"value\":\"token\"}," +
         "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-        "]}]," +
-        "\"status\":\"\"" +
+        "]"+
+        "\"status\":\"notbound\"," +
+        "}]," +
+        "\"status\":\"\"," +
         "\"repo\":{"+
         "\"rtype\":\"image\"," +
         "\"source\":\"github\"," +

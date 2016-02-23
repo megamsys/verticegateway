@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import models.tosca._
  * @author ranjitha
  *
  */
-object SensorsResultsSerialization extends models.json.SerializationBase[SensorsResults] {
-  protected val JSONClazKey = controllers.Constants.JSON_CLAZ
+object SensorsResultsSerialization extends io.megam.json.SerializationBase[SensorsResults] {
+  protected val JSONClazKey = models.Constants.JSON_CLAZ
   protected val ResultsKey = "results"
 
   implicit override val writer = new JSONW[SensorsResults] {

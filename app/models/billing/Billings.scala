@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -23,22 +23,22 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.FunnelErrors._
 
 import cache._
 import db._
 import models.base._
 import models.json.billing._
-import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import models.Constants._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
-import org.megam.util.Time
-import org.megam.common.uid.UID
+import io.megam.common.riak.GunnySack
+import io.megam.util.Time
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -63,7 +63,7 @@ case class BillingsResult(id: String, accounts_id: String, line1: String, line2:
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -88,10 +88,12 @@ object BillingsResult {
 
 object Billings {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("billings")
-  val metadataKey = "Billings"
-  val metadataVal = "Billings Creation"
-  val bindex = "Billings"
+
+  private lazy val bucker = "billings"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private val idxedBy = idxAccountsId
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -106,12 +108,12 @@ object Billings {
 
     for {
       billing <- BillingsInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bil").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("bil").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(billing.accounts_id)
       val json = new BillingsResult(uir.get._1 + uir.get._2, billing.accounts_id, billing.line1, billing.line2, billing.country_code, billing.postal_code, billing.state, billing.phone, billing.bill_type, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import play.api.http.HeaderNames._
 import play.api.mvc._
 import play.api.mvc.Results._
 import play.filters.gzip.{ GzipFilter }
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 import scala.concurrent.Future
 import controllers._
 import java.io._
@@ -54,10 +54,12 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
        =====      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
     """)
     play.api.Logger.info("started ...")
-
+/*
+ * PlatformAppPrimer - both acc_prep and mkp_prep gets done successfully only if scyllaDB holds the data in settings table
+ */
         for {
           m <- utils.PlatformAppPrimer.acc_prep
-          mkp <- utils.PlatformAppPrimer.mkp_prep
+      //    mkp <- utils.PlatformAppPrimer.mkp_prep
         } yield {
           play.api.Logger.info(">> priming: successful.")
         }

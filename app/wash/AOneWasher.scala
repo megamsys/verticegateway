@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ package wash
 
 import scalaz._
 import Scalaz._
-import org.megam.common._
-import org.megam.common.amqp._
-import org.megam.common.amqp.request._
-import org.megam.common.amqp.response._
 import app.MConfig
+import io.megam.common._
+import io.megam.common.amqp._
+import io.megam.common.amqp.request._
+import io.megam.common.amqp.response._
 import models.base.RequestResult
 import play.api.Logger
 import controllers.Constants._
@@ -30,40 +30,27 @@ import controllers.Constants._
  * @author rajthilak
  *
  */
-case class AOneWasher(pq: PQd) extends MessageContext {
+case class AOneWasher(pq: models.Messageble) extends MessageContext {
 
-  def queueName = (pq.QrE(cloudFarm).getOrElse(("","")))._1
+  def topic = (pq.topic().getOrElse(""))
 
-  def exchangeName = (pq.QrE(cloudFarm).getOrElse(("","")))._2
+  val msg = pq.messages
 
-  val msg = Messages(pq.messages.toList)
-  
-print(msg)
   def wash(): ValidationNel[Throwable, AMQPResponse] = {
-    play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + queueName+"]", msg))
-    execute(rmqClient.publish(msg, MConfig.routing_key))
+    play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + topic + "]", msg))
+    execute(nsqClient.publish(msg))
   }
 }
 
-case class PQd(reqres: models.base.RequestResult) {
+case class PQd(f: Unit => Option[String], msg: String) extends models.Messageble {
 
-  val DQACTIONS = Array[String](CREATE, DELETE)
+  override def topic(x: Unit): Option[String] = f(x)
 
-  def QrE(cloudFarm: String): Option[Tuple2[String, String]] = {
-    if (reqres.cattype.equalsIgnoreCase(CATTYPE_DOCKER)) {
-      (cloudFarm + MConfig.dockerup_queue, cloudFarm + MConfig.dockerup_exchange).some
-    } else if (DQACTIONS.contains(reqres.action)) {
-      (cloudFarm + MConfig.standup_queue, cloudFarm + MConfig.standup_exchange).some
-    } else if (reqres.name.trim.length > 0) {
-      (cloudFarm + reqres.name + "_queue", cloudFarm + reqres.name + "_exchange").some
-    } else  none
-  }
-
-  val messages = reqres.toMap
+  override def messages = msg
 
 }
-
 
 object PQd {
-    def empty: PQd = new PQd(models.base.RequestResult("","","","","","",""))
+  def topic(x: Unit) = "testing".some
+  def empty: PQd = new PQd(topic, "")
 }

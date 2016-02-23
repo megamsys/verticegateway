@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -23,23 +23,23 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
-import org.megam.util.Time
+import io.megam.util.Time
 
 import cache._
 import db._
 import models.base.Accounts
 import models.json.billing._
-import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import models.Constants._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
-import controllers.funnel.FunnelErrors._
+import io.megam.common.riak.GunnySack
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
-import org.megam.common.uid.UID
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -69,7 +69,7 @@ case class BalancesResult(id: String, name: String, credit: String, created_at: 
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -84,7 +84,7 @@ object BalancesResult {
     fromJSON(jValue)(preser.reader)
   }
 
-  def fromJson(json: String): Result[BalancesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
+  def fromJson(json: String): Result[BalancesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
     parse(json)
   } leftMap { t: Throwable =>
     UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
@@ -94,12 +94,12 @@ object BalancesResult {
 
 object Balances {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("balances")
 
+  private lazy val bucker = "balances"
 
-  val metadataKey = "Balances"
-  val metadataVal = "Balances Creation"
-  val bindex = "balances"
+  private lazy val riak = GWRiak("balances")
+
+  private lazy val idxedBy = idxAccountsId
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -108,19 +108,19 @@ object Balances {
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-  val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatchThrowable[BalancesInput,Throwable] {
+    val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatchThrowable[BalancesInput, Throwable] {
       parse(input).extract[BalancesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       balance <- balancesInput
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "bal").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("bal").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
 
       val bvalue = Set(email)
       val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, Time.now.toString, Time.now.toString).toJson(false)
       new GunnySack(email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -137,7 +137,7 @@ object Balances {
           maybeGS match {
             case Some(thatGS) => (parse(thatGS.value).extract[BalancesResult].some).successNel[Throwable]
             case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Balances.created. success",Console.RESET))
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.created. success", Console.RESET))
               (parse(gs.get.value).extract[BalancesResult].some).successNel[Throwable];
             }
           }
@@ -145,21 +145,21 @@ object Balances {
     }
   }
 
-   private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatchThrowable[BalancesUpdateInput,Throwable] {
+  private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatchThrowable[BalancesUpdateInput, Throwable] {
       parse(input).extract[BalancesUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       rip <- ripNel
       aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      bals <- (Balances.findByName(List(email).some) leftMap {t: NonEmptyList[Throwable] => t })
+      bals <- (Balances.findByName(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bvalue = Set(aor.get.id)
       val bal = bals.head
       val json = BalancesResult(bal.get.id, bal.get.name, NilorNot(rip.credit, bal.get.credit), bal.get.created_at, Time.now.toString).toJson(false)
       new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
 
@@ -169,7 +169,6 @@ object Balances {
       case false => return rip
     }
   }
-
 
   def update(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
     for {
@@ -181,7 +180,7 @@ object Balances {
         case Some(thatGS) =>
           BalancesResult(thatGS.key, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
         case None => {
-          play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"Balances.updated successfully",Console.RESET))
+          play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.updated successfully", Console.RESET))
           BalancesResult(nrip.id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
 
         }
@@ -198,7 +197,7 @@ object Balances {
         }).toValidationNel.flatMap { xso: Option[GunnySack] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.billing.BalancesResult,Throwable] {
+              (Validation.fromTryCatchThrowable[models.billing.BalancesResult, Throwable] {
                 parse(xs.value).extract[BalancesResult]
               } leftMap { t: Throwable =>
                 new ResourceItemNotFound(balanceName, t.getMessage)

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,14 +20,16 @@ import Scalaz._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import net.liftweb.json._
+import controllers.stack.Results
 
 import models.tosca._
-import controllers.funnel.{ FunnelResponse, FunnelResponses }
-import controllers.funnel.FunnelErrors._
+import io.megam.auth.funnel.{ FunnelResponse, FunnelResponses }
+import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 
 object Assembly extends Controller with controllers.stack.APIAuthElement {
-
+  implicit val formats = DefaultFormats
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
@@ -36,7 +38,7 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.tosca.Assembly.findById(List(id).some) match {
             case Success(succ) =>
-              Ok(AssemblyResults.toJson(succ, true))
+              Ok(Results.resultset(models.Constants.ASSEMBLYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -58,7 +60,8 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.tosca.Assembly.update(email, clientAPIBody) match {
+          val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
+          models.tosca.Assembly.update(org, clientAPIBody) match {
             case Success(succ) => {
               Status(CREATED)(FunnelResponse(CREATED, """Bind initiation submitted successfully.
             |
@@ -78,18 +81,18 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  def build(id: String, name: String) = Action(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result, Throwable] {
-      models.base.Requests.createAndPub("",models.base.RequestInput(id, "",name, controllers.Constants.BUILD, controllers.Constants.CONTROL).json) match {
-        case Success(succ) =>
-          Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
-             |
-             |Engine is cranking.. It will be ready shortly.""", "Megam::Requests").toJson(true))
-        case Failure(err) =>
-          Status(BAD_REQUEST)(FunnelResponse(BAD_REQUEST, """Request initiation submission failed.
-             |
-             |Retry again, our queue servers are crowded""", "Megam::Requests").toJson(true))
+  //publicly exposed API. Tighten it later.
+  def upgrade(id: String) = Action(parse.tolerantText) { implicit request =>
+    models.tosca.Assembly.upgrade("", id) match {
+      case Success(succ) => {
+        Status(CREATED)(FunnelResponse(CREATED, """Your upgrade is in process.
+            |
+            |Engine is cranking.""", "Megam::Assembly").toJson(true))
       }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+      case Failure(err) => {
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+      }
+    }
   }
 }

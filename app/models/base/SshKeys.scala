@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -24,177 +24,140 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 
+import models.json._
 import models.base._
 import db._
 import cache._
 import app.MConfig
-import app.MConfig
-import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import models.Constants._
+import io.megam.auth.funnel.FunnelErrors._
+import scalaz.Validation
+import scalaz.Validation.FlatMap._
 
 import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{RiakIndexes, StringBinIndex, LongIntIndex }
+import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
-import org.megam.util.Time
-import org.megam.common.uid.UID
+import io.megam.common.riak.GunnySack
+import io.megam.util.Time
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+//import com.twitter.util.{ Future, Await }
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
+//import com.twitter.conversions.time._
+import org.joda.time.DateTime
+
+import com.websudos.phantom.dsl._
+import com.websudos.phantom.iteratee.Iteratee
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 
 /**
- * @author rajthilak
  *
+ * @author morpheyesh
  */
 
-
-case class SshKeyInput(name: String, path: String) {
-  val json = "{\"name\":\"" + name + "\",\"path\":\"" + path + "\"}"
+case class SshKeysInput(name: String, privatekey: String, publickey: String) {
+  val json = "{\"name\":\"" + name + "\",\"privatekey\":\"" + privatekey + "\",\"publickey\":\"" + publickey + "\"}"
 }
 
-case class SshKeyResult(id: String, name: String, accounts_id: String, path: String, created_at: String) {
 
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.SshKeyResultSerialization
-    val preser = new SshKeyResultSerialization()
-    toJSON(this)(preser.writer)
-  }
+case class SshKeysResult(
+  id: String,
+  org_id: String,
+  name: String,
+  privatekey: String,
+  publickey: String,
+  json_claz: String,
+  created_at: String) {}
 
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
-  } else {
-    compactRender(toJValue)
+
+
+sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
+
+  object id extends StringColumn(this) with PrimaryKey[String]
+  object org_id extends StringColumn(this) with PartitionKey[String]
+  object name extends StringColumn(this)
+  object privatekey extends StringColumn(this)
+  object publickey extends StringColumn(this)
+  object json_claz extends StringColumn(this)
+  object created_at extends StringColumn(this)
+
+  override def fromRow(r: Row): SshKeysResult = {
+    SshKeysResult(
+      id(r),
+      org_id(r),
+      name(r),
+      privatekey(r),
+      publickey(r),
+      json_claz(r),
+      created_at(r))
   }
 }
 
-object SshKeyResult {
+/*
+ *   This class talks to scylla and performs the actions
+ */
 
+abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[SshKeyResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.SshKeyResultSerialization
-    val preser = new SshKeyResultSerialization()
-    fromJSON(jValue)(preser.reader)
+  override lazy val tableName = "sshkeys"
+
+  def insertNewRecord(sk: SshKeysResult): ResultSet = {
+    val res = insert.value(_.id, sk.id)
+      .value(_.org_id, sk.org_id)
+      .value(_.name, sk.name)
+      .value(_.privatekey, sk.privatekey)
+      .value(_.publickey, sk.publickey)
+      .value(_.json_claz, sk.json_claz)
+      .value(_.created_at, sk.created_at)
+      .future()
+    Await.result(res, 5.seconds)
   }
-
-  def fromJson(json: String): Result[SshKeyResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue,Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-
+/*
+ * Lists all the record
+ */
+  def listRecords(org_id: String): ValidationNel[Throwable, Seq[SshKeysResult]] = {
+    val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
+    (Await.result(resp, 5.seconds)).successNel
+  }
 }
 
-object SshKeys {
+
+object SshKeys extends ConcreteOrg {
 
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("sshkeys")
-  implicit def SshKeyResultsSemigroup: Semigroup[SshKeyResults] = Semigroup.instance((f1, f2) => f1.append(f2))
 
-  val metadataKey = "SshKey"
-  val metadataVal = "SshKeys Creation"
-  val bindex = "sshkey"
+  private def sshNel(input: String): ValidationNel[Throwable, SshKeysInput] = {
+    (Validation.fromTryCatchThrowable[SshKeysInput, Throwable] {
+      parse(input).extract[SshKeysInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  }
 
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val sshKeyInput: ValidationNel[Throwable, SshKeyInput] = (Validation.fromTryCatchThrowable[models.base.SshKeyInput,Throwable] {
-      parse(input).extract[SshKeyInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+  private def SshKeysSet(id: String, org_id: String, c: SshKeysInput): ValidationNel[Throwable, SshKeysResult] = {
+    (Validation.fromTryCatchThrowable[SshKeysResult, Throwable] {
+      SshKeysResult(id, org_id, c.name, c.privatekey, c.publickey, "Megam::SshKeys", Time.now.toString)
+    } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
+  }
 
+  def create(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, SshKeysResult] = {
     for {
-      pdc <- sshKeyInput
-      //TO-DO: Does the leftMap make sense ? To check during function testing, by removing it.
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "ssh").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      c <- sshNel(input)
+      uir <- (UID("SSH").get leftMap { u: NonEmptyList[Throwable] => u })
+      sk <- SshKeysSet(uir.get._1 + uir.get._2, authBag.get.org_id, c)
     } yield {
-      //TO-DO: do we need a match for None on aor, and uir (confirm it during function testing).
-      val bvalue = Set(aor.get.id)
-      val json = new SshKeyResult(uir.get._1 + uir.get._2, pdc.name, aor.get.id, pdc.path, Time.now.toString).toJson(false)
-      new GunnySack(pdc.name, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+      insertNewRecord(sk)
+      sk
     }
   }
 
-  /*
-   * create new Node with the 'name' of the node provide as input.
-   * A index name accountID will point to the "accounts" bucket
-   */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[SshKeyResult]] = {
-    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[SshKeyResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD,"sshkey.created success",Console.RESET))
-              (parse(gs.get.value).extract[SshKeyResult].some).successNel[Throwable];
-            }
-          }
-
-        }
+  def findByOrgId(authBag: Option[io.megam.auth.stack.AuthBag]): ValidationNel[Throwable, Seq[SshKeysResult]] = {
+    (listRecords(authBag.get.org_id) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(authBag.get.email, "Sshkeys = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[SshKeysResult] =>
+        Validation.success[Throwable, Seq[SshKeysResult]](nm).toValidationNel
     }
-  }
-
-  def findByName(sshKeysNameList: Option[List[String]]): ValidationNel[Throwable, SshKeyResults] = {
-    (sshKeysNameList map {
-      _.map { sshKeysName =>
-        play.api.Logger.debug("models.SshKeysName findByName: SshKeys:" + sshKeysName)
-        (riak.fetch(sshKeysName) leftMap { t: NonEmptyList[Throwable] =>
-          new ServiceUnavailableError(sshKeysName, (t.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-          xso match {
-            case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.base.SshKeyResult,Throwable] {
-                parse(xs.value).extract[SshKeyResult]
-              } leftMap { t: Throwable =>
-                new ResourceItemNotFound(sshKeysName, t.getMessage)
-              }).toValidationNel.flatMap { j: SshKeyResult =>
-                Validation.success[Throwable, SshKeyResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-              }
-            }
-            case None => Validation.failure[Throwable, SshKeyResults](new ResourceItemNotFound(sshKeysName, "")).toValidationNel
-          }
-        }
-      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
-    } map {
-      _.foldRight((SshKeyResults.empty).successNel[Throwable])(_ +++ _)
-    }).head //return the folded element in the head.
-
-  }
-
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the nodenames are listed on the index (account.id) in bucket `Nodes`.
-   * Using a "nodename" as key, return a list of ValidationNel[List[NodeResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[NodeResult]]]
-   */
-  def findByEmail(email: String): ValidationNel[Throwable, SshKeyResults] = {
-    val res = eitherT[IO, NonEmptyList[Throwable], ValidationNel[Throwable, SshKeyResults]] {
-      (((for {
-        aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
-      } yield {
-        val bindex = ""
-        val bvalue = Set("")
-        new GunnySack("sshkey", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
-      }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
-        gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
-      } map { nm: List[String] =>
-        (if (!nm.isEmpty) findByName(nm.some) else
-          new ResourceItemNotFound(email, "SshKeys = nothing found.").failureNel[SshKeyResults])
-      }).disjunction).pure[IO]
-    }.run.map(_.validation).unsafePerformIO
-    res.getOrElse(new ResourceItemNotFound(email, "SshKeys = nothing found.").failureNel[SshKeyResults])
-  }
-
+ }
 }

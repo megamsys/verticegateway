@@ -2,9 +2,9 @@ import sbt._
 import Process._
 import com.typesafe.sbt.packager.archetypes.ServerLoader
 
-name := "megamgateway"
+name := "verticegateway"
 
-version := "0.9"
+version := "1.0"
 
 scalaVersion := "2.11.7"
 
@@ -12,8 +12,8 @@ organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))
 
-description := """Megam Gateway : Scalable RESTful API server for megam cloud platform
-                  in a functional way, built using Riak, Snowflake(UID), Memcache
+description := """Vertice Gateway : Scalable RESTful API server for megam vertice
+                  in a functional way, built using Riak, Memcache
                   try: https://console.megam.io
                   web: https://www.megam.io"""
 
@@ -30,14 +30,14 @@ javaOptions ++= Seq("-Dconfig.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val gwconfPath = Path(home)
-  val gwconf = gwconfPath / "megamgateway" /  "gateway.conf"
+  val gwconf = gwconfPath / "verticegateway" /  "gateway.conf"
   gwconf.toString
 },
 "-Dlogger.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val logconfPath = Path(home)
-  val logconf = logconfPath / "megamgateway" /  "logger.xml"
+  val logconf = logconfPath / "verticegateway" /  "logger.xml"
   logconf.toString
 })
 
@@ -71,17 +71,21 @@ resolvers += "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.or
 resolvers += "Spray repo" at "http://repo.spray.io"
 resolvers += "Spy Repository" at "http://files.couchbase.com/maven2"
 resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
-resolvers += "Bintray scalaz" at "https://dl.bintray.com/scalaz/releases/"
+resolvers += "Websudos" at "https://dl.bintray.com/websudos/oss-releases/"
+
+
+val phantomV = "1.16.0"
 
 libraryDependencies ++= Seq(filters, cache,
-  "jp.t2v" %% "play2-auth" % "0.14.1",
   "org.yaml" % "snakeyaml" % "1.16",
-  "io.megam" %% "libcommon" % "0.12",
+  "io.megam" %% "libcommon" % "0.39",
   "io.megam" %% "newman" % "1.3.12",
-  "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
-  "org.specs2" %% "specs2-core" % "3.6.5-20151112214348-18646b2" % "test",
-  "org.specs2" %% "specs2-junit" % "3.6.5-20151112214348-18646b2" % "test",
-  "org.specs2" % "specs2-matcher-extra_2.11" % "3.6.5-20151112214348-18646b2" % "test")
+  "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
+  "com.websudos"      %%  "phantom-dsl"               % phantomV,
+  "com.websudos"      %%  "phantom-testkit"           % phantomV,
+  "com.websudos"      %%  "phantom-connectors"        % phantomV,
+  "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",
+  "org.specs2" % "specs2-matcher-extra_2.11" % "3.7-scalaz-7.1.6" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 
@@ -109,7 +113,7 @@ daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "megamcommon", "megamsnowflake")
+debianPackageDependencies in Debian ++= Seq("curl", "verticecommon")
 
 debianPackageRecommends in Debian += "riak"
 

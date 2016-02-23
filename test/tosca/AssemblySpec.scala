@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -35,12 +35,13 @@ class AssemblySpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-       //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-      "Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
+      "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+      //"Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
+      //"Correctly do GET requests with an valid Assembly ID" ! upgradeApp.succeeds ^
       end
 
   case object findByIDApp extends Context {
-    protected override def urlSuffix: String = "assembly/ASM1281994281950773248"
+    protected override def urlSuffix: String = "assembly/ASM9070050271024385313"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -58,8 +59,8 @@ class AssemblySpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"id\":\"ASM1282015862542434304\"," +
-        "\"json_claz\":\"Megam::Assembly\"," +
+        "\"id\":\"ASM4669538364206151823\"," +
+        "\"org_id\":\"ORG123\"," +
         "\"name\":\"calcines\"," +
         "\"components\":[\"COM1282015862571794432\"]," +
         "\"tosca_type\":\"tosca.torpedo.coreos\"," +
@@ -68,9 +69,9 @@ class AssemblySpec extends Specification {
         "\"ptype\":\"colocated\"," +
         "\"members\":[\"calcines.megam.co/MattieGarcia\",\"calcines.megam.co/parsnip\"]" +
         "}]," +
-        "\"inputs\":["+
+        "\"inputs\":[" +
         "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-          "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
+        "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
         "]," +
         "\"outputs\":[]," +
         "\"status\":\"Launching\"," +
@@ -88,6 +89,19 @@ class AssemblySpec extends Specification {
     def succeeds: SpecsResult = {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+
+  case object upgradeApp extends Context {
+    protected override def urlSuffix: String = "assembly/upgrade/ASM4669538364206151823"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
 

@@ -3,16 +3,26 @@ plugins {
     id "nebula.rpm" version "3.2.0"
 }
 
-def playVersion = '2.4.4'
+def playVersion = '2.4.6'
 def scalaVersion = '2.11'
 
 model {
     components {
         play {
-            platform play: playVersion, scala: scalaVersion
+              platform play: playVersion, scala: scalaVersion
+
+              sources {
+                resources  {
+                  String gateway_conf = "$System.env.MEGAM_HOME/verticegateway"
+
+                  println "conf: " + gateway_conf
+                  source.srcDir  "$gateway_conf"
+                }
+            }
         }
     }
 }
+
 
 dependencies {
     ['play-cache', 'filters-helpers'].each { playModule ->

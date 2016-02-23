@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,17 +28,17 @@ import cache._
 import db._
 import models.json.tosca._
 import models.json.sensors._
-import controllers.Constants._
-import controllers.funnel.FunnelErrors._
+import models.Constants._
+import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
 
 import com.stackmob.scaliak._
 import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
 import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import org.megam.common.riak.GunnySack
-import org.megam.util.Time
-import org.megam.common.uid.UID
+import io.megam.common.riak.GunnySack
+import io.megam.util.Time
+import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
@@ -48,7 +48,6 @@ import java.nio.charset.Charset
  *
  */
 case class Payload(accounts_id: String, assemblies_id: String, assembly_id: String, component_id: String, state: String, source: String, node: String, message: String, audit_period_begining: String, audit_period_ending: String, metrics: MetricList) {
-
   val json = "{\"accounts_id\":\"" + accounts_id + "\",\"assemblies_id\":\"" + assemblies_id + "\",\"assembly_id\":\"" + assembly_id + "\",\"component_id\":\"" + component_id + "\",\"state\":\"" + state + "\",\"source\":\"" + source + "\",\"node\":\"" + node + "\",\"message\":\"" + message + "\",\"audit_period_begining\":\"" + audit_period_begining + "\",\"audit_period_ending\":\"" + audit_period_ending + "\",\"metrics\":" + MetricList.toJson(metrics, true) + "}"
 
 }
@@ -72,7 +71,7 @@ case class SensorsResult(id: String, sensor_type: String, payload: Payload, crea
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -104,7 +103,7 @@ case class Metric(metric_type: String, metric_value: String, metric_units: Strin
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -137,7 +136,7 @@ case class Sensors(sensor_type: String, payload: Payload) {
   }
 
   def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    pretty(render(toJValue))
+    prettyRender(toJValue)
   } else {
     compactRender(toJValue)
   }
@@ -145,11 +144,12 @@ case class Sensors(sensor_type: String, payload: Payload) {
 
 object Sensors {
   implicit val formats = DefaultFormats
-  private val riak = GWRiak("sensors")
 
-  val metadataKey = "SENSORS"
-  val metadataVal = "Sensors Creation"
-  val bindex = "sensors"
+  private lazy val bucker = "sensors"
+
+  private lazy val riak = GWRiak(bucker)
+
+  private lazy val idxedBy = idxAccountsId
 
   def empty: Sensors = new Sensors(new String(), Payload.empty)
 
@@ -173,13 +173,12 @@ object Sensors {
     for {
       event <- sensorsInput
       aor <- (models.base.Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      uir <- (UID(MConfig.snowflakeHost, MConfig.snowflakePort, "snr").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      uir <- (UID("snr").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(aor.get.id)
-      //val bvalue = Set(event.a_id)
       val json = new SensorsResult(uir.get._1 + uir.get._2, event.sensor_type, event.payload, Time.now.toString).toJson(false)
       new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        Map.empty, Map((idxedBy, bvalue))).some
     }
   }
   def create(email: String, input: String): ValidationNel[Throwable, Option[SensorsResult]] = {
@@ -231,11 +230,9 @@ object Sensors {
       (((for {
         aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t }) //captures failure on the left side, success on right ie the component before the (<-)
       } yield {
-        val bindex = ""
-        val bvalue = Set("")
         play.api.Logger.debug(("%-20s -->[%s]").format("tosca.Sensors", "findByEmail" + aor.get.id))
-        new GunnySack("sensors", aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
-          None, Map(metadataKey -> metadataVal), Map((bindex, bvalue))).some
+        new GunnySack(idxAccountsId, aor.get.id, RiakConstants.CTYPE_TEXT_UTF8,
+          None, Map.empty, Map(("", Set("")))).some
       }) leftMap { t: NonEmptyList[Throwable] => t } flatMap {
         gs: Option[GunnySack] => riak.fetchIndexByValue(gs.get)
       } map { nm: List[String] =>

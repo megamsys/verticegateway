@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object KeyValueListSerialization extends models.json.SerializationBase[KeyValueList] {
+object KeyValueListSerialization extends io.megam.json.SerializationBase[KeyValueList] {
 
   implicit override val writer = new JSONW[KeyValueList] {
     override def write(h: KeyValueList): JValue = {

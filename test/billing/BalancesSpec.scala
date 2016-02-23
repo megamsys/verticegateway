@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package test.billing
 
-import org.specs2.mutable._
+/*import org.specs2.mutable._
 import org.specs2.Specification
 import java.net.URL
 import org.specs2.matcher.MatchResult
@@ -49,7 +49,7 @@ class BalancesSpec extends Specification {
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
-
+    val httpClient = new ApacheHttpClient
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
@@ -60,4 +60,4 @@ class BalancesSpec extends Specification {
     }
   }
 
-}
+}*/

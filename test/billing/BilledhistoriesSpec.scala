@@ -1,6 +1,6 @@
 
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 
 package test.billing
 
-import org.specs2.mutable._
-import org.specs2.Specification
+/*import scalaz._
+import scalaz.syntax.SemigroupOps
+import scalaz.NonEmptyList._
+import scalaz.Validation._
 import java.net.URL
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
+import com.stackmob.newman.{HttpClient}
 import com.stackmob.newman.dsl._
 import models.json.billing._
 import test.{ Context }
@@ -54,14 +55,15 @@ BilledhistoriesSpec is the implementation that calls the megam_play API server w
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
-
+    
     private val post = POST(url)(httpClient)
       .addHeaders(headers)
       .addBody(body)
 
-    def succeeds: SpecsResult = {
+    def succeeds: SpecsResult = {   
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
-  }
+
+  }*/

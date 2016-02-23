@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import scalaz.State
 import cache._
 import play.api.Play.current
 import play.api.cache._
-import models.base.Accounts._
 
 /**
  * @author ram (don't ask me, i don't remember - nada!)

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@ import scalaz._
 import Scalaz._
 import scala.concurrent._
 import scala.concurrent.duration.Duration
-import app.MConfig
-import org.megam.common._
-import org.megam.common.amqp._
-import org.megam.common.amqp.request._
-import org.megam.common.amqp.response._
-import org.megam.common.concurrent._
+import io.megam.common._
+import io.megam.common.amqp._
+import io.megam.common.amqp.request._
+import io.megam.common.amqp.response._
+import io.megam.common.concurrent._
 import play.api.Logger
 
 /**
@@ -32,20 +31,18 @@ import play.api.Logger
  *
  */
 
-
 trait MessageContext {
 
-  def cloudFarm: String = MConfig.amqp_prefix + "_"
-  def queueName: String
-  def exchangeName: String
 
-  def rmqClient = {
-    play.api.Logger.debug("%-20s -->[%s]".format("RMQ:", MConfig.amqpurl))
-    new RabbitMQClient(MConfig.amqpurl, exchangeName, queueName)
+  def topic: String
+
+  def nsqClient = {
+    play.api.Logger.debug("%-20s -->[%s]".format("NSQ:", app.MConfig.nsqurl))
+    new NSQClient(app.MConfig.nsqurl, topic)
   }
 
-  protected def execute(ampq_request: AMQPRequest, duration: Duration = org.megam.common.concurrent.duration) = {
-    import org.megam.common.concurrent.SequentialExecutionContext
+  protected def execute(ampq_request: AMQPRequest, duration: Duration = io.megam.common.concurrent.duration) = {
+    import io.megam.common.concurrent.SequentialExecutionContext
     val responseFuture: Future[ValidationNel[Throwable, AMQPResponse]] = ampq_request.apply
     responseFuture.block(duration)
   }
