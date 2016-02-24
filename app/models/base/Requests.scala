@@ -33,31 +33,33 @@ import io.megam.auth.funnel.FunnelErrors._
 
 import io.megam.common.amqp.response.AMQPResponse
 import io.megam.common.amqp._
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import io.megam.common.riak.GunnySack
 import io.megam.util.Time
 import io.megam.common.uid._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import java.nio.charset.Charset
 
+import com.datastax.driver.core.{ ResultSet, Row }
+import com.websudos.phantom.dsl._
+import scala.concurrent.{ Future => ScalaFuture }
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 /**
  * @author ram
  */
 case class RequestInput(cat_id: String,
-  cattype: String,
-  name: String,
-  action: String,
-  category: String) {
+    cattype: String,
+    name: String,
+    action: String,
+    category: String) {
   val half_json = "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
 
   val json = "{" + half_json + "}"
 }
 
 case class RequestResult(id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: String) {
-  val json = "{\"id\": \"" + id + "\",\"cat_id\": \"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\",\"created_at\":\"" + created_at + "\"}"
 
   def toMap: Map[String, String] = {
     Map[String, String](
@@ -67,19 +69,6 @@ case class RequestResult(id: String, cat_id: String, cattype: String, name: Stri
       ("name" -> name),
       ("action" -> action),
       ("category" -> category))
-  }
-
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.RequestResultSerialization
-    val nrsser = new RequestResultSerialization()
-    toJSON(this)(nrsser.writer)
-  }
-
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
   }
 
   def topicFunc(x: Unit): Option[String] = {
@@ -100,39 +89,58 @@ case class RequestResult(id: String, cat_id: String, cattype: String, name: Stri
 }
 
 object RequestResult {
-
   def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), new String)
-
-  def fromJValue(jValue: JValue)(implicit charset: Charset = models.Constants.UTF8Charset): Result[RequestResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.RequestResultSerialization
-    val nrsser = new RequestResultSerialization()
-    fromJSON(jValue)(nrsser.reader)
-  }
-
-  def fromJson(json: String): Result[RequestResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
 }
 
-object Requests {
+sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] {
 
   implicit val formats = DefaultFormats
 
-  implicit def RequestResultsSemigroup: Semigroup[RequestResults] = Semigroup.instance((f1, f2) => f1.append(f2))
+  object id extends StringColumn(this) with PrimaryKey[String]
+  object cat_id extends StringColumn(this)
+  object cattype extends StringColumn(this)
+  object name extends StringColumn(this)
+  object action extends StringColumn(this)
+  object category extends StringColumn(this)
+  object created_at extends StringColumn(this)
 
-  private lazy val bucker = "requests"
+  def fromRow(row: Row): RequestResult = {
+    RequestResult(
+      id(row),
+      cat_id(row),
+      cattype(row),
+      name(row),
+      action(row),
+      category(row),
+      created_at(row))
+  }
+}
 
-  private val riak = GWRiak(bucker)
+abstract class ConcreteRequests extends RequestSacks with RootConnector {
+  // you can even rename the table in the schema to whatever you like.
+  override lazy val tableName = "requests"
+  override implicit def space: KeySpace = scyllaConnection.space
+  override implicit def session: Session = scyllaConnection.session
 
-  private lazy val idxedBy = idxAssemblyId
+  def insertNewRecord(ams: RequestResult): ValidationNel[Throwable, ResultSet] = {
+    val res = insert.value(_.id, ams.id)
+      .value(_.cat_id, ams.cat_id)
+      .value(_.cattype, ams.cattype)
+      .value(_.name, ams.name)
+      .value(_.action, ams.action)
+      .value(_.category, ams.category)
+      .value(_.created_at, ams.created_at)
+      .future()
+    Await.result(res, 5.seconds).successNel
+  }
+
+}
+
+object Requests extends ConcreteRequests {
 
   // A private method which chains computation to make GunnySack parses the json, and converts it to requestinput, if there is an error during parsing, a MalformedBodyError is sent back.
   // After that flatMap on its success and the GunnySack object is built.
-  private def mkGunnySack(input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkRequestSack(input: String): ValidationNel[Throwable, Option[RequestResult]] = {
     val ripNel: ValidationNel[Throwable, RequestInput] = (Validation.fromTryCatchThrowable[models.base.RequestInput, Throwable] {
       parse(input).extract[RequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -140,29 +148,19 @@ object Requests {
       rip <- ripNel
       uir <- (UID("rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bvalue = Set(rip.cat_id)
-      val json = "{\"id\": \"" + (uir.get._1 + uir.get._2) + "\"," + rip.half_json + ",\"created_at\":\"" + Time.now.toString + "\"}"
-      new GunnySack((uir.get._1 + uir.get._2), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
+      val res = RequestResult((uir.get._1 + uir.get._2), rip.cat_id, rip.cattype, rip.name, rip.action, rip.category, Time.now.toString)
+      res.some
     }
   }
 
   //create request from input
   def create(input: String): ValidationNel[Throwable, Option[wash.PQd]] = {
     for {
-      ogsi <- mkGunnySack(input) leftMap { err: NonEmptyList[Throwable] => err }
-      nrip <- RequestResult.fromJson(ogsi.get.value) leftMap { t: NonEmptyList[net.liftweb.json.scalaz.JsonScalaz.Error] => nels(JSONParsingError(t)) }
-      ogsr <- riak.store(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t }
+      ogsi <- mkRequestSack(input) leftMap { err: NonEmptyList[Throwable] => err }
+      ogsr <- (insertNewRecord(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      ogsr match {
-        case Some(thatGS) => {
-          new wash.PQd(nrip.topicFunc, MessagePayLoad(Messages(nrip.toMap.toList)).toJson(false)).some
-        }
-        case None => {
-          play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Request.created successfully", Console.RESET))
-          new wash.PQd(nrip.topicFunc, MessagePayLoad(Messages(nrip.toMap.toList)).toJson(false)).some
-        }
-      }
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Request.created successfully", Console.RESET))
+      new wash.PQd(ogsi.get.topicFunc, MessagePayLoad(Messages(ogsi.get.toMap.toList)).toJson(false)).some
     }
   }
 
@@ -181,33 +179,6 @@ object Requests {
         wash.PQd.empty.some.successNel[Throwable]
       }
     }
-  }
-  /**
-   * List all the requests for the requestlist.
-   */
-  def findByReqName(reqNameList: Option[List[String]]): ValidationNel[Error, RequestResults] = {
-    (reqNameList map {
-      _.map { reqName =>
-        (riak.fetch(reqName) leftMap { t: NonEmptyList[Throwable] =>
-          new ServiceUnavailableError(reqName, (t.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
-          xso match {
-            case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.base.RequestResult, Throwable] {
-                parse(xs.value).extract[RequestResult]
-              } leftMap { t: Throwable =>
-                new ResourceItemNotFound(reqName, t.getMessage)
-              }).toValidationNel.flatMap { j: RequestResult =>
-                Validation.success[Error, RequestResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-              }
-            }
-            case None => Validation.failure[Error, RequestResults](new ResourceItemNotFound(reqName, "")).toValidationNel
-          }
-        }
-      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
-    } map {
-      _.foldRight((RequestResults.empty).successNel[Error])(_ +++ _)
-    }).head //return the folded element in the head.
   }
 
 }

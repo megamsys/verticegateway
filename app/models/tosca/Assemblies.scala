@@ -51,6 +51,7 @@ import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import com.websudos.phantom.iteratee.Iteratee
 
 /**
  * @author rajthilak
@@ -159,7 +160,8 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
   }
 
   def listRecords(email: String, org: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
-    val res = select.allowFiltering().where(_.org_id eqs org).fetch()
+    //val res = select.allowFiltering().where(_.org_id eqs org).fetch()
+    val res = select.fetchEnumerator() run Iteratee.collect()
     Await.result(res, 5.seconds).successNel
   }
 

@@ -34,10 +34,6 @@ import io.megam.auth.funnel.FunnelErrors._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import io.megam.common.riak.GunnySack
 import io.megam.util.Time
 import io.megam.common.uid.UID
 import net.liftweb.json._
@@ -61,6 +57,7 @@ case class MarketPlaceSack(
   cattype: String,
   flavor: String,
   image: String,
+  catorder: String,
   url: String,
   json_claz: String,
   envs: Map[String, String],
@@ -75,6 +72,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
   object cattype extends StringColumn(this)
   object flavor extends StringColumn(this) with PrimaryKey[String]
   object image extends StringColumn(this)
+  object catorder extends StringColumn(this)
   object url extends StringColumn(this)
   object json_claz extends StringColumn(this)
   object envs extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
@@ -86,6 +84,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
       cattype(r),
       flavor(r),
       image(r),
+      catorder(r),
       url(r),
       json_claz(r),
       envs(r),
@@ -98,20 +97,53 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
  */
 abstract class ConcreteMkp extends MarketPlaceT with ScyllaConnector {
 
-  override lazy val tableName = "marketplaces"
+  override lazy val tableName = "marketplaces"  
 
+  def listRecords(): ValidationNel[Throwable, Seq[MarketPlaceSack]] = {
+    val res = select.collect()
+    Await.result(res, 5.seconds).successNel
+  }
+
+  def getRecord(flavor: String): ValidationNel[Throwable, Option[MarketPlaceSack]] = {
+    val res = select.allowFiltering().where(_.flavor eqs flavor).get()
+    Await.result(res, 5.seconds).successNel
+  }
 }
 
 object MarketPlaces extends ConcreteMkp {
-
+  
   def listAll(): ValidationNel[Throwable, Seq[MarketPlaceSack]] = {
-    val resp = select.collect()
-    (Await.result(resp, 5.second)).successNel
+    (listRecords() leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("", "Marketplace items = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[MarketPlaceSack] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[MarketPlaceSack]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[MarketPlaceSack]](new ResourceItemNotFound("", "Marketplace items = nothing found.")).toValidationNel
+    }
   }
-
-  def findByName(flavor: String): ValidationNel[Throwable, MarketPlaceSack] = {
-
-    val resp = select.allowFiltering().where(_.flavor eqs flavor).get()
-    (Await.result(resp, 5.second)).get.successNel
+  
+  def findByFlavor(mkpFlavor: Option[List[String]]): ValidationNel[Throwable, MarketPlaceResults] = {
+    (mkpFlavor map {
+      _.map { mkp_fla =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("MarketPlace flavor Id", mkp_fla))
+        (getRecord(mkp_fla) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(mkp_fla, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[MarketPlaceSack] =>
+          xso match {
+            case Some(xs) => {
+              play.api.Logger.debug(("%-20s -->[%s]").format("MarketPlaceSack", xs))
+              Validation.success[Throwable, MarketPlaceResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
+            }
+            case None => {
+              Validation.failure[Throwable, MarketPlaceResults](new ResourceItemNotFound(mkp_fla, "")).toValidationNel
+            }
+          }
+        }
+      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+    } map {
+      _.foldRight((MarketPlaceResults.empty).successNel[Throwable])(_ +++ _)
+    }).head //return the folded element in the head.
   }
+  
 }

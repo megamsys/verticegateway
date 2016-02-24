@@ -35,7 +35,7 @@ class AssemblySpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
+      //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
       //"Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
       //"Correctly do GET requests with an valid Assembly ID" ! upgradeApp.succeeds ^
       end
