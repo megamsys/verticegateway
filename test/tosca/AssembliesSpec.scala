@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import models.tosca._
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 import scala.concurrent._
 import scala.concurrent.duration._
 import models.tosca.Assemblies
@@ -42,9 +42,15 @@ class AssembliesSpec extends Specification {
   AssembliesSpec is the implementation that calls the megam_play API server with the /assemblies url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
-      "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
+<<<<<<< HEAD
+     "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
+  "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
       "Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
+=======
+      //"Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds  ^
+      "Correctly do GET  requests with an valid Assemblies ID" ! findById.succeeds  ^
+      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds    ^
+>>>>>>> origin/1.0
       end
 
 
@@ -54,246 +60,10 @@ class AssembliesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       //  val inputs = new AssembliesInputs("9c8281e6.637d8", "tab", "Sheet 2")
-      val contentToEncode = "{ \"name\":\"Sheet 1\", " +
-        "\"org_id\":\"ORG123\"," +
-        "\"assemblies\":[ " +
-        "{ " +
-        "\"name\":\"PaulineHarper\"," +
-        "\"components\":[ " +
-        "{ " +
-        "\"name\":\"GussieMathis\"," +
-        "\"tosca_type\":\"tosca.web.riak\"," +
-        "\"inputs\":["+
-        "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-        "{\"key\":\"version\",\"value\":\"2.0.0\"}," +
-        "{\"key\":\"varai-id\",\"value\":\"46fc26f2.b903d8\"}," +
-        "{\"key\":\"varai-x\",\"value\":\"645\"}," +
-        "{\"key\":\"varai-y\",\"value\":\"184\"}," +
-        "{\"key\":\"varai-z\",\"value\":\"adae6e10.52519\"}," +
-        "{\"key\":\"varai-wires\",\"value\":\"e0e3651f.1f1c98\"}" +
-        "]," +
-        "\"outputs\":[]," +
-        "\"envs\":[ " +
-          "{\"key\":\"REDIS_HOST\",\"value\":\"tempp.megambox.com\"}" +
-        "],"+
-        "\"artifacts\":{" +
-        "\"artifact_type\":\"tosca_type\"," +
-        "\"content\":\"\"," +
-        "\"artifact_requirements\":[]" +
-        "}," +
-        "\"related_components\":[\"VernonDennis.megam.co/MasonHernandez\"]," +
-        "\"operations\":[" +
-        "{" +
-        "\"operation_type\":\"CI\"," +
-        "\"description\":\"continous Integration\"," +
-        "\"operation_requirements\":[" +
-        "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
-        "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
-        "{\"key\":\"ci-token\",\"value\":\"token\"}," +
-        "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-        "]}]," +
-        "\"repo\":{"+
-        "\"rtype\":\"image\"," +
-        "\"source\":\"github\"," +
-         "\"oneclick\":\"yes\"," +
-         "\"url\":\"imagename\"" +
-          "}," +
-        "\"status\":\"\"" +
-          "}" +
-        "],"+
-        "\"tosca_type\":\"tosca.torpedo.coreos\","+
-        "\"policies\":[" +
-        "{" +
-        "\"name\":\"bind policy\"," +
-        "\"ptype\":\"colocated\"," +
-        "\"members\":[" +
-        "\"46fc26f2.b903d8\"" +
-        "]" +
-        "}" +
-        "]," +
-        "\"inputs\":[]," +
-        "\"outputs\":[]," +
-        "\"status\":\"Launching\"" +
-        "}" +
-      "]," +
-      "\"assemblies\":[ " +
-      "{ " +
-      "\"name\":\"MasonHernandez\"," +
-      "\"components\":[ " +
-      "{ " +
-      "\"name\":\"GussieMathis\"," +
-      "\"tosca_type\":\"tosca.web.akka\"," +
-      "\"inputs\":["+
-      "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-        "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
-      "]," +
-      "\"outputs\":[]," +
-      "\"envs\":[ " +
-      "{\"key\":\"host\",\"value\":\"localhost\"}," +
-      "{\"key\":\"port\",\"value\":\"8080\"}," +
-        "{\"key\":\"username\",\"value\":\"admin\"}," +
-        "{\"key\":\"password\",\"value\":\"admin\"}" +
-      "],"+
-        "\"artifacts\":{" +
-      "\"artifact_type\":\"tosca_type\"," +
-      "\"content\":\"\"," +
-      "\"artifact_requirements\":[]" +
-      "}," +
-      "\"related_components\":[\"PaulineHarper.megam.co/GussieMathis\"]," +
-      "\"operations\":[" +
-      "{" +
-      "\"operation_type\":\"CI\"," +
-      "\"description\":\"continous Integration\"," +
-      "\"operation_requirements\":[" +
-      "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
-      "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
-      "{\"key\":\"ci-token\",\"value\":\"token\"}," +
-      "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-      "]}]," +
-      "\"repo\":{"+
-      "\"rtype\":\"image\"," +
-      "\"source\":\"github\"," +
-       "\"oneclick\":\"yes\"," +
-       "\"url\":\"imagename\"" +
-        "}," +
-      "\"status\":\"\"" +
-        "}" +
-      "],"+
-      "\"tosca_type\":\"tosca.app.java\","+
-      "\"policies\":[" +
-      "{" +
-      "\"name\":\"bind policy\"," +
-      "\"ptype\":\"colocated\"," +
-      "\"members\":[" +
-      "\"46fc26f2.b903d8\"" +
-      "]" +
-      "}" +
-      "]," +
-      "\"inputs\":[]," +
-      "\"outputs\":[]," +
-      "\"status\":\"Launching\"" +
-      "}" +
-    "]," +
-    "\"assemblies\":[ " +
-    "{ " +
-    "\"name\":\"PaulineHarper\"," +
-    "\"components\":[ " +
-    "{ " +
-    "\"name\":\"GussieMathis\"," +
-    "\"tosca_type\":\"tosca.web.akka\"," +
-    "\"inputs\":["+
-    "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-      "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
-    "]," +
-    "\"outputs\":[]," +
-    "\"envs\":[ " +
-    "{\"key\":\"host\",\"value\":\"localhost\"}," +
-    "{\"key\":\"port\",\"value\":\"8098\"}," +
-      "{\"key\":\"username\",\"value\":\"\"}," +
-      "{\"key\":\"password\",\"value\":\"\"}" +
-    "],"+
-      "\"artifacts\":{" +
-    "\"artifact_type\":\"tosca_type\"," +
-    "\"content\":\"\"," +
-    "\"artifact_requirements\":[]" +
-    "}," +
-    "\"related_components\":[\"PaulineHarper.megam.co/GussieMathis\"]," +
-    "\"operations\":[" +
-    "{" +
-    "\"operation_type\":\"CI\"," +
-    "\"description\":\"continous Integration\"," +
-    "\"operation_requirements\":[" +
-    "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
-    "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
-    "{\"key\":\"ci-token\",\"value\":\"token\"}," +
-    "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-    "]}]," +
-    "\"repo\":{"+
-    "\"rtype\":\"image\"," +
-    "\"source\":\"github\"," +
-     "\"oneclick\":\"yes\"," +
-     "\"url\":\"imagename\"" +
-      "}," +
-    "\"status\":\"\"" +
-      "}" +
-    "],"+
-    "\"tosca_type\":\"tosca.service.riak\","+
-    "\"policies\":[" +
-    "{" +
-    "\"name\":\"bind policy\"," +
-    "\"ptype\":\"colocated\"," +
-    "\"members\":[" +
-    "\"46fc26f2.b903d8\"" +
-    "]" +
-    "}" +
-    "]," +
-    "\"inputs\":[]," +
-    "\"outputs\":[]," +
-    "\"status\":\"Launching\"" +
-    "}" +
-  "]," +
-  "\"assemblies\":[ " +
-  "{ " +
-  "\"name\":\"Harper\"," +
-  "\"components\":[ " +
-  "{ " +
-  "\"name\":\"GussieMathis\"," +
-  "\"tosca_type\":\"tosca.web.akka\"," +
-  "\"inputs\":["+
-  "{\"key\":\"domain\",\"value\":\"megam.co\"}," +
-    "{\"key\":\"source\",\"value\":\"dfghfh\"}," +
-  "]," +
-  "\"outputs\":[]," +
-  "\"envs\":[ " +
-  "{\"key\":\"host\",\"value\":\"\"}," +
-  "{\"key\":\"port\",\"value\":\"\"}," +
-    "{\"key\":\"username\",\"value\":\"\"}," +
-    "{\"key\":\"password\",\"value\":\"\"}" +
-  "],"+
-    "\"artifacts\":{" +
-  "\"artifact_type\":\"tosca_type\"," +
-  "\"content\":\"\"," +
-  "\"artifact_requirements\":[]" +
-  "}," +
-  "\"related_components\":[\"PaulineHarper.megam.co/GussieMathis\"]," +
-  "\"operations\":[" +
-  "{" +
-  "\"operation_type\":\"CI\"," +
-  "\"description\":\"continous Integration\"," +
-  "\"operation_requirements\":[" +
-  "{\"key\":\"ci-scm\",\"value\":\"github\"}," +
-  "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
-  "{\"key\":\"ci-token\",\"value\":\"token\"}," +
-  "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-  "]}]," +
-  "\"repo\":{"+
-  "\"rtype\":\"image\"," +
-  "\"source\":\"github\"," +
-   "\"oneclick\":\"yes\"," +
-   "\"url\":\"imagename\"" +
-    "}," +
-  "\"status\":\"\"" +
-    "}" +
-  "],"+
-  "\"tosca_type\":\"tosca.microservices.dockerbox\","+
-  "\"policies\":[" +
-  "{" +
-  "\"name\":\"bind policy\"," +
-  "\"ptype\":\"colocated\"," +
-  "\"members\":[" +
-  "\"46fc26f2.b903d8\"" +
-  "]" +
-  "}" +
-  "]," +
-  "\"inputs\":[]," +
-  "\"outputs\":[]," +
-  "\"status\":\"Launching\"" +
-  "}" +
-"]," +
-        "\"inputs\":[]" +
-        "}"
+      val contentToEncode = "{\"name\":\"\", \"org_id\":\"ORG123\",\"assemblies\":[{\"name\":\"covey\",\"json_claz\":\"Megam::Assembly\",\"tosca_type\":\"tosca.app.java\",\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}],\"outputs\":[],\"policies\":[],\"status\":\"error\",\"created_at\":\"2016-02-02 07:50:49 +0000\",\"components\":[{\"name\":\"sheba\",\"tosca_type\":\"tosca.app.java\",\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}],\"outputs\":[],\"envs\":[{\"key\":\"port\",\"value\":\"8080\"},{\"key\":\"tomcat_username\",\"value\":\"megam\"},{\"key\":\"tomcat_password\",\"value\":\"megam\"}],\"repo\":{\"rtype\":\"source\",\"source\":\"github\",\"oneclick\":\"\",\"url\":\"https://github.com/rajthilakmca/java-spring-petclinic.git\"},\"artifacts\":{\"artifact_type\":\"\",\"content\":\"\",\"requirements\":[]},\"related_components\":[],\"operations\":[{\"operation_type\":\"CI\",\"description\":\"always up to date code. sweet.\",\"properties\":[{\"key\":\"type\",\"value\":\"github\"},{\"key\":\"token\",\"value\":\"066b697558f048459412410483ca8965415bf7de\"},{\"key\":\"username\",\"value\":\"rajthilakmca\"}],\"status\":\"notbound\"}],\"status\":\"error\"}]}],\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}]}"
       Some(contentToEncode)
-    }
+    }   
+    
     protected override def headersOpt: Option[Map[String, String]] = None
 
     private val post = POST(url)(httpClient)
@@ -322,7 +92,7 @@ class AssembliesSpec extends Specification {
   }
 
   case object findById extends Context {
-    protected override def urlSuffix: String = "assemblies/AMS1281995266240675840"
+    protected override def urlSuffix: String = "assemblies/AMS4910703635659237712"
 
     protected def headersOpt: Option[Map[String, String]] = None
 

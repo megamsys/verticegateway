@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -13,15 +13,20 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 package controllers
 
 import scalaz._
 import Scalaz._
 import scalaz.Validation._
+import net.liftweb.json._
 
-import controllers.funnel.FunnelResponse
-import controllers.funnel.FunnelErrors._
+
+import io.megam.auth.funnel._
+import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
+import controllers.stack.Results
+
 
 object SshKeys extends Controller with controllers.stack.APIAuthElement {
 
@@ -32,12 +37,10 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.base.SshKeys.create(email, clientAPIBody) match {
+          models.base.SshKeys.create(apiAccessed, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """SshKeys created successfully.
-            |
-            |You can use the the 'SshKeys name':{%s}.""".format(succ.getOrElse("none")), "Megam::SshKey").toJson(true))
+                FunnelResponse(CREATED, """SshKeys created successfully.""", "Megam::SshKey").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -51,47 +54,17 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  /*
-   * GET: findByName: Show a particular SshKeys by name
-   * Email provided in the URI.
-   * Output: JSON (SshKeysResult)
-   **/
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-    (Validation.fromTryCatchThrowable[Result, Throwable] {
-      reqFunneled match {
-        case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
-          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.base.SshKeys.findByName(List(id).some) match {
-            case Success(succ) =>
-              Ok(models.base.SshKeyResults.toJson(succ, true))
-            case Failure(err) =>
-              val rn: FunnelResponse = new HttpReturningError(err)
-              Status(rn.code)(rn.toJson(true))
-          }
-        }
-        case Failure(err) => {
-          val rn: FunnelResponse = new HttpReturningError(err)
-          Status(rn.code)(rn.toJson(true))
-        }
-      }
-    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
-  }
 
-  /**
-   * GET: findbyEmail: List all the predef cloud names per email
-   * Email grabbed from header.
-   * Output: JSON (SshKeyResult)
-   */
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.base.SshKeys.findByEmail(email) match {
+          models.base.SshKeys.findByOrgId(apiAccessed) match {
             case Success(succ) =>
-              Ok(models.base.SshKeyResults.toJson(succ, true))
+            implicit val formats = DefaultFormats
+            Ok(Results.resultset(models.Constants.SSHKEYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

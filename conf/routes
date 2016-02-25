@@ -11,18 +11,18 @@ GET    /                                controllers.Application.index
 # Account
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
-POST   /v2/accounts/update       	 	    controllers.Accounts.update
-GET    /v2/accounts/login               controllers.Accounts.login
+#POST   /v2/accounts/update       	 	    controllers.Accounts.update
+#GET    /v2/accounts/login               controllers.Accounts.login
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
-GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
+#GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
 
 #MarketPlaces
-POST   /v2/marketplaces/content         controllers.MarketPlaces.post
-GET    /v2/marketplaces                 controllers.MarketPlaces.list
-GET    /v2/marketplaces/:id             controllers.MarketPlaces.show(id: String)
+#POST   /v2/marketplaces/content         controllers.MarketPlaces.post
+GET    /v2/marketplaces                  controllers.MarketPlaces.list
+GET    /v2/marketplaces/:flavor             controllers.MarketPlaces.show(flavor: String)
 
 # Requests
 POST   /v2/requests/content            	controllers.Requests.post
@@ -31,29 +31,13 @@ POST   /v2/requests/content            	controllers.Requests.post
 
 #Organizations
 POST   /v2/organizations/content        controllers.team.Organizations.post
-POST   /v2/organizations/update         controllers.team.Organizations.update
-GET    /v2/organizations/:id            controllers.team.Organizations.show(id: String)
+POST   /v2/organizations/invite         controllers.team.Organizations.invite
+#GET    /v2/organizations/:id            controllers.team.Organizations.show(id: String)
 GET    /v2/organizations	              controllers.team.Organizations.list()
 
 #Domains
 POST   /v2/domains/content              controllers.team.Domains.post
-GET    /v2/domains/:id                  controllers.team.Domains.show(id: String)
-
-#Sparkjobs
-#POST   /v2/sparkjobs/content            controllers.analytics.Sparkjobs.post
-#GET    /v2/sparkjobs/:id                controllers.analytics.Sparkjobs.show(id: String)
-
-#Workbenches
-POST  /v2/workbenches/content           controllers.analytics.Workbenches.post
-POST  /v2/workbenches/execute           controllers.analytics.Workbenches.execute
-GET   /v2/workbenches/:name              controllers.analytics.Workbenches.show(name: String)
-
-
-#CSARs
-POST   /v2/csars/content                controllers.camp.CSARs.post
-GET    /v2/csars                        controllers.camp.CSARs.list
-GET    /v2/csars/:id 		                controllers.camp.CSARs.show(id: String)
-GET    /v2/csars/push/:id               controllers.camp.CSARs.push(id: String)
+GET    /v2/domains                  controllers.team.Domains.list()
 
 #Assemblies
 POST   /v2/assemblies/content           controllers.camp.Assemblies.post
@@ -61,7 +45,7 @@ GET    /v2/assemblies	                  controllers.camp.Assemblies.list
 GET    /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
 GET    /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 POST   /v2/assembly/update              controllers.camp.Assembly.update
-POST   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
+GET   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
 

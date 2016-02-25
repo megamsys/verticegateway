@@ -1,5 +1,5 @@
 /**
- * * Copyright [2013-2015] [Megam Systems]
+ * * Copyright [2013-2016] [Megam Systems]
  * *
  * * Licensed under the Apache License, Version 2.0 (the "License");
  * * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import com.stackmob.newman.dsl._
 import scala.concurrent._
 import scala.concurrent.duration._
 import java.net.URL
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 import models.base._
 import test._
 
@@ -43,14 +43,14 @@ class MarketPlaceSpec extends Specification {
       MarketPlacesSpec is the implementation that calls the API server with the /marketplaces url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests" ! Post0.succeeds ^ br ^
-      "Correctly do POST requests" ! Post1.succeeds ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+    //  "Correctly do POST requests" ! Post0.succeeds ^ br ^
+    //  "Correctly do POST requests" ! Post1.succeeds ^
+    //  "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+  //    "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+  //    "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+  //    "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+  //    "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   case object Post0 extends Context {
@@ -130,10 +130,9 @@ class MarketPlaceSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "marketplaces/test-Alfresc"
+    protected override def urlSuffix: String = "marketplaces/ubuntu"
 
     protected def headersOpt: Option[Map[String, String]] = None
-
     private val get = GET(url)(httpClient)
       .addHeaders(headers)
     def succeeds = {

@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import scalaz._
 import Scalaz._
 import scalaz.NonEmptyList
 import scalaz.NonEmptyList._
-import controllers.Constants._
+import models.Constants._
 import models.json.billing._
 import models.billing._
 import net.liftweb.json._

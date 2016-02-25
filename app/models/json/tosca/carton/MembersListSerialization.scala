@@ -1,5 +1,5 @@
 /*
-** Copyright [2013-2015] [Megam Systems]
+** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.nio.charset.Charset
  * @author rajthilak
  *
  */
-object MembersListSerialization extends models.json.SerializationBase[MembersList] {
+object MembersListSerialization extends io.megam.json.SerializationBase[MembersList] {
   implicit val formats = DefaultFormats
 
   implicit override val writer = new JSONW[MembersList] {

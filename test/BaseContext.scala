@@ -1,5 +1,5 @@
 /**
- * * Copyright [2013-2015] [Megam Systems]
+ * * Copyright [2013-2016] [Megam Systems]
  *
  * *
  * * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,14 +45,15 @@ import scala.concurrent.Await
 import java.net.URL
 import java.util.Calendar
 import java.text.SimpleDateFormat
-import controllers.stack.HeaderConstants._
-import controllers.stack.GoofyCrypto._
+import io.megam.auth.stack.HeaderConstants._
+import io.megam.auth.stack.GoofyCrypto._
 
 trait BaseContext {
 
   val X_Megam_EMAIL = "X-Megam-EMAIL"
   val X_Megam_APIKEY = "X-Megam-APIKEY"
   val X_Megam_DATE = "X-Megam-DATE"
+  val X_Megam_ORG = "X-Megam-ORG"
   val X_Megam_PUTTUSAVI = "X-Megam-PUTTUSAVI"
   val X_Megam_PASSWORD = "X-Megam-PASSWORD"
   val Content_Type = "Content-Type"
@@ -63,9 +64,9 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-  //  X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "faketest",
-
-  X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3",
+    X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "faketest",
+    X_Megam_ORG -> "ORG123",
+  //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {

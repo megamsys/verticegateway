@@ -1,5 +1,5 @@
 /**
- * * Copyright [2013-2015] [Megam Systems]
+ * * Copyright [2013-2016] [Megam Systems]
  * *
  * * Licensed under the Apache License, Version 2.0 (the "License");
  * * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import com.stackmob.newman.dsl._
 import scala.concurrent._
 import scala.concurrent.duration._
 import java.net.URL
-import controllers.stack.HeaderConstants._
+import io.megam.auth.stack.HeaderConstants._
 import models.base._
 import test._
 
