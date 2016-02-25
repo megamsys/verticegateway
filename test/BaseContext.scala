@@ -64,9 +64,9 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "faketest",
+    X_Megam_EMAIL -> "test@megam.io", X_Megam_APIKEY -> "IamAtlas{74}NobdyCanSedfefdeME#07",
     X_Megam_ORG -> "ORG123",
-  //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3",
+  //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "YWJj",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
   protected class HeadersAreEqualMatcher(expected: Headers) extends Matcher[Headers] {
@@ -143,6 +143,7 @@ trait BaseContext {
 
       val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
       val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
+      
       play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
 
       (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),

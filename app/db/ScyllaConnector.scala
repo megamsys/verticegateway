@@ -24,7 +24,7 @@ object Connector {
 
   val cluster =
     Cluster.builder()
-      .addContactPoints("103.56.92.24")
+      .addContactPoints(hosts)
       .withCredentials(MConfig.scylla_username, MConfig.scylla_password)
       .build()
   println(cluster)

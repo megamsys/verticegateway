@@ -138,7 +138,7 @@ object SshKeys extends ConcreteOrg {
 
   private def SshKeysSet(id: String, org_id: String, c: SshKeysInput): ValidationNel[Throwable, SshKeysResult] = {
     (Validation.fromTryCatchThrowable[SshKeysResult, Throwable] {
-      SshKeysResult(id, org_id, c.name, c.privatekey, c.publickey, "Megam::SshKeys", Time.now.toString)
+      SshKeysResult(id, org_id, c.name, c.privatekey, c.publickey, "Megam::SshKey", Time.now.toString)
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
