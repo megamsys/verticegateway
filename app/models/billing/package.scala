@@ -32,27 +32,12 @@ import java.nio.charset.Charset
  */
 package object billing {
 
-  type BalancesResults = NonEmptyList[Option[BalancesResult]]
+  type BalancesResults = List[Option[BalancesResult]]
 
   object BalancesResults {
     val emptyPR = List(Option.empty[BalancesResult])
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJValue(pres: BalancesResults): JValue = {
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.billing.BalancesResultsSerialization.{ writer => BalancesResultsWriter }
-      toJSON(pres)(BalancesResultsWriter)
-    }
-
-    //screwy. you pass an instance. may be FunnelResponses needs be to a case class
-    def toJson(pres: BalancesResults, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      prettyRender(toJValue(pres))
-    } else {
-      compactRender(toJValue(pres))
-    }
-
-    def apply(m: BalancesResult): BalancesResults = nels(m.some)
-    def empty: BalancesResults = nel(emptyPR.head, emptyPR.tail)
+    def apply(m: BalancesResult): BalancesResults = List(m.some)
+    def empty: BalancesResults = List()
 
   }
 

@@ -31,10 +31,12 @@ import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import io.megam.common.riak.GunnySack
+import com.datastax.driver.core.{ ResultSet, Row }
+import com.websudos.phantom.dsl._
+import scala.concurrent.{ Future => ScalaFuture }
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import io.megam.common.uid.UID
 import io.megam.util.Time
 
@@ -52,47 +54,57 @@ case class AvailableunitsInput(name: String, duration: String, charges_per_durat
 
 }
 
-case class AvailableunitsResult(id: String, name: String, duration: String, charges_per_duration: String, created_at: String) {
-
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.billing.AvailableunitsResultSerialization
-    val preser = new AvailableunitsResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from?
-  }
-
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
+case class AvailableunitsResult(
+    id: String,
+    name: String,
+    duration: String,
+    charges_per_duration: String,
+    json_claz: String,
+    created_at: String) {
 }
 
-object AvailableunitsResult {
+sealed class AvailableunitsSacks extends CassandraTable[AvailableunitsSacks, AvailableunitsResult] {
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[AvailableunitsResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.billing.AvailableunitsResultSerialization
-    val preser = new AvailableunitsResultSerialization()
-    fromJSON(jValue)(preser.reader)
-  }
-
-  def fromJson(json: String): Result[AvailableunitsResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
-
-object Availableunits {
   implicit val formats = DefaultFormats
 
-  private lazy val bucker = "availableunits"
+  object id extends StringColumn(this) with PrimaryKey[String]
+  object name extends StringColumn(this)
+  object duration extends StringColumn(this)
+  object charges_per_duration extends StringColumn(this)
+  object json_claz extends StringColumn(this)
+  object created_at extends StringColumn(this)
 
-  private lazy val riak = GWRiak(bucker)
+  def fromRow(row: Row): AvailableunitsResult = {
+    AvailableunitsResult(
+      id(row),
+      name(row),
+      duration(row),
+      charges_per_duration(row),
+      json_claz(row),
+      created_at(row))
+  }
+}
 
-  private lazy val idxedBy = idxAccountsId
+abstract class ConcreteAvailableunits extends AvailableunitsSacks with RootConnector {
+  // you can even rename the table in the schema to whatever you like.
+  override lazy val tableName = "availableunits"
+  override implicit def space: KeySpace = scyllaConnection.space
+  override implicit def session: Session = scyllaConnection.session
+
+  def insertNewRecord(ams: AvailableunitsResult): ValidationNel[Throwable, ResultSet] = {
+    val res = insert.value(_.id, ams.id)
+      .value(_.name, ams.name)
+      .value(_.duration, ams.duration)
+      .value(_.charges_per_duration, ams.charges_per_duration)
+      .value(_.json_claz, ams.json_claz)
+      .value(_.created_at, ams.created_at)
+      .future()
+    Await.result(res, 5.seconds).successNel
+  }
+
+}
+
+object Availableunits extends ConcreteAvailableunits{
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -100,7 +112,7 @@ object Availableunits {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkAvailableunitsSack(email: String, input: String): ValidationNel[Throwable, AvailableunitsResult] = {
     val AvailableunitsInput: ValidationNel[Throwable, AvailableunitsInput] = (Validation.fromTryCatchThrowable[AvailableunitsInput, Throwable] {
       parse(input).extract[AvailableunitsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -109,10 +121,8 @@ object Availableunits {
       aui <- AvailableunitsInput
       uir <- (UID("uts").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bvalue = Set(uir.get._1 + uir.get._2)
-      val json = new AvailableunitsResult(uir.get._1 + uir.get._2, aui.name, aui.duration, aui.charges_per_duration, Time.now.toString).toJson(false)
-      new GunnySack(uir.get._1 + uir.get._2, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
+      val json = new AvailableunitsResult(uir.get._1 + uir.get._2, aui.name, aui.duration, aui.charges_per_duration, "Megam::Availableunits", Time.now.toString)
+      json
     }
   }
 
@@ -122,19 +132,12 @@ object Availableunits {
    */
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[AvailableunitsResult]] = {
-    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[AvailableunitsResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Availableunits.created success", Console.RESET))
-              (parse(gs.get.value).extract[AvailableunitsResult].some).successNel[Throwable];
-            }
-          }
-        }
+    for {
+      wa <- (mkAvailableunitsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Availableunits.created success", Console.RESET))
+      wa.some
     }
   }
 
