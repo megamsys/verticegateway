@@ -42,12 +42,12 @@ class RequestSpec extends Specification {
       "Correctly do POST requests for a app(start)" ! AppStart.succeeds ^
       "Correctly do POST requests for a app(stop)" ! AppStart.succeeds ^
       "Correctly do POST requests for a app(delete)" ! AppDelete.succeeds ^
-      //"Correctly do POST requests for a app(restart)" ! AppRestart.succeeds ^
+      "Correctly do POST requests for a app(restart)" ! AppRestart.succeeds ^
       "Correctly do POST requests for a service(create)" ! ServiceCreate.succeeds ^
       "Correctly do POST requests for a service(start)" ! ServiceStart.succeeds ^
       "Correctly do POST requests for a service(stop)" ! ServiceStop.succeeds ^
       "Correctly do POST requests for a service(delete)" ! ServiceDelete.succeeds ^
-      //"Correctly do POST requests for a service(restart)" ! ServiceRestart.succeeds ^
+      "Correctly do POST requests for a service(restart)" ! ServiceRestart.succeeds ^
       "Correctly do POST requests for a docker(create)" ! DockerCreate.succeeds ^
       "Correctly do POST requests for a docker(start)" ! DockerStart.succeeds ^
       "Correctly do POST requests for a docker(delete)" ! DockerDelete.succeeds ^
@@ -200,6 +200,27 @@ class RequestSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
+  
+  case object AppRestart extends Context {
+
+    protected override def urlSuffix: String = "requests/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
+        "katru.megambox.com", "restart", "CONTROL").json
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
 
   case object AppDelete extends Context {
 
@@ -294,6 +315,27 @@ class RequestSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
         "katru.megambox.com", "destroy", "state").json
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+  
+  case object ServiceRestart extends Context {
+
+    protected override def urlSuffix: String = "requests/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
+        "katru.megambox.com", "restart", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None

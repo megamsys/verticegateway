@@ -33,6 +33,7 @@ import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
+import models.tosca.{ KeyValueField, KeyValueList}
 
 import io.megam.util.Time
 import io.megam.common.uid.UID
@@ -60,14 +61,14 @@ case class MarketPlaceSack(
   catorder: String,
   url: String,
   json_claz: String,
-  envs: Map[String, String],
+  envs: KeyValueList,
   plans: Map[String, String]) {}
 
 
 
 //table class for holding the ds of a particular type(mkp in our case)
 sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] {
-
+  implicit val formats = DefaultFormats
   object settings_name extends StringColumn(this)
   object cattype extends StringColumn(this)
   object flavor extends StringColumn(this) with PrimaryKey[String]
@@ -75,7 +76,15 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
   object catorder extends StringColumn(this)
   object url extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object envs extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
+  object envs extends JsonListColumn[MarketPlaceT, MarketPlaceSack, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
+    }
+
+    override def toJson(obj: KeyValueField): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
   object plans extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
 
   override def fromRow(r: Row): MarketPlaceSack = {
