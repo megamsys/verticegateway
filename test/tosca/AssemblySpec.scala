@@ -35,12 +35,12 @@ class AssemblySpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-      //"Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-      //"Correctly do POST requests with an valid Assembly ID" ! updateApp.succeeds ^
-      //"Correctly do GET requests with an valid Assembly ID" ! upgradeApp.succeeds ^
+      "Correctly do GET  requests with an valid Assembly ID" ! findByIDAppNotFound.succeeds ^
+      "Correctly do POST requests with an valid Assembly ID" ! updateAppNotFound.succeeds ^
+      "Correctly do GET requests with an valid Assembly ID" ! upgradeAppNotFound.succeeds ^
       end
 
-  case object findByIDApp extends Context {
+  case object findByIDAppNotFound extends Context {
     protected override def urlSuffix: String = "assembly/ASM9070050271024385313"
 
     protected def headersOpt: Option[Map[String, String]] = None
@@ -49,11 +49,11 @@ class AssemblySpec extends Specification {
       .addHeaders(headers)
     def succeeds = {
       val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
 
-  case object updateApp extends Context {
+  case object updateAppNotFound extends Context {
 
     protected override def urlSuffix: String = "assembly/update"
 
@@ -88,11 +88,11 @@ class AssemblySpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
 
-  case object upgradeApp extends Context {
+  case object upgradeAppNotFound extends Context {
     protected override def urlSuffix: String = "assembly/upgrade/ASM4669538364206151823"
 
     protected def headersOpt: Option[Map[String, String]] = None
@@ -101,7 +101,7 @@ class AssemblySpec extends Specification {
       .addHeaders(headers)
     def succeeds = {
       val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
 

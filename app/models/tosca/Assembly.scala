@@ -37,11 +37,6 @@ import models.base._
 import models.tosca._
 
 import io.megam.util.Time
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import io.megam.common.riak.GunnySack
-
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
