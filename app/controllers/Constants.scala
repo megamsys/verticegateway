@@ -37,7 +37,7 @@ object Constants {
   val MEGAM_HOME = sys.env.get("MEGAM_HOME").getOrElse("/var/lib/megam") //THIS
 
   val TEST_EMAIL = "test@megam.io"
-  val TEST_APIKEY = "faketest"
+  val TEST_APIKEY = "IamAtlas{74}NobdyCanSedfefdeME#07"
   val TEST_PASSWORD = "$2a$10$ebE.KJITo19bkJ/s8gMFpuXkMh2Tu5vL4eVcgJN7THYD1/zjcmxq3"
   val MEGAM_TEST_FIRST_NAME = "Megam Test"
 

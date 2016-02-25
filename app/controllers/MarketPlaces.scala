@@ -70,7 +70,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.base.MarketPlaces.findByName(id) match {
+          models.base.MarketPlaces.findByFlavor(List(id).some) match {
             case Success(succ) =>
             implicit val formats = DefaultFormats
             Ok(Results.resultset(models.Constants.MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
