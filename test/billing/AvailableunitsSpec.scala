@@ -26,7 +26,7 @@ import com.stackmob.newman.dsl._
 import models.json.billing._
 import test.{ Context }
 
- class AvailableunitsSpec extends Specification {
+class AvailableunitsSpec extends Specification {
 
   def is =
     "AvailableunitsSpec".title ^ end ^ """
@@ -34,9 +34,11 @@ import test.{ Context }
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
 
-    case object create extends Context {
+  case object create extends Context {
 
     protected override def urlSuffix: String = "availableunits/content"
 
@@ -58,6 +60,50 @@ import test.{ Context }
     def succeeds: SpecsResult = {
       val resp = execute(post)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+  }
+
+  case object PostInvalidUrl extends Context {
+
+    protected override def urlSuffix: String = "availableunits/contentinvalidurl"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{" +
+        "\"name\": \"565656\"," +
+        "\"duration\":\"month\"," +
+        "\"charges_per_duration\":\"20\"" +
+        "}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
+  }
+
+  case object PostInvalidBody extends Context {
+
+    protected override def urlSuffix: String = "availableunits/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"collapsedmail\":\"tee@test.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\"}"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
     }
   }
 

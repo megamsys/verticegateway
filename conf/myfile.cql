@@ -18,7 +18,7 @@ CREATE TABLE components (id text, name text, tosca_type text, inputs list<text>,
 
 CREATE TABLE settings( settings_name text, megam_home text, team text, domain text, message_broker map <text, text>, nilavu map <text, text>, api map <text, text>, flavors map <text, text>, PRIMARY KEY(settings_name));
 
-CREATE  TABLE organizations(id text, accounts_id text, name text, json_claz text, created_at  text, PRIMARY KEY ((accounts_id), id)  );
+CREATE TABLE organizations(id text, accounts_id text, name text, json_claz text, created_at  text, PRIMARY KEY ((accounts_id), id)  );
 
 CREATE TABLE domains (id text, org_id text,  name text, json_claz text, created_at text, PRIMARY KEY((org_id), name));
 
@@ -28,6 +28,9 @@ CREATE TABLE requests( id text, cat_id text, cat_type text,  name text,  action 
 
 CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  plans map <text, text>,  PRIMARY KEY ((settings_name), flavor) );
 
+CREATE TABLE availableunits (id text, name text, duration text, charges_per_duration text, json_claz text, created_at text, PRIMARY KEY(id));
+
+CREATE TABLE balances (id text, account_id text, name text, credit text, json_claz text, created_at text, updated_at text, PRIMARY KEY((account_id), id));
 
 //insert marketplace flavors
 insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'TORPEDO', 'Ubuntu', 'ubuntu.png', '1', 'http://ubuntu.com', 'Megam::MarketPlace' , [], {'14.04':'Ubuntu 14.04 LTS (Trusty) is delivers the best value scale-out performance available.'});

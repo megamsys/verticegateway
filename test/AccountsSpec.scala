@@ -102,6 +102,7 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
     }
   }
+  
   case object Get extends Context {
     protected override def urlSuffix: String = "accounts/tee@test.com"
 
