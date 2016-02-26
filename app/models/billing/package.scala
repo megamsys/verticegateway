@@ -37,6 +37,7 @@ package object billing {
     val emptyPR = List(Option.empty[BalancesResult])
     def apply(m: BalancesResult): BalancesResults = List(m.some)
     def empty: BalancesResults = List()
+  }    
+ 
 
-  }  
 }

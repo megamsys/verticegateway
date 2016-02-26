@@ -24,7 +24,6 @@ import org.specs2.execute.{ Result => SpecsResult }
 import com.stackmob.newman.response.{ HttpResponse, HttpResponseCode }
 import com.stackmob.newman._
 import com.stackmob.newman.dsl._
-import models.json.billing._
 import test.{ Context }
 
 class BalancesSpec extends Specification {

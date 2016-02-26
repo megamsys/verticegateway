@@ -156,8 +156,7 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
   }
 
   def listRecords(email: String, org: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
-    //val res = select.allowFiltering().where(_.org_id eqs org).fetch()
-    val res = select.fetchEnumerator() run Iteratee.collect()
+    val res = select.where(_.org_id eqs org).fetch()
     Await.result(res, 5.seconds).successNel
   }
 

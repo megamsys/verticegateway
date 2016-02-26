@@ -12,39 +12,45 @@ GET    /                                controllers.Application.index
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 POST   /v2/accounts/update       	 	controllers.Accounts.update
-#GET    /v2/accounts/login               controllers.Accounts.login
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
-#GET    /v2/sshkeys/:pre_name            controllers.SshKeys.show(pre_name: String)
 
 #MarketPlaces
-#POST   /v2/marketplaces/content         controllers.MarketPlaces.post
 GET    /v2/marketplaces                  controllers.MarketPlaces.list
-GET    /v2/marketplaces/:flavor             controllers.MarketPlaces.show(flavor: String)
+GET    /v2/marketplaces/:flavor          controllers.MarketPlaces.show(flavor: String)
 
 # Requests
 POST   /v2/requests/content            	controllers.Requests.post
-#GET   /v2/requests                     controllers.Requests.list()
-#GET   /v2/requests/:nodeid             controllers.Requests.show(nodeid: String)
 
 #Organizations
 POST   /v2/organizations/content        controllers.team.Organizations.post
 POST   /v2/organizations/invite         controllers.team.Organizations.invite
-#GET    /v2/organizations/:id            controllers.team.Organizations.show(id: String)
-GET    /v2/organizations	              controllers.team.Organizations.list()
+GET    /v2/organizations	            controllers.team.Organizations.list()
 
 #Domains
 POST   /v2/domains/content              controllers.team.Domains.post
-GET    /v2/domains                  controllers.team.Domains.list()
+GET    /v2/domains                      controllers.team.Domains.list()
 
 #Assemblies
 POST   /v2/assemblies/content           controllers.camp.Assemblies.post
-GET    /v2/assemblies	                  controllers.camp.Assemblies.list
+GET    /v2/assemblies	                controllers.camp.Assemblies.list
 GET    /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
 GET    /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 POST   /v2/assembly/update              controllers.camp.Assembly.update
 GET   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
-POST   /v2/components/update        	  controllers.camp.Components.update
+POST   /v2/components/update        	controllers.camp.Components.update
+
+#billings
+POST	 /v2/balances/content			controllers.billing.Balances.post
+POST	 /v2/balances/update			controllers.billing.Balances.update
+GET	     /v2/balances/:id               controllers.billing.Balances.show(id: String)
+
+POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
+GET    /v2/billedhistories              controllers.billing.Billedhistories.list
+
+#POST   /v2/invoices/content             controllers.billing.Invoices.post
+#GET    /v2/invoices                     controllers.billing.Invoices.list
+#GET	   /v2/invoices/:id                 controllers.billing.Invoices.show(id: String)
