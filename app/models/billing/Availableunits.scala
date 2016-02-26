@@ -26,7 +26,6 @@ import scalaz.NonEmptyList._
 
 import cache._
 import db._
-import models.json.billing._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
