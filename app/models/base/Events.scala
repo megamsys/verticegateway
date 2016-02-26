@@ -27,7 +27,6 @@ import models.base._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import io.megam.common.amqp.response.AMQPResponse
-import io.megam.common.riak.GunnySack
 import io.megam.util.Time
 
 /**

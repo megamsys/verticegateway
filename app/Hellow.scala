@@ -47,9 +47,6 @@ case object Hellow {
 
     //crude but for now its ok.
     val stat = (hunts.map { x => (x._1, x._2._2.getOrElse("down")) }).toMap
-  //  val loady = scala.collection.immutable.TreeMap((mkps.list.flatten.sortWith(_.cattype < _.cattype).map { x =>
-  //    (x.cattype + "." + x.name, x.image + "." + x.plans.size.toString + "," + x.id)
-  //  }).toMap.toSeq: _*)
 
     val json = Json.prettyPrint(Json.toJson(Map("status" -> stat,
       "runtime" -> infra
@@ -64,7 +61,7 @@ case object Hellow {
   val CPU_CORES = "cores"
 
   val NSQ = "nsq"
-  val RIAK = "riak"
+  val SCYLLA = "scylla"
   val RUNNING = "up"
 
   val What2Hunts = Array(NSQ)
@@ -90,7 +87,6 @@ case object Hellow {
 
   private  def topic(x: Unit) = "testing".some
 
-  //ping nsq, by droping a DUM0001 req
   private def nsq = new wash.AOneWasher(new wash.PQd(topic, "test pub")).wash match {
     case Success(succ_uid) => (MConfig.nsqurl, Some(RUNNING))
     case Failure(erruid) => (MConfig.nsqurl, none)
@@ -100,11 +96,6 @@ case object Hellow {
 
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)
-
-//  private def mkps = models.base.MarketPlaces.listAll match {
-//  case Success(succ_mkps) => succ_mkps
-//    case Failure(errmkps) => MarketPlaceResults.empty
-//  }
 
   def buccaneer = Treasure(infra, sharks)
 

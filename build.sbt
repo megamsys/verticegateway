@@ -13,8 +13,8 @@ organization := "Megam Systems"
 homepage := Some(url("https://www.megam.io"))
 
 description := """Vertice Gateway : Scalable RESTful API server for megam vertice
-                  in a functional way, built using Riak, Memcache
-                  try: https://console.megam.io
+                  in a functional way, built using Scylla, Memcache
+                  try: http://det.io
                   web: https://www.megam.io"""
 
 
@@ -103,19 +103,17 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 }
 
 
-maintainer in Linux := "Rajthilak <rajthilak@megam.co.in>"
+maintainer in Linux := "Rajthilak <rajthilak@megam.io>"
 
-packageSummary in Linux := "REST based API server - Gateway for Megam."
+packageSummary in Linux := "REST based API server - Verticegateway for Megam Vertice."
 
-packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam platform. The API server protects the resources using HMAC based authorization, as provided to a customer during onboarding."
+packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam vertice."
 
 daemonUser in Linux := "megam" // user which will execute the application
 
 daemonGroup in Linux := "megam"    // group which will execute the application
 
 debianPackageDependencies in Debian ++= Seq("curl", "verticecommon")
-
-debianPackageRecommends in Debian += "riak"
 
 linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
       packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"

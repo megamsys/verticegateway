@@ -257,7 +257,6 @@ object Assembly extends ConcreteAssembly {
     for {
       gs <- (updateAssemblySack(input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (updateRecord(org_id, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
-      //maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
       gs

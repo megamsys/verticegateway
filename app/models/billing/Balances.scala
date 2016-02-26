@@ -28,7 +28,6 @@ import io.megam.util.Time
 import cache._
 import db._
 import models.base.Accounts
-import models.json.billing._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
@@ -63,12 +62,12 @@ case class BalancesUpdateInput(id: String, name: String, credit: String, created
 }
 
 case class BalancesResult(
-    id: String, 
+    id: String,
     account_id: String,
-    name: String, 
-    credit: String, 
+    name: String,
+    credit: String,
     json_claz: String,
-    created_at: String, 
+    created_at: String,
     updated_at: String) {
 }
 
@@ -113,7 +112,7 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
       .future()
     Await.result(res, 5.seconds).successNel
   }
-  
+
   def updateRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.account_id eqs email)
       .modify(_.name setTo NilorNot(rip.name, aor.get.name))
@@ -122,12 +121,12 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
       .future()
       Await.result(res, 5.seconds).successNel
   }
-  
+
   def getRecord(id: String): ValidationNel[Throwable, Option[BalancesResult]] = {
     val res = select.allowFiltering().where(_.id eqs id).one()
     Await.result(res, 5.seconds).successNel
   }
-  
+
    def NilorNot(rip: String, bal: String): String = {
     rip == null match {
       case true => return bal
@@ -175,7 +174,7 @@ object Balances extends ConcreteBalances{
       wa.some
     }
   }
-    
+
   def update(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
     val ripNel: ValidationNel[Throwable, BalancesResult] = (Validation.fromTryCatchThrowable[BalancesResult,Throwable] {
       parse(input).extract[BalancesResult]

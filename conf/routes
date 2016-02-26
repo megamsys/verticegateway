@@ -48,33 +48,3 @@ POST   /v2/assembly/update              controllers.camp.Assembly.update
 GET   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
 POST   /v2/components/update        	  controllers.camp.Components.update
-
-#Sensors
-POST   /v2/sensors/content              controllers.camp.Sensors.post
-GET    /v2/sensors   		                controllers.camp.Sensors.list
-GET    /v2/sensors/:id                  controllers.camp.Sensors.show(id: String)
-
-#billings
-POST	 /v2/balances/content			        controllers.billing.Balances.post
-POST	 /v2/balances/update			        controllers.billing.Balances.update
-GET	   /v2/balances/:id                 controllers.billing.Balances.show(id: String)
-
-POST 	 /v2/billings/content			        controllers.billing.Billings.post
-
-POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
-GET    /v2/billedhistories              controllers.billing.Billedhistories.list
-
-GET    /v2/promos/:id                   controllers.billing.Promos.show(id: String)
-
-POST   /v2/invoices/content             controllers.billing.Invoices.post
-GET    /v2/invoices                     controllers.billing.Invoices.list
-GET	   /v2/invoices/:id                 controllers.billing.Invoices.show(id: String)
-
-POST   /v2/subscriptions/content		    controllers.billing.Subscriptions.post
-
-POST	 /v2/credithistories/content		  controllers.billing.Credithistories.post
-
-POST	 /v2/availableunits/content	 	    controllers.billing.Availableunits.post
-
-POST	 /v2/discounts/content			      controllers.billing.Discounts.post
-GET    /v2/discounts                    controllers.billing.Discounts.list

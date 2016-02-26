@@ -5,7 +5,7 @@ MEGAM_HOME=/var/lib/megam
 MEGAM_USER=megam
 
 mkdir -p $MEGAM_HOME/verticegateway
-cp  /usr/share/megam/verticegateway/conf/marketplaces.yaml $MEGAM_HOME/verticegateway/marketplaces.yaml
+cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/vertice.cql
 cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/gateway.conf
 cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
 
@@ -15,9 +15,9 @@ if [ "$os" == "Ubuntu" ]; then
   echo $os
 else if [ "$os" == "Debian" ]; then
 cat > /etc/systemd/system/verticegateway.service <<EOF
-## Tweak this systemd script
+## Systemd script that starts vertice gateway
 [Unit]
-Description=Megam Gateway - REST API
+Description=Vertice Gateway
 After=network.target
 After=runlevel2.target
 After=runlevel3.target
@@ -43,4 +43,3 @@ if [ "$1" = "configure" ]; then
 fi
 
 initctl reload-configuration
-echo "installed."
