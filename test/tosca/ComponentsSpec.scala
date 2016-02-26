@@ -35,11 +35,11 @@ class ComponentsSpec extends Specification {
   AssemblySpec is the implementation that calls the megam_play API server with the /assembly url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do GET  requests with an valid Assembly ID" ! findByIDApp.succeeds ^
-      //"Correctly do POST  requests with an valid Assembly ID" ! updateApp.succeeds ^
+      "Correctly do GET  requests with an valid Assembly ID" ! findByIDAppNotFound.succeeds ^
+      "Correctly do POST  requests with an valid Assembly ID" ! updateAppNotFound.succeeds ^
       end
 
-  case object findByIDApp extends Context {
+  case object findByIDAppNotFound extends Context {
     protected override def urlSuffix: String = "components/COM7940692507005379013"
 
     protected def headersOpt: Option[Map[String, String]] = None
@@ -48,11 +48,11 @@ class ComponentsSpec extends Specification {
       .addHeaders(headers)
     def succeeds = {
       val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
 
-  case object updateApp extends Context {
+  case object updateAppNotFound extends Context {
 
     protected override def urlSuffix: String = "components/update"
 
@@ -70,9 +70,9 @@ class ComponentsSpec extends Specification {
         "\"envs\":[ " +
         "{\"key\":\"host\",\"value\":\"localhost\"}," +
         "{\"key\":\"port\",\"value\":\"8080\"}," +
-          "{\"key\":\"username\",\"value\":\"admin\"}," +
-          "{\"key\":\"password\",\"value\":\"admin\"}" +
-        "],"+
+        "{\"key\":\"username\",\"value\":\"admin\"}," +
+        "{\"key\":\"password\",\"value\":\"admin\"}" +
+        "]," +
         "\"artifacts\":{" +
         "\"artifact_type\":\"\"," +
         "\"content\":\"\"," +
@@ -88,16 +88,16 @@ class ComponentsSpec extends Specification {
         "{\"key\":\"ci-enable\",\"value\":\"true\"}," +
         "{\"key\":\"ci-token\",\"value\":\"token\"}," +
         "{\"key\":\"ci-owner\",\"value\":\"owner\"}" +
-        "]"+
+        "]" +
         "\"status\":\"notbound\"," +
         "}]," +
         "\"status\":\"\"," +
-        "\"repo\":{"+
+        "\"repo\":{" +
         "\"rtype\":\"image\"," +
         "\"source\":\"github\"," +
-         "\"oneclick\":\"yes\"," +
-         "\"url\":\"imagename\"" +
-          "}," +
+        "\"oneclick\":\"yes\"," +
+        "\"url\":\"imagename\"" +
+        "}," +
         "\"created_at\":\"2014-10-29 14:06:39 +0000\"" +
         "}"
 
@@ -111,7 +111,7 @@ class ComponentsSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
 

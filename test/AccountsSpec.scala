@@ -35,12 +35,12 @@ class AccountsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      //"Correctly do GET requests with a valid userid and api key" ! GetLogin.succeeds ^
-      //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      "Correctly do POST update requests with a valid userid and api_key" ! PostUpdate.succeeds ^
       end
 
   case object Post extends Context {
@@ -68,7 +68,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
+      val contentToEncode = "{\"email\":\"tee@test.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -88,7 +88,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\"}"
+      val contentToEncode = "{\"collapsedmail\":\"tee@test.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\"}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -99,11 +99,12 @@ class AccountsSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
     }
   }
+  
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/test@megam.io"
+    protected override def urlSuffix: String = "accounts/tee@test.com"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -115,12 +116,11 @@ class AccountsSpec extends Specification {
     }
   }
 
-
   case object GetInvalidApi extends Context {
     protected override def urlSuffix: String = "accounts/megam@mypaas.io"
 
     protected override def headersOpt: Option[Map[String, String]] = Some(Map(Content_Type -> "Content-Type",
-      X_Megam_EMAIL -> "megam@mypaas.io", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
+      X_Megam_EMAIL -> "tee@test.com", X_Megam_APIKEY -> "i@a)23_mC-han^00g57#ed8a+p%i",
       X_Megam_DATE -> "X-Megam-DATE", Accept -> application_vnd_megam_json))
 
     private val get = GET(url)(httpClient)
@@ -130,6 +130,7 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Unauthorized)
     }
   }
+
   case object GetInvalidEmail extends Context {
     protected override def urlSuffix: String = "accounts/#sandy007@megamsand.com"
 
@@ -140,6 +141,26 @@ class AccountsSpec extends Specification {
     def succeeds = {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
+    }
+  }
+
+  case object PostUpdate extends Context {
+
+    protected override def urlSuffix: String = "accounts/update"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"id\":\"ACT4978057755611970607\",\"first_name\":\"Darth\", \"last_name\":\"moon\", \"phone\":\"435643656\", \"email\":\"tee@test.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\",\"created_at\":\"2016-02-25 13:00:28 +0000\" }"
+      Some(new String(contentToEncode))
+    }
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
     }
   }
 
