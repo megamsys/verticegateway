@@ -26,7 +26,7 @@ CREATE TABLE requests( id text, cat_id text, cat_type text,  name text,  action 
 
 CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  plans map <text, text>,  PRIMARY KEY ((settings_name), flavor) );
 
-CREATE TABLE availableunits (id text, name text, duration text, charges_per_duration text, json_claz text, created_at text, PRIMARY KEY(id));
+CREATE TABLE billedhistories (id text, account_id text, assembly_id text, bill_type text, billing_amount text, currency_type text, json_claz text, created_at text, PRIMARY KEY((account_id), id));
 
 CREATE TABLE balances (id text, account_id text, name text, credit text, json_claz text, created_at text, updated_at text, PRIMARY KEY((account_id), id));
 
