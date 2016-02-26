@@ -29,14 +29,13 @@ import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 /*
  * This controller performs onboarding a customer and registers an email/api_key
- * into riak
  * Output: FunnelResponse as JSON with the msg.
  */
 object Accounts extends Controller with stack.APIAuthElement {
 
   /*
    * parse.tolerantText to parse the RawBody
-   * get requested body and put into the riak bucket
+   * get requested body and put into the scylla
    */
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
@@ -57,7 +56,7 @@ object Accounts extends Controller with stack.APIAuthElement {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
       }
-    }   
+    }
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
@@ -72,8 +71,8 @@ object Accounts extends Controller with stack.APIAuthElement {
       }
     }
 
-  }  
-  
+  }
+
   def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {

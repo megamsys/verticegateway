@@ -30,10 +30,7 @@ import controllers.stack.Results
 
 object Assemblies extends Controller with controllers.stack.APIAuthElement {
   implicit val formats = DefaultFormats
-  /*
-   * parse.tolerantText to parse the RawBody
-   * get requested body and put into the riak bucket
-   */
+
   def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {

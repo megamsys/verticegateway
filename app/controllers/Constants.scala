@@ -54,5 +54,4 @@ object Constants {
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
   val DEFAULT_ORG_NAME = "com.megambox" //THIS
-  //val OJA_MKT_YAML = MConfig.marketplaces_yaml
 }

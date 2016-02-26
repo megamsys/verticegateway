@@ -28,15 +28,12 @@ import db._
 import io.megam.auth.funnel.FunnelErrors._
 import controllers.Constants._
 
-import com.stackmob.scaliak._
 import io.megam.auth.stack.AccountResult
 import io.megam.common.uid.UID
 import io.megam.util.Time
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 
 import java.util.UUID
 import com.datastax.driver.core.{ ResultSet, Row }
@@ -149,7 +146,6 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
 
 object Accounts extends ConcreteAccounts {
 
-  private val riak = GWRiak("accounts")
   implicit val formats = DefaultFormats
 
   private def parseAccountInput(input: String): ValidationNel[Throwable, AccountInput] = {

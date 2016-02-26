@@ -320,10 +320,8 @@ object ComponentsList extends ConcreteComponent {
   def apply(componentList: List[Component]): ComponentsList = { componentList }
 
   /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
    * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
    * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
    */
   private def mkComponentSack(authBag: Option[io.megam.auth.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, Option[ComponentResult]] = {
     for {

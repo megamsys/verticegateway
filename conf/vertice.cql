@@ -1,14 +1,13 @@
-//Run command in myfile.cql
-//cqlsh 103.56.92.24 -f /root/myfile.cql
+//cqlsh 103.56.92.24 -f $MEGAM_HOME/verticegateway/vertice.cql
 
-CREATE KEYSPACE IF NOT EXISTS TestMegam
-  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 }
+CREATE KEYSPACE IF NOT EXISTS vertice
+  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
  AND DURABLE_WRITES = false;
 
 
-use TestMegam;
+use vertice;
 
-CREATE TABLE Account( id int,  first_name text, last_name text,  phone int, email text,  api_key text, password text, authority text, password_reset_key text, status text, created_at timestamp, PRIMARY KEY (email));
+CREATE TABLE accounts( id text,  first_name text, last_name text,  phone text, email text,  api_key text, password text, authority text, password_reset_key text, password_reset_sent_at text, status text, created_at text, PRIMARY KEY (email));
 
 
 CREATE TABLE assemblies (id text, org_id text, name text, assemblies list<text>, inputs list<text>, json_claz text, created_at text, PRIMARY KEY ((org_id), id));

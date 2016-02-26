@@ -138,8 +138,6 @@ abstract class ConcreteRequests extends RequestSacks with RootConnector {
 
 object Requests extends ConcreteRequests {
 
-  // A private method which chains computation to make GunnySack parses the json, and converts it to requestinput, if there is an error during parsing, a MalformedBodyError is sent back.
-  // After that flatMap on its success and the GunnySack object is built.
   private def mkRequestSack(input: String): ValidationNel[Throwable, Option[RequestResult]] = {
     val ripNel: ValidationNel[Throwable, RequestInput] = (Validation.fromTryCatchThrowable[models.base.RequestInput, Throwable] {
       parse(input).extract[RequestInput]

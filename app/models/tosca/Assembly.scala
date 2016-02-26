@@ -37,11 +37,6 @@ import models.base._
 import models.tosca._
 
 import io.megam.util.Time
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import io.megam.common.riak.GunnySack
-
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -262,7 +257,6 @@ object Assembly extends ConcreteAssembly {
     for {
       gs <- (updateAssemblySack(input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (updateRecord(org_id, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
-      //maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
       gs
