@@ -16,15 +16,9 @@ respawn limit 0 60
 
 script
     export HOME="/root"
-<<<<<<< HEAD
-    cd /usr/share/megam/megamgateway/bin/
-    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) megamgateway daemonizing" >> /var/log/megam/megamgateway/megamgateway.log
-    exec sudo ./megamgateway -Dlogger.file=/var/lib/megam/megamgateway/logger.xml -Dconfig.file=/var/lib/megam/megamgateway/gateway.conf >> /var/log/megam/megamgateway/megamgateway.log 2>&1
-=======
     cd /usr/share/megam/verticegateway/bin/
     echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) verticegateway daemonizing" >> /var/log/megam/verticegateway/verticegateway.log
     exec sudo ./verticegateway -Dlogger.file=/var/lib/megam/verticegateway/logger.xml -Dconfig.file=/var/lib/megam/verticegateway/gateway.conf >> /var/log/megam/verticegateway/verticegateway.log 2>&1
->>>>>>> origin/1.0
 end script
 
 pre-start script
