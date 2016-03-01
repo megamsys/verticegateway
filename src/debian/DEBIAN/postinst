@@ -8,11 +8,12 @@ mkdir -p $MEGAM_HOME/verticegateway
 cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/vertice.cql
 cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/gateway.conf
 cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
+cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/vertice.cql
 
 dist=`grep PRETTY_NAME /etc/*-release | awk -F '="' '{print $2}'`
 os=$(echo $dist | awk '{print $1;}')
 if [ "$os" == "Ubuntu" ]; then
-  echo $os
+  echo $os "verticegateway 1.0"
 else if [ "$os" == "Debian" ]; then
 cat > /etc/systemd/system/verticegateway.service <<EOF
 ## Systemd script that starts vertice gateway
@@ -33,8 +34,6 @@ else
    echo "Unsupported Linux OS"
 fi
 fi
-
-
 
 if [ "$1" = "configure" ]; then
     if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then

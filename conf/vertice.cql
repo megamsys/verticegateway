@@ -14,7 +14,7 @@ CREATE TABLE assembly (id text, org_id text, name text, components list<text>, t
 
 CREATE TABLE components (id text, name text, tosca_type text, inputs list<text>, outputs list<text>, envs list<text>, artifacts text, related_components list<text>, operations list<text>, repo text, status text, json_claz text, created_at text, PRIMARY KEY (id));
 
-CREATE TABLE settings( settings_name text, megam_home text, team text, domain text, message_broker map <text, text>, nilavu map <text, text>, api map <text, text>, flavors map <text, text>, PRIMARY KEY(settings_name));
+CREATE TABLE settings(name text, scylla text, home text, api text, nsqd text, org text, domain text, route53_access_key text, route53_secret_key text, docker_swarm text, one_endpoint text, one_userid text, one_password text, primary key(name));
 
 CREATE TABLE organizations(id text, accounts_id text, name text, json_claz text, created_at  text, PRIMARY KEY ((accounts_id), id)  );
 
