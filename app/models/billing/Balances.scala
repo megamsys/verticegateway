@@ -28,15 +28,17 @@ import io.megam.util.Time
 import cache._
 import db._
 import models.base.Accounts
-import models.json.billing._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
-import io.megam.common.riak.GunnySack
+import com.datastax.driver.core.{ ResultSet, Row }
+import com.websudos.phantom.dsl._
+import scala.concurrent.{ Future => ScalaFuture }
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import io.megam.common.uid.UID
@@ -59,47 +61,83 @@ case class BalancesUpdateInput(id: String, name: String, credit: String, created
 
 }
 
-case class BalancesResult(id: String, name: String, credit: String, created_at: String, updated_at: String) {
-
-  def toJValue: JValue = {
-    import net.liftweb.json.scalaz.JsonScalaz.toJSON
-    import models.json.billing.BalancesResultSerialization
-    val preser = new BalancesResultSerialization()
-    toJSON(this)(preser.writer) //where does this JSON from?
-  }
-
-  def toJson(prettyPrint: Boolean = false): String = if (prettyPrint) {
-    prettyRender(toJValue)
-  } else {
-    compactRender(toJValue)
-  }
+case class BalancesResult(
+    id: String,
+    account_id: String,
+    name: String,
+    credit: String,
+    json_claz: String,
+    created_at: String,
+    updated_at: String) {
 }
 
-object BalancesResult {
+sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult] {
 
-  def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[BalancesResult] = {
-    import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-    import models.json.billing.BalancesResultSerialization
-    val preser = new BalancesResultSerialization()
-    fromJSON(jValue)(preser.reader)
-  }
-
-  def fromJson(json: String): Result[BalancesResult] = (Validation.fromTryCatchThrowable[net.liftweb.json.JValue, Throwable] {
-    parse(json)
-  } leftMap { t: Throwable =>
-    UncategorizedError(t.getClass.getCanonicalName, t.getMessage, List())
-  }).toValidationNel.flatMap { j: JValue => fromJValue(j) }
-
-}
-
-object Balances {
   implicit val formats = DefaultFormats
 
-  private lazy val bucker = "balances"
+  object id extends StringColumn(this) with PrimaryKey[String]
+  object account_id extends StringColumn(this) with PartitionKey[String]
+  object name extends StringColumn(this)
+  object credit extends StringColumn(this)
+  object json_claz extends StringColumn(this)
+  object created_at extends StringColumn(this)
+  object updated_at extends StringColumn(this)
 
-  private lazy val riak = GWRiak("balances")
+  def fromRow(row: Row): BalancesResult = {
+    BalancesResult(
+      id(row),
+      account_id(row),
+      name(row),
+      credit(row),
+      json_claz(row),
+      created_at(row),
+      updated_at(row))
+  }
+}
 
-  private lazy val idxedBy = idxAccountsId
+abstract class ConcreteBalances extends BalancesSacks with RootConnector {
+  // you can even rename the table in the schema to whatever you like.
+  override lazy val tableName = "balances"
+  override implicit def space: KeySpace = scyllaConnection.space
+  override implicit def session: Session = scyllaConnection.session
+
+  def insertNewRecord(ams: BalancesResult): ValidationNel[Throwable, ResultSet] = {
+    val res = insert.value(_.id, ams.id)
+      .value(_.name, ams.name)
+      .value(_.account_id, ams.account_id)
+      .value(_.credit, ams.credit)
+      .value(_.json_claz, ams.json_claz)
+      .value(_.created_at, ams.created_at)
+      .value(_.updated_at, ams.updated_at)
+      .future()
+    Await.result(res, 5.seconds).successNel
+  }
+
+  def updateRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
+    val res = update.where(_.account_id eqs email)
+      .modify(_.name setTo NilorNot(rip.name, aor.get.name))
+      .and(_.credit setTo NilorNot(rip.credit, aor.get.credit))
+      .and(_.updated_at setTo Time.now.toString)
+      .future()
+      Await.result(res, 5.seconds).successNel
+  }
+
+  def getRecord(id: String): ValidationNel[Throwable, Option[BalancesResult]] = {
+    val res = select.allowFiltering().where(_.id eqs id).one()
+    Await.result(res, 5.seconds).successNel
+  }
+
+   def NilorNot(rip: String, bal: String): String = {
+    rip == null match {
+      case true => return bal
+      case false => return rip
+    }
+  }
+
+
+}
+
+object Balances extends ConcreteBalances{
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -107,7 +145,7 @@ object Balances {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
+  private def mkBalancesSack(email: String, input: String): ValidationNel[Throwable, BalancesResult] = {
     val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatchThrowable[BalancesInput, Throwable] {
       parse(input).extract[BalancesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -118,9 +156,8 @@ object Balances {
     } yield {
 
       val bvalue = Set(email)
-      val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, Time.now.toString, Time.now.toString).toJson(false)
-      new GunnySack(email, json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
+      val json = new BalancesResult(uir.get._1 + uir.get._2, email, "", balance.credit, "Megam::Balances", Time.now.toString, Time.now.toString)
+      json
     }
   }
 
@@ -129,90 +166,51 @@ object Balances {
    *
    */
   def create(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
-    (mkGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] =>
-      new ServiceUnavailableError(input, (err.list.map(m => m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { gs: Option[GunnySack] =>
-      (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t }).
-        flatMap { maybeGS: Option[GunnySack] =>
-          maybeGS match {
-            case Some(thatGS) => (parse(thatGS.value).extract[BalancesResult].some).successNel[Throwable]
-            case None => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.created. success", Console.RESET))
-              (parse(gs.get.value).extract[BalancesResult].some).successNel[Throwable];
-            }
-          }
-        }
+    for {
+      wa <- (mkBalancesSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.created success", Console.RESET))
+      wa.some
     }
   }
 
-  private def updateGunnySack(email: String, input: String): ValidationNel[Throwable, Option[GunnySack]] = {
-    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatchThrowable[BalancesUpdateInput, Throwable] {
-      parse(input).extract[BalancesUpdateInput]
+  def update(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
+    val ripNel: ValidationNel[Throwable, BalancesResult] = (Validation.fromTryCatchThrowable[BalancesResult,Throwable] {
+      parse(input).extract[BalancesResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
       rip <- ripNel
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      bals <- (Balances.findByName(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
+      bor <- (Balances.findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- updateRecord(email, rip, bor.head)
     } yield {
-      val bvalue = Set(aor.get.id)
-      val bal = bals.head
-      val json = BalancesResult(bal.get.id, bal.get.name, NilorNot(rip.credit, bal.get.credit), bal.get.created_at, Time.now.toString).toJson(false)
-      new GunnySack((email), json, RiakConstants.CTYPE_TEXT_UTF8, None,
-        Map.empty, Map((idxedBy, bvalue))).some
+      bor
     }
   }
 
-  def NilorNot(rip: String, bal: String): String = {
-    rip == null match {
-      case true => return bal
-      case false => return rip
-    }
-  }
-
-  def update(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
-    for {
-      gs <- (updateGunnySack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
-      maybeGS <- (riak.store(gs.get) leftMap { t: NonEmptyList[Throwable] => t })
-    } yield {
-      val nrip = parse(gs.get.value).extract[BalancesResult]
-      maybeGS match {
-        case Some(thatGS) =>
-          BalancesResult(thatGS.key, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
-        case None => {
-          play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.updated successfully", Console.RESET))
-          BalancesResult(nrip.id, nrip.name, nrip.credit, nrip.created_at, nrip.updated_at).some
-
-        }
-      }
-    }
-  }
-
-  def findByName(balanceList: Option[List[String]]): ValidationNel[Throwable, BalancesResults] = {
-    (balanceList map {
-      _.map { balanceName =>
-        play.api.Logger.debug("models.BalanceName findByName: Balances:" + balanceName)
-        (riak.fetch(balanceName) leftMap { t: NonEmptyList[Throwable] =>
-          new ServiceUnavailableError(balanceName, (t.list.map(m => m.getMessage)).mkString("\n"))
-        }).toValidationNel.flatMap { xso: Option[GunnySack] =>
+  def findByEmail(balancesID: Option[List[String]]): ValidationNel[Throwable, BalancesResults] = {
+    (balancesID map {
+      _.map { asm_id =>
+        play.api.Logger.debug(("%-20s -->[%s]").format("Balances Id", asm_id))
+        (getRecord(asm_id) leftMap { t: NonEmptyList[Throwable] =>
+          new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
+        }).toValidationNel.flatMap { xso: Option[BalancesResult] =>
           xso match {
             case Some(xs) => {
-              (Validation.fromTryCatchThrowable[models.billing.BalancesResult, Throwable] {
-                parse(xs.value).extract[BalancesResult]
-              } leftMap { t: Throwable =>
-                new ResourceItemNotFound(balanceName, t.getMessage)
-              }).toValidationNel.flatMap { j: BalancesResult =>
-                Validation.success[Throwable, BalancesResults](nels(j.some)).toValidationNel //screwy kishore, every element in a list ?
-              }
+              play.api.Logger.debug(("%-20s -->[%s]").format("BalancesResult", xs))
+              Validation.success[Throwable, BalancesResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
-            case None => Validation.failure[Throwable, BalancesResults](new ResourceItemNotFound(balanceName, "")).toValidationNel
+            case None => {
+              Validation.failure[Throwable, BalancesResults](new ResourceItemNotFound(asm_id, "")).toValidationNel
+            }
           }
         }
       } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
     } map {
       _.foldRight((BalancesResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
-
   }
+
 
 }

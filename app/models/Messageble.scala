@@ -33,11 +33,7 @@ import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
 
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import io.megam.util.Time
-import io.megam.common.riak.GunnySack
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._

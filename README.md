@@ -1,27 +1,27 @@
-Megam Gateway
+Vertice Gateway
 ================
 
-API server for "[Megam cloud platform](https://www.megam.io)". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
+API server for "[Megam vertice](https://www.megam.io)". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
 
 [![Build Status](https://travis-ci.org/megamsys/megam_gateway.png)](https://travis-ci.org/megamsys/megam_gateway)
 
 ## Getting Started
 
-* Try our cloud  edition [https://console.megam.io](https://console.megam.io)
+* Try our cloud  edition via our partner [http://det.io](https://det.io)
 
 
 ### Requirements
 
 >
-[RabbitMQ 3.5.0 +](http://www.rabbitmq.com)
+[NSQ 0.3.7  ](http://nsq.io)
 [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
-[Riak 2.1.1 +](http://docs.basho.com/riak/latest/downloads/)
+[Scylladb 0.17 +](http://scylladb.com)
 
 
 ### Compile from source
 
 ```
-* git clone https://github.com/megamsys/megam_gateway.git
+* git clone https://github.com/megamsys/vertice_gateway.git
 
 * sbt
 
@@ -55,7 +55,7 @@ We are glad to help if you have questions, or request for new features..
 |                      | RanjithaR (<ranjithar@megam.io>)  
 |                      | Arunkumar sekar (<arunkumar.sekar@megam.io>)  
 |		       	           | KishorekumarNeelamegam (<nkishore@megam.io>)
-| **Copyright:**       | Copyright (c) 2013-2015 Megam Systems.
+| **Copyright:**       | Copyright (c) 2013-2016 Megam Systems.
 | **License:**         | Apache License, Version 2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");

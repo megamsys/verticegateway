@@ -1,5 +1,5 @@
-description "Megam gateway(https://console.megam.io)"
-author "Rajthilak <rajthilak@megam.co.in>"
+description "Vertice gateway(https://www.megam.io)"
+author "Rajthilak <rajthilak@megam.io>"
 
 # When to start the servicee
 start on runlevel [2345]

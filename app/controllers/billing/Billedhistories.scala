@@ -24,6 +24,9 @@ import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import models.billing._
 import play.api.mvc._
+import controllers.stack.Results
+import net.liftweb.json._
+import net.liftweb.json.JsonParser._
 /**
  * @author rajthilak
  *
@@ -31,7 +34,7 @@ import play.api.mvc._
 
 
 object Billedhistories extends Controller with controllers.stack.APIAuthElement {
-
+implicit val formats = DefaultFormats
   /**
    * Create a new billing history for the user.
    **/
@@ -75,7 +78,7 @@ object Billedhistories extends Controller with controllers.stack.APIAuthElement 
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.billing.Billedhistories.findByEmail(email) match {
             case Success(succ) =>
-              Ok(BilledhistoriesResults.toJson(succ, true))
+              Ok(Results.resultset(models.Constants.BILLEDHISTORIESCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

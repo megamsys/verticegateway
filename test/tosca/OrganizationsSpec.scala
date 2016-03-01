@@ -28,19 +28,17 @@ import models.tosca._
 import models.team.Organizations
 import test.{ Context }
 
-
 class OrganizationsSpec extends Specification {
   def is =
     "OrganizationsSpec".title ^ end ^ """
       OrganizationssSpec is the implementation that calls the megam_play API server with the /MarketPlace url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-    //  "Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
-    //  "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
-    //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-    //  "Correctly do GET requests with a valid organizations name" ! Get.succeeds ^
+      "Correctly do POST requests with a valid organizations name" ! Post.succeeds ^
+      "Correctly do POST requests with an invalid URL" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do LIST request with a valid email id" ! List.succeeds ^
-    //  "Correctly do INVITE request with a valid related orgs body" ! Invite.succeeds ^
+      "Correctly do INVITE request with a valid related orgs body" ! Invite.succeeds ^
       end
 
   case object Post extends Context {
@@ -100,23 +98,9 @@ class OrganizationsSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
     }
   }
-
-  case object Get extends Context {
-    protected override def urlSuffix: String = "organizations/Megam"
-
-    protected def headersOpt: Option[Map[String, String]] = None
-
-    private val get = GET(url)(httpClient)
-      .addHeaders(headers)
-    def succeeds = {
-      val resp = execute(get)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }
-
 
   case object List extends Context {
     protected override def urlSuffix: String = "organizations"
@@ -131,8 +115,7 @@ class OrganizationsSpec extends Specification {
     }
   }
 
-
-   case object Invite extends Context {
+  case object Invite extends Context {
 
     protected override def urlSuffix: String = "organizations/invite"
 
@@ -148,9 +131,8 @@ class OrganizationsSpec extends Specification {
 
     def succeeds: SpecsResult = {
       val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
     }
   }
-
 
 }

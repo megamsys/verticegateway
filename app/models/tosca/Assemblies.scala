@@ -35,11 +35,7 @@ import app.MConfig
 import models.base._
 import wash._
 
-import com.stackmob.scaliak._
-import com.basho.riak.client.core.query.indexes.{ RiakIndexes, StringBinIndex, LongIntIndex }
-import com.basho.riak.client.core.util.{ Constants => RiakConstants }
 import io.megam.util.Time
-import io.megam.common.riak.GunnySack
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -125,7 +121,7 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
       compactRender(Extraction.decompose(obj))
     }
   }
-  
+
   object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
@@ -160,8 +156,7 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
   }
 
   def listRecords(email: String, org: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
-    //val res = select.allowFiltering().where(_.org_id eqs org).fetch()
-    val res = select.fetchEnumerator() run Iteratee.collect()
+    val res = select.where(_.org_id eqs org).fetch()
     Await.result(res, 5.seconds).successNel
   }
 

@@ -43,78 +43,11 @@ class MarketPlaceSpec extends Specification {
       MarketPlacesSpec is the implementation that calls the API server with the /marketplaces url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-    //  "Correctly do POST requests" ! Post0.succeeds ^ br ^
-    //  "Correctly do POST requests" ! Post1.succeeds ^
-    //  "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-  //    "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-  //    "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-  //    "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-  //    "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
-
-  case object Post0 extends Context {
-
-    protected override def urlSuffix: String = "marketplaces/content"
-
-    protected override def bodyToStick: Option[String] = {
-
-      val contentToEncode = "{" +
-        "\"name\": \"test-Alfresc\"," +
-        "\"cattype\":\"cattype\"," +
-        "\"order\": \"5\"," +
-        "\"image\":\"logo.png\"," +
-        "\"url\":\"megambox.com\"," +
-        "\"envs\":[{\"key\":\"username\", \"value\" :\"admin\"}]," +
-        "\"plans\":[{\"price\":\"30\", \"description\":\"description\", \"plantype\":\"paid\", \"version\":\"0.1\", \"source\":\"source\"}]" +
-        "}"
-      Some(contentToEncode)
-    }
-
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
-    }
-
-  }
-
-  //post the headers and their body for specifing url (insert one more record)
-  case object Post1 extends Context {
-
-    protected override def urlSuffix: String = "marketplaces/content"
-
-    protected override def bodyToStick: Option[String] = {
-      //  val contentToEncode = new MarketPlaceInput("test-Zarafa", "cattype", "5", "logo.png", "megambox.com", models.tosca.KeyValueList.empty,MarketPlacePlans(scala.collection.immutable.List(new MarketPlacePlan("0", "free")))).json
-      val contentToEncode = "{" +
-        "\"name\": \"test-Alfresc\"," +
-        "\"cattype\":\"cattype\"," +
-        "\"order\": \"5\"," +
-        "\"image\":\"logo.png\"," +
-        "\"url\":\"megambox.com\"," +
-        "\"envs\":[{\"key\":\"username\", \"value\" :\"admin\"}]," +
-        "\"plans\":[{\"price\":\"30\", \"description\":\"description\", \"plantype\":\"paid\", \"version\":\"0.1\", \"source\":\"source\"}]" +
-        "}"
-      Some(contentToEncode)
-    }
-
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
-    }
-
-  }
 
   case object List extends Context {
     protected override def urlSuffix: String = "marketplaces"
@@ -130,7 +63,7 @@ class MarketPlaceSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "marketplaces/ubuntu"
+    protected override def urlSuffix: String = "marketplaces/Ubuntu"
 
     protected def headersOpt: Option[Map[String, String]] = None
     private val get = GET(url)(httpClient)
@@ -138,46 +71,6 @@ class MarketPlaceSpec extends Specification {
     def succeeds = {
       val resp = execute(get)
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-    }
-  }
-
-  case object PostInvalidUrl extends Context {
-
-    protected override def urlSuffix: String = "marketplaces/contentinvalidurl"
-
-    protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"email\":\"megam@mypaas.io\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
-      Some(new String(contentToEncode))
-    }
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
-    }
-  }
-
-  case object PostInvalidBody extends Context {
-
-    protected override def urlSuffix: String = "marketplaces/content"
-
-    protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"collapsedmail\":\"megam@mypaas.io\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\" }"
-      Some(new String(contentToEncode))
-    }
-    protected override def headersOpt: Option[Map[String, String]] = None
-
-    private val post = POST(url)(httpClient)
-      .addHeaders(headers)
-      .addBody(body)
-
-    def succeeds: SpecsResult = {
-      val resp = execute(post)
-      resp.code must beTheSameResponseCodeAs(HttpResponseCode.ServiceUnavailable)
     }
   }
 

@@ -24,6 +24,9 @@ import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import models.billing._
 import play.api.mvc._
+import controllers.stack.Results
+import net.liftweb.json._
+import net.liftweb.json.JsonParser._
 
 /**
  * @author rajthilak
@@ -31,7 +34,7 @@ import play.api.mvc._
  */
 
 object Balances extends Controller with controllers.stack.APIAuthElement {
-
+  implicit val formats = DefaultFormats
   /**
    * Create a new balance entry by email/json input.
    */
@@ -98,9 +101,9 @@ object Balances extends Controller with controllers.stack.APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.billing.Balances.findByName(List(id).some) match {
+          models.billing.Balances.findByEmail(List(id).some) match {
             case Success(succ) =>
-              Ok(BalancesResults.toJson(succ, true))
+              Ok(Results.resultset(models.Constants.BALANCESCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

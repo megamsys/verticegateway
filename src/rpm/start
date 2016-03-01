@@ -1,6 +1,6 @@
-## Tweak this systemd script
+## Systemd script that starts vertice gateway
 [Unit]
-Description=Megam Gateway - REST API
+Description=Vertice Gateway
 After=network.target
 After=runlevel2.target
 After=runlevel3.target
