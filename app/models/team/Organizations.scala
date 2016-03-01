@@ -70,6 +70,10 @@ case class OrganizationsResult(
   json_claz: String,
   created_at: String) {}
 
+object OrganizationsResult {
+  val empty = new OrganizationsResult("", "", "", "Megam::Organizations", "")
+}
+
 sealed class OrganizationsT extends CassandraTable[OrganizationsT, OrganizationsResult] {
 
   object id extends StringColumn(this) with PrimaryKey[String]
@@ -130,7 +134,7 @@ object Organizations extends ConcreteOrg {
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
-  def create(email: String, input: String): ValidationNel[Throwable, OrganizationsResult] = {
+  def create(email: String, input: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
     for {
       c <- orgNel(input)
       uir <- (UID("org").get leftMap { u: NonEmptyList[Throwable] => u })
@@ -138,7 +142,7 @@ object Organizations extends ConcreteOrg {
       //  s <-
     } yield {
       insertNewRecord(org)
-      org
+      org.some
     }
   }
 

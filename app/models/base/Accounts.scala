@@ -84,7 +84,7 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
       authority(row),
       password_reset_key(row),
       password_reset_sent_at(row),
-     // json_claz(row),
+      // json_claz(row),
       created_at(row))
   }
 }
@@ -106,7 +106,7 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .value(_.authority, NilorNot(account.authority, ""))
       .value(_.password_reset_key, NilorNot(account.password_reset_key, ""))
       .value(_.password_reset_sent_at, NilorNot(account.password_reset_sent_at, ""))
-     // .value(_.json_claz, account.json_claz)
+      // .value(_.json_claz, account.json_claz)
       .value(_.created_at, account.created_at)
       .future()
     Await.result(res, 5.seconds).successNel
@@ -116,7 +116,6 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     val res = select.where(_.email eqs email).one()
     Await.result(res, 5.seconds).successNel
   }
-
 
   def updateRecord(email: String, rip: AccountResult, aor: Option[AccountResult]): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.email eqs NilorNot(rip.email, aor.get.email))
@@ -129,10 +128,10 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .and(_.authority setTo NilorNot(rip.authority, aor.get.authority))
       .and(_.password_reset_key setTo NilorNot(rip.password_reset_key, aor.get.password_reset_key))
       .and(_.password_reset_sent_at setTo NilorNot(rip.password_reset_sent_at, aor.get.password_reset_sent_at))
-     // .and(_.json_claz setTo NilorNot(rip.json_claz, aor.get.json_claz))
+      // .and(_.json_claz setTo NilorNot(rip.json_claz, aor.get.json_claz))
       .and(_.created_at setTo NilorNot(rip.created_at, aor.get.created_at))
       .future()
-      Await.result(res, 5.seconds).successNel
+    Await.result(res, 5.seconds).successNel
   }
 
   def NilorNot(rip: String, aor: String): String = {
@@ -154,29 +153,50 @@ object Accounts extends ConcreteAccounts {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
 
-
   private def generateAccountSet(id: String, m: AccountInput): ValidationNel[Throwable, AccountResult] = {
     (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       AccountResult(id, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString)
     } leftMap { t: Throwable => new MalformedBodyError(m.json, t.getMessage) }).toValidationNel
   }
 
-  def create(input: String): ValidationNel[Throwable, AccountResult] = {
-    val json = "{\"name\":\"" + "defaultOrg" + "\"}"
+  private def orgChecker(email: String, orgs: Seq[OrganizationsResult], acc: AccountResult): ValidationNel[Throwable, AccountResult] = {
+    val org_json = "{\"name\":\"" + DEFAULT_ORG_NAME + "\"}"
+    val domain_json = "{\"name\":\"" + DEFAULT_DOMAIN_NAME + "\"}"
+    if (!orgs.isEmpty)
+      return Validation.success[Throwable, AccountResult](acc).toValidationNel
+    else {
+      (models.team.Organizations.create(email, org_json.toString) leftMap { t: NonEmptyList[Throwable] =>
+        new ServiceUnavailableError(email, (t.list.map(m => m.getMessage)).mkString("\n"))
+      }).toValidationNel.flatMap { xso: Option[OrganizationsResult] =>
+        xso match {
+          case Some(xs) => {
+            (models.team.Domains.create(xs.id, domain_json.toString) leftMap { t: NonEmptyList[Throwable] =>
+              new ServiceUnavailableError(xs.id, (t.list.map(m => m.getMessage)).mkString("\n"))
+            }).toValidationNel.flatMap { dso: DomainsResult =>
+              Validation.success[Throwable, AccountResult](acc).toValidationNel
+            }
+          }
+          case None => Validation.success[Throwable, AccountResult](acc).toValidationNel
+        }
+      }
+    }
+  }
 
+  def create(input: String): ValidationNel[Throwable, AccountResult] = {
     for {
       m <- parseAccountInput(input)
       uir <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
       acc <- generateAccountSet(uir.get._1 + uir.get._2, m)
       set <- insertNewRecord(acc)
-      orgc <- models.team.Organizations.create(m.email, json.toString)
+      orgs <- models.team.Organizations.findByEmail(m.email)
+      res <- orgChecker(m.email, orgs, acc)
     } yield {
-      acc
+      res
     }
   }
 
   def update(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult,Throwable] {
+    val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -213,7 +233,6 @@ object Accounts extends ConcreteAccounts {
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
 
   }
-
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
