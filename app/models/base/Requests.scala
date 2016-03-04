@@ -65,7 +65,7 @@ case class RequestResult(id: String, cat_id: String, cattype: String, name: Stri
     Map[String, String](
       ("id" -> id),
       ("cat_id" -> cat_id),
-      ("cat_type" -> cattype),
+      ("cattype" -> cattype),
       ("name" -> name),
       ("action" -> action),
       ("category" -> category))
