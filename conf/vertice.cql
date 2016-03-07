@@ -30,7 +30,6 @@ CREATE TABLE billedhistories (id text, account_id text, assembly_id text, bill_t
 
 CREATE TABLE balances (id text, account_id text, name text, credit text, json_claz text, created_at text, updated_at text, PRIMARY KEY((account_id), id));
 
-//insert marketplace items
 insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'TORPEDO', 'Ubuntu', 'ubuntu.png', '1', 'http://ubuntu.com', 'Megam::MarketPlace' , [], {'14.04':'Ubuntu 14.04 LTS (Trusty) is delivers the best value scale-out performance available.'});
 
 insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'TORPEDO', 'CoreOs', 'coreos.png', '1', 'http://coreos.com', 'Megam::MarketPlace' , [], {' 633.1.0': 'CoreOS provides no package manager as a way for the distribution of applications, requiring instead all applications to run inside their containers'});

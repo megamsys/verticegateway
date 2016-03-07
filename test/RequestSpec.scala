@@ -35,7 +35,7 @@ class RequestSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests for a torpedo(create)" ! TorpedoCreate.succeeds ^
-      "Correctly do POST requests for a torpedo(start)" ! TorpedoStart.succeeds ^
+     /* "Correctly do POST requests for a torpedo(start)" ! TorpedoStart.succeeds ^
       "Correctly do POST requests for a torpedo(stop)" ! TorpedoStop.succeeds ^
       "Correctly do POST requests for a torpedo(delete)" ! TorpedoDelete.succeeds ^
       "Correctly do POST requests for a app(create)" ! AppCreate.succeeds ^
@@ -50,7 +50,7 @@ class RequestSpec extends Specification {
       "Correctly do POST requests for a service(restart)" ! ServiceRestart.succeeds ^
       "Correctly do POST requests for a docker(create)" ! DockerCreate.succeeds ^
       "Correctly do POST requests for a docker(start)" ! DockerStart.succeeds ^
-      "Correctly do POST requests for a docker(delete)" ! DockerDelete.succeeds ^
+      "Correctly do POST requests for a docker(delete)" ! DockerDelete.succeeds ^*/
   end
 
   case object TorpedoCreate extends Context {
@@ -58,7 +58,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu", "", "create", "state").json
+      val contentToEncode = RequestInput("AMS4628632947365253886", "app", "", "create", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
