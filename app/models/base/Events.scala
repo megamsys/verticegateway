@@ -90,6 +90,7 @@ object Events {
   //inputs
   val EVTEMAIL = "email"
   val EVTCLICK = "click_url"
+  val EVTTOKEN = "token"
   //actions
   val CREATE = "0"
   val DESTROY = "1"

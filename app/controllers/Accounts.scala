@@ -66,6 +66,34 @@ object Accounts extends Controller with stack.APIAuthElement {
 
   }
 
+  def reset(id: String) = Action(parse.tolerantText) { implicit request =>
+
+    models.base.Accounts.reset(id) match {
+      case Success(succ) =>
+        Status(CREATED)(
+          FunnelResponse(CREATED, """New password token generated successfully.
+            |
+            |You can use the the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
+      case Failure(err) =>
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+    }
+  }
+
+  def repassword = Action(parse.tolerantText) { implicit request =>
+    val input = (request.body).toString()
+    models.base.Accounts.repassword(input) match {
+      case Success(succ) =>
+        Status(CREATED)(
+          FunnelResponse(CREATED, """Account reseted successfully.
+            |
+            |You can use the the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
+      case Failure(err) =>
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+    }
+  }
+
   def update = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {

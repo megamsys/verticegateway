@@ -12,6 +12,8 @@ GET    /                                controllers.Application.index
 POST   /v2/accounts/content             controllers.Accounts.post
 GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
 POST   /v2/accounts/update       	 	controllers.Accounts.update
+GET    /v2/accounts/reset/:id        	controllers.Accounts.reset(id: String)
+POST   /v2/accounts/repassword       	controllers.Accounts.repassword
 
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
