@@ -36,11 +36,11 @@ class ComponentsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do GET  requests with an valid Assembly ID" ! findByIDAppNotFound.succeeds ^
-      "Correctly do POST  requests with an valid Assembly ID" ! updateAppNotFound.succeeds ^
+      //"Correctly do POST  requests with an valid Assembly ID" ! updateAppNotFound.succeeds ^
       end
 
   case object findByIDAppNotFound extends Context {
-    protected override def urlSuffix: String = "components/COM7940692507005379013"
+    protected override def urlSuffix: String = "components/COM7081623868492586469"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -58,7 +58,7 @@ class ComponentsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"id\": \"COM7270123887781796531\"," +
+        "\"id\": \"COM6497449919563135256\"," +
         "\"name\":\"NettieMoore\"," +
         "\"tosca_type\":\"tosca.web.redis\"," +
         "\"inputs\":[" +
