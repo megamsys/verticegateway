@@ -12,10 +12,17 @@ organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))
 
-description := """Vertice Gateway : Scalable RESTful API server for megam vertice
-                  in a functional way, built using Scylla, Memcache
-                  try: http://det.io
-                  web: https://www.megam.io"""
+description := """Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
+Vertice gateway connects to an opensource database ScyllaDB 0.19 or latest,
+compatible cassandra 2.1.9. A messaging layer via Nsqd (nsq.io) provides an
+extra layer of decoupling from the virtualization or container platforms.
+.
+Vertice extends the benefits of OpenNebula virtualization platforms to allow
+single click launch of application, high availability using ceph, autoscaling
+and billing integrated.
+.
+This package contains playframework based API server managing ScyllaDB for
+open source Megam Vertice."""
 
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
@@ -103,7 +110,7 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 }
 
 
-maintainer in Linux := "Rajthilak <rajthilak@megam.io>"
+maintainer in Linux := "Rajthilak <rajthilak@megam.io> Yeshwanth Kumar <getyesh@megam.io>"
 
 packageSummary in Linux := "REST based API server - Verticegateway for Megam Vertice."
 
@@ -121,7 +128,7 @@ linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Li
 
 rpmVendor := "megam"
 
-rpmUrl := Some("https://www.megam.io")
+rpmUrl := Some("http://docs.megam.io/docs/vertice")
 
 rpmLicense := Some("Apache v2")
 
