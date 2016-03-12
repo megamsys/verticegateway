@@ -251,3 +251,4 @@ object Assemblies extends ConcreteAssemblies {
     wa.ams.get.successNel[Throwable]
   }
 }
+
