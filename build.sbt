@@ -6,13 +6,14 @@ name := "verticegateway"
 
 version := "1.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))
 
-description := """Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
+description := """
+Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
 Vertice gateway connects to an opensource database ScyllaDB 0.19 or latest,
 compatible cassandra 2.1.9. A messaging layer via Nsqd (nsq.io) provides an
 extra layer of decoupling from the virtualization or container platforms.
@@ -114,7 +115,18 @@ maintainer in Linux := "Rajthilak <rajthilak@megam.io> Yeshwanth Kumar <getyesh@
 
 packageSummary in Linux := "REST based API server - Verticegateway for Megam Vertice."
 
-packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam vertice."
+packageDescription in Linux := """
+Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
+Vertice gateway connects to an opensource database ScyllaDB 0.19 or latest,
+compatible cassandra 2.1.9. A messaging layer via Nsqd (nsq.io) provides an
+extra layer of decoupling from the virtualization or container platforms.
+.
+Vertice extends the benefits of OpenNebula virtualization platforms to allow
+single click launch of application, high availability using ceph, autoscaling
+and billing integrated.
+.
+This package contains playframework based API server managing ScyllaDB for
+open source Megam Vertice."""
 
 daemonUser in Linux := "megam" // user which will execute the application
 
