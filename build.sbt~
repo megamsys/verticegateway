@@ -12,7 +12,8 @@ organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))
 
-description := """Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
+description := """
+Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
 Vertice gateway connects to an opensource database ScyllaDB 0.19 or latest,
 compatible cassandra 2.1.9. A messaging layer via Nsqd (nsq.io) provides an
 extra layer of decoupling from the virtualization or container platforms.
@@ -114,7 +115,8 @@ maintainer in Linux := "Rajthilak <rajthilak@megam.io> Yeshwanth Kumar <getyesh@
 
 packageSummary in Linux := "REST based API server - Verticegateway for Megam Vertice."
 
-packageDescription in Linux := """Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
+packageDescription in Linux := """
+Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
 Vertice gateway connects to an opensource database ScyllaDB 0.19 or latest,
 compatible cassandra 2.1.9. A messaging layer via Nsqd (nsq.io) provides an
 extra layer of decoupling from the virtualization or container platforms.
