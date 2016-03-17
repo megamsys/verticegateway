@@ -62,6 +62,7 @@ case class MarketPlaceSack(
   url: String,
   json_claz: String,
   envs: KeyValueList,
+  options: KeyValueList,
   plans: Map[String, String]) {}
 
 
@@ -85,6 +86,15 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
       compactRender(Extraction.decompose(obj))
     }
   }
+  object options extends JsonListColumn[MarketPlaceT, MarketPlaceSack, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
+    }
+
+    override def toJson(obj: KeyValueField): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
   object plans extends MapColumn[MarketPlaceT, MarketPlaceSack, String, String](this)
 
   override def fromRow(r: Row): MarketPlaceSack = {
@@ -97,6 +107,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
       url(r),
       json_claz(r),
       envs(r),
+      options(r),
       plans(r))
   }
 }
