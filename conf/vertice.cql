@@ -10,7 +10,7 @@ CREATE TABLE accounts( id text,  first_name text, last_name text,  phone text, e
 
 CREATE TABLE assemblies (id text, org_id text, name text, assemblies list<text>, inputs list<text>, json_claz text, created_at text, PRIMARY KEY ((org_id), id));
 
-CREATE TABLE assembly (id text, org_id text, name text, components list<text>, tosca_type text, policies list<text>, inputs list<text>, outputs list<text>, status text, json_claz text, created_at text, PRIMARY KEY ((org_id), id));
+CREATE TABLE assembly (id text, org_id text, account_id text, name text, components list<text>, tosca_type text, policies list<text>, inputs list<text>, outputs list<text>, status text, json_claz text, created_at text, PRIMARY KEY ((org_id), id));
 
 CREATE TABLE components (id text, name text, tosca_type text, inputs list<text>, outputs list<text>, envs list<text>, artifacts text, related_components list<text>, operations list<text>, repo text, status text, json_claz text, created_at text, PRIMARY KEY (id));
 
@@ -26,13 +26,15 @@ CREATE TABLE requests( id text, cat_id text, cattype text,  name text,  action t
 
 CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  options list<text>, plans map <text, text>,  PRIMARY KEY ((settings_name), flavor) );
 
-CREATE TABLE billedhistories (id text, account_id text, assembly_id text, bill_type text, billing_amount text, currency_type text, json_claz text, created_at text, PRIMARY KEY((account_id), id));
+CREATE TABLE billedhistories (id text, account_id text, assembly_id text, bill_type text, billing_amount text, currency_type text, json_claz text, created_at text, PRIMARY KEY((account_id, assembly_id), bill_type, created_at));
 
-CREATE TABLE balances (id text, account_id text, name text, credit text, json_claz text, created_at text, updated_at text, PRIMARY KEY((account_id), id));
+CREATE TABLE balances (id text, account_id text, credit text, json_claz text, created_at text, updated_at text, PRIMARY KEY((account_id)));
 
-CREATE TABLE sensors (id text,  accounts_id text, type text, payload list<text>, created_at text, PRIMARY KEY((accounts_id), type));
+CREATE TABLE sensors (id text,  account_id text, sensor_type text, assembly_id text, assembly_name text, assemblies_id text, node text, system text, status text, source text, message text, audit_period_beginning text, audit_period_ending text, audit_period_delta text, metrics list<text>, created_at text, PRIMARY KEY((account_id, assembly_id), sensor_type));
 
-CREATE TABLE events (event_type text,  account_id text, assembly_id text, data list<text>, created_at text, PRIMARY KEY((account_id), event_type, assembly_id, created_at));
+CREATE TABLE events (event_type text,  account_id text, assembly_id text, data list<text>, created_at text, PRIMARY KEY((account_id, assembly_id), event_type, assembly_id, created_at));
+
+CREATE TABLE addons (id text, provider_id text, account_id text, provider_name text, options list<text>, created_at text, PRIMARY KEY ((account_id), provider_name); 
 
 insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'Ubuntu', 'ubuntu.png', '1', 'http://ubuntu.com', 'Megam::MarketPlace' , [], [], {'14.04':'Ubuntu 14.04 LTS (Trusty) is delivers the best value scale-out performance available.'});
 
