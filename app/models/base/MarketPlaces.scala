@@ -117,7 +117,7 @@ sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] 
  */
 abstract class ConcreteMkp extends MarketPlaceT with ScyllaConnector {
 
-  override lazy val tableName = "marketplaces"  
+  override lazy val tableName = "marketplaces"
 
   def listRecords(): ValidationNel[Throwable, Seq[MarketPlaceSack]] = {
     val res = select.collect()
@@ -131,7 +131,7 @@ abstract class ConcreteMkp extends MarketPlaceT with ScyllaConnector {
 }
 
 object MarketPlaces extends ConcreteMkp {
-  
+
   def listAll(): ValidationNel[Throwable, Seq[MarketPlaceSack]] = {
     (listRecords() leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Marketplace items = nothing found.")
@@ -142,7 +142,7 @@ object MarketPlaces extends ConcreteMkp {
         Validation.failure[Throwable, Seq[MarketPlaceSack]](new ResourceItemNotFound("", "Marketplace items = nothing found.")).toValidationNel
     }
   }
-  
+
   def findByFlavor(mkpFlavor: Option[List[String]]): ValidationNel[Throwable, MarketPlaceResults] = {
     (mkpFlavor map {
       _.map { mkp_fla =>
@@ -165,5 +165,5 @@ object MarketPlaces extends ConcreteMkp {
       _.foldRight((MarketPlaceResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
   }
-  
+
 }

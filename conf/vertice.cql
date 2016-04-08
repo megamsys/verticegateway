@@ -107,3 +107,22 @@ insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 
 
 insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'ProcessMaker Open Source Edition',  'processmaker.png', '7', 'https://bitnami.com/stack/processmaker', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/BPM/bitnami-processmaker-3.0.1.7-0-linux-x64-installer.run"}'], {'3.0.1.7':'ProcessMaker is an open source Business Process Management (BPM) platform designed to automate workflows and improve business efficiency'});
+
+
+insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'DreamFactory',  'dreamfactory.png', '7', 'https://bitnami.com/stack/dreamfactory', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Mobile+Development/bitnami-dreamfactory-2.1.1-2-linux-x64-installer.run"}'], {'2.1.1':'DreamFactory is an open source REST API platform for mobile, web, and IoT applications.'});
+
+
+insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'Pimcore',  'pimcore.png', '7', 'https://bitnami.com/stack/pimcore', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/CMS/bitnami-pimcore-3.1.1-2-linux-x64-installer.run"}'], {'3.1.1':'Pimcore is a powerful multi-channel experience and engagement management (CEM/CXM) platform.'});
+
+insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'Ghost',  'ghost.png', '7', 'https://bitnami.com/stack/ghost', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-ghost-0.7.8-0-linux-x64-installer.run"}'], {'0.7.8':'Ghost is built on Node.js and is extremely easy to configure and customize.'});
+
+
+insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'Redmine',  'redmine.png', '7', 'https://bitnami.com/stack/redmine', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Bug+Tracking/bitnami-redmine-3.2.1-0-linux-x64-installer.run"}'], {'3.2.1':'Redmine is a very popular Rails-based open source bug tracker to help you manage issues and tasks for multiple projects.'});
+
+insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'Jenkins',  'jenkins.png', '7', 'https://bitnami.com/stack/jenkins', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Continuous+Integration/bitnami-jenkins-1.655-0-linux-x64-installer.run"}'], {'1.655':'It’s widely recognized as the most feature-rich CI available with easy configuration, continuous delivery and continuous integration support, easily test, build and stage your app, and more.'});
+
+insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'Discourse',  'discourse.png', '7', 'https://bitnami.com/stack/discourse', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Forum/bitnami-discourse-1.4.6-0-linux-x64-installer.run"}'], {'1.4.6':'Discourse is the next-next-generation community forum platform. Discourse has a thoroughly modern design and is written in JavaScript.'});
+
+
+insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'eXo Platform',  'exoplatform.png', '7', 'https://bitnami.com/stack/exo-platform-community', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Social+Networking/bitnami-exoplatform-4.3.0-1-linux-x64-installer.run"}'], {'4.3.0':'eXo Platform combines collaboration, calendering, content and document management and other productivity tools with social features to provide a complete enterprise intranet.'});
+

@@ -54,5 +54,5 @@ object Constants {
   val MEGAM_NORMAL_AUTHORITY = "normal"
 
   val DEFAULT_ORG_NAME = "megam.io" //THIS
-  val DEFAULT_DOMAIN_NAME = "megambox.com"
+
 }
