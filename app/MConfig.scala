@@ -25,4 +25,5 @@ object MConfig {
   val scylla_keyspace = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.keyspace").get
   val scylla_username = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.username").get
   val scylla_password = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.password").get
+  val domain = play.api.Play.application(play.api.Play.current).configuration.getString("domain").get
 }
