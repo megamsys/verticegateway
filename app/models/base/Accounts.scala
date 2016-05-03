@@ -168,7 +168,7 @@ object Accounts extends ConcreteAccounts {
 
   private def orgChecker(email: String, orgs: Seq[OrganizationsResult], acc: AccountResult): ValidationNel[Throwable, AccountResult] = {
     val org_json = "{\"name\":\"" + DEFAULT_ORG_NAME + "\"}"
-    val domain_json = "{\"name\":\"" + DEFAULT_DOMAIN_NAME + "\"}"
+    val domain_json = "{\"name\":\"" + app.MConfig.domain + "\"}"
     if (!orgs.isEmpty)
       return Validation.success[Throwable, AccountResult](acc).toValidationNel
     else {
@@ -229,7 +229,7 @@ object Accounts extends ConcreteAccounts {
     }
   }
 
-   
+
   def repassword(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     play.api.Logger.debug(("%-20s -->[%s]").format("Repassword Account", email))
     val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
@@ -245,7 +245,7 @@ object Accounts extends ConcreteAccounts {
       acc
     }
   }
-  
+
   def verifytoken(update_account: AccountResult, old_account: AccountResult): ValidationNel[Throwable, AccountResult] = {
     if (update_account.password_reset_key == old_account.password_reset_key) {
       Validation.success[Throwable, AccountResult](update_account).toValidationNel
