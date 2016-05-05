@@ -14,7 +14,15 @@ dist=`grep PRETTY_NAME /etc/*-release | awk -F '="' '{print $2}'`
 os=$(echo $dist | awk '{print $1;}')
 if [ "$os" == "Ubuntu" ]; then
   echo $os "verticegateway 1.0"
+  if [ "$1" = "configure" ]; then
+      if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then
+           dpkg-statoverride --update --add $MEGAM_USER root 755 /var/log/megam
+      fi
+  fi
+
+  initctl reload-configuration
 else if [ "$os" == "Debian" ]; then
+  echo $os "verticegateway 1.0"
 cat > /etc/systemd/system/verticegateway.service <<EOF
 ## Systemd script that starts vertice gateway
 [Unit]
@@ -29,16 +37,12 @@ ExecStart=/usr/share/megam/verticegateway/bin/verticegateway -Dlogger.file=/var/
 KillMode=mixed
 EOF
 rm /etc/init/verticegateway.conf
-
-else
-   echo "Unsupported Linux OS"
-fi
-fi
-
 if [ "$1" = "configure" ]; then
     if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then
          dpkg-statoverride --update --add $MEGAM_USER root 755 /var/log/megam
     fi
 fi
-
-initctl reload-configuration
+else
+   echo "Unsupported Linux OS"
+fi
+fi
