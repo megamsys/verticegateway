@@ -85,23 +85,3 @@ insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'Owncloud', 'owncloud.png', '6', 'https://owncloud.org/', 'Megam::MarketPlace' , ['{"key":"username", "value":"admin"}', '{"key":"password", "value":"admin"}'], ['{"key":"oneclick", "value":"true"}'], {'8.1':'Access your data from all your devices, on an open platform you can extend and modify.'});
 
 insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', ' VirtualOffice',  'virtual_office.png', '6', 'www.megam.io', 'Megam::MarketPlace' , ['{"key":"host", "value":""}', '{"key":"port", "value":"806"}'], ['{"key":"oneclick", "value":"true"}'], {'0.9.0':'A virtual office provides bundled applications for everyday office use.'});
-
-insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'WordPress ',  'wordpress.png', '7', 'https://bitnami.com/stack/wordpress', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-wordpress-4.4.2-3-linux-x64-installer.run"}'], {'4.4.2':'WordPress is the web publishing platforms for building blogs and websites.'});
-
-
-insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'Moodle',  'moodle.png', '7', 'https://bitnami.com/stack/moodle', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/eLearning/bitnami-moodle-3.0.3-0-linux-x64-installer.run"}'], {'3.0.3':'Moodle is a very popular open source learning management solution (LMS) for the delivery of elearning courses and programs.'});
-
-
-insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', ' PrestaShop',  'prestashop.png', '7', 'https://bitnami.com/stack/prestashop', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/e-Commerce/bitnami-prestashop-1.6.1.4-0-linux-x64-installer.run"}'], {'1.6.1.4':'PrestaShop has perhaps the most unique and interesting out of the box experience of any ecommerce platform '});\
-
-
-insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'GitLab',  'gitlab.png', '7', 'https://bitnami.com/stack/gitlab', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Version+Control/bitnami-gitlab-8.5.7-0-linux-x64-installer.run"}'], {'8.5.7':'The GitLab open source edition is a developer tool that allows users to collaborate on code, create new projects, manage repositories, and perform code reviews. '});
-
-
-insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'MediaWiki',  'mediawiki.png', '7', 'https://bitnami.com/stack/mediawiki', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Wiki/bitnami-mediawiki-1.26.2-1-linux-x64-installer.run"}'], {'1.26.2':'MediaWiki is the engine behind Wikipedia, the behemoth website with millions of articles written by millions of users and translated into dozens of languages.'});
-
-
-insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'Mautic',  'mautic.png', '7', 'https://bitnami.com/stack/mautic', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Marketing+Automation/bitnami-mautic-1.3.1-0-linux-x64-installer.run"}'], {'1.3.1':'Mautic is marketing automation software for everyone.Mautic is free and open source, and can be easily integrated with third-party applications through a REST API and web-hooks.'});
-
-
-insert into marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, plans) values ('vertice', 'BITNAMI', 'ProcessMaker Open Source Edition',  'processmaker.png', '7', 'https://bitnami.com/stack/processmaker', 'Megam::MarketPlace' , ['{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/BPM/bitnami-processmaker-3.0.1.7-0-linux-x64-installer.run"}'], {'3.0.1.7':'ProcessMaker is an open source Business Process Management (BPM) platform designed to automate workflows and improve business efficiency'});
