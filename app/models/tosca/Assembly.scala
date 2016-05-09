@@ -59,6 +59,7 @@ case class Operation(operation_type: String, description: String, properties: mo
 case class AssemblyResult(
     id: String,
     org_id: String,
+    account_id: String,
     name: String,
     components: models.tosca.ComponentLinks,
     tosca_type: String,
@@ -76,6 +77,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
+  object account_id extends StringColumn(this)
   object name extends StringColumn(this)
   object components extends ListColumn[AssemblySacks, AssemblyResult, String](this)
   object tosca_type extends StringColumn(this)
@@ -117,6 +119,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
     AssemblyResult(
       id(row),
       org_id(row),
+      account_id(row),
       name(row),
       components(row),
       tosca_type(row),
@@ -138,6 +141,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
   def insertNewRecord(ams: AssemblyResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, ams.id)
       .value(_.org_id, ams.org_id)
+      .value(_.account_id, ams.account_id)
       .value(_.name, ams.name)
       .value(_.components, ams.components)
       .value(_.tosca_type, ams.tosca_type)
@@ -247,7 +251,7 @@ object Assembly extends ConcreteAssembly {
       asm_collection <- (Assembly.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val asm = asm_collection.head
-      val json = AssemblyResult(rip.id, rip.org_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.json_claz, asm.get.created_at)
+     val json = AssemblyResult(rip.id, rip.org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.json_claz, asm.get.created_at)
       json.some
     }
   }
@@ -324,7 +328,8 @@ object AssemblysList extends ConcreteAssembly {
           }
         }
       }
-      val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, "Megam::Assembly", Time.now.toString)
+    val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, authBag.get.email, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, "Megam::Assembly", Time.now.toString)
+
       json.some
     }
   }
