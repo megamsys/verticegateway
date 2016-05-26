@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "verticegateway"
 
-version := "1.0"
+version := "1.5"
 
 scalaVersion := "2.11.8"
 

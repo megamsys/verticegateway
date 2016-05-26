@@ -13,7 +13,7 @@ cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/
 dist=`grep PRETTY_NAME /etc/*-release | awk -F '="' '{print $2}'`
 os=$(echo $dist | awk '{print $1;}')
 if [ "$os" == "Ubuntu" ]; then
-  echo $os "verticegateway 1.0"
+  echo $os "verticegateway 1.5"
 else if [ "$os" == "Debian" ]; then
 cat > /etc/systemd/system/verticegateway.service <<EOF
 ## Systemd script that starts vertice gateway
