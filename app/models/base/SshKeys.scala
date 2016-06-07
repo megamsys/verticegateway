@@ -42,10 +42,14 @@ import java.nio.charset.Charset
 //import com.twitter.util.{ Future, Await }
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import com.datastax.driver.core.{ ResultSet, Row }
+
 
 //import com.twitter.conversions.time._
 import org.joda.time.DateTime
-
+import scala.concurrent.{ Future => ScalaFuture }
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.iteratee.Iteratee
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
@@ -69,13 +73,11 @@ case class SshKeysResult(
   json_claz: String,
   created_at: String) {}
 
-
-
 sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
-  object name extends StringColumn(this)
+  object name extends StringColumn(this) with PrimaryKey[String]
   object privatekey extends StringColumn(this)
   object publickey extends StringColumn(this)
   object json_claz extends StringColumn(this)
@@ -119,8 +121,11 @@ abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
     val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
     (Await.result(resp, 5.seconds)).successNel
   }
+  def getRecord(id: String): ValidationNel[Throwable, Option[SshKeysResult]] = {
+    val res = select.allowFiltering().where(_.name eqs id).one()
+    Await.result(res, 5.seconds).successNel
+  }
 }
-
 
 object SshKeys extends ConcreteOrg {
 
@@ -156,4 +161,29 @@ object SshKeys extends ConcreteOrg {
         Validation.success[Throwable, Seq[SshKeysResult]](nm).toValidationNel
     }
  }
+ def findByName(sshKeysNameList: Option[List[String]]): ValidationNel[Throwable, SshKeysResults] = {
+   (sshKeysNameList map {
+     _.map { sshKeysName =>
+       play.api.Logger.debug(("%-20s -->[%s]").format("sshKeysName", sshKeysName))
+       (getRecord(sshKeysName) leftMap { t: NonEmptyList[Throwable] =>
+         new ServiceUnavailableError(sshKeysName, (t.list.map(m => m.getMessage)).mkString("\n"))
+       }).toValidationNel.flatMap { xso: Option[SshKeysResult] =>
+         xso match {
+           case Some(xs) => {
+             play.api.Logger.debug(("%-20s -->[%s]").format("SshKeysResult", xs))
+             println("*******************")
+             print(xs)
+             Validation.success[Throwable, SshKeysResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
+           }
+           case None => {
+             Validation.failure[Throwable, SshKeysResults](new ResourceItemNotFound(sshKeysName, "")).toValidationNel
+           }
+         }
+       }
+     } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+   } map {
+     _.foldRight((SshKeysResults.empty).successNel[Throwable])(_ +++ _)
+   }).head //return the folded element in the head.
+ }
+
 }
