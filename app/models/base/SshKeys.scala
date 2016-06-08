@@ -173,8 +173,6 @@ object SshKeys extends ConcreteOrg {
          xso match {
            case Some(xs) => {
              play.api.Logger.debug(("%-20s -->[%s]").format("SshKeysResult", xs))
-             println("*******************")
-             print(xs)
              Validation.success[Throwable, SshKeysResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
            }
            case None => {
