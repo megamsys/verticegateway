@@ -41,6 +41,7 @@ class SshKeysSpec extends Specification {
       "The Client Should" ^
       "Correctly do POST requests" ! Post0.succeeds ^
       "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      "Correctly do GET  requests with an valid valid userid and api key" ! Get.succeeds ^
       "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
@@ -73,6 +74,17 @@ class SshKeysSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
   }
+  case object Get extends Context {
+      protected override def urlSuffix: String = "sshkeys/rr"
+
+      protected def headersOpt: Option[Map[String, String]] = None
+      private val get = GET(url)(httpClient)
+        .addHeaders(headers)
+      def succeeds = {
+        val resp = execute(get)
+        resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+      }
+    }
 
   case object PostInvalidUrl extends Context {
     protected override def urlSuffix: String = "sshkeys/content23"
