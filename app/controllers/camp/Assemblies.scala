@@ -40,10 +40,11 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.tosca.Assemblies.create(apiAccessed, clientAPIBody) match {
             case Success(wrapasm) =>
-              Status(CREATED)(FunnelResponse(CREATED, """Submitted successfully.
-            |
-            |
-            |Our engine is cranking up.""", "Megam::Assemblies").toJson(true))
+              Status(CREATED)(
+                FunnelResponse(CREATED, """{%s} submitted successfully.
+              |
+              |Check the status of the launch for the progress.""".format(wrapasm.id), "Megam::Assemblies").toJson(true)
+            )          
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
