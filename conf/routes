@@ -18,6 +18,7 @@ POST   /v2/accounts/repassword       	controllers.Accounts.repassword
 #SshKeys
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
+GET    /v2/sshkeys/:name            controllers.SshKeys.show(name: String)
 
 #MarketPlaces
 GET    /v2/marketplaces                  controllers.MarketPlaces.list
