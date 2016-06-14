@@ -78,4 +78,28 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+      (Validation.fromTryCatchThrowable[Result, Throwable] {
+        reqFunneled match {
+          case Success(succ) => {
+            val freq = succ.getOrElse(throw new Error("sshkeys wasn't funneled. Verify the header."))
+            val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+            models.base.SshKeys.findByName(List(id).some) match {
+              case Success(succ) =>
+                implicit val formats = DefaultFormats
+                Ok(Results.resultset(models.Constants.SSHKEYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+              case Failure(err) =>
+                val rn: FunnelResponse = new HttpReturningError(err)
+                Status(rn.code)(rn.toJson(true))
+            }
+          }
+          case Failure(err) => {
+            val rn: FunnelResponse = new HttpReturningError(err)
+            Status(rn.code)(rn.toJson(true))
+          }
+        }
+      }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+
+    }
+
 }
