@@ -19,6 +19,11 @@ POST   /v2/accounts/repassword       	controllers.Accounts.repassword
 POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
 GET    /v2/sshkeys/:name            controllers.SshKeys.show(name: String)
+
+#Events
+GET  /v2/events/:limit                     controllers.Events.list(limit: String)
+GET  /v2/events/show/:id                 controllers.Events.show(id: String)
+
 #MarketPlaces
 GET    /v2/marketplaces                  controllers.MarketPlaces.list
 GET    /v2/marketplaces/:flavor          controllers.MarketPlaces.show(flavor: String)
