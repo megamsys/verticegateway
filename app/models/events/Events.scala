@@ -51,39 +51,36 @@ import scala.concurrent.duration._
 import com.websudos.phantom.iteratee.Iteratee
 
 /**
- * @author rajthilak
+ * @author ranjitha
  *
  */
-case class EventsInput( account_id: String, assembly_id: String, event_type: String, data: KeyValueList, read_status: String) {
+case class EventsInput(account_id: String, assembly_id: String, event_type: String, data: KeyValueList, read_status: String) {
 }
-
-
-
 case class EventsResult(
 
-    account_id: String,
-    assembly_id: String,
-    event_type: String,
-    data: models.tosca.KeyValueList,
-    json_claz: String,
-    read_status: String,
-    created_at: String) {
+  account_id: String,
+  assembly_id: String,
+  event_type: String,
+  data: models.tosca.KeyValueList,
+  json_claz: String,
+  read_status: String,
+  created_at: String) {
 }
 
 object EventsResult {
-  def apply(account_id: String, assembly_id: String, event_type: String, data: models.tosca.KeyValueList,read_status: String) = new EventsResult( account_id, assembly_id, event_type, data, read_status, "Megam::Events", Time.now.toString)
+  def apply(account_id: String, assembly_id: String, event_type: String, data: models.tosca.KeyValueList, read_status: String) = new EventsResult(account_id, assembly_id, event_type, data, read_status, "Megam::Events", Time.now.toString)
 }
 
 sealed class EventsSacks extends CassandraTable[EventsSacks, EventsResult] {
 
   implicit val formats = DefaultFormats
 
-  object account_id extends StringColumn(this) with PrimaryKey[String]
+  object account_id extends StringColumn(this) with PartitionKey[String]
   object assembly_id extends StringColumn(this) with PrimaryKey[String]
-  object event_type extends StringColumn(this) //with PrimaryKey[String]
+  object event_type extends StringColumn(this) with PrimaryKey[String]
   object read_status extends StringColumn(this)
-  object created_at extends StringColumn(this) //with PrimaryKey[String]
- object data extends JsonListColumn[EventsSacks, EventsResult, KeyValueField](this) {
+  object created_at extends StringColumn(this) with PrimaryKey[String]
+  object data extends JsonListColumn[EventsSacks, EventsResult, KeyValueField](this) {
     override def fromJson(obj: String): KeyValueField = {
       JsonParser.parse(obj).extract[KeyValueField]
     }
@@ -124,7 +121,7 @@ abstract class ConcreteEvents extends EventsSacks with RootConnector {
       .future()
     Await.result(res, 5.seconds).successNel
   }
-val end = new DateTime()
+  val end = new DateTime()
   def listRecords(email: String, limit: String): ValidationNel[Throwable, Seq[EventsResult]] = {
     val res = select.where(_.account_id eqs email).limit(limit.toInt).fetch()
     Await.result(res, 5.seconds).successNel
@@ -136,8 +133,6 @@ val end = new DateTime()
 
 }
 
-
-
 object Events extends ConcreteEvents {
 
   /*
@@ -147,7 +142,7 @@ object Events extends ConcreteEvents {
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
   def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsResult]] = {
-    (listRecords(accountID,limit) leftMap { t: NonEmptyList[Throwable] =>
+    (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsResult] =>
       if (!nm.isEmpty)

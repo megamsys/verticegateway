@@ -26,7 +26,7 @@ import java.nio.charset.Charset
 import models.Constants._
 
 /**
- * @author ram
+ * @author ranjitha
  *
  */
 package object events {
