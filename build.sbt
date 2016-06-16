@@ -81,15 +81,14 @@ resolvers += "Bintray megamsys" at "https://dl.bintray.com/megamsys/scala/"
 resolvers += "Websudos" at "https://dl.bintray.com/websudos/oss-releases/"
 
 
-val phantomV = "1.16.0"
+val phantomV = "1.25.4"
 
 libraryDependencies ++= Seq(filters, cache,
-  "org.yaml" % "snakeyaml" % "1.16",
+  "org.yaml" % "snakeyaml" % "1.17",
   "io.megam" %% "libcommon" % "0.39",
   "io.megam" %% "newman" % "1.3.12",
-  "com.typesafe.akka" %% "akka-slf4j" % "2.4.1",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.4.7",
   "com.websudos"      %%  "phantom-dsl"               % phantomV,
-  "com.websudos"      %%  "phantom-testkit"           % phantomV,
   "com.websudos"      %%  "phantom-connectors"        % phantomV,
   "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",
   "org.specs2" % "specs2-matcher-extra_2.11" % "3.7-scalaz-7.1.6" % "test")
