@@ -75,6 +75,8 @@ object Constants {
   val DOMAINCOLLECTIONCLAZ            = "Megam::DomainsCollection"
   val DISCOUNTSCLAZ                   = "Megam::Discounts"
   val DISCOUNTSCOLLECTIONCLAZ         = "Megam::DiscountsCollection"
+  val EVENTSCLAZ                      = "Megam::Events"
+  val EVENTSCOLLECTIONCLAZ            = "Megam::EventsCollection"
   val ERRORCLAZ                       = "Megam::Error"
   val INVOICESCOLLECTIONCLAZ          = "Megam::InvoicesCollection"
   val INVOICESCLAZ                    = "Megam::Invoices"
