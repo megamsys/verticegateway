@@ -41,10 +41,10 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           models.tosca.Assemblies.create(apiAccessed, clientAPIBody) match {
             case Success(wrapasm) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """{%s} submitted successfully.
+                FunnelResponse(CREATED, """[%s] submitted successfully.
               |
-              |Check the status of the launch for the progress.""".format(wrapasm.id), "Megam::Assemblies").toJson(true)
-            )          
+              |Check the status of the launch for the progress.""".format(wrapasm.assemblies.mkString("|")), "Megam::Assemblies").toJson(true)
+            )
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
