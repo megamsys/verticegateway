@@ -35,12 +35,12 @@ class AccountsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
-      "Correctly do POST update requests with a valid userid and api_key" ! PostUpdate.succeeds ^
+     "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+    "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+    "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+    "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+    "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+    "Correctly do POST update requests with a valid userid and api_key" ! PostUpdate.succeeds ^
       end
 
   case object Post extends Context {
@@ -48,7 +48,7 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = "{\"first_name\":\"Darth\", \"last_name\":\"Vader\", \"phone\":\"19090909090\", \"email\":\"tee@test.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\" }"
+      val contentToEncode = "{\"first_name\":\"Darth\", \"last_name\":\"Vader\", \"phone\":\"19090909090\", \"email\":\"rr@test.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\" }"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -102,7 +102,7 @@ class AccountsSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.BadRequest)
     }
   }
-  
+
   case object Get extends Context {
     protected override def urlSuffix: String = "accounts/tee@test.com"
 

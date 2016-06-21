@@ -22,9 +22,15 @@ GET    /v2/sshkeys/:name            controllers.SshKeys.show(name: String)
 
 
 #Events
-GET  /v2/events/:limit                     controllers.Events.list(limit: String)
-GET  /v2/events/show/:id                 controllers.Events.show(id: String)
+GET  /v2/eventsvm/:limit                     controllers.EventsVm.list(limit: String)
+POST /v2/eventsvm/show/:limit                 controllers.EventsVm.show(limit: String)
+GET  /v2/eventsvm                    controllers.EventsVm.display
 
+
+#Snapshots
+POST  /v2/snapshots/content              controllers.Snapshots.post
+GET   /v2/snapshots                      controllers.Snapshots.list
+GET   /v2/snapshots/:id                  controllers.Snapshots.show(id: String)
 
 #MarketPlaces
 GET    /v2/marketplaces                  controllers.MarketPlaces.list
