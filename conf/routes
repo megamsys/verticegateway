@@ -24,7 +24,7 @@ GET    /v2/sshkeys/:name            controllers.SshKeys.show(name: String)
 #Events
 GET  /v2/eventsvm/:limit                     controllers.EventsVm.list(limit: String)
 POST /v2/eventsvm/show/:limit                 controllers.EventsVm.show(limit: String)
-GET  /v2/eventsvm                    controllers.EventsVm.display
+GET  /v2/eventsvm                    controllers.EventsVm.index
 
 
 #Snapshots

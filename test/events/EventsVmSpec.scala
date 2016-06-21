@@ -44,7 +44,7 @@ class EventsVmSpec extends Specification {
       "The Client Should" ^
      "Correctly do POST  requests with an valid valid Assembly ID" ! Get.succeeds ^
      "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
-    "Correctly do DISPLAY requests with a valid Accounts ID" ! Display.succeeds ^
+    "Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
       end
 
   case object List extends Context {
@@ -60,7 +60,7 @@ class EventsVmSpec extends Specification {
     }
   }
 
-  case object Display extends Context {
+  case object Index extends Context {
     protected override def urlSuffix: String ="eventsvm"
 
     protected def headersOpt: Option[Map[String, String]] = None

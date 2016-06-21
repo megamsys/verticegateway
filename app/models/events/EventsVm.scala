@@ -134,7 +134,7 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
     }
 
 
-  def displayRecords(email: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def indexRecords(email: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
     val res = select.where(_.account_id eqs email).fetch()
     Await.result(res, 5.seconds).successNel
 
@@ -184,8 +184,8 @@ private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwabl
     }
 
   }
-  def DisplayEmail(accountID: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
-    (displayRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
+  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+    (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsVmResult] =>
       if (!nm.isEmpty)

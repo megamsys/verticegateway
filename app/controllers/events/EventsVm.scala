@@ -72,14 +72,14 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  def display = StackAction(parse.tolerantText) { implicit request =>
+  def index = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           implicit val formats = DefaultFormats
           val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.events.EventsVm.DisplayEmail(email) match {
+          models.events.EventsVm.IndexEmail(email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
