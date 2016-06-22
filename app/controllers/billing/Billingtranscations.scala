@@ -32,7 +32,6 @@ import net.liftweb.json.JsonParser._
  *
  */
 
-
 object Billingtranscations extends Controller with controllers.stack.APIAuthElement {
 implicit val formats = DefaultFormats
   /**
@@ -69,7 +68,7 @@ implicit val formats = DefaultFormats
    * GET: findbyEmail: List all the billing transcations per email
    * Email grabbed from header.   * Output: JSON (BillingtranscationsResult)
    */
-   
+
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
