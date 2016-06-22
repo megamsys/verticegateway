@@ -20,12 +20,10 @@ POST   /v2/sshkeys/content              controllers.SshKeys.post
 GET    /v2/sshkeys                      controllers.SshKeys.list
 GET    /v2/sshkeys/:name            controllers.SshKeys.show(name: String)
 
-
 #Events
 GET  /v2/eventsvm/:limit                     controllers.EventsVm.list(limit: String)
 POST /v2/eventsvm/show/:limit                 controllers.EventsVm.show(limit: String)
 GET  /v2/eventsvm                    controllers.EventsVm.index
-
 
 #Snapshots
 POST  /v2/snapshots/content              controllers.Snapshots.post
@@ -65,6 +63,9 @@ GET	     /v2/balances/:id               controllers.billing.Balances.show(id: St
 
 POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
 GET    /v2/billedhistories              controllers.billing.Billedhistories.list
+
+POST   /v2/billingtranscations/content	    controllers.billing.Billingtranscations.post
+GET    /v2/billingtranscations              controllers.billing.Billingtranscations.list
 
 #POST   /v2/invoices/content             controllers.billing.Invoices.post
 #GET    /v2/invoices                     controllers.billing.Invoices.list
