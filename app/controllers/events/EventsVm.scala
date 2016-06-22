@@ -81,6 +81,7 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.events.EventsVm.IndexEmail(email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSVMCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

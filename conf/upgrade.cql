@@ -1,3 +1,4 @@
+
 use vertice;
 Drop table events;
 create table snapshots (snap_id text, asm_id text, org_id text, account_id text, name text, json_claz text, created_at text, PRIMARY KEY ((snap_id),account_id, asm_id));
