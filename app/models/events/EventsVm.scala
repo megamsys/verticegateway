@@ -70,7 +70,8 @@ case class EventsVmResult(
 }
 
 object EventsVmResult {
-  def apply(account_id: String, created_at: String, assembly_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsVmResult(account_id, created_at, assembly_id, event_type, data,  "Megam::Events" )
+
+  def apply(account_id: String, created_at: String, assembly_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsVmResult(account_id, created_at, assembly_id, event_type, data,  "Megam::EventsVm" )
 }
 
 sealed class EventsVmSacks extends CassandraTable[EventsVmSacks, EventsVmResult] {
