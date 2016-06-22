@@ -36,7 +36,7 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.events.EventsVm.findById(email, clientAPIBody, limit) match {
-            case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+            case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSVMCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -58,7 +58,7 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.events.EventsVm.findByEmail(email, limit) match {
-            case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+            case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSVMCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -80,7 +80,7 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.events.EventsVm.IndexEmail(email) match {
-            case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+            case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSVMCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
