@@ -60,6 +60,9 @@ GET	     /v2/balances/:id               controllers.billing.Balances.show(id: St
 POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
 GET    /v2/billedhistories              controllers.billing.Billedhistories.list
 
+POST   /v2/billingtranscations/content	    controllers.billing.Billingtranscations.post
+GET    /v2/billingtranscations              controllers.billing.Billingtranscations.list
+
 #POST   /v2/invoices/content             controllers.billing.Invoices.post
 #GET    /v2/invoices                     controllers.billing.Invoices.list
 #GET	   /v2/invoices/:id                 controllers.billing.Invoices.show(id: String)

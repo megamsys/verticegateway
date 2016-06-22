@@ -63,6 +63,8 @@ object Constants {
   val BALANCESCOLLECTIONCLAZ          = "Megam::BalancesCollection"
   val BILLEDHISTORIESCLAZ             = "Megam::Billedhistories"
   val BILLEDHISTORIESCOLLECTIONCLAZ   = "Megam::BilledhistoriesCollection"
+  val BILLINGTRANSCATIONSCLAZ             = "Megam::Billingtranscations"
+  val BILLINGTRANSCATIONSCOLLECTIONCLAZ   = "Megam::BillingtranscationsCollection"
   val BILLINGSCLAZ                    = "Megam::Billings"
   val BILLINGSCOLLECTIONCLAZ          = "Megam::BillingsCollection"
   val COMPONENTSCLAZ                  = "Megam::Components"

@@ -143,7 +143,7 @@ trait BaseContext {
 
       val signedWithHMAC = calculateHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
       val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
-      
+
       play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
 
       (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
