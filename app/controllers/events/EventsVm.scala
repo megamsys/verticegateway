@@ -26,15 +26,16 @@ import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 import controllers.stack.Results
 
-object Events extends Controller with controllers.stack.APIAuthElement {
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+object EventsVm extends Controller with controllers.stack.APIAuthElement {
+  def show(limit: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           implicit val formats = DefaultFormats
           val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.events.Events.findById(id) match {
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          models.events.EventsVm.findById(email, clientAPIBody, limit) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -56,7 +57,7 @@ object Events extends Controller with controllers.stack.APIAuthElement {
           implicit val formats = DefaultFormats
           val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.events.Events.findByEmail(email, limit) match {
+          models.events.EventsVm.findByEmail(email, limit) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -71,4 +72,25 @@ object Events extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+  def index = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          implicit val formats = DefaultFormats
+          val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.events.EventsVm.IndexEmail(email) match {
+            case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
 }

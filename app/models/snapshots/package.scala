@@ -29,14 +29,14 @@ import models.Constants._
  * @author ranjitha
  *
  */
-package object events {
+package object snapshots {
 
-  type EventsVmResults = List[Option[EventsVmResult]]
+  type SnapshotsResults = List[Option[SnapshotsResult]]
 
-  object EventsVmResults {
-    val emptyNR = List(Option.empty[EventsVmResult])
-    def apply(m: Option[EventsVmResult]) = List(m)
-    def apply(m: EventsVmResult): EventsVmResults = EventsVmResults(m.some)
-    def empty: EventsVmResults = List() //nel(emptyNR.head, emptyNR.tail)
+  object SnapshotsResults {
+    val emptyNR = List(Option.empty[SnapshotsResult])
+    def apply(m: Option[SnapshotsResult]) = List(m)
+    def apply(m: SnapshotsResult): SnapshotsResults = SnapshotsResults(m.some)
+    def empty: SnapshotsResults = List() //nel(emptyNR.head, emptyNR.tail)
   }
 }
