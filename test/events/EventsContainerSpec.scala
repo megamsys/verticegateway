@@ -1,4 +1,4 @@
-/*
+  /*
 ** Copyright [2013-2016] [Megam Systems]
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,20 +35,20 @@ import models.tosca.Assemblies
 import test.{ Context }
 import test._
 
-class EventsVmSpec extends Specification {
+class EventsContainerSpec extends Specification {
 
   def is =
-    "EventsVmSpec".title ^ end ^ """
-  EventsVmSpec is the implementation that calls the megam_play API server with the /events url
+    "EventsContainerSpec".title ^ end ^ """
+  EventsContainerSpec is the implementation that calls the megam_play API server with the /events url
   """ ^ end ^
       "The Client Should" ^
-     "Correctly do POST  requests with an valid valid Assembly ID" ! Get.succeeds ^
-//     "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
-//    "Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
+      "Correctly do POST  requests with a valid Assembly ID" ! Get.succeeds ^
+      "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+      "Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
       end
 
   case object List extends Context {
-    protected override def urlSuffix: String ="eventsvm/0"
+    protected override def urlSuffix: String ="eventscontainer/0"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -61,7 +61,7 @@ class EventsVmSpec extends Specification {
   }
 
   case object Index extends Context {
-    protected override def urlSuffix: String ="eventsvm"
+    protected override def urlSuffix: String ="eventscontainer"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -74,7 +74,7 @@ class EventsVmSpec extends Specification {
   }
 
   case object Get extends Context {
-      protected override def urlSuffix: String ="eventsvm/show/0"
+      protected override def urlSuffix: String ="eventscontainer/show/0"
 
       protected override def bodyToStick: Option[String] = {
         val contentToEncode = "{\"account_id\":\"\",\"created_at\":\"2016-05-05 10:57:30 +0000\",\"assembly_id\":\"ASM9038606864211614815\",\"event_type\":\"\",\"data\":[]}"
@@ -90,8 +90,5 @@ class EventsVmSpec extends Specification {
           val resp = execute(get)
           resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
         }
-
     }
-
-
 }
