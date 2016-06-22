@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package test.events
+package test.snapshots
 import scalaz._
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
@@ -35,20 +35,49 @@ import models.tosca.Assemblies
 import test.{ Context }
 import test._
 
-class EventsSpec extends Specification {
+class SnapshotsSpec extends Specification {
 
   def is =
-    "EventsSpec".title ^ end ^ """
-  EventsSpec is the implementation that calls the megam_play API server with the /events url
+    "SnapshotsSpec".title ^ end ^ """
+  SnapshotsSpec is the implementation that calls the megam_play API server with the /snapshots url
   """ ^ end ^
       "The Client Should" ^
+      "Correctly do POST snapshots with a valid userid and api key" ! Post.succeeds ^
     "Correctly do GET  requests with an valid valid Assembly ID" ! Get.succeeds ^
-     "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
-      end
+    "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+  end
+
+  case object Post extends Context {
+
+    protected override def urlSuffix: String = "snapshots/content"
+
+    protected override def bodyToStick: Option[String] = {
+    val contentToEncode = "{" +
+      "\"asm_id\": \"ASM5355764237644862351\"," +
+      "\"org_id\":\"ORG787966332632133744\"," +
+      "\"account_id\": \"\"," +
+      "\"name\":\"ttt.megambox.com\"," +
+      "}"
+      Some(contentToEncode)
+    }
+
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      print(resp)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+
+  }
 
 
   case object List extends Context {
-    protected override def urlSuffix: String ="events/10"
+    protected override def urlSuffix: String ="snapshots"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -61,7 +90,7 @@ class EventsSpec extends Specification {
   }
 
   case object Get extends Context {
-      protected override def urlSuffix: String ="events/show/ASM9038606864211614815"
+      protected override def urlSuffix: String ="snapshots/ASM5355764237644862351"
 
       protected def headersOpt: Option[Map[String, String]] = None
       private val get = GET(url)(httpClient)
