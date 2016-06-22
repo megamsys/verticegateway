@@ -43,8 +43,8 @@ class EventsVmSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
      "Correctly do POST  requests with an valid valid Assembly ID" ! Get.succeeds ^
-//     "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
-//    "Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
+     "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+     "Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
       end
 
   case object List extends Context {
