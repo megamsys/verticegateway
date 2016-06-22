@@ -69,6 +69,7 @@ implicit val formats = DefaultFormats
    * GET: findbyEmail: List all the billing transcations per email
    * Email grabbed from header.   * Output: JSON (BillingtranscationsResult)
    */
+   
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
