@@ -50,40 +50,35 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import com.websudos.phantom.iteratee.Iteratee
 
-
-
 /**
- * @author ranjitha
+ * @author rajesh
  *
  */
-case class EventsVmInput(account_id: String, created_at: String, assembly_id: String, event_type: String, data: KeyValueList) {
-}
-case class EventsVmResult(
 
+case class EventsStorageInput(account_id: String, created_at: String, event_type: String, data: KeyValueList) {
+}
+case class EventsStorageResult(
   account_id: String,
   created_at: String,
-  assembly_id: String,
   event_type: String,
   data: models.tosca.KeyValueList,
   json_claz: String
 ) {
 }
 
-object EventsVmResult {
-
-  def apply(account_id: String, created_at: String, assembly_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsVmResult(account_id, created_at, assembly_id, event_type, data,  "Megam::EventsVm" )
+object EventsStorageResult {
+  def apply(account_id: String, created_at: String, event_type: String, data: models.tosca.KeyValueList) = new EventsStorageResult(account_id, created_at, event_type, data, "Megam::EventsStorage")
 }
 
-sealed class EventsVmSacks extends CassandraTable[EventsVmSacks, EventsVmResult] {
+sealed class EventsStorageSacks extends CassandraTable[EventsStorageSacks, EventsStorageResult] {
 
   implicit val formats = DefaultFormats
 
   object account_id extends StringColumn(this) with PartitionKey[String]
   object created_at extends StringColumn(this) with PrimaryKey[String]
-  object assembly_id extends StringColumn(this) with PrimaryKey[String]
   object event_type extends StringColumn(this) with PrimaryKey[String]
 
-  object data extends JsonListColumn[EventsVmSacks, EventsVmResult, KeyValueField](this) {
+  object data extends JsonListColumn[EventsStorageSacks, EventsStorageResult, KeyValueField](this) {
     override def fromJson(obj: String): KeyValueField = {
       JsonParser.parse(obj).extract[KeyValueField]
     }
@@ -95,27 +90,25 @@ sealed class EventsVmSacks extends CassandraTable[EventsVmSacks, EventsVmResult]
 
   object json_claz extends StringColumn(this)
 
-  def fromRow(row: Row): EventsVmResult = {
-    EventsVmResult(
+  def fromRow(row: Row): EventsStorageResult = {
+    EventsStorageResult(
       account_id(row),
       created_at(row),
-      assembly_id(row),
       event_type(row),
       data(row),
       json_claz(row))
   }
 }
 
-abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
+abstract class ConcreteEventsStorage extends EventsStorageSacks with RootConnector {
   // you can even rename the table in the schema to whatever you like.
-  override lazy val tableName = "events_for_vms"
+  override lazy val tableName = "events_for_storages"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
-  def insertNewRecord(evt: EventsVmResult): ValidationNel[Throwable, ResultSet] = {
+  def insertNewRecord(evt: EventsStorageResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.account_id, evt.account_id)
       .value(_.created_at, evt.created_at)
-      .value(_.assembly_id, evt.assembly_id)
       .value(_.event_type, evt.event_type)
       .value(_.data, evt.data)
       .value(_.json_claz, evt.json_claz)
@@ -123,7 +116,7 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def listRecords(email: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def listRecords(email: String, limit: String): ValidationNel[Throwable, Seq[EventsStorageResult]] = {
       var count = " "
      if (limit == "0") {
         count = "10"
@@ -135,35 +128,23 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
     }
 
 
-  def indexRecords(email: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def indexRecords(email: String): ValidationNel[Throwable, Seq[EventsStorageResult]] = {
     val res = select.where(_.account_id eqs email).fetch()
     Await.result(res, 5.seconds).successNel
-
   }
-  def getRecords(created_at: String,assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
-    var count = ""
-     if (limit == "0") {
-     count = "10"
-     } else {
-     count = limit
-     }
-    val res = select.allowFiltering().where(_.created_at eqs created_at).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
-    Await.result(res, 5.seconds).successNel
-     }
-
 }
 
-object EventsVm extends ConcreteEventsVm {
-private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwable, EventsVmResult] = {
-  val EventsVmInput: ValidationNel[Throwable, EventsVmInput] = (Validation.fromTryCatchThrowable[EventsVmInput, Throwable] {
-    parse(input).extract[EventsVmInput]
+object EventsStorage extends ConcreteEventsStorage {
+private def mkEventsStorageSack(email: String, input: String): ValidationNel[Throwable, EventsStorageResult] = {
+  val EventsStorageInput: ValidationNel[Throwable, EventsStorageInput] = (Validation.fromTryCatchThrowable[EventsStorageInput, Throwable] {
+    parse(input).extract[EventsStorageInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
   for {
-    eventsvm <- EventsVmInput
+    eventsstorage <- EventsStorageInput
     //uir <- (UID("sps").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
     val bvalue = Set(email)
-    val json = new EventsVmResult(email,eventsvm.created_at,eventsvm.assembly_id, eventsvm.event_type,eventsvm.data, "Megam::EventsVm" )
+    val json = new EventsStorageResult(email, eventsstorage.created_at, eventsstorage.event_type, eventsstorage.data, "Megam::EventsStorage")
     json
   }
 }
@@ -174,42 +155,24 @@ private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwabl
    * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
-  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsStorageResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[EventsVmResult] =>
+    }).toValidationNel.flatMap { nm: Seq[EventsStorageResult] =>
       if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsVmResult]](nm).toValidationNel
+        Validation.success[Throwable, Seq[EventsStorageResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[EventsVmResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[EventsStorageResult]](new ResourceItemNotFound(accountID, "EventsStorage = nothing found.")).toValidationNel
     }
-
   }
-  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsStorageResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[EventsVmResult] =>
+    }).toValidationNel.flatMap { nm: Seq[EventsStorageResult] =>
       if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsVmResult]](nm).toValidationNel
+        Validation.success[Throwable, Seq[EventsStorageResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[EventsVmResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[EventsStorageResult]](new ResourceItemNotFound(accountID, "EventsStorage = nothing found.")).toValidationNel
     }
-
   }
-
-  def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
-   (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] => err
-   }).flatMap {ws: EventsVmResult =>
-    (getRecords(ws.created_at,ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[EventsVmResult] =>
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsVmResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsVmResult]](new ResourceItemNotFound(ws.assembly_id, "EventsVm = nothing found.")).toValidationNel
-    }
-
-  }
-}
-
 }
