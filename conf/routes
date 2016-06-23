@@ -29,6 +29,13 @@ GET  /v2/eventscontainer/:limit         controllers.EventsContainer.list(limit: 
 POST /v2/eventscontainer/show/:limit    controllers.EventsContainer.show(limit: String)
 GET  /v2/eventscontainer                controllers.EventsContainer.index
 
+GET  /v2/eventsbilling/:limit         controllers.EventsBilling.list(limit: String)
+POST /v2/eventsbilling/show/:limit    controllers.EventsBilling.show(limit: String)
+GET  /v2/eventsbilling                controllers.EventsBilling.index
+
+GET  /v2/eventsstorage/:limit         controllers.EventsStorage.list(limit: String)
+GET  /v2/eventsstorage                controllers.EventsStorage.index
+
 #Snapshots
 POST  /v2/snapshots/content              controllers.Snapshots.post
 GET   /v2/snapshots                      controllers.Snapshots.list
