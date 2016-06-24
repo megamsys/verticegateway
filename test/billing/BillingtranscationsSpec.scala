@@ -36,8 +36,8 @@ BillingtranscationsSpec is the implementation that calls the megam_play API serv
       "The Client Should" ^
       "Correctly do POST requests with an valid datas " ! create.succeeds ^
       "Correctly do GET requests with an valid datas " ! List.succeeds ^
-//      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-//      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
 
   case object create extends Context {
