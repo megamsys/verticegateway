@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS events;
 
 DROP TABLE IF EXISTS billedhistories;
 
+DROP TABLE IF EXISTS addons;
+
 DROP TABLE IF EXISTS balances;
 
 DROP TABLE IF EXISTS sensors;
