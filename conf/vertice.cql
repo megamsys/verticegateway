@@ -1,7 +1,9 @@
 //cqlsh 103.56.92.24 -f $MEGAM_HOME/verticegateway/vertice.cql
 
+DROP KEYSPACE IF EXISTS vertice;
+
 CREATE KEYSPACE IF NOT EXISTS vertice
-  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
+  WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 , 'dc2' : 2 }
  AND DURABLE_WRITES = false;
 
 use vertice;
