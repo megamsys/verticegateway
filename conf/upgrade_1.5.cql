@@ -2,7 +2,21 @@ use vertice;
 
 DROP TABLE IF EXISTS events;
 
+DROP TABLE IF EXISTS billedhistories;
+
+DROP TABLE IF EXISTS addons;
+
+DROP TABLE IF EXISTS balances;
+
+DROP TABLE IF EXISTS sensors;
+
 DELETE FROM marketplaces WHERE settings_name IN ('vertice', 'bitnami');
+
+CREATE TABLE billedhistories (id text, account_id text, assembly_id text, bill_type text, billing_amount text, currency_type text, json_claz text, created_at text, PRIMARY KEY((account_id, assembly_id), bill_type, created_at));
+
+CREATE TABLE balances (id text, account_id text, credit text, json_claz text, created_at text, updated_at text, PRIMARY KEY((account_id)));
+
+CREATE TABLE sensors (id text,  account_id text, sensor_type text, assembly_id text, assembly_name text, assemblies_id text, node text, system text, status text, source text, message text, audit_period_beginning text, audit_period_ending text, audit_period_delta text, metrics list<text>, created_at text, PRIMARY KEY((account_id, assembly_id), sensor_type));
 
 CREATE TABLE snapshots (snap_id text, asm_id text, org_id text, account_id text, name text, json_claz text, created_at text, PRIMARY KEY ((snap_id),account_id, asm_id));
 
