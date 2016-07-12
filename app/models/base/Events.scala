@@ -71,11 +71,13 @@ class Events(evi: EventInput) {
       err
     }).flatMap { pq: Option[wash.PQd] =>
       if (!evi.email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL)) {
-        (new wash.AOneWasher(pq.get).wash leftMap { t: NonEmptyList[Throwable] => t }).
+        (new wash.AOneWasher(pq.get).wash).
           flatMap { maybeGS: AMQPResponse =>
             play.api.Logger.debug(("%-20s -->[%s]").format("Event.published successfully", evi.email))
             pq.successNel[Throwable]
           }
+          play.api.Logger.debug(("%-20s").format("Event.not wahsed"))
+          pq.successNel[Throwable]
       } else {
         play.api.Logger.debug(("%-20s -->[%s]").format("Event.publish skipped", evi.email))
         wash.PQd.empty.some.successNel[Throwable]
