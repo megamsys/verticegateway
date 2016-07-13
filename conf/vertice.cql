@@ -1,10 +1,16 @@
-//cqlsh 103.56.92.24 -f $MEGAM_HOME/verticegateway/vertice.cql
+-- Base schema
+-- Beware: This drops your keyspace and creates a new one.
 
 DROP KEYSPACE IF EXISTS vertice;
 
 CREATE KEYSPACE IF NOT EXISTS vertice
-  WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 , 'dc2' : 2 }
+  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
  AND DURABLE_WRITES = false;
+
+-- Contact us or our partner for replicated setup
+-- CREATE KEYSPACE IF NOT EXISTS vertice
+-- WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 , 'dc2' : 2 }
+-- AND DURABLE_WRITES = false;
 
 use vertice;
 
@@ -29,5 +35,3 @@ CREATE TABLE requests( id text, cat_id text, cattype text,  name text,  action t
 CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  options list<text>, plans map <text, text>,  PRIMARY KEY ((settings_name), flavor) );
 
 CREATE TABLE events (event_type text,  account_id text, assembly_id text, data list<text>, created_at text, PRIMARY KEY((account_id), assembly_id, event_type,  created_at));
-
-CREATE TABLE addons (id text, provider_id text, account_id text, provider_name text, options list<text>, created_at text, PRIMARY KEY ((account_id), provider_name);
