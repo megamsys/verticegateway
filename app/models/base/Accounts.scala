@@ -29,6 +29,7 @@ import io.megam.auth.funnel.FunnelErrors._
 import controllers.Constants._
 
 import io.megam.auth.stack.AccountResult
+import io.megam.auth.stack.{ Name, Phone, Password, States, Approval, Dates, Suspend }
 import io.megam.common.uid.UID
 import io.megam.util.Time
 import net.liftweb.json._
@@ -53,45 +54,113 @@ import models.base.Events._
  *
  */
 
-case class AccountInput(first_name: String, last_name: String, phone: String, email: String, api_key: String, password: String, authority: String, password_reset_key: String, password_reset_sent_at: String) {
-  val json = "{\"first_name\":\"" + first_name + "\",\"last_name\":\"" + last_name + "\",\"phone\":\"" + phone + "\",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":\"" + password + "\",\"authority\":\"" + authority + "\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\"}"
+case class AccountInput(name: Name, phone: Phone, email: String, api_key: String, password: Password, states: States, approval: Approval, suspend: Suspend, registration_ip_address: String,  dates: Dates) {
+play.api.Logger.debug(("%-20s -->[%s]").format("++++++++++++", name))
+  val json = "{\"name\":" +name.json+",\"phone\":" + phone.json + ",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":" + password.json + ",\"states\":" + states.json + ",\"approval\":" + approval.json + ",\"suspend\":" + suspend.json + ",\"registration_ip_address\":\"" + registration_ip_address + "\",\"dates\":" + dates.json + "}"
+  play.api.Logger.debug(("%-20s -->[%s]").format("+++++json", json))
 }
 
 case class AccountResetSack(password_reset_key: String, password_reset_sent_at: String) {
-  val json = "{\"id\":\"\",\"first_name\":\"\",\"last_name\":\"\",\"phone\":\"\",\"email\":\"\",\"api_key\":\"\",\"password\":\"\",\"authority\":\"\",\"password_reset_key\":\"" + password_reset_key + "\",\"password_reset_sent_at\":\"" + password_reset_sent_at + "\",\"created_at\":\"\"}"
+  val pass = Password(password_reset_key, password_reset_sent_at)
+  val json = "{\"id\":\"\",\"name\":\"\",\"phone\":\"\",\"email\":\"\",\"api_key\":\"\",\"password\":\"" + pass + "\",\"states\":\"\",\"approval\":\"\",\"suspend\":\"\",,\"registration_ip_address\":\"\",\"dates\":\"\"}"
 }
 
 sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   //object id extends  UUIDColumn(this) with PartitionKey[UUID] {
   //  override lazy val name = "id"
   //}
+  implicit val formats = DefaultFormats
   object id extends StringColumn(this)
-  object first_name extends StringColumn(this)
-  object last_name extends StringColumn(this)
-  object phone extends StringColumn(this)
+
+  object name extends JsonColumn[AccountSacks, AccountResult, Name](this) {
+    override def fromJson(obj: String): Name = {
+      JsonParser.parse(obj).
+      extract[Name]
+    }
+
+    override def toJson(obj: Name): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
+  object phone extends JsonColumn[AccountSacks, AccountResult, Phone](this) {
+    override def fromJson(obj: String): Phone = {
+      JsonParser.parse(obj).extract[Phone]
+    }
+
+    override def toJson(obj: Phone): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
   object email extends StringColumn(this) with PrimaryKey[String]
+
   object api_key extends StringColumn(this)
-  object password extends StringColumn(this)
-  object authority extends StringColumn(this)
-  object password_reset_key extends StringColumn(this)
-  object password_reset_sent_at extends StringColumn(this)
-  //object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+
+  object password extends JsonColumn[AccountSacks, AccountResult, Password](this) {
+    override def fromJson(obj: String): Password = {
+      JsonParser.parse(obj).extract[Password]
+    }
+
+    override def toJson(obj: Password): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
+  object states extends JsonColumn[AccountSacks, AccountResult, States](this) {
+    override def fromJson(obj: String): States = {
+      JsonParser.parse(obj).extract[States]
+    }
+
+    override def toJson(obj: States): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
+  object approval extends JsonColumn[AccountSacks, AccountResult, Approval](this) {
+    override def fromJson(obj: String): Approval = {
+      JsonParser.parse(obj).extract[Approval]
+    }
+
+    override def toJson(obj: Approval): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
+  object suspend extends JsonColumn[AccountSacks, AccountResult, Suspend](this) {
+    override def fromJson(obj: String): Suspend = {
+      JsonParser.parse(obj).extract[Suspend]
+    }
+
+    override def toJson(obj: Suspend): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
+  object registration_ip_address extends StringColumn(this)
+  object dates extends JsonColumn[AccountSacks, AccountResult, Dates](this) {
+    override def fromJson(obj: String): Dates = {
+      JsonParser.parse(obj).extract[Dates]
+    }
+
+    override def toJson(obj: Dates): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
 
   def fromRow(row: Row): AccountResult = {
     AccountResult(
       id(row),
-      first_name(row),
-      last_name(row),
+      name(row),
       phone(row),
       email(row),
       api_key(row),
       password(row),
-      authority(row),
-      password_reset_key(row),
-      password_reset_sent_at(row),
-      // json_claz(row),
-      created_at(row))
+      states(row),
+      approval(row),
+      suspend(row),
+      registration_ip_address(row),
+      dates(row))
   }
 }
 
@@ -103,17 +172,23 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
 
   def insertNewRecord(account: AccountResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, account.id)
-      .value(_.first_name, NilorNot(account.first_name, ""))
-      .value(_.last_name, NilorNot(account.last_name, ""))
-      .value(_.phone, NilorNot(account.phone, ""))
+      .value(_.name, account.name)
+     .value(_.phone, account.phone)
+
+     //.value(_.phone, NilorNot(account.phone.phone, ""))
       .value(_.email, NilorNot(account.email, ""))
       .value(_.api_key, NilorNot(account.api_key, ""))
-      .value(_.password, NilorNot(account.password, ""))
-      .value(_.authority, NilorNot(account.authority, ""))
-      .value(_.password_reset_key, NilorNot(account.password_reset_key, ""))
-      .value(_.password_reset_sent_at, NilorNot(account.password_reset_sent_at, ""))
+      .value(_.password, account.password)
+      .value(_.states, account.states)
+      .value(_.approval, account.approval)
+      .value(_.suspend, account.suspend)
+    //.value(_.password, NilorNot(account.password, ""))
+    //  .value(_.states, NilorNot(account.states, ""))
+    //  .value(_.approval, NilorNot(account.approval, ""))
+      //.value(_.suspend, NilorNot(account.suspend, ""))
+      .value(_.registration_ip_address, NilorNot(account.registration_ip_address, ""))
       // .value(_.json_claz, account.json_claz)
-      .value(_.created_at, account.created_at)
+      .value(_.dates, account.dates)
       .future()
     Await.result(res, 5.seconds).successNel
   }
@@ -127,16 +202,46 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
 
     val res = update.where(_.email eqs NilorNot(email, aor.get.email))
       .modify(_.id setTo NilorNot(rip.id, aor.get.id))
-      .and(_.first_name setTo NilorNot(rip.first_name, aor.get.first_name))
-      .and(_.last_name setTo NilorNot(rip.last_name, aor.get.last_name))
-      .and(_.phone setTo NilorNot(rip.phone, aor.get.phone))
+      .and(_.name setTo new Name(NilorNot(rip.name.first_name, aor.get.name.first_name),
+         NilorNot(rip.name.last_name, aor.get.name.last_name)))
+
+      //.and(_.name setTo NilorNot(rip.name, aor.get.name))
+
+       .and(_.phone setTo new Phone(NilorNot(rip.phone.phone, aor.get.phone.phone),
+       NilorNotBoolean(rip.phone.phone_verified, aor.get.phone.phone_verified)))
+
+      //.and(_.phone setTo NilorNot(rip.phone, aor.get.phone))
       .and(_.api_key setTo NilorNot(rip.api_key, aor.get.api_key))
-      .and(_.password setTo NilorNot(rip.password, aor.get.password))
-      .and(_.authority setTo NilorNot(rip.authority, aor.get.authority))
-      .and(_.password_reset_key setTo NilorNot(rip.password_reset_key, aor.get.password_reset_key))
-      .and(_.password_reset_sent_at setTo NilorNot(rip.password_reset_sent_at, aor.get.password_reset_sent_at))
+
+      .and(_.password setTo new Password(NilorNot(rip.password.password, aor.get.password.password),
+        NilorNot(rip.password.password_reset_key, aor.get.password.password_reset_key),
+        NilorNot(rip.password.password_reset_sent_at, aor.get.password.password_reset_sent_at)))
+      //.and(_.password setTo NilorNot(rip.password, aor.get.password))
+
+       //.and(_.states setTo NilorNot(rip.states, aor.get.states))
+       .and(_.states setTo new States(NilorNot(rip.states.authority, aor.get.states.authority),
+         NilorNotBoolean(rip.states.active, aor.get.states.active),
+         NilorNotBoolean(rip.states.blocked, aor.get.states.blocked),
+         NilorNot(rip.states.staged, aor.get.states.staged)))
+
+    //  .and(_.approval setTo NilorNot(rip.approval, aor.get.approval))
+    .and(_.approval setTo new Approval(NilorNotBoolean(rip.approval.approved, aor.get.approval.approved),
+      NilorNot(rip.approval.approved_by_id, aor.get.approval.approved_by_id),
+      NilorNot(rip.approval.approved_at, aor.get.approval.approved_at)))
+
+      //.and(_.suspend setTo NilorNot(rip.suspend, aor.get.suspend))
+      .and(_.suspend setTo new Suspend(NilorNotBoolean(rip.suspend.suspended, aor.get.suspend.suspended),
+        NilorNot(rip.suspend.suspended_at, aor.get.suspend.suspended_at),
+        NilorNotBoolean(rip.suspend.suspended_till, aor.get.suspend.suspended_till)))
+
+      .and(_.registration_ip_address setTo NilorNot(rip.registration_ip_address, aor.get.registration_ip_address))
       // .and(_.json_claz setTo NilorNot(rip.json_claz, aor.get.json_claz))
-      .and(_.created_at setTo NilorNot(rip.created_at, aor.get.created_at))
+      //.and(_.dates setTo NilorNot(rip.dates, aor.get.dates))
+      .and(_.dates setTo new Dates(NilorNot(rip.dates.last_posted_at, aor.get.dates.last_posted_at),
+        NilorNot(rip.dates.last_emailed_at, aor.get.dates.last_emailed_at),
+        NilorNot(rip.dates.previous_visit_at, aor.get.dates.previous_visit_at),
+          NilorNot(rip.dates.first_seen_at, aor.get.dates.first_seen_at),
+            NilorNot(rip.dates.created_at, aor.get.dates.created_at)))
       .future()
     Await.result(res, 5.seconds).successNel
   }
@@ -147,12 +252,16 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       case false => return rip
     }
   }
-
+  def NilorNotBoolean(rip: Boolean, aor: Boolean): Boolean = {
+    rip == null || rip == " " match {
+      case true => return aor
+      case false => return rip
+    }
+  }
 }
-
 object Accounts extends ConcreteAccounts {
 
-  implicit val formats = DefaultFormats
+  //implicit val formats = DefaultFormats
 
   private def parseAccountInput(input: String): ValidationNel[Throwable, AccountInput] = {
     (Validation.fromTryCatchThrowable[AccountInput, Throwable] {
@@ -162,7 +271,8 @@ object Accounts extends ConcreteAccounts {
 
   private def generateAccountSet(id: String, m: AccountInput): ValidationNel[Throwable, AccountResult] = {
     (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
-      AccountResult(id, m.first_name, m.last_name, m.phone, m.email, m.api_key, m.password, m.authority, m.password_reset_key, m.password_reset_sent_at, Time.now.toString)
+    val dates = new Dates(m.dates.last_posted_at, m.dates.last_emailed_at, m.dates.previous_visit_at, m.dates.first_seen_at, Time.now.toString)
+      AccountResult(id, m.name,  m.phone, m.email, m.api_key, m.password, m.states, m.approval,  m.suspend,  m.registration_ip_address,  dates)
     } leftMap { t: Throwable => new MalformedBodyError(m.json, t.getMessage) }).toValidationNel
   }
 
@@ -247,7 +357,7 @@ object Accounts extends ConcreteAccounts {
   }
 
   def verifytoken(update_account: AccountResult, old_account: AccountResult): ValidationNel[Throwable, AccountResult] = {
-    if (update_account.password_reset_key == old_account.password_reset_key) {
+    if (update_account.password.password_reset_key == old_account.password.password_reset_key) {
       Validation.success[Throwable, AccountResult](update_account).toValidationNel
     } else {
       Validation.failure[Throwable, AccountResult](new MalformedBodyError(update_account.email, "")).toValidationNel

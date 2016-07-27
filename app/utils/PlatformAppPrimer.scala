@@ -26,6 +26,9 @@ import play.api.http.Status._
 import controllers.stack._
 import controllers.Constants._
 import io.megam.auth.funnel.FunnelErrors._
+import io.megam.auth.stack.AccountResult
+import io.megam.auth.stack.{ Name, Phone, Password, States, Approval, Dates, Suspend }
+import io.megam.util.Time
 import models.base._
 import play.api.Logger
 import models.base._
@@ -37,13 +40,28 @@ import models.team._
  */
 
 object PlatformAppPrimer {
+play.api.Logger.debug("****************************************")
 
+val name = new Name(MEGAM_FIRST_NAME, MEGAM_LAST_NAME)
+play.api.Logger.debug(("%-20s -->[%s]").format("$$$$$$$$$$$$$", name))
+val phone = new Phone(MEGAM_PHONE, MEGAM_PHONE_VERIFIED)
+val states = new States("demo", MEGAM_ACTIVE, MEGAM_BLOCKED, "")
+val password = new Password(SAMPLE_PASSWORD,MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT)
+val approval = new Approval(MEGAM_APPROVED, MEGAM_APPROVED_BY_ID, MEGAM_APPROVED_AT)
+val dates = new Dates(MEGAM_LAST_POSTED_AT, MEGAM_LAST_EMAILED_AT, MEGAM_PREVIOUS_VISIT_AT, MEGAM_FIRST_SEEN_AT, Time.now.toString)
+val suspend = new Suspend(MEGAM_SUSPENDED, MEGAM_SUSPENDED_AT, MEGAM_SUSPENDED_TILL)
+val testPassword = new Password(TEST_PASSWORD,MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT)
+val testName = new Name(MEGAM_TEST_FIRST_NAME, MEGAM_LAST_NAME)
+val testStates = new States("test", MEGAM_ACTIVE, MEGAM_BLOCKED, "")
    def takeatourAcct = models.base.Accounts.create(
-    AccountInput(MEGAM_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, DEMO_EMAIL, DEMO_APIKEY, SAMPLE_PASSWORD, "demo", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
 
+    AccountInput(name, phone, DEMO_EMAIL, DEMO_APIKEY, password, states, approval ,suspend, MEGAM_REGISTRATION_IP_ADDRESS, dates).json)
+
+ play.api.Logger.debug(("%-20s -->[%s]").format("%%%%%%%%%%%%%%", takeatourAcct))
     def taketestAcct = models.base.Accounts.create(
-      AccountInput(MEGAM_TEST_FIRST_NAME, MEGAM_LAST_NAME, MEGAM_PHONE, TEST_EMAIL, TEST_APIKEY, TEST_PASSWORD, "test", MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT).json)
-
+      AccountInput(testName, phone, TEST_EMAIL, TEST_APIKEY, testPassword, testStates, approval, suspend, MEGAM_REGISTRATION_IP_ADDRESS, dates).json)
+ play.api.Logger.debug(("%-20s -->[%s]").format("%%%%%%%%%%%%%%", testName))
+ play.api.Logger.debug(("%-20s -->[%s]").format("##########3", taketestAcct))
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     dumact <- takeatourAcct
     testacct <- taketestAcct
