@@ -1,5 +1,5 @@
 -- Latest copy availabe at https://athrava
--- Updated at: 
+-- Updated at:
 
 use vertice;
 
@@ -13,7 +13,11 @@ INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'CentOS', 'centos.png', '1', 'https://www.centos.org', 'Megam::MarketPlace' , [], [], {'7.1':'CentOS is an Enterprise-class Linux Distribution derived from sources freely provided to the public by Red Hat.'});
 
-INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'DockerEngine', 'dockerbox.png', '1', 'https://docs.docker.com/machine/overview/', 'Megam::MarketPlace' , ['{"key":"tcp-port", "value":"2376"}'], [], {'1.12.x': 'Install Docker Engine on virtual hosts, and manage the hosts with docker-machine'});
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'Fedora', 'fedora.png', '1', 'https://www.fedora.org/', 'Megam::MarketPlace' , [], [], {'23':'Fedora has a reputation for focusing on innovation, integrating new technologies early on and working closely with upstream Linux communities.'});
+
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'Windows', 'windows.png', '1', 'https://www.microsoft.com/', 'Megam::MarketPlace' , [], [], {'10':'Windows 10 as an operating system as a service that would receive ongoing updates to its features and functionality.'});
+
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'DockerEngine', 'dockermachine.png', '1', 'https://docs.docker.com/machine/overview/', 'Megam::MarketPlace' , ['{"key":"tcp-port", "value":"2376"}'], [], {'1.12.x': 'Install Docker Engine on virtual hosts, and manage the hosts with docker-machine'});
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'APP', 'Java', 'java.png', '2', 'http://www.oracle.com/technetwork/java/javaee/overview/index.html', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"8080"}', '{"key":"tomcat_username", "value":"megam"}', '{"key":"tomcat_password", "value":"megam"}'], [], {'8.x':'Quickly get started with J2EE Spring framework app.'});
 
