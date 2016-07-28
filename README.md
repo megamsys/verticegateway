@@ -52,7 +52,22 @@ You'll need `sbt` build tool. and `OpenJDK8.0`
 
 Type the url `http://localhost:9000`
 
+```json
+{
+  "status" : {
+    "nsq" : "down"
+  },
+  "runtime" : {
+    "total_mem" : "975 MB",
+    "freemem" : "649 MB",
+    "cores" : "4",
+    "freespace" : "399 of 450 GB"
+  }
+}
 
+```
+
+Now you are all set. 
 
 ### Documentation
 
