@@ -78,6 +78,9 @@ GET    /v2/billedhistories              controllers.billing.Billedhistories.list
 POST   /v2/billingtransactions/content	controllers.billing.Billingtranscations.post
 GET    /v2/billingtransactions          controllers.billing.Billingtranscations.list
 
+POST   /v2/subscriptions/content	    controllers.billing.Subscriptions.post
+GET    /v2/subscriptions             controllers.billing.Subscriptions.show
+
 #POST   /v2/invoices/content            controllers.billing.Invoices.post
 #GET    /v2/invoices                    controllers.billing.Invoices.list
 #GET	  /v2/invoices/:id                controllers.billing.Invoices.show(id: String)
