@@ -40,10 +40,7 @@ import models.team._
  */
 
 object PlatformAppPrimer {
-play.api.Logger.debug("****************************************")
-
 val name = new Name(MEGAM_FIRST_NAME, MEGAM_LAST_NAME)
-play.api.Logger.debug(("%-20s -->[%s]").format("$$$$$$$$$$$$$", name))
 val phone = new Phone(MEGAM_PHONE, MEGAM_PHONE_VERIFIED)
 val states = new States("demo", MEGAM_ACTIVE, MEGAM_BLOCKED, "")
 val password = new Password(SAMPLE_PASSWORD,MEGAM_PASSWORD_RESET_KEY, MEGAM_PASSWORD_RESET_SENT_AT)
@@ -57,11 +54,9 @@ val testStates = new States("test", MEGAM_ACTIVE, MEGAM_BLOCKED, "")
 
     AccountInput(name, phone, DEMO_EMAIL, DEMO_APIKEY, password, states, approval ,suspend, MEGAM_REGISTRATION_IP_ADDRESS, dates).json)
 
- play.api.Logger.debug(("%-20s -->[%s]").format("%%%%%%%%%%%%%%", takeatourAcct))
     def taketestAcct = models.base.Accounts.create(
       AccountInput(testName, phone, TEST_EMAIL, TEST_APIKEY, testPassword, testStates, approval, suspend, MEGAM_REGISTRATION_IP_ADDRESS, dates).json)
- play.api.Logger.debug(("%-20s -->[%s]").format("%%%%%%%%%%%%%%", testName))
- play.api.Logger.debug(("%-20s -->[%s]").format("##########3", taketestAcct))
+
   def acc_prep: ValidationNel[Throwable, FunnelResponses] = for {
     dumact <- takeatourAcct
     testacct <- taketestAcct

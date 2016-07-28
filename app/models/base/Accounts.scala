@@ -55,14 +55,12 @@ import models.base.Events._
  */
 
 case class AccountInput(name: Name, phone: Phone, email: String, api_key: String, password: Password, states: States, approval: Approval, suspend: Suspend, registration_ip_address: String,  dates: Dates) {
-play.api.Logger.debug(("%-20s -->[%s]").format("++++++++++++", name))
   val json = "{\"name\":" +name.json+",\"phone\":" + phone.json + ",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":" + password.json + ",\"states\":" + states.json + ",\"approval\":" + approval.json + ",\"suspend\":" + suspend.json + ",\"registration_ip_address\":\"" + registration_ip_address + "\",\"dates\":" + dates.json + "}"
-  play.api.Logger.debug(("%-20s -->[%s]").format("+++++json", json))
 }
 
 case class AccountResetSack(password_reset_key: String, password_reset_sent_at: String) {
   val pass = Password(password_reset_key, password_reset_sent_at)
-  val json = "{\"id\":\"\",\"name\":\"\",\"phone\":\"\",\"email\":\"\",\"api_key\":\"\",\"password\":\"" + pass + "\",\"states\":\"\",\"approval\":\"\",\"suspend\":\"\",,\"registration_ip_address\":\"\",\"dates\":\"\"}"
+  val json = "{\"id\":\"\",\"name\":\"\",\"phone\":\"\",\"email\":\"\",\"api_key\":\"\",\"password\":\"" + pass.json + "\",\"states\":\"\",\"approval\":\"\",\"suspend\":\"\",,\"registration_ip_address\":\"\",\"dates\":\"\"}"
 }
 
 sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
@@ -174,18 +172,12 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     val res = insert.value(_.id, account.id)
       .value(_.name, account.name)
      .value(_.phone, account.phone)
-
-     //.value(_.phone, NilorNot(account.phone.phone, ""))
       .value(_.email, NilorNot(account.email, ""))
       .value(_.api_key, NilorNot(account.api_key, ""))
       .value(_.password, account.password)
       .value(_.states, account.states)
       .value(_.approval, account.approval)
       .value(_.suspend, account.suspend)
-    //.value(_.password, NilorNot(account.password, ""))
-    //  .value(_.states, NilorNot(account.states, ""))
-    //  .value(_.approval, NilorNot(account.approval, ""))
-      //.value(_.suspend, NilorNot(account.suspend, ""))
       .value(_.registration_ip_address, NilorNot(account.registration_ip_address, ""))
       // .value(_.json_claz, account.json_claz)
       .value(_.dates, account.dates)
@@ -205,38 +197,32 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .and(_.name setTo new Name(NilorNot(rip.name.first_name, aor.get.name.first_name),
          NilorNot(rip.name.last_name, aor.get.name.last_name)))
 
-      //.and(_.name setTo NilorNot(rip.name, aor.get.name))
 
        .and(_.phone setTo new Phone(NilorNot(rip.phone.phone, aor.get.phone.phone),
-       NilorNotBoolean(rip.phone.phone_verified, aor.get.phone.phone_verified)))
+       NilorNot(rip.phone.phone_verified, aor.get.phone.phone_verified)))
 
-      //.and(_.phone setTo NilorNot(rip.phone, aor.get.phone))
       .and(_.api_key setTo NilorNot(rip.api_key, aor.get.api_key))
 
       .and(_.password setTo new Password(NilorNot(rip.password.password, aor.get.password.password),
         NilorNot(rip.password.password_reset_key, aor.get.password.password_reset_key),
         NilorNot(rip.password.password_reset_sent_at, aor.get.password.password_reset_sent_at)))
-      //.and(_.password setTo NilorNot(rip.password, aor.get.password))
 
-       //.and(_.states setTo NilorNot(rip.states, aor.get.states))
        .and(_.states setTo new States(NilorNot(rip.states.authority, aor.get.states.authority),
-         NilorNotBoolean(rip.states.active, aor.get.states.active),
-         NilorNotBoolean(rip.states.blocked, aor.get.states.blocked),
+         NilorNot(rip.states.active, aor.get.states.active),
+         NilorNot(rip.states.blocked, aor.get.states.blocked),
          NilorNot(rip.states.staged, aor.get.states.staged)))
 
-    //  .and(_.approval setTo NilorNot(rip.approval, aor.get.approval))
-    .and(_.approval setTo new Approval(NilorNotBoolean(rip.approval.approved, aor.get.approval.approved),
+    .and(_.approval setTo new Approval(NilorNot(rip.approval.approved, aor.get.approval.approved),
       NilorNot(rip.approval.approved_by_id, aor.get.approval.approved_by_id),
       NilorNot(rip.approval.approved_at, aor.get.approval.approved_at)))
 
-      //.and(_.suspend setTo NilorNot(rip.suspend, aor.get.suspend))
-      .and(_.suspend setTo new Suspend(NilorNotBoolean(rip.suspend.suspended, aor.get.suspend.suspended),
+      .and(_.suspend setTo new Suspend(NilorNot(rip.suspend.suspended, aor.get.suspend.suspended),
         NilorNot(rip.suspend.suspended_at, aor.get.suspend.suspended_at),
-        NilorNotBoolean(rip.suspend.suspended_till, aor.get.suspend.suspended_till)))
+        NilorNot(rip.suspend.suspended_till, aor.get.suspend.suspended_till)))
 
       .and(_.registration_ip_address setTo NilorNot(rip.registration_ip_address, aor.get.registration_ip_address))
       // .and(_.json_claz setTo NilorNot(rip.json_claz, aor.get.json_claz))
-      //.and(_.dates setTo NilorNot(rip.dates, aor.get.dates))
+
       .and(_.dates setTo new Dates(NilorNot(rip.dates.last_posted_at, aor.get.dates.last_posted_at),
         NilorNot(rip.dates.last_emailed_at, aor.get.dates.last_emailed_at),
         NilorNot(rip.dates.previous_visit_at, aor.get.dates.previous_visit_at),
@@ -252,12 +238,7 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       case false => return rip
     }
   }
-  def NilorNotBoolean(rip: Boolean, aor: Boolean): Boolean = {
-    rip == null || rip == " " match {
-      case true => return aor
-      case false => return rip
-    }
-  }
+
 }
 object Accounts extends ConcreteAccounts {
 
