@@ -6,11 +6,11 @@ DROP TABLE IF EXISTS events;
 
 DROP TABLE IF EXISTS billedhistories;
 
-DROP TABLE IF EXISTS addons;
-
 DROP TABLE IF EXISTS balances;
 
 DROP TABLE IF EXISTS sensors;
+
+DROP TABLE IF EXISTS accounts;
 
 CREATE TABLE billedhistories (id text, account_id text, assembly_id text, bill_type text, billing_amount text, currency_type text, json_claz text, created_at text, PRIMARY KEY((account_id, assembly_id), bill_type, created_at));
 
@@ -29,8 +29,5 @@ CREATE TABLE events_for_containers (event_type text, account_id text, assembly_i
 CREATE TABLE events_for_billings (event_type text, account_id text, assembly_id text, data list<text>, json_claz text, created_at text, PRIMARY KEY(account_id, created_at, assembly_id, event_type))WITH CLUSTERING ORDER BY(created_at desc, assembly_id desc, event_type desc);
 
 CREATE TABLE events_for_storages (event_type text, account_id text, data list<text>, json_claz text, created_at text, PRIMARY KEY(account_id, created_at, event_type))WITH CLUSTERING ORDER BY(created_at desc, event_type desc);
-
-
-DROP TABLE IF EXISTS accounts;
 
 CREATE TABLE accounts( id text,  name text, phone text, email text,  api_key text, password text, states text, approval text, suspend text, registration_ip_address text, dates text, PRIMARY KEY (email));

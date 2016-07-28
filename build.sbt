@@ -85,13 +85,13 @@ val phantomV = "1.25.4"
 
 libraryDependencies ++= Seq(filters, cache,
   "org.yaml" % "snakeyaml" % "1.17",
-  "io.megam" %% "libcommon" % "0.39",
+  "io.megam" %% "libcommon" % "1.5.rc5",
   "io.megam" %% "newman" % "1.3.12",
-  "com.typesafe.akka" %% "akka-slf4j" % "2.4.7",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.4.8",
   "com.websudos"      %%  "phantom-dsl"               % phantomV,
   "com.websudos"      %%  "phantom-connectors"        % phantomV,
-  "org.specs2" %% "specs2-core" % "3.7-scalaz-7.1.6" % "test",
-  "org.specs2" % "specs2-matcher-extra_2.11" % "3.7-scalaz-7.1.6" % "test")
+  "org.specs2" %% "specs2-core" % "3.7.2-scalaz-7.1.7" % "test",
+  "org.specs2" % "specs2-matcher-extra_2.11" % "3.7.2-scalaz-7.1.7" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 
@@ -109,7 +109,7 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 }
 
 
-maintainer in Linux := "Rajthilak <rajthilak@megam.io> Yeshwanth Kumar <getyesh@megam.io>"
+maintainer in Linux := "Megam Maintainers <info@megam.io>"
 
 packageSummary in Linux := "REST based API server - Verticegateway for Megam Vertice."
 
@@ -127,9 +127,9 @@ linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Li
 
 rpmVendor := "megam"
 
-rpmUrl := Some("http://docs.megam.io/docs/vertice")
+rpmUrl := Some("http://docs.megam.io")
 
-rpmLicense := Some("Apache v2")
+rpmLicense := Some("MIT")
 
 packageArchitecture in Rpm := "x86_64"
 
