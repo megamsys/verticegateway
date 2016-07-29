@@ -40,6 +40,8 @@ object Constants {
   val ASSEMBLIESCOLLECTIONCLAZ        = "Megam::AssembliesCollection"
   val ASSEMBLYCLAZ                    = "Megam::Assembly"
   val ASSEMBLYCOLLECTIONCLAZ          = "Megam::AssemblyCollection"
+  val ADDONSCLAZ                     = "Megam::Addons"
+  val ADDONSCOLLECTIONCLAZ           = "Megam::AddonsCollection"
   val AUTHCLAZ                        = "Megam::Auth"
   val AVAILABLEUNITSCLAZ              = "Megam::Availableunits"
   val AVAILABLEUNITSCOLLECTIONCLAZ    = "Megam::AvailableunitsCollection"

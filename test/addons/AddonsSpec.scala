@@ -15,7 +15,7 @@
 ** limitations under the License.
 */
 
-package test.billing
+package test.addons
 
 import org.specs2.mutable._
 import org.specs2.Specification
@@ -27,29 +27,29 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import test.{ Context }
 
-class SubscriptionsSpec extends Specification {
+class AddonsSpec extends Specification {
 
   def is =
-    "SubscriptionsSpec".title ^ end ^ """
-SubscriptionsSpec is the implementation that calls the megam_play API server with the /subscriptions url
+    "AddonsSpec".title ^ end ^ """
+AddonsSpec is the implementation that calls the megam_play API server with the /addons url
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST  requests with an valid datas " ! create.succeeds ^
-      "Correctly do GET   requests with an valid datas " ! Get.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+     "Correctly do GET   requests with an valid datas " ! Get.succeeds ^
+     "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
 
   case object create extends Context {
 
-    protected override def urlSuffix: String = "subscriptions/content"
+    protected override def urlSuffix: String = "addons/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
+       "\"provider_id\": \"345566\"," +
         "\"account_id\": \"\"," +
-        "\"model\":\"ondemond\"," +
-        "\"license\": \"trial\"," +
-        "\"trial_ends\":\"21/11/2016 20:30:00\"," +
+        "\"provider_name\":\"whmcs\"," +
+        "\"options\": []," +
         "}"
 
       Some(new String(contentToEncode))
@@ -67,28 +67,29 @@ SubscriptionsSpec is the implementation that calls the megam_play API server wit
   }
 
   case object Get extends Context {
-      protected override def urlSuffix: String ="subscriptions"
+    protected override def urlSuffix: String = "addons/whmcs"
 
-      protected def headersOpt: Option[Map[String, String]] = None
-      private val get = GET(url)(httpClient)
-        .addHeaders(headers)
-      def succeeds = {
-        val resp = execute(get)
-        resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
-      }
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
     }
+  }
 
   case object PostInvalidUrl extends Context {
 
-    protected override def urlSuffix: String = "subscriptions/contentinvalidurl"
+    protected override def urlSuffix: String = "addons/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
-    val contentToEncode = "{" +
-      "\"account_id\": \"\"," +
-      "\"model\":\"ondemond\"," +
-      "\"license\": \"trial\"," +
-      "\"trial_ends\":\"21/11/2016 20:30:00\"," +
-      "}"
+      val contentToEncode = "{" +
+        "\"provider_id\": \"\"," +
+        "\"account_id\": \"5555555\"," +
+        "\"provider_name\":\"whmcs\"," +
+        "\"options\": []," +
+        "}"
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -105,7 +106,7 @@ SubscriptionsSpec is the implementation that calls the megam_play API server wit
 
   case object PostInvalidBody extends Context {
 
-    protected override def urlSuffix: String = "subscriptions/content"
+    protected override def urlSuffix: String = "addons/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{\"collapsedmail\":\"tee@test.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\"}"

@@ -84,3 +84,7 @@ GET    /v2/subscriptions             controllers.billing.Subscriptions.show
 #POST   /v2/invoices/content            controllers.billing.Invoices.post
 #GET    /v2/invoices                    controllers.billing.Invoices.list
 #GET	  /v2/invoices/:id                controllers.billing.Invoices.show(id: String)
+
+#Addons
+POST   /v2/addons/content             controllers.addons.Addons.post
+GET	  /v2/addons/:name                controllers.addons.Addons.show(name: String)
