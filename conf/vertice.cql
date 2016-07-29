@@ -36,4 +36,4 @@ CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  ima
 
 CREATE TABLE events (event_type text,  account_id text, assembly_id text, data list<text>, created_at text, PRIMARY KEY((account_id), assembly_id, event_type,  created_at));
 
-CREATE TABLE addons (id text, provider_id text, account_id text, provider_name text, options list<text>, created_at text, PRIMARY KEY ((account_id), provider_name);
+CREATE TABLE addons (id text, provider_id text, account_id text, provider_name text, options list<text>, json_claz text, created_at text, PRIMARY KEY ((account_id), provider_name));
