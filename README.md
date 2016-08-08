@@ -6,8 +6,8 @@ API server for "[Megam vertice](https://www.megam.io)". The API server protectes
 ## Requirements
 
 
-1. [SBT 0.13..11 >](https://scala-sbt.org)
-2. [NSQ 0.3.7  ](http://nsq.io)
+1. [SBT 0.13.11 >](https://scala-sbt.org)
+2. [NSQ 0.3.x  ](http://nsq.io)
 3. [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
 4. [Cassandra 3 +](http://apache.cassandra.org)
 
@@ -16,8 +16,15 @@ API server for "[Megam vertice](https://www.megam.io)". The API server protectes
 
 You'll need `sbt` build tool. and `OpenJDK8.0`
 
+### Fork
+
+After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
+
+### Steps
+
 ```
-* git clone https://github.com/megamsys/vertice_gateway.git
+
+* git clone https://github.com/<your_github_id>/vertice_gateway.git
 
 * cd vertice_gateway
 
@@ -26,6 +33,7 @@ You'll need `sbt` build tool. and `OpenJDK8.0`
 * clean
 
 * compile
+
 
 ```
 
@@ -85,10 +93,12 @@ Now you are all set.
 
 # Contribution
 
+For [contribution] (https://github.com/megamsys/vertice/blob/master/CONTRIBUTING.md)
+
 # Documentation
 
-For more info refer [documentation] (http://docs.megam.io)
-
+For [documentation] (http://docs.megam.io)
+    [wiki] (https://github.com/megamsys/vertice/wiki)
 
 # License
 
