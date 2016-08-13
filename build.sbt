@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "verticegateway"
 
-version := "1.5.1"
+version := "1.5.2"
 
 scalaVersion := "2.11.8"
 
@@ -111,7 +111,7 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 
 maintainer in Linux := "Megam Maintainers <info@megam.io>"
 
-packageSummary in Linux := "REST based API server - Verticegateway for Megam Vertice."
+packageSummary in Linux := "VerticeGateway is a REST API server."
 
 packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam vertice."
 
