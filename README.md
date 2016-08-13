@@ -44,6 +44,20 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 [Install and start NSQ.io](http://nsq.io/deployment/installing.html)
 
 
+## Cassandra keyspace setup
+
+```
+* cd vertice_gateway/conf
+
+* cqlsh -f vertice.cql
+
+* cqlsh -f upgrade_1.5.cql
+
+* cqlsh -f marketplaces.cql
+
+
+```
+
 ```
 * cd vertice_gateway
 
@@ -57,18 +71,6 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 
 ```
 
-## Cassandra keyspace setup
-
-```
-* cd vertice_gateway/conf
-
-* cqlsh -f vertice.cql
-
-* cqlsh -f upgrade_1.5.cql
-
-* cqlsh -f marketplaces.cql
-
-```
 
 ## Type the url `http://localhost:9000`
 
