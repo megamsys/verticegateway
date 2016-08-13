@@ -6,7 +6,7 @@ API server for "[Megam vertice](https://www.megam.io)". The API server protectes
 ## Requirements
 
 
-1. [SBT 0.13.11 >](https://scala-sbt.org)
+1. [SBT 0.13.12 >](https://scala-sbt.org)
 2. [NSQ 0.3.x  ](http://nsq.io)
 3. [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
 4. [Cassandra 3 +](http://apache.cassandra.org)
