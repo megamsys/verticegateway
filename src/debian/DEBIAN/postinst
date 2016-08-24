@@ -42,4 +42,4 @@ if [ "$1" = "configure" ]; then
 fi
 
 #initctl reload-configuration
-echo "verticegateway not yet started. Try manually 'systemctl start nsqd or start verticegateway'""
+echo "verticegateway not yet started. Try manually 'systemctl start verticegateway or start verticegateway'"
