@@ -42,9 +42,9 @@ class EventsVmSpec extends Specification {
   EventsVmSpec is the implementation that calls the megam_play API server with the /events url
   """ ^ end ^
       "The Client Should" ^
-     "Correctly do POST  requests with an valid valid Assembly ID" ! Get.succeeds ^
-     "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
-     "Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
+     "Correctly do POST  requests with an valid Assembly ID" ! Get.succeeds ^
+     //"Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+     //"Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
       end
 
   case object List extends Context {
@@ -77,7 +77,7 @@ class EventsVmSpec extends Specification {
       protected override def urlSuffix: String ="eventsvm/show/0"
 
       protected override def bodyToStick: Option[String] = {
-        val contentToEncode = "{\"account_id\":\"\",\"created_at\":\"2016-05-05 10:57:30 +0000\",\"assembly_id\":\"ASM9038606864211614815\",\"event_type\":\"\",\"data\":[]}"
+        val contentToEncode = "{\"account_id\":\"\",\"created_at\":\"\",\"assembly_id\":\"ASM01\",\"event_type\":\"\",\"data\":[]}"
         Some(contentToEncode)
       }
 
