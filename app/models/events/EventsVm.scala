@@ -59,6 +59,16 @@ case class EventsVmResult(
   json_claz: String
 ) {}
 
+case class EventsVmReturnResult(
+  id: String,
+  account_id: String,
+  created_at: String,
+  assembly_id: String,
+  event_type: String,
+  data: models.tosca.KeyValueList,
+  json_claz: String
+) {}
+
 object EventsVmResult {
   def apply(id: String, account_id: String, created_at: DateTime, assembly_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsVmResult(id, account_id, created_at, assembly_id, event_type, data,  "Megam::EventsVm" )
 }
@@ -206,18 +216,21 @@ private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwabl
 
   }
 
-  def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmReturnResult]] = {
    (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] => err
    }).flatMap {ws: EventsVmResult =>
     (getRecords(ws.created_at,ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsVmResult] =>
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsVmResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsVmResult]](new ResourceItemNotFound(ws.assembly_id, "EventsVm = nothing found.")).toValidationNel
+      if (!nm.isEmpty) {
+        val res = nm.map {
+                    evr => new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+                  }
+        Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
+      } else {
+        Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(ws.assembly_id, "EventsVm = nothing found.")).toValidationNel
+      }
     }
-
   }
 }
 
