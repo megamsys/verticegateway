@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "verticegateway"
 
-version := "1.5.2"
+version := "1.5.3"
 
 scalaVersion := "2.11.8"
 
@@ -17,12 +17,12 @@ Vertice gateway connects to an opensource database ScyllaDB 1.x or,
 compatible cassandra 3.x. A messaging layer via Nsqd (nsq.io) provides an
 extra layer of decoupling from the virtualization or container platforms.
 .
-Vertice extends the benefits of OpenNebula virtualization platforms to allow
+Vertice extends the benefits of OpenNebula virtualization platform to allow
 single click launch of application, high availability using ceph, autoscaling
 and billing integrated.
 .
-This package contains playframework based API server managing ScyllaDB for
-open source Megam Vertice."""
+This package contains playframework based API server managing cassandra for
+Megam Vertice."""
 
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
