@@ -7,7 +7,7 @@ CREATE KEYSPACE IF NOT EXISTS vertice
   WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
  AND DURABLE_WRITES = false;
 
--- Contact us or our partner for replicated setup
+-- Replicated setup
 -- CREATE KEYSPACE IF NOT EXISTS vertice
 -- WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 , 'dc2' : 2 }
 -- AND DURABLE_WRITES = false;

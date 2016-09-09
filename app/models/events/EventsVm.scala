@@ -25,6 +25,8 @@ import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -34,28 +36,41 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import com.websudos.phantom.iteratee.Iteratee
 
-
-
 /**
  * @author ranjitha
  *
  */
-case class EventsVmInput(account_id: String, created_at: String, assembly_id: String, event_type: String, data: KeyValueList) {
-}
-case class EventsVmResult(
 
+
+case class EventsVmInput(
+  account_id: String,
+  created_at: String,
+  assembly_id: String,
+  event_type: String,
+  data: KeyValueList) {}
+
+case class EventsVmResult(
+  id: String,
+  account_id: String,
+  created_at: DateTime,
+  assembly_id: String,
+  event_type: String,
+  data: models.tosca.KeyValueList,
+  json_claz: String
+) {}
+
+case class EventsVmReturnResult(
+  id: String,
   account_id: String,
   created_at: String,
   assembly_id: String,
   event_type: String,
   data: models.tosca.KeyValueList,
   json_claz: String
-) {
-}
+) {}
 
 object EventsVmResult {
-
-  def apply(account_id: String, created_at: String, assembly_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsVmResult(account_id, created_at, assembly_id, event_type, data,  "Megam::EventsVm" )
+  def apply(id: String, account_id: String, created_at: DateTime, assembly_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsVmResult(id, account_id, created_at, assembly_id, event_type, data,  "Megam::EventsVm" )
 }
 
 sealed class EventsVmSacks extends CassandraTable[EventsVmSacks, EventsVmResult] {
@@ -63,7 +78,7 @@ sealed class EventsVmSacks extends CassandraTable[EventsVmSacks, EventsVmResult]
   implicit val formats = DefaultFormats
 
   object account_id extends StringColumn(this) with PartitionKey[String]
-  object created_at extends StringColumn(this) with PrimaryKey[String]
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object assembly_id extends StringColumn(this) with PrimaryKey[String]
   object event_type extends StringColumn(this) with PrimaryKey[String]
 
@@ -76,11 +91,12 @@ sealed class EventsVmSacks extends CassandraTable[EventsVmSacks, EventsVmResult]
       compactRender(Extraction.decompose(obj))
     }
   }
-
+  object id extends StringColumn(this)
   object json_claz extends StringColumn(this)
 
   def fromRow(row: Row): EventsVmResult = {
     EventsVmResult(
+      id(row),
       account_id(row),
       created_at(row),
       assembly_id(row),
@@ -97,7 +113,8 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
   override implicit def session: Session = scyllaConnection.session
 
   def insertNewRecord(evt: EventsVmResult): ValidationNel[Throwable, ResultSet] = {
-    val res = insert.value(_.account_id, evt.account_id)
+    val res = insert.value(_.id, evt.id)
+      .value(_.account_id, evt.account_id)
       .value(_.created_at, evt.created_at)
       .value(_.assembly_id, evt.assembly_id)
       .value(_.event_type, evt.event_type)
@@ -124,20 +141,37 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
 
   }
-  def getRecords(created_at: String,assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+
+  def getRecords(created_at: DateTime, assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
     var count = ""
      if (limit == "0") {
      count = "10"
      } else {
      count = limit
      }
-    val res = select.allowFiltering().where(_.created_at eqs created_at).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
+    val times = getTimes(created_at)
+    val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
      }
 
+     def getTimes(created_at: DateTime) = {
+          new Tuple2(
+            created_at,
+            DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
+          )
+     }
 }
 
 object EventsVm extends ConcreteEventsVm {
+
+def generateCreatedAt(created_at: String): DateTime = {
+  if (created_at == "" || created_at == null) {
+    return DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")).minusMinutes(10)
+  } else {
+    return DateTime.parse(created_at, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
+  }
+ }
+
 private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwable, EventsVmResult] = {
   val EventsVmInput: ValidationNel[Throwable, EventsVmInput] = (Validation.fromTryCatchThrowable[EventsVmInput, Throwable] {
     parse(input).extract[EventsVmInput]
@@ -147,7 +181,7 @@ private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwabl
     //uir <- (UID("sps").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
     val bvalue = Set(email)
-    val json = new EventsVmResult(email,eventsvm.created_at,eventsvm.assembly_id, eventsvm.event_type,eventsvm.data, "Megam::EventsVm" )
+    val json = new EventsVmResult("", email, generateCreatedAt(eventsvm.created_at), eventsvm.assembly_id, eventsvm.event_type,eventsvm.data, "Megam::EventsVm" )
     json
   }
 }
@@ -169,6 +203,7 @@ private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwabl
     }
 
   }
+
   def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
@@ -181,18 +216,21 @@ private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwabl
 
   }
 
-  def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmReturnResult]] = {
    (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] => err
    }).flatMap {ws: EventsVmResult =>
     (getRecords(ws.created_at,ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsVmResult] =>
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsVmResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsVmResult]](new ResourceItemNotFound(ws.assembly_id, "EventsVm = nothing found.")).toValidationNel
+      if (!nm.isEmpty) {
+        val res = nm.map {
+                    evr => new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+                  }
+        Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
+      } else {
+        Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(ws.assembly_id, "EventsVm = nothing found.")).toValidationNel
+      }
     }
-
   }
 }
 

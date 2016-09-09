@@ -14,8 +14,8 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.8")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.3")
 
 libraryDependencies ++= Seq(
-    "org.slf4j" % "slf4j-api"       % "1.7.13" force(),
-    "org.slf4j" % "slf4j-nop"       % "1.7.13" force(),
-    "org.slf4j" % "slf4j-jdk14"     % "1.7.13" force(),
-    "org.slf4j" % "jcl-over-slf4j"  % "1.7.13" force()
+    "org.slf4j" % "slf4j-api"       % "1.7.21" force(),
+    "org.slf4j" % "slf4j-nop"       % "1.7.21" force(),
+    "org.slf4j" % "slf4j-jdk14"     % "1.7.21" force(),
+    "org.slf4j" % "jcl-over-slf4j"  % "1.7.21" force()
 )

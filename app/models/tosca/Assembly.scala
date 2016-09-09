@@ -51,6 +51,7 @@ case class AssemblyResult(
     inputs: models.tosca.KeyValueList,
     outputs: models.tosca.KeyValueList,
     status: String,
+    state: String,
     json_claz: String,
     created_at: String) {
 }
@@ -96,6 +97,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
   }
 
   object status extends StringColumn(this)
+  object state extends StringColumn(this)
   object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
@@ -111,6 +113,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
       inputs(row),
       outputs(row),
       status(row),
+      state(row),
       json_claz(row),
       created_at(row))
   }
@@ -133,6 +136,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
       .value(_.inputs, ams.inputs)
       .value(_.outputs, ams.outputs)
       .value(_.status, ams.status)
+      .value(_.state, ams.state)
       .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
       .future()
@@ -158,6 +162,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
       .and(_.inputs setTo rip.inputs)
       .and(_.outputs setTo rip.outputs)
       .and(_.status setTo rip.status)
+      .and(_.state setTo rip.state)
       .and(_.created_at setTo rip.created_at)
       .future()
     Await.result(res, 5.seconds).successNel
@@ -174,7 +179,7 @@ case class Assembly(name: String,
     policies: models.tosca.PoliciesList,
     inputs: models.tosca.KeyValueList,
     outputs: models.tosca.KeyValueList,
-    status: String) {
+    status: String, state: String) {
 }
 
 case class AssemblyUpdateInput(id: String,
@@ -184,7 +189,7 @@ case class AssemblyUpdateInput(id: String,
     tosca_type: String,
     policies: models.tosca.PoliciesList,
     inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList, status: String) {
+    outputs: models.tosca.KeyValueList, status: String, state: String) {
 }
 
 case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
@@ -235,7 +240,7 @@ object Assembly extends ConcreteAssembly {
       asm_collection <- (Assembly.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val asm = asm_collection.head
-      val json = AssemblyResult(rip.id, rip.org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.json_claz, asm.get.created_at)
+      val json = AssemblyResult(rip.id, rip.org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.state, asm.get.json_claz, asm.get.created_at)
       json.some
     }
   }
@@ -312,7 +317,7 @@ object AssemblysList extends ConcreteAssembly {
           }
         }
       }
-      val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, authBag.get.email, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, "Megam::Assembly", Time.now.toString)
+      val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, authBag.get.email, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, rip.state, "Megam::Assembly", Time.now.toString)
       json.some
     }
   }
