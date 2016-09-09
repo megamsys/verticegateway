@@ -92,6 +92,7 @@ class ComponentsSpec extends Specification {
         "\"status\":\"notbound\"," +
         "}]," +
         "\"status\":\"\"," +
+        "\"state\":\"Launching\"," +
         "\"repo\":{" +
         "\"rtype\":\"image\"," +
         "\"source\":\"github\"," +
