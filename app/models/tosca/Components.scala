@@ -69,6 +69,7 @@ case class ComponentResult(
     related_components: List[String],
     operations: models.tosca.OperationList,
     status: String,
+    state: String,
     repo: Repo,
     json_claz: String,
     created_at: String) {
@@ -135,6 +136,7 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
   }
 
   object status extends StringColumn(this)
+  object state extends StringColumn(this)
 
   object repo extends JsonColumn[ComponentSacks, ComponentResult, Repo](this) {
     override def fromJson(obj: String): Repo = {
@@ -161,6 +163,7 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
       related_components(row),
       operations(row),
       status(row),
+      state(row),
       repo(row),
       json_claz(row),
       created_at(row))
@@ -184,6 +187,7 @@ abstract class ConcreteComponent extends ComponentSacks with RootConnector {
       .value(_.related_components, ams.related_components)
       .value(_.operations, ams.operations)
       .value(_.status, ams.status)
+      .value(_.state, ams.state)
       .value(_.repo, ams.repo)
       .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
@@ -207,6 +211,7 @@ abstract class ConcreteComponent extends ComponentSacks with RootConnector {
       .and(_.related_components setTo rip.related_components)
       .and(_.operations setTo rip.operations)
       .and(_.status setTo rip.status)
+      .and(_.state setTo rip.state)
       .and(_.repo setTo rip.repo)
       .and(_.created_at setTo rip.created_at)
       .future()
@@ -226,6 +231,7 @@ case class ComponentUpdateInput(
     related_components: models.tosca.BindLinks,
     operations: models.tosca.OperationList,
     status: String,
+    state: String,
     repo: Repo) {
 }
 
@@ -239,7 +245,8 @@ case class Component(
     related_components: models.tosca.BindLinks,
     operations: models.tosca.OperationList,
     repo: Repo,
-    status: String) {
+    status: String,
+    state: String) {
 }
 
 object Component extends ConcreteComponent {
@@ -279,7 +286,7 @@ object Component extends ConcreteComponent {
       com_collection <- (Component.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val com = com_collection.head
-      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations ::: rip.operations, com.get.status, com.get.repo, com.get.json_claz, com.get.created_at)
+      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations ::: rip.operations, com.get.status, com.get.state, com.get.repo, com.get.json_claz, com.get.created_at)
       json.some
     }
   }
@@ -319,7 +326,7 @@ object ComponentsList extends ConcreteComponent {
             MKT_FLAG_APIKEY -> authBag.get.api_key,
             MKT_FLAG_ASSEMBLY_ID -> asm_id,
             MKT_FLAG_COMP_ID -> (uir.get._1 + uir.get._2))), input.artifacts,
-        input.related_components, input.operations, input.status, input.repo, "Megam::Components", Time.now.toString)
+        input.related_components, input.operations, input.status, input.state, input.repo, "Megam::Components", Time.now.toString)
       json.some
     }
   }

@@ -160,6 +160,7 @@ case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[St
   def cattype = idPair.map(x => x._2.split('.')(1)).head
 }
 
+
 object Assemblies extends ConcreteAssemblies {
 
   private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
