@@ -28,7 +28,7 @@ implicit val formats = DefaultFormats
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.addons.Addons.create(email, clientAPIBody) match {
@@ -54,7 +54,7 @@ implicit val formats = DefaultFormats
      (Validation.fromTryCatchThrowable[Result, Throwable] {
        reqFunneled match {
          case Success(succ) => {
-           val freq = succ.getOrElse(throw new Error("Addons wasn't funneled. Verify the header."))
+           val freq = succ.getOrElse(throw new Error("Invalid header."))
            val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
            models.addons.Addons.findById(email,name) match {
              case Success(succ) => Ok(Results.resultset(models.Constants.ADDONSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))

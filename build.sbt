@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "verticegateway"
 
-version := "1.5.3"
+version := "1.5.4"
 
 scalaVersion := "2.11.8"
 
@@ -13,7 +13,7 @@ organization := "Megam Systems"
 homepage := Some(url("https://www.megam.io"))
 
 description := """Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
-Vertice gateway connects to an opensource database ScyllaDB 1.x or,
+Vertice gateway connects to an opensource database ScyllaDB or,
 compatible cassandra 3.x. A messaging layer via Nsqd (nsq.io) provides an
 extra layer of decoupling from the virtualization or container platforms.
 .
@@ -85,7 +85,7 @@ val phantomV = "1.25.4"
 
 libraryDependencies ++= Seq(filters, cache,
   "org.yaml" % "snakeyaml" % "1.17",
-  "io.megam" %% "libcommon" % "1.5.0",
+  "io.megam" %% "libcommon" % "1.6.0",
   "io.megam" %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.8",
   "com.websudos"      %%  "phantom-dsl"               % phantomV,
@@ -127,7 +127,7 @@ linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Li
 
 rpmVendor := "megam"
 
-rpmUrl := Some("http://docs.megam.io")
+rpmUrl := Some("https://docs.megam.io")
 
 rpmLicense := Some("MIT")
 

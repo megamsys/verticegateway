@@ -46,7 +46,7 @@ case object Hellow {
   val CPU_CORES = "cores"
 
   val NSQ = "nsq"
-  val SCYLLA = "scylla"
+  val SCYLLA = "cassandra"
   val RUNNING = "up"
 
   val What2Hunts = Array(NSQ)

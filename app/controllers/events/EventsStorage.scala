@@ -16,7 +16,7 @@ object EventsStorage extends Controller with controllers.stack.APIAuthElement {
       reqFunneled match {
         case Success(succ) => {
           implicit val formats = DefaultFormats
-          val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.events.EventsStorage.findByEmail(email, limit) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSSTORAGECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
@@ -38,7 +38,7 @@ object EventsStorage extends Controller with controllers.stack.APIAuthElement {
       reqFunneled match {
         case Success(succ) => {
           implicit val formats = DefaultFormats
-          val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.events.EventsStorage.IndexEmail(email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSSTORAGECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))

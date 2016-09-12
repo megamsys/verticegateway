@@ -39,16 +39,6 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
        =====      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
     """)
     play.api.Logger.info("started ...")
-/*
- * PlatformAppPrimer - both acc_prep and mkp_prep gets done successfully only if scyllaDB holds the data in settings table
- */
-        for {
-          m <- utils.PlatformAppPrimer.acc_prep
-      //    mkp <- utils.PlatformAppPrimer.mkp_prep
-        } yield {
-          play.api.Logger.info(">> priming: successful.")
-        }
-        play.api.Logger.info(">> priming: complete.")
   }
 
   override def onStop(app: play.api.Application) {
