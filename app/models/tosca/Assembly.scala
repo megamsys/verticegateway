@@ -41,19 +41,19 @@ case class Operation(operation_type: String, description: String, properties: mo
 }
 
 case class AssemblyResult(
-    id: String,
-    org_id: String,
-    account_id: String,
-    name: String,
-    components: models.tosca.ComponentLinks,
-    tosca_type: String,
-    policies: models.tosca.PoliciesList,
-    inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList,
-    status: String,
-    state: String,
-    json_claz: String,
-    created_at: String) {
+  id: String,
+  org_id: String,
+  account_id: String,
+  name: String,
+  components: models.tosca.ComponentLinks,
+  tosca_type: String,
+  policies: models.tosca.PoliciesList,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList,
+  status: String,
+  state: String,
+  json_claz: String,
+  created_at: String) {
 }
 
 sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult] {
@@ -174,22 +174,22 @@ case class Policy(name: String, ptype: String, members: models.tosca.MembersList
 }
 
 case class Assembly(name: String,
-    components: models.tosca.ComponentsList,
-    tosca_type: String,
-    policies: models.tosca.PoliciesList,
-    inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList,
-    status: String, state: String) {
+  components: models.tosca.ComponentsList,
+  tosca_type: String,
+  policies: models.tosca.PoliciesList,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList,
+  status: String, state: String) {
 }
 
 case class AssemblyUpdateInput(id: String,
-    org_id: String,
-    name: String,
-    components: models.tosca.ComponentLinks,
-    tosca_type: String,
-    policies: models.tosca.PoliciesList,
-    inputs: models.tosca.KeyValueList,
-    outputs: models.tosca.KeyValueList, status: String, state: String) {
+  org_id: String,
+  name: String,
+  components: models.tosca.ComponentLinks,
+  tosca_type: String,
+  policies: models.tosca.PoliciesList,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList, status: String, state: String) {
 }
 
 case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
