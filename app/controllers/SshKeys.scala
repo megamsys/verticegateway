@@ -18,7 +18,7 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.base.SshKeys.create(apiAccessed, clientAPIBody) match {
@@ -43,7 +43,7 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.SshKeys.findByOrgId(apiAccessed) match {
             case Success(succ) =>
@@ -66,7 +66,7 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
       (Validation.fromTryCatchThrowable[Result, Throwable] {
         reqFunneled match {
           case Success(succ) => {
-            val freq = succ.getOrElse(throw new Error("sshkeys wasn't funneled. Verify the header."))
+            val freq = succ.getOrElse(throw new Error("Invalid header."))
             val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
             models.base.SshKeys.findByName(List(id).some) match {
               case Success(succ) =>

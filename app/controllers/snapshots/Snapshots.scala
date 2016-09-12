@@ -18,7 +18,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
   (Validation.fromTryCatchThrowable[Result, Throwable] {
     reqFunneled match {
       case Success(succ) => {
-        val freq = succ.getOrElse(throw new Error("Snapshots wasn't funneled. Verify the header."))
+        val freq = succ.getOrElse(throw new Error("Invalid header."))
         val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
         val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
         models.snapshots.Snapshots.create(email, clientAPIBody) match {
@@ -42,7 +42,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Snapshots wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.snapshots.Snapshots.findById(id,email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
@@ -63,7 +63,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Snapshots wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.snapshots.Snapshots.findByEmail(email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))

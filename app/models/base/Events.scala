@@ -8,6 +8,7 @@ import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 
+import app.MConfig
 import models.base._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
@@ -55,16 +56,17 @@ class Events(evi: EventInput) {
     (create() leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { pq: Option[wash.PQd] =>
-      if (!evi.email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL)) {
+      if (!evi.email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL) && 
+          !MConfig.mute_events) {
         (new wash.AOneWasher(pq.get).wash).
           flatMap { maybeGS: AMQPResponse =>
-            play.api.Logger.debug(("%-20s -->[%s]").format("Event.published successfully", evi.email))
+            play.api.Logger.debug(("%-20s -->[%s]").format("Event. ✔", evi.email))
             pq.successNel[Throwable]
           }
-          play.api.Logger.debug(("%-20s").format("Event.not wahsed"))
+          play.api.Logger.debug(("%-20s").format("Event. ✗"))
           pq.successNel[Throwable]
       } else {
-        play.api.Logger.debug(("%-20s -->[%s]").format("Event.publish skipped", evi.email))
+        play.api.Logger.debug(("%-20s -->[%s]").format("Event. ●", evi.email))
         wash.PQd.empty.some.successNel[Throwable]
       }
     }
@@ -87,6 +89,7 @@ object Events {
   val RESET = "5"
   val INVITE = "6"
   val BALANCE = "7"
+  val LOGIN = "8"
 
   def apply(aid: String, etype: String, eaction: String, inputs: Map[String, String]) = new Events(new EventInput("", aid, etype, eaction, inputs))
 }

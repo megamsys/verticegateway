@@ -16,7 +16,7 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
       reqFunneled match {
         case Success(succ) => {
           implicit val formats = DefaultFormats
-          val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.events.EventsVm.findById(email, clientAPIBody, limit) match {
@@ -39,7 +39,7 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
       reqFunneled match {
         case Success(succ) => {
           implicit val formats = DefaultFormats
-          val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.events.EventsVm.findByEmail(email, limit) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSVMCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
@@ -61,7 +61,7 @@ object EventsVm extends Controller with controllers.stack.APIAuthElement {
       reqFunneled match {
         case Success(succ) => {
           implicit val formats = DefaultFormats
-          val freq = succ.getOrElse(throw new Error("Events wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.events.EventsVm.IndexEmail(email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSVMCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))

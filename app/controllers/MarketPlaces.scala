@@ -29,7 +29,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.MarketPlaces.listAll match {
             case Success(succ) => {
@@ -53,7 +53,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.MarketPlaces.findByFlavor(List(id).some) match {
             case Success(succ) =>

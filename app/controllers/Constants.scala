@@ -11,7 +11,7 @@ import io.megam.auth.stack.HeaderConstants._
 
 object Constants {
 
-  val VERSION = "1.5.rc5"
+  val VERSION = "1.5.1"
 
   lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)
 
@@ -51,7 +51,4 @@ object Constants {
 
   val MEGAM_ADMIN_AUTHORITY = "admin"
   val MEGAM_NORMAL_AUTHORITY = "normal"
-
-  val DEFAULT_ORG_NAME = "megam.io" //THIS
-
 }

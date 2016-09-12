@@ -9,20 +9,28 @@ import net.liftweb.json._
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
-import org.apache.commons.codec.binary.Base64
 import controllers.stack.Results
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
-/*
- * This controller performs onboarding a customer and registers an email/api_key
- * Output: FunnelResponse as JSON with the msg.
- */
+
+
 object Accounts extends Controller with stack.APIAuthElement {
 
-  /*
-   * parse.tolerantText to parse the RawBody
-   * get requested body and put into the scylla
-   */
+  
+  def login = Action(parse.tolerantText) { implicit request =>
+    val input = (request.body).toString()
+
+    models.base.Accounts.login(input) match {
+      case Success(succ) =>
+         implicit val formats = DefaultFormats
+          Status(FOUND)(Results.resultset(models.Constants.ACCOUNTCLAZ, compactRender(Extraction.decompose(succ))))
+      case Failure(err) => {
+        val rn: FunnelResponse = new HttpReturningError(err)
+        Status(rn.code)(rn.toJson(true))
+      }
+    }
+  }
+  
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
 
@@ -30,7 +38,7 @@ object Accounts extends Controller with stack.APIAuthElement {
       case Success(succ) =>
         Status(CREATED)(
           FunnelResponse(CREATED, """Onboard successful. email '%s' and api_key '%s' is registered.""".
-            format(succ.email, succ.api_key).stripMargin, "Megam::Account").toJson(true))
+            format(succ.email, "●●●●●●●●●").stripMargin, "Megam::Account").toJson(true))
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
@@ -39,35 +47,33 @@ object Accounts extends Controller with stack.APIAuthElement {
   }
 
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
-
-  (Validation.fromTryCatchThrowable[Result, Throwable] {
-    reqFunneled match {
-      case Success(succ) => {
-        val freq = succ.getOrElse(throw new Error("accounts wasn't funneled. Verify the header."))
-        val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-    models.base.Accounts.findByEmail(id) match {
-      case Success(succ) =>
-      implicit val formats = DefaultFormats
-          Ok(Results.resultset(models.Constants.ACCOUNTCLAZ, compactRender(Extraction.decompose(succ))))
-          case Failure(err) =>
-            val rn: FunnelResponse = new HttpReturningError(err)
-            Status(rn.code)(rn.toJson(true))
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+      models.base.Accounts.findByEmail(id) match {
+        case Success(succ) =>
+            implicit val formats = DefaultFormats
+            Ok(Results.resultset(models.Constants.ACCOUNTCLAZ, compactRender(Extraction.decompose(succ))))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+            }
           }
-          }
-      case Failure(err) => {
-        val rn: FunnelResponse = new HttpReturningError(err)
-        Status(rn.code)(rn.toJson(true))
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
       }
-    }
-}).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  def reset(id: String) = Action(parse.tolerantText) { implicit request =>
-
-    models.base.Accounts.reset(id) match {
+  def forgot(id: String) = Action(parse.tolerantText) { implicit request =>
+    models.base.Accounts.forgot(id) match {
       case Success(succ) =>
         Status(CREATED)(
-          FunnelResponse(CREATED, """New password token generated successfully.
+          FunnelResponse(CREATED, """Passwork ticket generated successfully.
             |
             |You can use the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
       case Failure(err) =>
@@ -76,12 +82,12 @@ object Accounts extends Controller with stack.APIAuthElement {
     }
   }
 
-  def repassword = Action(parse.tolerantText) { implicit request =>
+  def password_reset = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
-    models.base.Accounts.repassword(input) match {
+    models.base.Accounts.password_reset(input) match {
       case Success(succ) =>
         Status(CREATED)(
-          FunnelResponse(CREATED, """Account reset successfully.
+          FunnelResponse(CREATED, """Password reset successfully.
             |
             |You can use the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
       case Failure(err) =>
@@ -94,7 +100,7 @@ object Accounts extends Controller with stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Accounts wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.base.Accounts.update(email, clientAPIBody) match {

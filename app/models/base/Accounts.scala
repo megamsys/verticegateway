@@ -15,6 +15,9 @@ import controllers.Constants._
 
 import io.megam.auth.stack.AccountResult
 import io.megam.auth.stack.{ Name, Phone, Password, States, Approval, Dates, Suspend }
+import io.megam.auth.stack.SecurePasswordHashing
+import io.megam.auth.stack.SecurityActions
+
 import io.megam.common.uid.UID
 import io.megam.util.Time
 import net.liftweb.json._
@@ -35,10 +38,8 @@ import models.base.Events._
 
 /**
  * @author rajthilak
- * authority
  *
  */
-
 case class AccountInput(name: Name, phone: Phone, email: String, api_key: String, password: Password, states: States, approval: Approval, suspend: Suspend, registration_ip_address: String,  dates: Dates) {
   val json = "{\"name\":" +name.json+",\"phone\":" + phone.json + ",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":" + password.json + ",\"states\":" + states.json + ",\"approval\":" + approval.json + ",\"suspend\":" + suspend.json + ",\"registration_ip_address\":\"" + registration_ip_address + "\",\"dates\":" + dates.json + "}"
 }
@@ -49,10 +50,8 @@ case class AccountResetSack(password_reset_key: String, password_reset_sent_at: 
 }
 
 sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
-  //object id extends  UUIDColumn(this) with PartitionKey[UUID] {
-  //  override lazy val name = "id"
-  //}
   implicit val formats = DefaultFormats
+  
   object id extends StringColumn(this)
 
   object name extends JsonColumn[AccountSacks, AccountResult, Name](this) {
@@ -121,6 +120,7 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   }
 
   object registration_ip_address extends StringColumn(this)
+  
   object dates extends JsonColumn[AccountSacks, AccountResult, Dates](this) {
     override def fromJson(obj: String): Dates = {
       JsonParser.parse(obj).extract[Dates]
@@ -148,12 +148,12 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
 }
 
 abstract class ConcreteAccounts extends AccountSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+  
   override lazy val tableName = "accounts"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
-  def insertNewRecord(account: AccountResult): ValidationNel[Throwable, ResultSet] = {
+  def dbInsert(account: AccountResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, account.id)
       .value(_.name, account.name)
      .value(_.phone, account.phone)
@@ -164,19 +164,19 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
       .value(_.approval, account.approval)
       .value(_.suspend, account.suspend)
       .value(_.registration_ip_address, NilorNot(account.registration_ip_address, ""))
-      // .value(_.json_claz, account.json_claz)
       .value(_.dates, account.dates)
       .future()
     Await.result(res, 5.seconds).successNel
   }
 
-  def getRecord(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+  def dbGet(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("Account, dbGet.", ".."))
+
     val res = select.where(_.email eqs email).one()
     Await.result(res, 5.seconds).successNel
   }
 
-  def updateRecord(email: String, rip: AccountResult, aor: Option[AccountResult]): ValidationNel[Throwable, ResultSet] = {
-
+  def dbUpdate(email: String, rip: AccountResult, aor: Option[AccountResult]): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.email eqs NilorNot(email, aor.get.email))
       .modify(_.id setTo NilorNot(rip.id, aor.get.id))
       .and(_.name setTo new Name(NilorNot(rip.name.first_name, aor.get.name.first_name),
@@ -188,7 +188,7 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
 
       .and(_.api_key setTo NilorNot(rip.api_key, aor.get.api_key))
 
-      .and(_.password setTo new Password(NilorNot(rip.password.password, aor.get.password.password),
+      .and(_.password setTo new Password(NilorNot(rip.password.password_hash, aor.get.password.password_hash),
         NilorNot(rip.password.password_reset_key, aor.get.password.password_reset_key),
         NilorNot(rip.password.password_reset_sent_at, aor.get.password.password_reset_sent_at)))
 
@@ -227,25 +227,27 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
 }
 object Accounts extends ConcreteAccounts {
 
-  //implicit val formats = DefaultFormats
-
-  private def parseAccountInput(input: String): ValidationNel[Throwable, AccountInput] = {
+  private def parseAccount(input: String): ValidationNel[Throwable, AccountInput] = {
     (Validation.fromTryCatchThrowable[AccountInput, Throwable] {
       parse(input).extract[AccountInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
 
-  private def generateAccountSet(id: String, m: AccountInput): ValidationNel[Throwable, AccountResult] = {
+  private def mkAccountResult(id: String, m: AccountInput): ValidationNel[Throwable, AccountResult] = {
     (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
-    val dates = new Dates(m.dates.last_posted_at, m.dates.last_emailed_at, m.dates.previous_visit_at, m.dates.first_seen_at, Time.now.toString)
-      AccountResult(id, m.name,  m.phone, m.email, m.api_key, m.password, m.states, m.approval,  m.suspend,  m.registration_ip_address,  dates)
+      val dates = new Dates(m.dates.last_posted_at, m.dates.last_emailed_at, m.dates.previous_visit_at, 
+          m.dates.first_seen_at, Time.now.toString)
+          
+      val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") //b64 pkbd12 + salt pw.
+      AccountResult(id, m.name,  m.phone, m.email, m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  dates)
     } leftMap { t: Throwable => new MalformedBodyError(m.json, t.getMessage) }).toValidationNel
   }
 
-  private def orgChecker(email: String, orgs: Seq[OrganizationsResult], acc: AccountResult): ValidationNel[Throwable, AccountResult] = {
-    val org_json = "{\"name\":\"" + DEFAULT_ORG_NAME + "\"}"
+  private def mkOrgIfEmpty(email: String, orgs: Seq[OrganizationsResult], acc: AccountResult): ValidationNel[Throwable, AccountResult] = {
+    val org_json    = "{\"name\":\"" + app.MConfig.org + "\"}"
     val domain_json = "{\"name\":\"" + app.MConfig.domain + "\"}"
-    if (!orgs.isEmpty)
+    
+     if (!orgs.isEmpty)
       return Validation.success[Throwable, AccountResult](acc).toValidationNel
     else {
       (models.team.Organizations.create(email, org_json.toString) leftMap { t: NonEmptyList[Throwable] =>
@@ -264,37 +266,65 @@ object Accounts extends ConcreteAccounts {
       }
     }
   }
+  
+  private def canPasswordReset(update_account: AccountResult, old_account: AccountResult): ValidationNel[Throwable, AccountResult] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("Account, verify token.", update_account.email))
+
+    if (update_account.password.password_reset_key == old_account.password.password_reset_key) {
+      Validation.success[Throwable, AccountResult](update_account).toValidationNel
+    } else {
+      Validation.failure[Throwable, AccountResult](new CannotAuthenticateError(update_account.email, "Password token didn't match.")).toValidationNel
+    }
+  }
+  
+
+  def login(input: String): ValidationNel[Throwable, AccountResult] = {
+    for {
+      p   <- parseAccount(input)
+      res <- (Accounts.findByEmail(p.email) leftMap { t: NonEmptyList[Throwable] => t })
+      s   <- SecurityActions.Validate(p.password.password_hash, res.get.password.password_hash)
+      e   <- Events(res.get.id, EVENTUSER, Events.LOGIN, Map(EVTEMAIL -> p.email)).createAndPub() 
+    } yield {
+     play.api.Logger.debug(("%-20s -->[%s]").format("Account, y.", res))
+      
+      res.get
+    }
+  }
 
   def create(input: String): ValidationNel[Throwable, AccountResult] = {
     for {
-      m <- parseAccountInput(input)
-      uir <- (UID("act").get leftMap { ut: NonEmptyList[Throwable] => ut })
-      acc <- generateAccountSet(uir.get._1 + uir.get._2, m)
-      set <- insertNewRecord(acc)
-      orgs <- models.team.Organizations.findByEmail(m.email)
-      res <- orgChecker(m.email, orgs, acc)
-      evn <- Events(acc.id, EVENTUSER, Events.ONBOARD, Map(EVTEMAIL -> acc.email)).createAndPub()
+      p   <- parseAccount(input)
+      uir <- (UID("act").get leftMap { err: NonEmptyList[Throwable] => err })
+      ast <- mkAccountResult(uir.get._1 + uir.get._2, p)
+      ins <- dbInsert(ast)
+      org <- Organizations.findByEmail(p.email)
+      res <- mkOrgIfEmpty(p.email, org, ast)
+      evn <- Events(ast.id, EVENTUSER, Events.ONBOARD, Map(EVTEMAIL -> ast.email)).createAndPub()
+    } yield {
+      res
+    }
+  }
+  
+
+  def update(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("Account, updating.", email))
+    
+    val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
+      parse(input).extract[AccountResult]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+    
+    for {
+      rip <- ripNel
+      res <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- dbUpdate(email, rip, res)
     } yield {
       res
     }
   }
 
-  def update(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Update Account", email))
-    val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
-      parse(input).extract[AccountResult]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    for {
-      rip <- ripNel
-      aor <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      set <- updateRecord(email, rip, aor)
-    } yield {
-      aor
-    }
-  }
-
-  def reset(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Reset Account", email))
+  def forgot(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("Account, forgot password.", email))
+    
     val hex = randomAlphaNumericString(16)
     for {
       rip <- update(email, AccountResetSack(hex, Time.now.toString).json)
@@ -306,8 +336,9 @@ object Accounts extends ConcreteAccounts {
   }
 
 
-  def repassword(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Repassword Account", email))
+  def password_reset(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug(("%-20s -->[%s]").format("Account, password token.", email))
+    
     val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -315,32 +346,20 @@ object Accounts extends ConcreteAccounts {
     for {
       rip <- ripNel
       acc <- (Accounts.findByEmail(rip.email) leftMap { t: NonEmptyList[Throwable] => t })
-      chk <- (verifytoken(rip, acc.get) leftMap { t: NonEmptyList[Throwable] => t })
-      upd <- (updateRecord(rip.email, rip, acc) leftMap { t: NonEmptyList[Throwable] => t})
+      chk <- (canPasswordReset(rip, acc.get) leftMap { t: NonEmptyList[Throwable] => t })
+      upd <- (dbUpdate(rip.email, rip, acc) leftMap { t: NonEmptyList[Throwable] => t})
     } yield {
       acc
     }
   }
 
-  def verifytoken(update_account: AccountResult, old_account: AccountResult): ValidationNel[Throwable, AccountResult] = {
-    if (update_account.password.password_reset_key == old_account.password.password_reset_key) {
-      Validation.success[Throwable, AccountResult](update_account).toValidationNel
-    } else {
-      Validation.failure[Throwable, AccountResult](new MalformedBodyError(update_account.email, "")).toValidationNel
-    }
-  }
-
-  /**
-   * Performs a fetch from scylladb. If there is an error then ServiceUnavailable is sent back.
-   * If not, if there a option value, then it is parsed. When on parsing error, send back ResourceItemNotFound error.
-   * When there is option value (None), then return back a failure - ResourceItemNotFound
-   */
-  def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+  
+    def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
     InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
       name: String =>
         {
           play.api.Logger.debug(("%-20s -->[%s]").format("InMemory", email))
-          (getRecord(email) leftMap { t: NonEmptyList[Throwable] =>
+          (dbGet(email) leftMap { t: NonEmptyList[Throwable] =>
             new ServiceUnavailableError(email, (t.list.map(m => m.getMessage)).mkString("\n"))
           }).toValidationNel.flatMap { xso: Option[AccountResult] =>
             xso match {
