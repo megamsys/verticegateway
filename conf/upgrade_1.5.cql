@@ -5,8 +5,6 @@ use vertice;
 
 DROP TABLE IF EXISTS events;
 
-DROP TABLE IF EXISTS events_for_vms;
-
 DROP TABLE IF EXISTS billedhistories;
 
 DROP TABLE IF EXISTS balances;
@@ -40,3 +38,9 @@ CREATE TABLE subscriptions(id text, account_id text, model text, license text, t
 ALTER TABLE assembly ADD state text;
 
 ALTER TABLE components ADD state text;
+
+DROP TABLE IF EXISTS events_for_containers;
+
+CREATE TABLE events_for_containers (id text, event_type text, account_id text, assembly_id text, data list<text>, json_claz text, created_at timestamp, PRIMARY KEY(account_id, created_at, assembly_id, event_type))WITH CLUSTERING ORDER BY(created_at desc, assembly_id desc, event_type desc);
+
+UPDATE marketplaces SET cattype='CONTAINERS' where settings_name='vertice' and flavor='DockerContainer';
