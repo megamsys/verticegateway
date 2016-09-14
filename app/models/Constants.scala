@@ -86,6 +86,8 @@ object Constants {
   val SSHKEYCOLLECTIONCLAZ            = "Megam::SshKeyCollection"
   val SNAPSHOTSCLAZ                   = "Megam::Snapshots"
   val SNAPSHOTSCOLLECTIONCLAZ         = "Megam::SnapshotsCollection"
+  val DISKSCLAZ                        = "Megam::Disks"
+  val DISKSCOLLECTIONCLAZ              = "Megam::DisksCollection"
   val SUBSCRIPTIONSCLAZ               = "Megam::Subscriptions"
   val SUBSCRIPTIONSCOLLECTIONCLAZ     = "Megam::SubscriptionsCollection"
   val MEGAM_PROMOSCLAZ                = "Megam::Promos"
