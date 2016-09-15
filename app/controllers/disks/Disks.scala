@@ -24,7 +24,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         models.disks.Disks.create(email, clientAPIBody) match {
           case Success(succ) =>
             Status(CREATED)(
-              FunnelResponse(CREATED, """Disk created successfully.""", "Megam::Disk").toJson(true))
+              FunnelResponse(CREATED, """Disk created successfully.""", "Megam::Disks").toJson(true))
           case Failure(err) =>
             val rn: FunnelResponse = new HttpReturningError(err)
             Status(rn.code)(rn.toJson(true))
@@ -81,4 +81,3 @@ def post = StackAction(parse.tolerantText) { implicit request =>
   }
 
 }
-
