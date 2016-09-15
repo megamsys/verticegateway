@@ -10,7 +10,6 @@ package object base {
 
   object MarketPlaceResults {
     val emptyPC = List(Option.empty[MarketPlaceSack])
-    //def apply(m: MarketPlaceSack): MarketPlaceResults = List(m.some)
     def empty: MarketPlaceResults = List()
   }
   type SshKeysResults = List[Option[SshKeysResult]]
@@ -18,7 +17,7 @@ package object base {
   object SshKeysResults {
     val emptyNR = List(Option.empty[SshKeysResult])
     def apply(m: Option[SshKeysResult]) = List(m)
-    def empty: SshKeysResults = List() //nel(emptyNR.head, emptyNR.tail)
+    def empty: SshKeysResults = List() 
   }
 
 }
