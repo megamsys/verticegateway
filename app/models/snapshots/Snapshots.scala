@@ -105,7 +105,7 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
   def getRecords(assembly_id: String, email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
-    val res = select.allowFiltering().where(_.account_id eqs email).and(_.asm_id eqs assembly_id).fetch()
+  val res = select.allowFiltering().where(_.account_id eqs email).and(_.asm_id eqs assembly_id).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -145,6 +145,8 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Snapshots.created success", Console.RESET))
+    println(wa)
+    pub(email, wa)
     wa.some
   }
 }
@@ -177,6 +179,11 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
         Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(assemblyID, "Snapshots = nothing found.")).toValidationNel
     }
 
+  }
+
+  private def pub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, "", "", "disksaveas", "snapshot").json)
+    wa.successNel[Throwable]
   }
 
 }

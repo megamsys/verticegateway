@@ -43,8 +43,8 @@ class SnapshotsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST snapshots with a valid userid and api key" ! Post.succeeds ^
-   "Correctly do GET  requests with an valid valid Assembly ID" ! Get.succeeds ^
-   "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+   //"Correctly do GET  requests with an valid valid Assembly ID" ! Get.succeeds ^
+   //"Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
   end
 
   case object Post extends Context {
