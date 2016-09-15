@@ -43,8 +43,8 @@ class SnapshotsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST snapshots with a valid userid and api key" ! Post.succeeds ^
-    "Correctly do GET  requests with an valid valid Assembly ID" ! Get.succeeds ^
-    "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+   "Correctly do GET  requests with an valid valid Assembly ID" ! Get.succeeds ^
+   "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
   end
 
   case object Post extends Context {
@@ -53,10 +53,11 @@ class SnapshotsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
     val contentToEncode = "{" +
-      "\"asm_id\": \"ASM5355764237644862351\"," +
+      "\"asm_id\": \"ASM53557642376448623335\"," +
       "\"org_id\":\"ORG787966332632133744\"," +
       "\"account_id\": \"\"," +
-      "\"name\":\"ttt.megambox.com\"," +
+      "\"name\":\"ttr.megambox.com\"," +
+      "\"status\":\"progress\"," +
       "}"
       Some(contentToEncode)
     }
@@ -90,7 +91,7 @@ class SnapshotsSpec extends Specification {
   }
 
   case object Get extends Context {
-      protected override def urlSuffix: String ="snapshots/ASM5355764237644862351"
+      protected override def urlSuffix: String ="snapshots/ASM53557642376448623334"
 
       protected def headersOpt: Option[Map[String, String]] = None
       private val get = GET(url)(httpClient)

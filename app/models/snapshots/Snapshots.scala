@@ -38,7 +38,7 @@ import com.websudos.phantom.iteratee.Iteratee
  * @author ranjitha
  *
  */
-case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String) {
+case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String) {
 }
 case class SnapshotsResult(
   snap_id: String,
@@ -46,12 +46,13 @@ case class SnapshotsResult(
   org_id: String,
   account_id: String,
   name:   String,
+  status: String,
   json_claz: String,
   created_at: String) {
 }
 
 object SnapshotsResult {
-  def apply(snap_id: String, asm_id: String, org_id: String, account_id: String, name: String) = new SnapshotsResult(snap_id, asm_id, org_id, account_id, name, "Megam::Snapshots", Time.now.toString)
+  def apply(snap_id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String) = new SnapshotsResult(snap_id, asm_id, org_id, account_id, name, status, "Megam::Snapshots", Time.now.toString)
 }
 
 sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResult] {
@@ -63,6 +64,7 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
   object org_id extends StringColumn(this)
   object account_id extends StringColumn(this) with PrimaryKey[String]
   object name extends StringColumn(this)
+  object status extends StringColumn(this)
   object created_at extends StringColumn(this)
   object json_claz extends StringColumn(this)
 
@@ -73,6 +75,7 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
       org_id(row),
       account_id(row),
       name(row),
+      status(row),
       json_claz(row),
       created_at(row))
   }
@@ -90,6 +93,7 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
       .value(_.org_id, sps.org_id)
       .value(_.account_id, sps.account_id)
       .value(_.name, sps.name)
+      .value(_.status, sps.status)
       .value(_.json_claz, sps.json_claz)
       .value(_.created_at, sps.created_at)
       .future()
@@ -126,7 +130,7 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
   } yield {
 
     val bvalue = Set(email)
-    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name, "Megam::Snapshots", Time.now.toString)
+    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name, snap.status, "Megam::Snapshots", Time.now.toString)
     json
   }
 }

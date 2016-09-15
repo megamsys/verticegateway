@@ -38,7 +38,7 @@ import com.websudos.phantom.iteratee.Iteratee
  * @author ranjitha
  *
  */
-case class DisksInput( id: String, asm_id: String, org_id: String, account_id: String, disk_id: String, status: String, size: String) {
+case class DisksInput( asm_id: String, org_id: String, account_id: String, status: String, size: String) {
 }
 case class DisksResult(
   id: String,
@@ -134,7 +134,7 @@ private def mkDisksSack(email: String, input: String): ValidationNel[Throwable, 
   } yield {
 
     val bvalue = Set(email)
-    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, dsk.disk_id, dsk.status, dsk.size, "Megam::Disks", Time.now.toString)
+    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.status, dsk.size, "Megam::Disks", Time.now.toString)
     json
   }
 }
@@ -184,4 +184,3 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
   }
 
 }
-

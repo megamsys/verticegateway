@@ -13,7 +13,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-package test.disk
+package test.disks
 import scalaz._
 import scalaz.syntax.SemigroupOps
 import scalaz.NonEmptyList._
@@ -35,28 +35,28 @@ import models.tosca.Assemblies
 import test.{ Context }
 import test._
 
-class DiskSpec extends Specification {
+class DisksSpec extends Specification {
 
   def is =
-    "DiskSpec".title ^ end ^ """
-  DiskSpec is the implementation that calls the megam_play API server with the /disk url
+    "DisksSpec".title ^ end ^ """
+  DisksSpec is the implementation that calls the megam_play API server with the /disk url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST snapshots with a valid userid and api key" ! Post.succeeds ^
-    //"Correctly do GET  requests with an valid valid Assembly ID" ! Get.succeeds ^
-    //"Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+      "Correctly do POST disks with a valid userid and api key" ! Post.succeeds ^
+    "Correctly do GET  requests with an valid valid Assembly ID" ! Get.succeeds ^
+    "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
   end
 
   case object Post extends Context {
 
-    protected override def urlSuffix: String = "disk/content"
+    protected override def urlSuffix: String = "disks/content"
 
     protected override def bodyToStick: Option[String] = {
     val contentToEncode = "{" +
-      "\"asm_id\": \"ASM5355764237644862351\"," +
+      "\"asm_id\": \"ASM5355764237644862352\"," +
       "\"org_id\":\"ORG787966332632133744\"," +
       "\"account_id\": \"\"," +
-      "\"size\":\"1GB\"," +
+      "\"size\":\"2GB\"," +
       "\"status\":\"progress\"," +
       "}"
       Some(contentToEncode)
@@ -78,7 +78,7 @@ class DiskSpec extends Specification {
 
 
   case object List extends Context {
-    protected override def urlSuffix: String ="snapshots"
+    protected override def urlSuffix: String ="disks"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -91,7 +91,7 @@ class DiskSpec extends Specification {
   }
 
   case object Get extends Context {
-      protected override def urlSuffix: String ="snapshots/ASM5355764237644862351"
+      protected override def urlSuffix: String ="disks/ASM5355764237644862352"
 
       protected def headersOpt: Option[Map[String, String]] = None
       private val get = GET(url)(httpClient)
