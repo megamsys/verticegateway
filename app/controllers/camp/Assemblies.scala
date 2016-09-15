@@ -26,9 +26,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           models.tosca.Assemblies.create(apiAccessed, clientAPIBody) match {
             case Success(wrapasm) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """[%s,%s] submitted successfully.
-              |
-              |Check the status of the launch for the progress.""".format(wrapasm.assemblies.mkString("|"),wrapasm.id), "Megam::Assemblies").toJson(true)
+                FunnelResponse(CREATED, """[%s,%s] deployment submitted successfully.""".format(wrapasm.assemblies.mkString("|"),wrapasm.id), "Megam::Assemblies").toJson(true)
             )
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -53,7 +51,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.tosca.Assemblies.findById(List(id).some) match {
             case Success(succ) =>
@@ -81,7 +79,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
           models.tosca.Assemblies.findByEmail(email, org) match {

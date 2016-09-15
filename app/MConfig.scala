@@ -7,6 +7,7 @@ package app
 object MConfig {
   val nsqurl = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.url").get
   val mute_events = play.api.Play.application(play.api.Play.current).configuration.getBoolean("nsq.events.muted").get
+  val mute_emails = play.api.Play.application(play.api.Play.current).configuration.getStringList("nsq.events.muted_emails").get
 
   val scyllaurl = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.host").get
   val scylla_keyspace = play.api.Play.application(play.api.Play.current).configuration.getString("scylla.keyspace").get

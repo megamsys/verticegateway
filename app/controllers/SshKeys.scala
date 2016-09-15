@@ -24,7 +24,7 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
           models.base.SshKeys.create(apiAccessed, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """SshKeys created successfully.""", "Megam::SshKey").toJson(true))
+                FunnelResponse(CREATED, """SSHKey created successfully.""", "Megam::SshKey").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

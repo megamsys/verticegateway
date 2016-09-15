@@ -56,7 +56,7 @@ class Events(evi: EventInput) {
     (create() leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { pq: Option[wash.PQd] =>
-      if (!evi.email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL) && 
+      if (!MConfig.mute_emails.contains(evi.email) && 
           !MConfig.mute_events) {
         (new wash.AOneWasher(pq.get).wash).
           flatMap { maybeGS: AMQPResponse =>

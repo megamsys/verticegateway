@@ -33,9 +33,7 @@ implicit val formats = DefaultFormats
           models.billing.Billingtranscations.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Billingtranscations created successfully.
-            |
-            |You can use the the 'Billingtranscations':{%s}.""".format(succ.getOrElse("none")), "Megam::Billingtranscations").toJson(true))
+                FunnelResponse(CREATED, "Billingtransactions record created successfully."  , "Megam::Billingtranscations").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
