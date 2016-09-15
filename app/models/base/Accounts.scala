@@ -45,8 +45,9 @@ case class AccountInput(name: Name, phone: Phone, email: String, api_key: String
 }
 
 case class AccountResetSack(password_reset_key: String, password_reset_sent_at: String) {
-  val pass = Password(password_reset_key, password_reset_sent_at)
-  val json = "{\"id\":\"\",\"name\":\"\",\"phone\":\"\",\"email\":\"\",\"api_key\":\"\",\"password\":\"" + pass.json + "\",\"states\":\"\",\"approval\":\"\",\"suspend\":\"\",,\"registration_ip_address\":\"\",\"dates\":\"\"}"
+  val password = Password(password_reset_key, password_reset_sent_at)
+  val json = "{\"id\":\""+ "\",\"name\":" + Name.empty.json+",\"phone\":" + Phone.empty.json + ",\"email\":\"" + "\",\"api_key\":\""  + "\",\"password\":" + password.json + ",\"states\":" + States.empty.json + ",\"approval\":" + Approval.empty.json + ",\"suspend\":" + Suspend.empty.json + ",\"registration_ip_address\":\"" + "\",\"dates\":" + Dates.empty.json + "}"
+
 }
 
 sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
