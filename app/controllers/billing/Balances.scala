@@ -32,9 +32,7 @@ object Balances extends Controller with controllers.stack.APIAuthElement {
           models.billing.Balances.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Balances created successfully.
-            |
-            |You can use the the 'Balances':{%s}.""".format(succ.getOrElse("none")), "Megam::Balances").toJson(true))
+                FunnelResponse(CREATED, "Your balance created successfully.", "Megam::Balances").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -58,9 +56,7 @@ object Balances extends Controller with controllers.stack.APIAuthElement {
           models.billing.Balances.update(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Balances updated successfully.
-            |
-            |You can use the the 'Balances'.""", "Megam::Balances").toJson(true))
+                FunnelResponse(CREATED, "Your balances updated successfully.", "Megam::Balances").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

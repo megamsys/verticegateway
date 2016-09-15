@@ -26,7 +26,7 @@ case class InMemoryCache[A]() {
     new InMemoryCache[A]
   }
   def getAs(c: String): Option[Timestamped[A]] = {
-    play.api.Logger.debug("%-20s -->[%s]".format("InMemoryCache:", "getAs ?" + c))
+    play.api.Logger.debug("%-20s -->[%s]".format("MEMCACHE:", "getAs ?" + c))
     play.api.cache.Cache.getAs[Timestamped[A]](c)
   }
 }
@@ -65,7 +65,6 @@ class InMemoryImpl[A](f: String => A)(implicit sedv: Sedimenter[A]) extends InMe
    */
   private def checkMem(u: String)(implicit sed: Sedimenter[A]): StateCacheO[A] = for {
     ofs <- State.gets { c: InMemoryCache[A] =>
-      play.api.Logger.debug("%-20s -->[%s]".format("|^/^|-->checkMem:", u))
       c.getAs(u).collect {
         case Timestamped(fs, ts) if (sed.sediment(fs) && !stale(ts)) => fs
       }
@@ -78,7 +77,7 @@ class InMemoryImpl[A](f: String => A)(implicit sedv: Sedimenter[A]) extends InMe
    * probably control it using  a key
    */
   private def stale(ts: Long): Boolean = {
-    val sweetPieTime = if (play.api.Play.application(play.api.Play.current).mode == play.api.Mode.Dev) (5 * 60 * 100L) else (5 * 60 * 1000L)
+    val sweetPieTime = if (play.api.Play.application(play.api.Play.current).mode == play.api.Mode.Dev) (1L) else (1L)
     System.currentTimeMillis - ts > sweetPieTime
   }
 
@@ -92,7 +91,6 @@ class InMemoryImpl[A](f: String => A)(implicit sedv: Sedimenter[A]) extends InMe
     tfs = Timestamped(fs, System.currentTimeMillis)
     _ <- State.modify[S[A]] { _.update(u, tfs) }
   } yield {
-    play.api.Logger.debug("%-20s -->[%s]".format("\\_/-->retrieve:", u));
     fs
   }
 

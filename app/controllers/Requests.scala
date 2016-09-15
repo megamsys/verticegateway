@@ -21,9 +21,7 @@ object Requests extends Controller with controllers.stack.APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.base.Requests.createAndPub(email, clientAPIBody) match {
             case Success(succ) =>
-                Status(CREATED)(FunnelResponse(CREATED, """Request initiation instruction submitted successfully.
-                 |
-                 |Check on the overview for updates. It will be ready shortly.""", "Megam::Request").toJson(true))
+                Status(CREATED)(FunnelResponse(CREATED, "Request submitted successfully.", "Megam::Request").toJson(true))
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

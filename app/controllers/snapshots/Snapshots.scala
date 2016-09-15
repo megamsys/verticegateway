@@ -24,7 +24,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         models.snapshots.Snapshots.create(email, clientAPIBody) match {
           case Success(succ) =>
             Status(CREATED)(
-              FunnelResponse(CREATED, """Snapshots created successfully.""", "Megam::Snapshots").toJson(true))
+              FunnelResponse(CREATED, "Snapshot created successfully.", "Megam::Snapshots").toJson(true))
           case Failure(err) =>
             val rn: FunnelResponse = new HttpReturningError(err)
             Status(rn.code)(rn.toJson(true))
