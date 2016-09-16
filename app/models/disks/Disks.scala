@@ -149,6 +149,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.created success", Console.RESET))
+    pub(email, wa)
     wa.some
   }
 }
@@ -181,6 +182,10 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
         Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(assemblyID, "Disks = nothing found.")).toValidationNel
     }
 
+  }
+  private def pub(email: String, wa: DisksResult): ValidationNel[Throwable, DisksResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(wa.id, "", "", DISK, DISKSTATE).json)
+    wa.successNel[Throwable]
   }
 
 }

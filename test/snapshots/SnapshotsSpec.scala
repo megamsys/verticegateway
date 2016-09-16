@@ -53,7 +53,7 @@ class SnapshotsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
     val contentToEncode = "{" +
-      "\"asm_id\": \"ASM53557642376448623335\"," +
+      "\"asm_id\": \"ASM535576423764486233555\"," +
       "\"org_id\":\"ORG787966332632133744\"," +
       "\"account_id\": \"\"," +
       "\"name\":\"ttr.megambox.com\"," +

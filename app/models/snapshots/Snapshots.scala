@@ -145,7 +145,6 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Snapshots.created success", Console.RESET))
-    println(wa)
     pub(email, wa)
     wa.some
   }
@@ -182,7 +181,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
   }
 
   private def pub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, "", "", "disksaveas", "snapshot").json)
+    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, "", "", SNAPSHOT, SNAPSTATE).json)
     wa.successNel[Throwable]
   }
 

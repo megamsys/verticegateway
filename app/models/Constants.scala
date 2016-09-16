@@ -13,7 +13,10 @@ object Constants {
   val CONTROL = "control"
   val START = "start"
   val STOP = "stop"
-
+  val SNAPSHOT = "disksaveas"
+  val DISK = "diskattach"
+  val SNAPSTATE = "snapshot"
+  val DISKSTATE = "disk"
   val BIND = "bind"
   val BUILD = "build"
   val REBOOT = "restart"
