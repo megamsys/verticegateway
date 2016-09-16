@@ -42,15 +42,13 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Assemblies wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
           models.tosca.Assembly.update(org, clientAPIBody) match {
             case Success(succ) => {
-              Status(CREATED)(FunnelResponse(CREATED, """Bind initiation submitted successfully.
-            |
-            |Engine is cranking.""", "Megam::Assembly").toJson(true))
+              Status(CREATED)(FunnelResponse(CREATED, "Deployment update submitted successfully.", "Megam::Assembly").toJson(true))
             }
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -70,9 +68,7 @@ object Assembly extends Controller with controllers.stack.APIAuthElement {
   def upgrade(id: String) = Action(parse.tolerantText) { implicit request =>
     models.tosca.Assembly.upgrade("", id) match {
       case Success(succ) => {
-        Status(CREATED)(FunnelResponse(CREATED, """Your upgrade is in process.
-            |
-            |Engine is cranking.""", "Megam::Assembly").toJson(true))
+        Status(CREATED)(FunnelResponse(CREATED, "Deployment upgrade submitted successfully", "Megam::Assembly").toJson(true))
       }
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)

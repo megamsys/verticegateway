@@ -152,7 +152,7 @@ object Requests extends ConcreteRequests {
     (create(input) leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { pq: Option[wash.PQd] =>
-      if (!email.equalsIgnoreCase(controllers.Constants.DEMO_EMAIL)) {
+      if (!MConfig.mute_emails.contains(email)) {
         new wash.AOneWasher(pq.get).wash flatMap { maybeGS: AMQPResponse =>
           play.api.Logger.debug(("%-20s -->[%s]").format("Request.published successfully", input))
           pq.successNel[Throwable]

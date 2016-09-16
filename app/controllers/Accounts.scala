@@ -73,9 +73,7 @@ object Accounts extends Controller with stack.APIAuthElement {
     models.base.Accounts.forgot(id) match {
       case Success(succ) =>
         Status(CREATED)(
-          FunnelResponse(CREATED, """Passwork ticket generated successfully.
-            |
-            |You can use the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
+          FunnelResponse(CREATED, "Password token generated successfully.", "Megam::Account").toJson(true))
       case Failure(err) =>
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
@@ -87,9 +85,7 @@ object Accounts extends Controller with stack.APIAuthElement {
     models.base.Accounts.password_reset(input) match {
       case Success(succ) =>
         Status(CREATED)(
-          FunnelResponse(CREATED, """Password reset successfully.
-            |
-            |You can use the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
+          FunnelResponse(CREATED, "Password reset successfully.", "Megam::Account").toJson(true))
       case Failure(err) =>
         val rn: FunnelResponse = new HttpReturningError(err)
         Status(rn.code)(rn.toJson(true))
@@ -106,9 +102,7 @@ object Accounts extends Controller with stack.APIAuthElement {
           models.base.Accounts.update(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Account updated successfully.
-            |
-            |You can use the 'Accounts':{%s}.""".format(succ.getOrElse("none")), "Megam::Account").toJson(true))
+                FunnelResponse(CREATED, "Your profile updated successfully.", "Megam::Account").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

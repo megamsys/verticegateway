@@ -25,13 +25,13 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.team.Organizations.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """Organizations created successfully""", "Megam::Organizations").toJson(true))
+                FunnelResponse(CREATED, "Organization created successfully", "Megam::Organizations").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -55,7 +55,7 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Request wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.team.Organizations.findByEmail(email) match {
             case Success(succ) => {
@@ -84,13 +84,13 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
         case Success(succ) => {
-          val freq = succ.getOrElse(throw new Error("Organizations wasn't funneled. Verify the header."))
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.team.Organizations.inviteOrganization(email, clientAPIBody) match {
            case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, """User added into Organization successfully""" , "Megam::Organizations").toJson(true))
+                FunnelResponse(CREATED, "We invited into your organization successfully" , "Megam::Organizations").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

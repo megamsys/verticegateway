@@ -22,7 +22,6 @@ case class AOneWasher(pq: models.Messageble) extends MessageContext {
   val msg = pq.messages
 
   def wash(): ValidationNel[Throwable, AMQPResponse] = {
-    play.api.Logger.debug("%-20s -->[%s]".format("Washing:[" + topic + "]", msg))
     execute(nsqClient.publish(msg))
   }
 }

@@ -44,7 +44,7 @@ case class AccountInput(name: Name, phone: Phone, email: String, api_key: String
   val json = "{\"name\":" +name.json+",\"phone\":" + phone.json + ",\"email\":\"" + email + "\",\"api_key\":\"" + api_key + "\",\"password\":" + password.json + ",\"states\":" + states.json + ",\"approval\":" + approval.json + ",\"suspend\":" + suspend.json + ",\"registration_ip_address\":\"" + registration_ip_address + "\",\"dates\":" + dates.json + "}"
 }
 
-case class AccountResetSack(password_reset_key: String, password_reset_sent_at: String) {
+case class AccountReset(password_reset_key: String, password_reset_sent_at: String) {
   val password = Password(password_reset_key, password_reset_sent_at)
   val json = "{\"id\":\""+ "\",\"name\":" + Name.empty.json+",\"phone\":" + Phone.empty.json + ",\"email\":\"" + "\",\"api_key\":\""  + "\",\"password\":" + password.json + ",\"states\":" + States.empty.json + ",\"approval\":" + Approval.empty.json + ",\"suspend\":" + Suspend.empty.json + ",\"registration_ip_address\":\"" + "\",\"dates\":" + Dates.empty.json + "}"
 
@@ -171,8 +171,6 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
   }
 
   def dbGet(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Account, dbGet.", ".."))
-
     val res = select.where(_.email eqs email).one()
     Await.result(res, 5.seconds).successNel
   }
@@ -207,7 +205,6 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
         NilorNot(rip.suspend.suspended_till, aor.get.suspend.suspended_till)))
 
       .and(_.registration_ip_address setTo NilorNot(rip.registration_ip_address, aor.get.registration_ip_address))
-      // .and(_.json_claz setTo NilorNot(rip.json_claz, aor.get.json_claz))
 
       .and(_.dates setTo new Dates(NilorNot(rip.dates.last_posted_at, aor.get.dates.last_posted_at),
         NilorNot(rip.dates.last_emailed_at, aor.get.dates.last_emailed_at),
@@ -228,6 +225,12 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
 }
 object Accounts extends ConcreteAccounts {
 
+  ///////////////// All these conversion stuff should move out. ///////////
+  // 1. Get me an account input object from a string
+  // 2. Get me an account result object from account_input
+  // 3. Get me a clone of account result with password hashed
+  // 3. Get me a account result with passticket verified and mutated with new password hash
+  // 5. Get me a account result with passticket updated.
   private def parseAccount(input: String): ValidationNel[Throwable, AccountInput] = {
     (Validation.fromTryCatchThrowable[AccountInput, Throwable] {
       parse(input).extract[AccountInput]
@@ -239,10 +242,45 @@ object Accounts extends ConcreteAccounts {
       val dates = new Dates(m.dates.last_posted_at, m.dates.last_emailed_at, m.dates.previous_visit_at, 
           m.dates.first_seen_at, Time.now.toString)
           
-      val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") //b64 pkbd12 + salt pw.
+      val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") 
       AccountResult(id, m.name,  m.phone, m.email, m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  dates)
     } leftMap { t: Throwable => new MalformedBodyError(m.json, t.getMessage) }).toValidationNel
   }
+  
+  private def mkAccountResultDup(m: AccountResult): ValidationNel[Throwable, AccountResult] = {
+    (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
+      if(m.password!=null && m.password.password_hash!=null && m.password.password_hash.trim.length >0) {
+        val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") 
+      
+        AccountResult(m.id, m.name,  m.phone, m.email, m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
+      } else {
+        AccountResult(m.id, m.name,  m.phone, m.email, m.api_key, m.password, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
+      }
+    }).toValidationNel
+  }
+  
+  private def mkAccountResultWithPassword(m: AccountResult, old: AccountResult): ValidationNel[Throwable, AccountResult] = {
+    if (m.password.password_reset_key == old.password.password_reset_key) {
+      val pwd =  new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") 
+
+      val mupd = AccountResult(m.id, m.name,  m.phone, m.email, m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
+
+      Validation.success[Throwable, AccountResult](mupd).toValidationNel
+    } else {
+      Validation.failure[Throwable, AccountResult](new CannotAuthenticateError(m.email, "Password token didn't match.")).toValidationNel
+    }
+  }
+  
+  private def mkAccountResultWithToken(t: String): ValidationNel[Throwable, AccountResult] = {
+      val pwd =  new Password("",t, Time.now.toString)
+      val m = AccountResult("dum")
+
+      val mupd = AccountResult("", m.name,  m.phone, "", m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
+
+      Validation.success[Throwable, AccountResult](mupd).toValidationNel
+    
+  }
+  ///////////////// All these conversion stuff should move out. ///////////
 
   private def mkOrgIfEmpty(email: String, orgs: Seq[OrganizationsResult], acc: AccountResult): ValidationNel[Throwable, AccountResult] = {
     val org_json    = "{\"name\":\"" + app.MConfig.org + "\"}"
@@ -268,27 +306,15 @@ object Accounts extends ConcreteAccounts {
     }
   }
   
-  private def canPasswordReset(update_account: AccountResult, old_account: AccountResult): ValidationNel[Throwable, AccountResult] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Account, verify token.", update_account.email))
-
-    if (update_account.password.password_reset_key == old_account.password.password_reset_key) {
-      Validation.success[Throwable, AccountResult](update_account).toValidationNel
-    } else {
-      Validation.failure[Throwable, AccountResult](new CannotAuthenticateError(update_account.email, "Password token didn't match.")).toValidationNel
-    }
-  }
-  
 
   def login(input: String): ValidationNel[Throwable, AccountResult] = {
     for {
-      p   <- parseAccount(input)
-      res <- (Accounts.findByEmail(p.email) leftMap { t: NonEmptyList[Throwable] => t })
-      s   <- SecurityActions.Validate(p.password.password_hash, res.get.password.password_hash)
-      e   <- Events(res.get.id, EVENTUSER, Events.LOGIN, Map(EVTEMAIL -> p.email)).createAndPub() 
+      p <- parseAccount(input)
+      a <- (Accounts.findByEmail(p.email) leftMap { t: NonEmptyList[Throwable] => t })
+      s <- SecurityActions.Validate(p.password.password_hash, a.get.password.password_hash)
+      e <- Events(a.get.id, EVENTUSER, Events.LOGIN, Map(EVTEMAIL -> p.email)).createAndPub() 
     } yield {
-     play.api.Logger.debug(("%-20s -->[%s]").format("Account, y.", res))
-      
-      res.get
+     a.get
     }
   }
 
@@ -308,49 +334,46 @@ object Accounts extends ConcreteAccounts {
   
 
   def update(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Account, updating.", email))
-    
-    val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
+    val accountResult: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     
     for {
-      rip <- ripNel
-      res <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      set <- dbUpdate(email, rip, res)
+      t <- accountResult
+      c <- mkAccountResultDup(t)
+      a <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      d <- dbUpdate(email, c, a)
     } yield {
-      res
+      a
     }
   }
 
   def forgot(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Account, forgot password.", email))
+    val token = generateToken(26)
     
-    val hex = randomAlphaNumericString(16)
     for {
-      rip <- update(email, AccountResetSack(hex, Time.now.toString).json)
-      acc <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
-      evn <- Events(acc.get.id, EVENTUSER, Events.RESET, Map(EVTEMAIL -> acc.get.email, EVTTOKEN -> hex)).createAndPub()
+      a <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      s <- mkAccountResultWithToken(token)
+      d <- dbUpdate(email,s, a)
+      e <- Events(a.get.id, EVENTUSER, Events.RESET, Map(EVTEMAIL -> a.get.email, EVTTOKEN -> token)).createAndPub()
     } yield {
-      rip
+      a
     }
   }
 
 
   def password_reset(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    play.api.Logger.debug(("%-20s -->[%s]").format("Account, password token.", email))
-    
-    val ripNel: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
+    val accountResult: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
-      rip <- ripNel
-      acc <- (Accounts.findByEmail(rip.email) leftMap { t: NonEmptyList[Throwable] => t })
-      chk <- (canPasswordReset(rip, acc.get) leftMap { t: NonEmptyList[Throwable] => t })
-      upd <- (dbUpdate(rip.email, rip, acc) leftMap { t: NonEmptyList[Throwable] => t})
+      c  <- accountResult
+      a  <- (Accounts.findByEmail(c.email) leftMap { t: NonEmptyList[Throwable] => t })
+      m  <- (mkAccountResultWithPassword(c, a.get) leftMap { t: NonEmptyList[Throwable] => t })
+      u  <- (dbUpdate(c.email, m, a) leftMap { t: NonEmptyList[Throwable] => t})
     } yield {
-      acc
+      c.some
     }
   }
 
@@ -359,7 +382,7 @@ object Accounts extends ConcreteAccounts {
     InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
       name: String =>
         {
-          play.api.Logger.debug(("%-20s -->[%s]").format("InMemory", email))
+          play.api.Logger.debug(("%-20s -->[%s]").format("LIV", email))
           (dbGet(email) leftMap { t: NonEmptyList[Throwable] =>
             new ServiceUnavailableError(email, (t.list.map(m => m.getMessage)).mkString("\n"))
           }).toValidationNel.flatMap { xso: Option[AccountResult] =>
@@ -377,17 +400,16 @@ object Accounts extends ConcreteAccounts {
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
-      val notSed = maybeASediment.isSuccess
-      notSed
+       maybeASediment.isSuccess
     }
   }
 
-  def randomAlphaNumericString(length: Int): String = {
+  private def generateToken(length: Int): String = {
     val chars = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
-    randomStringFromCharList(length, chars)
+    generateTokenFrom(length, chars)
   }
 
-  def randomStringFromCharList(length: Int, chars: Seq[Char]): String = {
+  private def generateTokenFrom(length: Int, chars: Seq[Char]): String = {
     val sb = new StringBuilder
     for (i <- 1 to length) {
       val randomNum = util.Random.nextInt(chars.length)
