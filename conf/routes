@@ -42,6 +42,11 @@ POST  /v2/snapshots/content              controllers.Snapshots.post
 GET   /v2/snapshots                      controllers.Snapshots.list
 GET   /v2/snapshots/:id                  controllers.Snapshots.show(id: String)
 
+#Disk
+POST  /v2/disks/content                   controllers.Disks.post
+GET   /v2/disks                           controllers.Disks.list
+GET   /v2/disks/:id                       controllers.Disks.show(id: String)
+
 #MarketPlaces
 GET    /v2/marketplaces                  controllers.MarketPlaces.list
 GET    /v2/marketplaces/:flavor          controllers.MarketPlaces.show(flavor: String)

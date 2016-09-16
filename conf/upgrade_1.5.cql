@@ -44,3 +44,7 @@ DROP TABLE IF EXISTS events_for_containers;
 CREATE TABLE events_for_containers (id text, event_type text, account_id text, assembly_id text, data list<text>, json_claz text, created_at timestamp, PRIMARY KEY(account_id, created_at, assembly_id, event_type))WITH CLUSTERING ORDER BY(created_at desc, assembly_id desc, event_type desc);
 
 UPDATE marketplaces SET cattype='CONTAINERS' where settings_name='vertice' and flavor='DockerContainer';
+
+ALTER TABLE snapshots ADD status text;
+
+create table disks (id text, disk_id  text, asm_id text, org_id text, account_id text, size text, status text, json_claz text, created_at text, PRIMARY KEY ((id), account_id, asm_id));
