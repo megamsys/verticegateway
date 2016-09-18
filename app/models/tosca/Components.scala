@@ -262,7 +262,6 @@ object Component extends ConcreteComponent {
         }).toValidationNel.flatMap { xso: Option[ComponentResult] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("Component Result", xs))
               Validation.success[Throwable, ComponentResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
@@ -339,7 +338,6 @@ object ComponentsList extends ConcreteComponent {
       res = (input map { asminp => (create(authBag, asminp, asm_id))
       }).foldRight((ComponentLists.empty).successNel[Throwable])(_ +++ _)
     }
-    play.api.Logger.debug(("%-20s -->[%s]").format("models.tosca.Components", res))
     res
   }
 

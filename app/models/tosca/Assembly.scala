@@ -216,7 +216,6 @@ object Assembly extends ConcreteAssembly {
         }).toValidationNel.flatMap { xso: Option[AssemblyResult] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("Assembly Result", xs))
               Validation.success[Throwable, AssemblyResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
@@ -283,9 +282,8 @@ object AssemblysList extends ConcreteAssembly {
     val res = (input map {
       asminp => (create(authBag, asminp))
     }).foldRight((AssemblysLists.empty).successNel[Throwable])(_ +++ _)
-    play.api.Logger.debug(("%-20s -->[%s]").format("AssemblysLists", res))
-    res.getOrElse(new ResourceItemNotFound(authBag.get.email, "assembly = ah. ouh. for some reason.").failureNel[AssemblysLists])
-    res
+      res.getOrElse(new ResourceItemNotFound(authBag.get.email, "assembly = ah. ouh. for some reason.").failureNel[AssemblysLists])
+      res
   }
 
   /*
