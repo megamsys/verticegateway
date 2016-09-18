@@ -198,7 +198,6 @@ object Assemblies extends ConcreteAssemblies {
         }).toValidationNel.flatMap { xso: Option[AssembliesResult] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("AssembliesResult", xs))
               Validation.success[Throwable, AssembliesResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {

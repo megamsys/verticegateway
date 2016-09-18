@@ -85,7 +85,7 @@ val phantomV = "1.25.4"
 
 libraryDependencies ++= Seq(filters, cache,
   "org.yaml" % "snakeyaml" % "1.17",
-  "io.megam" %% "libcommon" % "1.6.1",
+  "io.megam" %% "libcommon" % "1.7.0",
   "io.megam" %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.8",
   "com.websudos"      %%  "phantom-dsl"               % phantomV,
