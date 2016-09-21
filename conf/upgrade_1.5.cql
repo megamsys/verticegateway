@@ -48,3 +48,5 @@ UPDATE marketplaces SET cattype='CONTAINERS' where settings_name='vertice' and f
 ALTER TABLE snapshots ADD status text;
 
 create table disks (id text, disk_id  text, asm_id text, org_id text, account_id text, size text, status text, json_claz text, created_at text, PRIMARY KEY ((id), account_id, asm_id));
+
+ALTER TABLE snapshots ADD image_id text;
