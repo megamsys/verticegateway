@@ -189,24 +189,32 @@ def generateCreatedAt(created_at: String): DateTime = {
    * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
-  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
+  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerReturnResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsContainerResult] =>
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsContainerResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
+    if (!nm.isEmpty) {
+      val res = nm.map {
+        evr ⇒ new EventsContainerReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+      }
+      Validation.success[Throwable, Seq[EventsContainerReturnResult]](res).toValidationNel
+    } else {
+        Validation.failure[Throwable, Seq[EventsContainerReturnResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
+        }
     }
   }
-  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
+  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsContainerReturnResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsContainerResult] =>
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsContainerResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
+    if (!nm.isEmpty) {
+      val res = nm.map {
+        evr ⇒ new EventsContainerReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+      }
+      Validation.success[Throwable, Seq[EventsContainerReturnResult]](res).toValidationNel
+    } else {
+        Validation.failure[Throwable, Seq[EventsContainerReturnResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
+        }
     }
 
   }
