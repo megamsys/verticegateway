@@ -149,7 +149,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.created success", Console.RESET))
-    pub(email, wa)
+    atPub(email, wa)
     wa.some
   }
 }
@@ -183,8 +183,16 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
     }
 
   }
-  private def pub(email: String, wa: DisksResult): ValidationNel[Throwable, DisksResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.id, "", "", DISK, DISKSTATE).json)
+
+  //We support attaching disks for a VM. When we do containers we need to rethink.
+  private def atPub(email: String, wa: DisksResult): ValidationNel[Throwable, DisksResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(wa.id, CATTYPE_TORPEDO, "", ATTACH_DISK, DISKS).json)
+    wa.successNel[Throwable]
+  }
+
+  //We support dettaching disks for a VM. When we do containers we need to rethink.
+  private def dePub(email: String, wa: DisksResult): ValidationNel[Throwable, DisksResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(wa.id, CATTYPE_TORPEDO, "", DETACH_DISK, DISKS).json)
     wa.successNel[Throwable]
   }
 

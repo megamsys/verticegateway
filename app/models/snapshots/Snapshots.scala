@@ -117,12 +117,6 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
 
 object Snapshots extends ConcreteSnapshots {
 
-/**
- * A private method which chains computation to make GunnySack when provided with an input json, email.
- * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
- * After that flatMap on its success and the account id information is looked up.
- * If the account id is looked up successfully, then yield the GunnySack object.
- */
 private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwable, SnapshotsResult] = {
   val snapshotsInput: ValidationNel[Throwable, SnapshotsInput] = (Validation.fromTryCatchThrowable[SnapshotsInput, Throwable] {
     parse(input).extract[SnapshotsInput]
@@ -139,27 +133,19 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
   }
 }
 
-/*
- * create new snapshot for the user.
- *
- */
+
 def create(email: String, input: String): ValidationNel[Throwable, Option[SnapshotsResult]] = {
   for {
     wa <- (mkSnapshotsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Snapshots.created success", Console.RESET))
-    pub(email, wa)
+    atPub(email, wa)
     wa.some
   }
 }
 
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
-   */
+
   def findByEmail(accountID: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
     (listRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Snapshots = nothing found.")
@@ -184,8 +170,15 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
 
   }
 
-  private def pub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, "", "", SNAPSHOT, SNAPSTATE).json)
+  //We support attaching disks for a VM. When we do containers we need to rethink.
+  private def atPub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, CATTYPE_TORPEDO, "", SNAPSHOT_CREATE, SNAPSHOT).json)
+    wa.successNel[Throwable]
+  }
+
+  //We support attaching disks for a VM. When we do containers we need to rethink.
+  private def dePub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, CATTYPE_TORPEDO, "", SNAPSHOT_REMOVE, SNAPSHOT).json)
     wa.successNel[Throwable]
   }
 

@@ -1,12 +1,18 @@
 Vertice Gateway
 ================
 
-API server for "[Megam vertice](https://www.megam.io)". The API server protectes the RESTful resources using [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
+API server for "[Megam vertice](https://www.megam.io)".
+
+The API server protects the RESTful resources using
+
+- [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
+- PASSWORD based on PBKDF2
+- AuthAuth using a master key
 
 ## Requirements
 
 
-1. [SBT 0.13.12 >](https://scala-sbt.org)
+1. [SBT 0.13.11 >](https://scala-sbt.org)
 2. [NSQ 0.3.x  ](http://nsq.io)
 3. [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
 4. [Cassandra 3 +](http://apache.cassandra.org)
@@ -41,7 +47,7 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 
 [Install Cassandra](http://cassandra.apache.org/download/)
 
-[Install and start NSQ.io](http://nsq.io/deployment/installing.html)
+[Install NSQ.io](http://nsq.io/deployment/installing.html)
 
 
 ## Setup cassandra keyspace
@@ -100,10 +106,11 @@ Now you are all set.
 
 For [contribution] (https://github.com/megamsys/vertice/blob/master/CONTRIBUTING.md)
 
+As this is heavy on memory, we have a work in progress 2.0 code which is based on rust.
+
 # Documentation
 
-For [documentation] (http://docs.megam.io)
-    [wiki] (https://github.com/megamsys/vertice/wiki)
+For [documentation] (http://docs.megam.io)  [wiki] (https://github.com/megamsys/vertice/wiki)
 
 # License
 
@@ -112,4 +119,4 @@ MIT
 
 # Authors
 
-Maintainers Megam (<info@megam.io>)
+Megam - Humans (<info@megam.io>)

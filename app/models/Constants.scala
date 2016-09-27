@@ -13,38 +13,34 @@ object Constants {
   val CONTROL = "control"
   val START = "start"
   val STOP = "stop"
-  val SNAPSHOT = "disksaveas"
-  val DISK = "diskattach"
-  val SNAPSTATE = "snapshot"
-  val DISKSTATE = "disk"
+  val REBOOT = "restart"
+
+  val SNAPSHOT = "snapshot"            //category
+  val SNAPSHOT_CREATE = "snapcreate"  //action
+  val SNAPSHOT_REMOVE = "snapremove"  //action
+
+  val DISKS = "disks"                 //category
+  val ATTACH_DISK = "attachdisk"      //action
+  val DETACH_DISK = "detachdisk"      //action
+
   val BIND = "bind"
   val BUILD = "build"
-  val REBOOT = "restart"
+
   val OPERTATIONS = "operations"
   val UPGRADE = "upgrade"
 
   val CATTYPE_DOCKER = "microservices"
   val CATTYPE_TORPEDO = "torpedo"
-  val DOMAIN = "domain"
 
-  //index used by accounts bucket
-  val idxAccountsId = "AccountsId"
-  //index used by marketplaces bucket
-  val idxMarketplaceName = "MarketplaceName"
-  //index used by domains bucket
-  val idxDomainName = "DomainName"
-  //index used by requests bucket
-  val idxAssemblyId = "AssemblyId"
-  //index used by assemblies bucket a set of (accountsid, orgid)
-  val idxTeamId = "TeamId"
+  val DOMAIN = "domain"
 
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ASSEMBLIESCLAZ                  = "Megam::Assemblies"
   val ASSEMBLIESCOLLECTIONCLAZ        = "Megam::AssembliesCollection"
   val ASSEMBLYCLAZ                    = "Megam::Assembly"
   val ASSEMBLYCOLLECTIONCLAZ          = "Megam::AssemblyCollection"
-  val ADDONSCLAZ                     = "Megam::Addons"
-  val ADDONSCOLLECTIONCLAZ           = "Megam::AddonsCollection"
+  val ADDONSCLAZ                      = "Megam::Addons"
+  val ADDONSCOLLECTIONCLAZ            = "Megam::AddonsCollection"
   val AUTHCLAZ                        = "Megam::Auth"
   val AVAILABLEUNITSCLAZ              = "Megam::Availableunits"
   val AVAILABLEUNITSCOLLECTIONCLAZ    = "Megam::AvailableunitsCollection"
@@ -94,6 +90,5 @@ object Constants {
   val SUBSCRIPTIONSCLAZ               = "Megam::Subscriptions"
   val SUBSCRIPTIONSCOLLECTIONCLAZ     = "Megam::SubscriptionsCollection"
   val MEGAM_PROMOSCLAZ                = "Megam::Promos"
-
 
 }
