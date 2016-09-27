@@ -51,7 +51,7 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
 ╚══════╝╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝
 
      """)
-    play.api.Logger.info("Shark bait...")
+    play.api.Logger.info("Go fishing ><)))*>")
   }
 
   override def onError(request: RequestHeader, ex: Throwable): Future[play.api.mvc.Result] = {

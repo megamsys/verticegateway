@@ -18,6 +18,8 @@ import io.megam.util.Time
 import play.api.Logger
 import play.api.Play._
 import play.api.libs.json.Json
+import play.Play;
+
 /**
  * @author ram
  *
@@ -30,10 +32,13 @@ case object Hellow {
   case class Treasure(infra: Map[String, String],
     hunts: Map[String, THunt]) {
 
-    //crude but for now its ok.
+    val version = scala.io.Source.fromFile(Play.application().getFile("VERSION")).getLines().toList.map {x => (x.split("=").head, x.split("=").last)}.toMap
+
     val stat = (hunts.map { x => (x._1, x._2._2.getOrElse("down")) }).toMap
 
-    val json = Json.prettyPrint(Json.toJson(Map("status" -> stat,
+    val json = Json.prettyPrint(Json.toJson(Map(
+      "about" -> version,
+      "status" -> stat,
       "runtime" -> infra
       )))
     println(json)
