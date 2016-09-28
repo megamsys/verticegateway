@@ -17,7 +17,7 @@ package object base {
   object SshKeysResults {
     val emptyNR = List(Option.empty[SshKeysResult])
     def apply(m: Option[SshKeysResult]) = List(m)
-    def empty: SshKeysResults = List() 
+    def empty: SshKeysResults = List()
   }
 
 }

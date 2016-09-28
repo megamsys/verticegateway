@@ -11,9 +11,11 @@ import controllers.Constants._
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import io.megam.auth.stack.AccountResult
+import io.megam.auth.stack.MasterKeyResult
 import play.api.mvc._
 import play.api.libs.iteratee.Enumerator
 import models.base.Accounts
+import models.base.MasterKeys
 
 /**
  * @author rajthilak
@@ -30,4 +32,9 @@ trait APIAuthElement extends io.megam.auth.stack.AuthElement {
   override def authImpl(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     Accounts.findByEmail(input)
   }
+
+  override def masterImpl(input: String): ValidationNel[Throwable, Option[MasterKeyResult]] = {
+    MasterKeys.findById(input)
+  }
+
 }
