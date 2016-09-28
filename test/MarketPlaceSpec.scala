@@ -43,10 +43,10 @@ class MarketPlaceSpec extends Specification {
       MarketPlacesSpec is the implementation that calls the API server with the /marketplaces url to create MarketPlaces
     """ ^ end ^
       "The Client Should" ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      //"Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      //"Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
       end
 
   case object List extends Context {

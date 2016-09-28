@@ -16,4 +16,5 @@ object MConfig {
 
   val org = play.api.Play.application(play.api.Play.current).configuration.getString("org").get
   val domain = play.api.Play.application(play.api.Play.current).configuration.getString("domain").get
+  val master_key = play.api.Play.application(play.api.Play.current).configuration.getString("master.key").get
 }
