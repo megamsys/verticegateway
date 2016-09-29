@@ -7,5 +7,6 @@ mkdir -p $MEGAM_HOME/verticegateway
 cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/
 cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/
 cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
+cp  /usr/share/megam/verticegateway/conf/VERSION /usr/share/megam/verticegateway/
 
 [ -d /var/run/verticegateway ] && rm -rf /var/run/verticegateway
