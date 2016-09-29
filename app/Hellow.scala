@@ -3,7 +3,6 @@ package app
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
@@ -50,11 +49,10 @@ case object Hellow {
   val SPACE = "freespace"
   val CPU_CORES = "cores"
 
-  val NSQ = "nsq"
-  val SCYLLA = "cassandra"
-  val RUNNING = "up"
+  val NSQ       = "nsq"
+  val CASSANDRA = "cassandra"
 
-  val What2Hunts = Array(NSQ)
+  val RUNNING   = "up"
 
   import java.lang.management.{ ManagementFactory, OperatingSystemMXBean }
   import java.lang.reflect.{ Method, Modifier }
@@ -82,7 +80,12 @@ case object Hellow {
     case Failure(erruid) => (MConfig.nsqurl, none)
   }
 
-  val sharks = Map(NSQ -> nsq)
+  private def cassandra = new CassandraChecker().check match {
+    case Success(succ)  => (MConfig.cassandra_host, Some(RUNNING))
+    case Failure(err)   => (MConfig.cassandra_host, none)
+  }
+
+  val sharks = Map(NSQ -> nsq, CASSANDRA -> cassandra)
 
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)

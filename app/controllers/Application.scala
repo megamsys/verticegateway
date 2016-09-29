@@ -2,8 +2,6 @@ package controllers
 
 
 import app.Hellow
-import io.megam.auth.funnel._
-import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 
 /**

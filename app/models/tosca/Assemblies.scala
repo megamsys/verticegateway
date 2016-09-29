@@ -3,7 +3,6 @@ package models.tosca
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
@@ -38,6 +37,12 @@ import com.websudos.phantom.iteratee.Iteratee
  *
  */
 case class AssembliesInput(name: String, org_id: String, assemblies: models.tosca.AssemblysList, inputs: KeyValueList) {
+
+  val inputsMap = KeyValueList.toMap(inputs)
+
+  def number_of_units: Int =   inputsMap.getOrElse("number_of_units", "0").toInt
+
+  def nameOverriden(name: String): String =  { inputsMap.getOrElse(name, name) }
 }
 
 case class KeyValueField(key: String, value: String) {
@@ -163,22 +168,23 @@ case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[St
 
 object Assemblies extends ConcreteAssemblies {
 
-  private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, WrapAssembliesResult] = {
-    val ripNel: ValidationNel[Throwable, AssembliesInput] = (Validation.fromTryCatchThrowable[AssembliesInput, Throwable] {
-      parse(input).extract[AssembliesInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: AssembliesInput): ValidationNel[Throwable, WrapAssembliesResult] = {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, (input.org_id + ":" + input.name), Console.RESET))
+
+    val inp: ValidationNel[Throwable, AssembliesInput] = input.successNel[Throwable]
+
     for {
-      rip <- ripNel
-      ams <- (AssemblysList.createLinks(authBag, rip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
+      iip <- inp
+      ams <- (AssemblysList.createLinks(authBag, iip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
       uir <- (UID("ams").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val asml = ams.flatMap { assembly => nels({ assembly.map { a => (a.id, a.tosca_type) } }) }
       val asmlist = asml.toList.filterNot(_.isEmpty)
-      new WrapAssembliesResult((AssembliesResult(uir.get._1 + uir.get._2, rip.org_id, rip.name, asmlist.map(_.get._1), rip.inputs)).some, asmlist.map(_.get).toMap)
+      new WrapAssembliesResult((AssembliesResult(uir.get._1 + uir.get._2, iip.org_id, iip.name, asmlist.map(_.get._1), iip.inputs)).some, asmlist.map(_.get).toMap)
     }
   }
 
-  def create(authBag: Option[io.megam.auth.stack.AuthBag], input: String): ValidationNel[Throwable, AssembliesResult] = {
+  def create(authBag: Option[io.megam.auth.stack.AuthBag], input: AssembliesInput): ValidationNel[Throwable, AssembliesResult] = {
     for {
       wa <- (mkAssembliesSack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa.thatGS.get) leftMap { t: NonEmptyList[Throwable] => t })
@@ -188,6 +194,7 @@ object Assemblies extends ConcreteAssemblies {
       wa.ams.get
     }
   }
+
 
   def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
     (assembliesID map {
@@ -205,18 +212,13 @@ object Assemblies extends ConcreteAssemblies {
             }
           }
         }
-      } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+      }
     } map {
       _.foldRight((AssembliesResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
   }
 
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
-   */
+
   def findByEmail(email: String, org: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
     (listRecords(email, org) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(email, "Assemblies = nothing found.")
@@ -229,7 +231,7 @@ object Assemblies extends ConcreteAssemblies {
 
   }
 
-  /* Lets clean it up in 1.0 using Messageable  */
+  /* Lets clean it up in 2.0 using Messageable  */
   private def pub(email: String, wa: WrapAssembliesResult): ValidationNel[Throwable, AssembliesResult] = {
     models.base.Requests.createAndPub(email, RequestInput(wa.ams.get.id, wa.cattype, "", CREATE, STATE).json)
     wa.ams.get.successNel[Throwable]

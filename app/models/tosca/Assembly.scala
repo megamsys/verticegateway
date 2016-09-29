@@ -286,10 +286,7 @@ object AssemblysList extends ConcreteAssembly {
       res
   }
 
-  /*
-   * create new market place item with the 'name' of the item provide as input.
-   * A index name assemblies name will point to the "csars" bucket
-   */
+
   def create(authBag: Option[io.megam.auth.stack.AuthBag], input: Assembly): ValidationNel[Throwable, AssemblysLists] = {
     for {
       ogsi <- mkAssemblySack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err }

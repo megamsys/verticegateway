@@ -3,7 +3,6 @@ package models.base
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
@@ -56,7 +55,7 @@ class Events(evi: EventInput) {
     (create() leftMap { err: NonEmptyList[Throwable] =>
       err
     }).flatMap { pq: Option[wash.PQd] =>
-      if (!MConfig.mute_emails.contains(evi.email) && 
+      if (!MConfig.mute_emails.contains(evi.email) &&
           !MConfig.mute_events) {
         (new wash.AOneWasher(pq.get).wash).
           flatMap { maybeGS: AMQPResponse =>

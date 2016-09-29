@@ -19,15 +19,15 @@ trait ScyllaConnector extends SessionProvider with RootConnector {
 
 object Connector {
 
-  val hosts = MConfig.scyllaurl
-  val keyspace: KeySpace = KeySpace(MConfig.scylla_keyspace)
+  val hosts = MConfig.cassandra_host
+  val keyspace: KeySpace = KeySpace(MConfig.cassandra_keyspace)
 
   val cluster =
     Cluster.builder()
       .addContactPoints(hosts)
-      .withCredentials(MConfig.scylla_username, MConfig.scylla_password)
+      .withCredentials(MConfig.cassandra_username, MConfig.cassandra_password)
       .build()
-  println(cluster)
+
   val session: Session = cluster.connect(keyspace.name)
 }
 

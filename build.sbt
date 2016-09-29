@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "verticegateway"
 
-version := "1.5.4"
+version := "1.5.5"
 
 scalaVersion := "2.11.8"
 
@@ -84,14 +84,14 @@ resolvers += "Websudos" at "https://dl.bintray.com/websudos/oss-releases/"
 val phantomV = "1.25.4"
 
 libraryDependencies ++= Seq(filters, cache,
-  "org.yaml" % "snakeyaml" % "1.17",
-  "io.megam" %% "libcommon" % "1.7.0",
-  "io.megam" %% "newman" % "1.3.12",
+  "org.yaml"          % "snakeyaml" % "1.17",
+  "io.megam"          %% "libcommon" % "1.7.2",
+  "io.megam"          %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.8",
   "com.websudos"      %%  "phantom-dsl"               % phantomV,
   "com.websudos"      %%  "phantom-connectors"        % phantomV,
-  "org.specs2" %% "specs2-core" % "3.7.2-scalaz-7.1.7" % "test",
-  "org.specs2" % "specs2-matcher-extra_2.11" % "3.7.2-scalaz-7.1.7" % "test")
+  "org.specs2"        %% "specs2-core" % "3.7.2-scalaz-7.1.7" % "test",
+  "org.specs2"        % "specs2-matcher-extra_2.11" % "3.7.2-scalaz-7.1.7" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 
@@ -109,7 +109,7 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 }
 
 
-maintainer in Linux := "Megam Maintainers <info@megam.io>"
+maintainer in Linux := "Megam Humans <info@megam.io>"
 
 packageSummary in Linux := "VerticeGateway is a REST API server."
 
