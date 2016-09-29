@@ -8,7 +8,7 @@ mkdir -p $MEGAM_HOME/verticegateway
 cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/vertice.cql
 cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/gateway.conf
 cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
-cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/vertice.cql
+cp  /usr/share/megam/verticegateway/conf/VERSION /usr/share/megam/verticegateway/
 
 dist=`grep PRETTY_NAME /etc/*-release | awk -F '="' '{print $2}'`
 os=$(echo $dist | awk '{print $1;}')

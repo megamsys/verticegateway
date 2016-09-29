@@ -38,6 +38,13 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
        =====      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
     """)
     play.api.Logger.info("started ...")
+
+    for {
+          m <- utils.PlatformAppPrimer.masterkeys_prep
+        } yield {
+          play.api.Logger.info(">> priming: successful.")
+      }
+
   }
 
   override def onStop(app: play.api.Application) {

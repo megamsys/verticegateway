@@ -137,7 +137,7 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
 
   }
 
-  def getRecords(created_at: DateTime, assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def getRecords(email: String, created_at: DateTime, assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
     var count = ""
     if (limit == "0") {
       count = "10"
@@ -145,7 +145,8 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
       count = limit
     }
     val times = getTimes(created_at)
-    val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
+    //val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
+    val res = select.where(_.account_id eqs email).orderBy(_.created_at desc).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -190,13 +191,13 @@ object EventsVm extends ConcreteEventsVm {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] ⇒
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsVmResult] ⇒
-    if (!nm.isEmpty) {
-      val res = nm.map {
-        evr ⇒ new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
-      }
-      Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
-     } else {
-      Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
+      if (!nm.isEmpty) {
+        val res = nm.map {
+          evr ⇒ new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+        }
+        Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
+      } else {
+        Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
       }
     }
 
@@ -206,22 +207,22 @@ object EventsVm extends ConcreteEventsVm {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] ⇒
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsVmResult] ⇒
-    if (!nm.isEmpty) {
-      val res = nm.map {
-        evr ⇒ new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+      if (!nm.isEmpty) {
+        val res = nm.map {
+          evr ⇒ new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+        }
+        Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
+      } else {
+        Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
       }
-      Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
-    } else {
-      Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
     }
-  }
 
- }
+  }
 
   def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmReturnResult]] = {
     (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] ⇒ err
     }).flatMap { ws: EventsVmResult ⇒
-      (getRecords(ws.created_at, ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] ⇒
+      (getRecords(email, ws.created_at, ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] ⇒
         new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
       }).toValidationNel.flatMap { nm: Seq[EventsVmResult] ⇒
         if (!nm.isEmpty) {

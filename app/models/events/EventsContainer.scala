@@ -130,7 +130,7 @@ abstract class ConcreteEventsContainer extends EventsContainerSacks with RootCon
     } else {
       count = limit
     }
-    val res = select.where(_.account_id eqs email).limit(count.toInt).fetch()
+    val res = select.where(_.account_id eqs email).orderBy(_.created_at desc).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
