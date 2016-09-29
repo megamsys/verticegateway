@@ -17,6 +17,11 @@ version=$(echo $id | awk '{print $1;}')
 versionId=${version::-1}
 if [ "$os" == "Ubuntu" ] &&  [ "$versionId" == "14.04" ]; then
   echo $os "verticegateway 1.5"
+cat > VERSION <<EOF
+git_version=`git rev-parse HEAD`
+git_branch=`git branch`
+EOF
+cp VERSION /usr/share/megam/verticegulpd
 else if [ "$os" == "Ubuntu" ] &&  [ "$versionId" == "16.04" ] || [ "$os" == "Debian" ]; then
 cat > /etc/systemd/system/verticegateway.service <<EOF
 ## Systemd script that starts vertice gateway
@@ -31,6 +36,11 @@ After=runlevel5.target
 ExecStart=/usr/share/megam/verticegateway/bin/verticegateway -Dlogger.file=/var/lib/megam/verticegateway/logger.xml -Dconfig.file=/var/lib/megam/verticegateway/gateway.conf
 KillMode=mixed
 EOF
+cat > VERSION <<EOF
+git_version=`git rev-parse HEAD`
+git_branch=`git branch`
+EOF
+cp VERSION /usr/share/megam/verticegulpd
 rm /etc/init/verticegateway.conf
 
 else

@@ -7,5 +7,10 @@ mkdir -p $MEGAM_HOME/verticegateway
 cp  /usr/share/megam/verticegateway/conf/vertice.cql $MEGAM_HOME/verticegateway/
 cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/
 cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
+cat > VERSION <<EOF
+git_version=`git rev-parse HEAD`
+git_branch=`git branch`
+EOF
+cp VERSION /usr/share/megam/verticegulpd
 
 [ -d /var/run/verticegateway ] && rm -rf /var/run/verticegateway
