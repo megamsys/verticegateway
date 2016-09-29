@@ -4,3 +4,9 @@
 [ -d /var/lib/megam/verticegateway/ ] ||  mkdir -p /var/lib/megam/verticegateway/
 
 [ -d /var/run/megam ] || mkdir /var/run/megam
+
+cat > VERSION <<EOF
+git_version=`git rev-parse HEAD`
+git_branch=`git branch`
+EOF
+cp VERSION /usr/share/megam/verticegateway
