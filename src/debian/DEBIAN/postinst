@@ -21,7 +21,7 @@ cat > VERSION <<EOF
 git_version=`git rev-parse HEAD`
 git_branch=`git branch`
 EOF
-cp VERSION /usr/share/megam/verticegulpd
+cp VERSION /usr/share/megam/verticegateway
 else if [ "$os" == "Ubuntu" ] &&  [ "$versionId" == "16.04" ] || [ "$os" == "Debian" ]; then
 cat > /etc/systemd/system/verticegateway.service <<EOF
 ## Systemd script that starts vertice gateway
@@ -40,7 +40,7 @@ cat > VERSION <<EOF
 git_version=`git rev-parse HEAD`
 git_branch=`git branch`
 EOF
-cp VERSION /usr/share/megam/verticegulpd
+cp VERSION /usr/share/megam/verticegateway
 rm /etc/init/verticegateway.conf
 
 else

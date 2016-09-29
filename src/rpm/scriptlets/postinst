@@ -11,6 +11,6 @@ cat > VERSION <<EOF
 git_version=`git rev-parse HEAD`
 git_branch=`git branch`
 EOF
-cp VERSION /usr/share/megam/verticegulpd
+cp VERSION /usr/share/megam/verticegateway
 
 [ -d /var/run/verticegateway ] && rm -rf /var/run/verticegateway
