@@ -95,7 +95,6 @@ object MasterKeys extends ConcreteMasterKeys {
       wa ← (mkMasterKeysSack(input) leftMap { err: NonEmptyList[Throwable] ⇒ err })
       set ← (insertNewRecord(wa.get) leftMap { t: NonEmptyList[Throwable] ⇒ t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Master Keys.created success", Console.RESET))
       wa
     }
   }

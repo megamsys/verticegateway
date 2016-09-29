@@ -33,9 +33,7 @@ object PlatformAppPrimer {
     mk ← masterkey
   } yield {
     val chainedComps = List[FunnelResponse](
-      FunnelResponse(CREATED, """Master key created successfully(%s).
-            |
-            |New Master Key registered successully.""".
+      FunnelResponse(CREATED, "Master key in the config file registered successfully(%s).".
         format("").stripMargin, "Megam::MasterKey"))
     FunnelResponses(chainedComps)
   }

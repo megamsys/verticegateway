@@ -31,7 +31,19 @@ case object Hellow {
   case class Treasure(infra: Map[String, String],
     hunts: Map[String, THunt]) {
 
-    val version = scala.io.Source.fromFile(Play.application().getFile("VERSION")).getLines().toList.map {x => (x.split("=").head, x.split("=").last)}.toMap
+    val versionFile =  (Validation.fromTryCatchThrowable[Option[scala.io.Source], Throwable] {
+      scala.io.Source.fromFile(Play.application().getFile("VERSION")).some
+    })
+
+    val version =  (for  {
+          vef <-  versionFile
+        } yield {
+           vef match {
+            case Some(vf) =>  vf.getLines().toList.map {x => (x.split("=").head, x.split("=").last)}.toMap
+            case None     =>  Map("git_version" -> "none ^(;,;)^")
+         }
+      }).getOrElse(Map("git_version" ->  "nada! ô¿ô"))
+
 
     val stat = (hunts.map { x => (x._1, x._2._2.getOrElse("down")) }).toMap
 
@@ -82,7 +94,12 @@ case object Hellow {
 
   private def cassandra = new CassandraChecker().check match {
     case Success(succ)  => (MConfig.cassandra_host, Some(RUNNING))
-    case Failure(err)   => (MConfig.cassandra_host, none)
+    case Failure(err)   =>  {
+       play.api.Logger.warn(("%s%s%-20s%s").format(Console.RED, Console.BOLD, "ERROR: Gateway failed to start as cassandra is down",Console.RESET))
+       play.api.Logger.warn(("%s%s%-20s%s").format(Console.YELLOW, Console.BOLD, "=> Please start cassandra - " +MConfig.cassandra_host ,Console.RESET))
+       System.exit(9)
+      (MConfig.cassandra_host, none)
+    }
   }
 
   val sharks = Map(NSQ -> nsq, CASSANDRA -> cassandra)

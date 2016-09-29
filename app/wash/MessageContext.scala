@@ -22,7 +22,6 @@ trait MessageContext {
   def topic: String
 
   def nsqClient = {
-    play.api.Logger.debug("%-20s -->[%s]".format("NSQ:", app.MConfig.nsqurl))
     new NSQClient(app.MConfig.nsqurl, topic)
   }
 
