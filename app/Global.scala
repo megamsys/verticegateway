@@ -6,19 +6,24 @@
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
+
 import play.api._
 import play.api.http.Status._
 import play.api.http.HeaderNames._
 import play.api.mvc._
 import play.api.mvc.Results._
+import play.api.Logger
+import play.api.Play._
+import play.Play;
+
 import play.filters.gzip.{ GzipFilter }
 import io.megam.auth.stack.HeaderConstants._
 import scala.concurrent.Future
 import controllers._
-import java.io._
+import db._
+import controllers.Constants._
 
 /**
  * We do bunch of things in Global, a gzip response is sent back to the client when the
@@ -38,14 +43,13 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
         | |      ╚██████╔╝██║  ██║   ██║   ███████╗╚███╔███╔╝██║  ██║   ██║
        =====      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
     """)
-    play.api.Logger.info("started ...")
 
     for {
+          c <- new db.CassandraChecker().check
           m <- utils.PlatformAppPrimer.masterkeys_prep
         } yield {
-          play.api.Logger.info(">> priming: successful.")
+          play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, "=> Configured master keys" ,Console.RESET))
       }
-
   }
 
   override def onStop(app: play.api.Application) {
@@ -56,9 +60,8 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
 ╚════██║██╔══╝  ██╔══╝        ╚██╔╝  ██╔══██║
 ███████║███████╗███████╗       ██║   ██║  ██║
 ╚══════╝╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝
-
      """)
-    play.api.Logger.info("Go fishing ><)))*>")
+    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, "=> Go fishing ><)))*>" ,Console.RESET))
   }
 
   override def onError(request: RequestHeader, ex: Throwable): Future[play.api.mvc.Result] = {

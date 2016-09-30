@@ -6,6 +6,7 @@ package models
  *
  */
 package object base {
+
   type MarketPlaceResults = List[Option[MarketPlaceSack]]
 
   object MarketPlaceResults {

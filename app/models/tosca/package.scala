@@ -16,6 +16,13 @@ import models.Constants._
  */
 package object tosca {
 
+
+  type AssembliesInputList = List[AssembliesInput]
+
+  object AssembliesInputList {
+    def empty: AssembliesInputList = List()
+  }
+
   type ComponentsList = List[Component]
 
   type AssemblysList = List[Assembly]
@@ -113,17 +120,11 @@ package object tosca {
   type KeyValueList = List[KeyValueField]
 
   object KeyValueList {
-    val OJA_EMAIL = "email"
-    val OJA_API_KEY = "api_key"
-    val OJA_ASSEMBLY_ID = "assembly_id"
-    val OJA_COMP_ID = "component_id"
-    val OJA_SPARK_JOBSERVER = "spark_jobserver"
-
-    val MKT_FLAG_EMAIL = "<email>"
-    val MKT_FLAG_APIKEY = "<api_key>"
-    val MKT_FLAG_ASSEMBLY_ID = "<assembly_id>"
-    val MKT_FLAG_COMP_ID = "<component_id>"
-    val MKT_FLAG_HOST = "<host>"
+    val MKT_FLAG_EMAIL        = "<email>"
+    val MKT_FLAG_APIKEY       = "<api_key>"
+    val MKT_FLAG_ASSEMBLY_ID  = "<assembly_id>"
+    val MKT_FLAG_COMP_ID      = "<component_id>"
+    val MKT_FLAG_HOST         = "<host>"
 
     val emptyRR = List(KeyValueField.empty)
 

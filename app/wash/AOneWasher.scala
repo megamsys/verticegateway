@@ -17,7 +17,7 @@ import controllers.Constants._
  */
 case class AOneWasher(pq: models.Messageble) extends MessageContext {
 
-  def topic = (pq.topic().getOrElse(""))
+  def topic = (pq.topic(()).getOrElse(""))
 
   val msg = pq.messages
 

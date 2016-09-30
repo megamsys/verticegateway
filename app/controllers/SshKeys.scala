@@ -5,7 +5,6 @@ import Scalaz._
 import scalaz.Validation._
 import net.liftweb.json._
 
-
 import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._

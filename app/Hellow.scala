@@ -3,7 +3,6 @@ package app
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
@@ -32,7 +31,19 @@ case object Hellow {
   case class Treasure(infra: Map[String, String],
     hunts: Map[String, THunt]) {
 
-    val version = scala.io.Source.fromFile(Play.application().getFile("VERSION")).getLines().toList.map {x => (x.split("=").head, x.split("=").last)}.toMap
+    val versionFile =  (Validation.fromTryCatchThrowable[Option[scala.io.Source], Throwable] {
+      scala.io.Source.fromFile(Play.application().getFile("VERSION")).some
+    })
+
+    val version =  (for  {
+          vef <-  versionFile
+        } yield {
+           vef match {
+            case Some(vf) =>  vf.getLines().toList.map {x => (x.split("=").head, x.split("=").last)}.toMap
+            case None     =>  Map("git_version" -> "none ^(;,;)^")
+         }
+      }).getOrElse(Map("git_version" ->  "nada! ô¿ô"))
+
 
     val stat = (hunts.map { x => (x._1, x._2._2.getOrElse("down")) }).toMap
 
@@ -50,11 +61,10 @@ case object Hellow {
   val SPACE = "freespace"
   val CPU_CORES = "cores"
 
-  val NSQ = "nsq"
-  val SCYLLA = "cassandra"
-  val RUNNING = "up"
+  val NSQ       = "nsq"
+  val CASSANDRA = "cassandra"
 
-  val What2Hunts = Array(NSQ)
+  val RUNNING   = "up"
 
   import java.lang.management.{ ManagementFactory, OperatingSystemMXBean }
   import java.lang.reflect.{ Method, Modifier }
@@ -82,7 +92,17 @@ case object Hellow {
     case Failure(erruid) => (MConfig.nsqurl, none)
   }
 
-  val sharks = Map(NSQ -> nsq)
+  private def cassandra = new CassandraChecker().check match {
+    case Success(succ)  => (MConfig.cassandra_host, Some(RUNNING))
+    case Failure(err)   =>  {
+       play.api.Logger.warn(("%s%s%-20s%s").format(Console.RED, Console.BOLD, "ERROR: Gateway failed to start as cassandra is down",Console.RESET))
+       play.api.Logger.warn(("%s%s%-20s%s").format(Console.YELLOW, Console.BOLD, "=> Please start cassandra - " +MConfig.cassandra_host ,Console.RESET))
+       System.exit(9)
+      (MConfig.cassandra_host, none)
+    }
+  }
+
+  val sharks = Map(NSQ -> nsq, CASSANDRA -> cassandra)
 
   //super confusing, all we are trying to do is find the overal status by filte
   val sharkBite = sharks.values.filter(_._2.isEmpty)

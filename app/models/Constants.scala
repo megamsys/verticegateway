@@ -2,37 +2,37 @@ package models
 
 object Constants {
 
-  val UTF8Charset = java.nio.charset.Charset.forName("UTF-8")
+  val UTF8Charset     = java.nio.charset.Charset.forName("UTF-8")
 
-  val JSON_CLAZ = "json_claz"
+  val JSON_CLAZ       = "json_claz"
 
-  val STATE = "state"
-  val CREATE = "create"
-  val DELETE = "destroy"
+  val STATE           = "state"
+  val CREATE          = "create"
+  val DELETE          = "destroy"
 
-  val CONTROL = "control"
-  val START = "start"
-  val STOP = "stop"
-  val REBOOT = "restart"
+  val CONTROL         = "control"
+  val START           = "start"
+  val STOP            = "stop"
+  val REBOOT          = "restart"
 
-  val SNAPSHOT = "snapshot"            //category
+  val SNAPSHOT        = "snapshot"    //category
   val SNAPSHOT_CREATE = "snapcreate"  //action
   val SNAPSHOT_REMOVE = "snapremove"  //action
 
-  val DISKS = "disks"                 //category
-  val ATTACH_DISK = "attachdisk"      //action
-  val DETACH_DISK = "detachdisk"      //action
+  val DISKS           = "disks"        //category
+  val ATTACH_DISK     = "attachdisk"   //action
+  val DETACH_DISK     = "detachdisk"   //action
 
-  val BIND = "bind"
-  val BUILD = "build"
+  val BIND            = "bind"
+  val BUILD           = "build"
 
-  val OPERTATIONS = "operations"
-  val UPGRADE = "upgrade"
+  val OPERTATIONS     = "operations"
+  val UPGRADE         = "upgrade"
 
-  val CATTYPE_DOCKER = "microservices"
+  val CATTYPE_DOCKER  = "microservices"
   val CATTYPE_TORPEDO = "torpedo"
 
-  val DOMAIN = "domain"
+  val DOMAIN          = "domain"
 
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ASSEMBLIESCLAZ                  = "Megam::Assemblies"
@@ -48,7 +48,7 @@ object Constants {
   val BALANCESCOLLECTIONCLAZ          = "Megam::BalancesCollection"
   val BILLEDHISTORIESCLAZ             = "Megam::Billedhistories"
   val BILLEDHISTORIESCOLLECTIONCLAZ   = "Megam::BilledhistoriesCollection"
-  val BILLINGTRANSCATIONSCLAZ             = "Megam::Billingtranscations"
+  val BILLINGTRANSCATIONSCLAZ         = "Megam::Billingtranscations"
   val BILLINGTRANSCATIONSCOLLECTIONCLAZ   = "Megam::BillingtranscationsCollection"
   val BILLINGSCLAZ                    = "Megam::Billings"
   val BILLINGSCOLLECTIONCLAZ          = "Megam::BillingsCollection"
@@ -62,10 +62,10 @@ object Constants {
   val DOMAINCOLLECTIONCLAZ            = "Megam::DomainsCollection"
   val DISCOUNTSCLAZ                   = "Megam::Discounts"
   val DISCOUNTSCOLLECTIONCLAZ         = "Megam::DiscountsCollection"
-  val EVENTSVMCLAZ                      = "Megam::EventsVm"
-  val EVENTSVMCOLLECTIONCLAZ            = "Megam::EventsVmCollection"
-  val EVENTSCONTAINERCLAZ               = "Megam::EventsContainer"
-  val EVENTSCONTAINERCOLLECTIONCLAZ     = "Megam::EventsContainerCollection"
+  val EVENTSVMCLAZ                    = "Megam::EventsVm"
+  val EVENTSVMCOLLECTIONCLAZ          = "Megam::EventsVmCollection"
+  val EVENTSCONTAINERCLAZ             = "Megam::EventsContainer"
+  val EVENTSCONTAINERCOLLECTIONCLAZ   = "Megam::EventsContainerCollection"
   val EVENTSBILLINGCLAZ               = "Megam::EventsBilling"
   val EVENTSBILLINGCOLLECTIONCLAZ     = "Megam::EventsBillingCollection"
   val EVENTSSTORAGECLAZ               = "Megam::EventsStorage"
@@ -85,10 +85,9 @@ object Constants {
   val SSHKEYCOLLECTIONCLAZ            = "Megam::SshKeyCollection"
   val SNAPSHOTSCLAZ                   = "Megam::Snapshots"
   val SNAPSHOTSCOLLECTIONCLAZ         = "Megam::SnapshotsCollection"
-  val DISKSCLAZ                        = "Megam::Disks"
-  val DISKSCOLLECTIONCLAZ              = "Megam::DisksCollection"
+  val DISKSCLAZ                       = "Megam::Disks"
+  val DISKSCOLLECTIONCLAZ             = "Megam::DisksCollection"
   val SUBSCRIPTIONSCLAZ               = "Megam::Subscriptions"
   val SUBSCRIPTIONSCOLLECTIONCLAZ     = "Megam::SubscriptionsCollection"
   val MEGAM_PROMOSCLAZ                = "Megam::Promos"
-
 }
