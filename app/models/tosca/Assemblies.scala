@@ -169,8 +169,6 @@ case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[St
 object Assemblies extends ConcreteAssemblies {
 
   private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: AssembliesInput): ValidationNel[Throwable, WrapAssembliesResult] = {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, (input.org_id + ":" + input.name), Console.RESET))
-
     val inp: ValidationNel[Throwable, AssembliesInput] = input.successNel[Throwable]
 
     for {
@@ -189,7 +187,7 @@ object Assemblies extends ConcreteAssemblies {
       wa <- (mkAssembliesSack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa.thatGS.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assemblies.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.WHITE, Console.BOLD, "Assemblies.created success", Console.RESET))
       pub(authBag.get.email, wa)
       wa.ams.get
     }

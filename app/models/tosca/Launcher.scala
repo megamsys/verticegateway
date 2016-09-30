@@ -17,12 +17,10 @@ import models.base._
 
 class Launcher(authBag: Option[io.megam.auth.stack.AuthBag]) {
 
-  private val trackEye = List[String]()
 
   def launch(clubbed: String): ValidationNel[Throwable, AssembliesResults] = {
    ((new UnitsBreaker(clubbed).break) map {
        _.map { unit =>
-       play.api.Logger.debug(("%-20s -->[%s]").format("Unit "+ (trackEye ++ "⨀")))
        (Assemblies.create(authBag, unit) leftMap { t: NonEmptyList[Throwable] =>
        new ServiceUnavailableError("Not launched", (t.list.map(m => m.getMessage)).mkString("\n"))
        }).toValidationNel.flatMap { xso: AssembliesResult =>

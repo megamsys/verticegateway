@@ -27,8 +27,9 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
             case Success(wrapasm) =>
               Status(CREATED)(
                 FunnelResponse(CREATED, """[%s,%s] deployment submitted successfully.""".format(
-                  wrapasm.map(_.get.assemblies.mkString("|")),wrapasm.map(_.get.id)), "Megam::Assemblies").toJson(true)
+                  wrapasm.map(_.get.assemblies.mkString("|")).mkString,wrapasm.map(_.get.id).mkString), "Megam::Assemblies").toJson(true)
             )
+          
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
