@@ -52,16 +52,16 @@ class UnitsBreaker(input: String) {
     ((1 to till).map(i => mkLaunchable(i, input)).some  map {
       _.foldRight((AssembliesInputList.empty).successNel[Throwable])(_ +++ _)
     }).head
-  }
+ }
 
 
   private def mkLaunchable(i: Int, input: String) = {
     for {
       too <- toObject
     } yield {
-      too.assemblies.map(ai => Assembly(nameOfUnit(i, ""), ai.components, ai.tosca_type,
+      val changed = too.assemblies.map(ai => Assembly(nameOfUnit(i, ai.name), ai.components, ai.tosca_type,
                                         ai.policies, ai.inputs, ai.outputs, ai.status, ai.state))
-      List(too)
+      List(AssembliesInput(too.name, too.org_id, changed, too.inputs))
     }
   }
 }
