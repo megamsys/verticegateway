@@ -79,8 +79,8 @@ POST /v2/balances/update			        controllers.billing.Balances.update
 GET	 /v2/balances/:id                 controllers.billing.Balances.show(id: String)
 
 #called by the 3rd party billing guy (WHMCS)
-POST /v2/billingtransactions/content	controllers.billing.Billingtranscations.post
-GET  /v2/billingtransactions          controllers.billing.Billingtranscations.list
+POST /v2/billingtransactions/content	controllers.billing.Billingtransactions.post
+GET  /v2/billingtransactions          controllers.billing.Billingtransactions.list
 
 POST /v2/billedhistories/content	    controllers.billing.Billedhistories.post
 GET  /v2/billedhistories              controllers.billing.Billedhistories.list
