@@ -17,7 +17,7 @@ import net.liftweb.json.JsonParser._
  *
  */
 
-object Billingtranscations extends Controller with controllers.stack.APIAuthElement {
+object Billingtransactions extends Controller with controllers.stack.APIAuthElement {
 implicit val formats = DefaultFormats
   /**
    * Create a new billing transcations for the user.
@@ -30,10 +30,10 @@ implicit val formats = DefaultFormats
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.billing.Billingtranscations.create(email, clientAPIBody) match {
+          models.billing.Billingtransactions.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, "Billingtransactions record created successfully."  , "Megam::Billingtranscations").toJson(true))
+                FunnelResponse(CREATED, "Billingtransactions record created successfully."  , "Megam::BillingTransactions").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -49,7 +49,7 @@ implicit val formats = DefaultFormats
 
  /**
    * GET: findbyEmail: List all the billing transcations per email
-   * Email grabbed from header.   * Output: JSON (BillingtranscationsResult)
+   * Email grabbed from header.   * Output: JSON (BillingtransactionsResult)
    */
 
   def list = StackAction(parse.tolerantText) { implicit request =>
@@ -58,7 +58,7 @@ implicit val formats = DefaultFormats
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.billing.Billingtranscations.findByEmail(email) match {
+          models.billing.Billingtransactions.findByEmail(email) match {
             case Success(succ) =>
               Ok(Results.resultset(models.Constants.BILLINGTRANSCATIONSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>

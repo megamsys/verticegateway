@@ -31,11 +31,11 @@ import java.nio.charset.Charset
  *
  */
 
-case class BillingtranscationsInput(gateway: String, amountin: String, amountout: String, fees: String, tranid: String, trandate: String, currency_type: String) {
+case class BillingtransactionsInput(gateway: String, amountin: String, amountout: String, fees: String, tranid: String, trandate: String, currency_type: String) {
 
 }
 
-case class BillingtranscationsResult(
+case class BillingtransactionsResult(
     id: String,
     account_id: String,
     gateway: String,
@@ -49,7 +49,7 @@ case class BillingtranscationsResult(
     created_at: String) {
 }
 
-sealed class BillingtranscationsSacks extends CassandraTable[BillingtranscationsSacks, BillingtranscationsResult] {
+sealed class BillingtransactionsSacks extends CassandraTable[BillingtransactionsSacks, BillingtransactionsResult] {
 
   implicit val formats = DefaultFormats
 
@@ -65,8 +65,8 @@ sealed class BillingtranscationsSacks extends CassandraTable[Billingtranscations
   object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this) with PrimaryKey[String]
 
-  def fromRow(row: Row): BillingtranscationsResult = {
-    BillingtranscationsResult(
+  def fromRow(row: Row): BillingtransactionsResult = {
+    BillingtransactionsResult(
       id(row),
       account_id(row),
       gateway(row),
@@ -81,13 +81,13 @@ sealed class BillingtranscationsSacks extends CassandraTable[Billingtranscations
   }
 }
 
-abstract class ConcreteBillingtranscations extends BillingtranscationsSacks with RootConnector {
+abstract class ConcreteBillingtransactions extends BillingtransactionsSacks with RootConnector {
   // you can even rename the table in the schema to whatever you like.
-  override lazy val tableName = "billingtranscations"
+  override lazy val tableName = "billingtransactions"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
-  def insertNewRecord(ams: BillingtranscationsResult): ValidationNel[Throwable, ResultSet] = {
+  def insertNewRecord(ams: BillingtransactionsResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, ams.id)
       .value(_.account_id, ams.account_id)
       .value(_.gateway, ams.gateway)
@@ -103,14 +103,14 @@ abstract class ConcreteBillingtranscations extends BillingtranscationsSacks with
     Await.result(res, 5.seconds).successNel
   }
 
-  def listRecords(id: String): ValidationNel[Throwable, Seq[BillingtranscationsResult]] = {
+  def listRecords(id: String): ValidationNel[Throwable, Seq[BillingtransactionsResult]] = {
     val res = select.allowFiltering().where(_.account_id eqs id).limit(20).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
 }
 
-object Billingtranscations extends ConcreteBillingtranscations {
+object Billingtransactions extends ConcreteBillingtransactions {
 
   /**
    * A private method which chains computation to make GunnySack when provided with an input json, email.
@@ -118,9 +118,9 @@ object Billingtranscations extends ConcreteBillingtranscations {
    * After that flatMap on its success and the account id information is looked up.
    * If the account id is looked up successfully, then yield the GunnySack object.
    */
-  private def mkBillingtranscationsSack(email: String, input: String): ValidationNel[Throwable, BillingtranscationsResult] = {
-    val billInput: ValidationNel[Throwable, BillingtranscationsInput] = (Validation.fromTryCatchThrowable[BillingtranscationsInput, Throwable] {
-      parse(input).extract[BillingtranscationsInput]
+  private def mkBillingtransactionsSack(email: String, input: String): ValidationNel[Throwable, BillingtransactionsResult] = {
+    val billInput: ValidationNel[Throwable, BillingtransactionsInput] = (Validation.fromTryCatchThrowable[BillingtransactionsInput, Throwable] {
+      parse(input).extract[BillingtransactionsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
     for {
@@ -129,7 +129,7 @@ object Billingtranscations extends ConcreteBillingtranscations {
     } yield {
 
       val bvalue = Set(email)
-      val json = new BillingtranscationsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, "Megam::Billingtranscations", Time.now.toString)
+      val json = new BillingtransactionsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, "Megam::BillingTransactions", Time.now.toString)
       json
     }
   }
@@ -138,31 +138,31 @@ object Billingtranscations extends ConcreteBillingtranscations {
    * create new billing transcations for currently pay the bill of user.
    *
    */
-  def create(email: String, input: String): ValidationNel[Throwable, Option[BillingtranscationsResult]] = {
+  def create(email: String, input: String): ValidationNel[Throwable, Option[BillingtransactionsResult]] = {
     for {
-      wa <- (mkBillingtranscationsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      wa <- (mkBillingtransactionsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Billingtranscations.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Billingtransactions.created success", Console.RESET))
       wa.some
     }
   }
 
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the transcations are listed on the index (account.id) in bucket `Billingtranscations`.
-   * Using a "Billingtranscations name" as key, r      wa <- (msSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+   * the transcations are listed on the index (account.id) in bucket `Billingtransactions`.
+   * Using a "Billingtransactions name" as key, r      wa <- (msSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
 eturn a list of ValidationNel[List[BillinghistoriesResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[BillingtranscationsResult]]]
+   * Takes an email, and returns a Future[ValidationNel, List[Option[BillingtransactionsResult]]]
    */
-  def findByEmail(email: String): ValidationNel[Throwable, Seq[BillingtranscationsResult]] = {
+  def findByEmail(email: String): ValidationNel[Throwable, Seq[BillingtransactionsResult]] = {
     (listRecords(email) leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound(email, "Billingtranscations = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[BillingtranscationsResult] =>
+      new ResourceItemNotFound(email, "Billingtransactions = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[BillingtransactionsResult] =>
       if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[BillingtranscationsResult]](nm).toValidationNel
+        Validation.success[Throwable, Seq[BillingtransactionsResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[BillingtranscationsResult]](new ResourceItemNotFound(email, "Billingtranscations = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[BillingtransactionsResult]](new ResourceItemNotFound(email, "Billingtransactions = nothing found.")).toValidationNel
     }
 
   }

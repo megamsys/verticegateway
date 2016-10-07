@@ -27,11 +27,11 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import test.{ Context }
 
-class BillingtranscationsSpec extends Specification {
+class BillingtransactionsSpec extends Specification {
 
   def is =
-    "BillingtranscationsSpec".title ^ end ^ """
-BillingtranscationsSpec is the implementation that calls the megam_play API server with the /billingtranscations url
+    "BillingtransactionsSpec".title ^ end ^ """
+BillingtransactionsSpec is the implementation that calls the megam_play API server with the /billingtransactions url
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with an valid datas " ! create.succeeds ^
@@ -42,7 +42,7 @@ BillingtranscationsSpec is the implementation that calls the megam_play API serv
 
   case object create extends Context {
 
-    protected override def urlSuffix: String = "billingtranscations/content"
+    protected override def urlSuffix: String = "billingtransactions/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
@@ -71,7 +71,7 @@ BillingtranscationsSpec is the implementation that calls the megam_play API serv
   }
 
   case object List extends Context {
-    protected override def urlSuffix: String = "billingtranscations"
+    protected override def urlSuffix: String = "billingtransactions"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -85,7 +85,7 @@ BillingtranscationsSpec is the implementation that calls the megam_play API serv
 
   case object PostInvalidUrl extends Context {
 
-    protected override def urlSuffix: String = "billingtranscations/contentinvalidurl"
+    protected override def urlSuffix: String = "billingtransactions/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
@@ -116,7 +116,7 @@ BillingtranscationsSpec is the implementation that calls the megam_play API serv
 
   case object PostInvalidBody extends Context {
 
-    protected override def urlSuffix: String = "billingtranscations/content"
+    protected override def urlSuffix: String = "billingtransactions/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{\"collapsedmail\":\"tee@test.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\"}"
