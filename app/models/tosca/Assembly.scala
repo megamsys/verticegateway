@@ -182,8 +182,8 @@ case class Assembly(name: String,
   status: String, state: String) {
 }
 
+// The difference between Assembly and AssemblyUpdateInput is the `id` field
 case class AssemblyUpdateInput(id: String,
-  org_id: String,
   name: String,
   components: models.tosca.ComponentLinks,
   tosca_type: String,
@@ -229,7 +229,7 @@ object Assembly extends ConcreteAssembly {
     }).head //return the folded element in the head.
   }
 
-  private def updateAssemblySack(input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
+  private def updateAssemblySack(org_id: String, input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
     val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput, Throwable] {
       parse(input).extract[AssemblyUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
@@ -239,7 +239,7 @@ object Assembly extends ConcreteAssembly {
       asm_collection <- (Assembly.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val asm = asm_collection.head
-      val json = AssemblyResult(rip.id, rip.org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.state, asm.get.json_claz, asm.get.created_at)
+      val json = AssemblyResult(rip.id, org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.state, asm.get.json_claz, asm.get.created_at)
       json.some
     }
   }
@@ -247,7 +247,7 @@ object Assembly extends ConcreteAssembly {
   def update(org_id: String, input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
 
     for {
-      gs <- (updateAssemblySack(input) leftMap { err: NonEmptyList[Throwable] => err })
+      gs <- (updateAssemblySack(org_id, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (updateRecord(org_id, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
