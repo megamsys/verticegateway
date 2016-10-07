@@ -42,8 +42,8 @@ class EventsVmSpec extends Specification {
   EventsVmSpec is the implementation that calls the megam_play API server with the /events url
   """ ^ end ^
       "The Client Should" ^
-     //"Correctly do POST  requests with an valid Assembly ID" ! Get.succeeds ^
-     "Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
+     "Correctly do POST  requests with an valid Assembly ID" ! Get.succeeds ^
+     //"Correctly do LIST requests with a valid Accounts ID" ! List.succeeds ^
      //"Correctly do INDEX requests with a valid Accounts ID" ! Index.succeeds ^
       end
 

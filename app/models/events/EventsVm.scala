@@ -145,8 +145,8 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
       count = limit
     }
     val times = getTimes(created_at)
-    //val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
-    val res = select.where(_.account_id eqs email).orderBy(_.created_at desc).limit(count.toInt).fetch()
+    val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
+    //val res = select.where(_.account_id eqs email).orderBy(_.created_at desc).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -161,7 +161,7 @@ object EventsVm extends ConcreteEventsVm {
 
   def generateCreatedAt(created_at: String): DateTime = {
     if (created_at == "" || created_at == null) {
-      return DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")).minusMinutes(10)
+      return DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")).withTimeAtStartOfDay()
     } else {
       return DateTime.parse(created_at, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
     }
