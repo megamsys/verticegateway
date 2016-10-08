@@ -16,6 +16,7 @@ import play.api.mvc._
 import play.api.libs.iteratee.Enumerator
 import models.base.Accounts
 import models.base.MasterKeys
+import controllers.stack.Role._
 
 /**
  * @author rajthilak
@@ -28,6 +29,8 @@ import models.base.MasterKeys
  */
 trait APIAuthElement extends io.megam.auth.stack.AuthElement {
   self: Controller =>
+
+  case object AuthorityKey extends RequestAttributeKey[Authority]
 
   override def authImpl(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     Accounts.findByEmail(input)
