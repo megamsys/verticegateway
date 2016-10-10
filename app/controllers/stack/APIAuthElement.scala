@@ -16,7 +16,8 @@ import play.api.mvc._
 import play.api.libs.iteratee.Enumerator
 import models.base.Accounts
 import models.base.MasterKeys
-import controllers.stack.Role._
+import io.megam.auth.stack.Role._
+import io.megam.auth.stack.{RequestAttributeKeyConstants}
 
 /**
  * @author rajthilak
@@ -27,10 +28,8 @@ import controllers.stack.Role._
  * And result return in super trait proceed method,
  * when stack action is called then this stackable controller is executed
  */
-trait APIAuthElement extends io.megam.auth.stack.AuthElement {
+trait APIAuthElement extends io.megam.auth.stack.AuthElement with RequestAttributeKeyConstants {
   self: Controller =>
-
-  case object AuthorityKey extends RequestAttributeKey[Authority]
 
   override def authImpl(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     Accounts.findByEmail(input)

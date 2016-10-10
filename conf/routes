@@ -8,6 +8,10 @@ GET   /assets/*file                   controllers.Assets.at(path="/public", file
 # Home page, static routes
 GET   /                               controllers.Application.index
 
+# Admin Accounts
+GET   /v2/accounts                    controllers.admin.Users.list
+
+
 # Account
 GET   /v2/accounts/:id                controllers.Accounts.show(id: String)
 GET   /v2/accounts/forgot/:id         controllers.Accounts.forgot(id: String)

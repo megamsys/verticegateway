@@ -20,7 +20,7 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.base.SshKeys.create(apiAccessed, clientAPIBody) match {
+          models.base.SshKeys.create(grabAuthBag, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
                 FunnelResponse(CREATED, """SSHKey created successfully.""", "Megam::SshKey").toJson(true))
@@ -44,7 +44,7 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.base.SshKeys.findByOrgId(apiAccessed) match {
+          models.base.SshKeys.findByOrgId(grabAuthBag) match {
             case Success(succ) =>
             implicit val formats = DefaultFormats
             Ok(Results.resultset(models.Constants.SSHKEYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))

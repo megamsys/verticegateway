@@ -35,8 +35,8 @@ object Constants {
   val DOMAIN          = "domain"
 
   val ACCOUNTCLAZ                     = "Megam::Account"
-  val ADMINUSERSCLAZ                  = "Megam::Assemblies"
-  val ADMINUSERSCOLLECTIONCLAZ        = "Megam::AssembliesCollection"
+  val ADMINUSERSCLAZ                  = "Megam::Account"
+  val ADMINUSERSCOLLECTIONCLAZ        = "Megam::AccountsCollection"
 
   val ASSEMBLIESCLAZ                  = "Megam::Assemblies"
   val ASSEMBLIESCOLLECTIONCLAZ        = "Megam::AssembliesCollection"

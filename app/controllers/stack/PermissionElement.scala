@@ -12,25 +12,22 @@ import net.liftweb.json.JsonParser._
 import play.api.mvc.{Result, Request, Controller}
 import play.api.data._
 
-trait PermissionElement extends StackableController {
+import io.megam.auth.stack.Role
+import io.megam.auth.stack.Role._
+import io.megam.auth.stack._
+
+trait PermissionElement {
     self: Controller =>
 
-  private val authBagOpt = "token".some
-
-  /*private def canPermit(request: Request[_]): Boolean = (for {
-    (user.role, authority) match {
-      case (Administrator, _)       => true
-      case (RegularUser, RegularUser) => true
-      case _                        => false
-    }
-    tokenInForm    <- authBagOpt
-  } yield tokenInForm == tokenInSession).getOrElse(false) */
-
-  private def canPermit(request: Request[_]): Boolean =  true
-
-  override def proceed[A](request: RequestWithAttributes[A])(f: RequestWithAttributes[A] => Future[Result]): Future[Result] = {
-    if (canPermit(request)) super.proceed(request)(f)
-    else Future.successful(BadRequest)
+  def canPermit(authOpt: Option[AuthBag]): Option[Boolean] =    {
+    play.api.Logger.debug(("%-20s -->[%s]").format(" ----- canpermit sstarts ", authOpt))
+    if ((authOpt.map { auth: AuthBag =>
+      (Role.valueOf(auth.authority), Role.valueOf("admin")) match {
+        case (Administrator,_)             => true
+        case (RegularUser, RegularUser)    => false
+        case _                             => false
+        }
+    }).get) true.some else none
   }
 
 }

@@ -60,7 +60,7 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
 
-          models.team.Domains.findByOrgId(apiAccessed) match {
+          models.team.Domains.findByOrgId(grabAuthBag) match {
             case Success(succ) =>
             implicit val formats = DefaultFormats
             Ok(Results.resultset(models.Constants.DOMAINCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
