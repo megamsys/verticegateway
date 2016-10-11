@@ -23,7 +23,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          new models.tosca.Launcher(apiAccessed).launch(clientAPIBody) match {
+          new models.tosca.Launcher(grabAuthBag).launch(clientAPIBody) match {
             case Success(wrapasm) => 
               Status(CREATED)(
                 FunnelResponse(CREATED, """[%s,%s] deployment submitted successfully.""".format(

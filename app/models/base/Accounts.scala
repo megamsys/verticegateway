@@ -155,7 +155,7 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
 
   def dbInsert(account: AccountResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, account.id)
-      .value(_.name, account.name)
+    .value(_.name, account.name)
      .value(_.phone, account.phone)
       .value(_.email, NilorNot(account.email, ""))
       .value(_.api_key, NilorNot(account.api_key, ""))
@@ -173,6 +173,12 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     val res = select.where(_.email eqs email).one()
     Await.result(res, 5.seconds).successNel
   }
+
+  def dbSelectAll(email: String, org: String): ValidationNel[Throwable, Seq[AccountResult]] = {
+    val res = select.fetch
+    Await.result(res, 5.seconds).successNel
+  }
+
 
   def dbUpdate(email: String, rip: AccountResult, aor: Option[AccountResult]): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.email eqs NilorNot(email, aor.get.email))
@@ -394,7 +400,18 @@ object Accounts extends ConcreteAccounts {
           }
         }
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
+  }
 
+  //Only Admin authority can list users hack for 1.5.
+  def listAll(email: String, org: String): ValidationNel[Throwable, Seq[AccountResult]] = {
+    (dbSelectAll(email, org) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(email, "Users = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[AccountResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[AccountResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[AccountResult]](new ResourceItemNotFound(email, "Users = nothing found.")).toValidationNel
+    }
   }
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
