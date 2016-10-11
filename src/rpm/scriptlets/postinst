@@ -4,7 +4,7 @@ set -e
 MEGAM_HOME=/var/lib/megam
 
 mkdir -p $MEGAM_HOME/verticegateway
-cp  /usr/share/megam/verticegateway/db/base.cql $MEGAM_HOME/verticegateway/
+cp  /usr/share/megam/verticegateway/conf/base.cql $MEGAM_HOME/verticegateway/
 cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/
 cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
 cp  /usr/share/megam/verticegateway/conf/VERSION /usr/share/megam/verticegateway/
