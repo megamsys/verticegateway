@@ -20,7 +20,6 @@ trait PermissionElement {
     self: Controller =>
 
   def canPermit(authOpt: Option[AuthBag]): Option[Boolean] =    {
-    play.api.Logger.debug(("%-20s -->[%s]").format(" ----- canpermit sstarts ", authOpt))
     if ((authOpt.map { auth: AuthBag =>
       (Role.valueOf(auth.authority), Role.valueOf("admin")) match {
         case (Administrator,_)             => true

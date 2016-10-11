@@ -30,7 +30,9 @@ object Users extends Controller with APIAuthElement with PermissionElement {
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
           models.base.Accounts.listAll(email, org) match {
-            case Success(succ) => Ok(Results.resultset(models.Constants.ADMINUSERSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+            case Success(succ) => {
+              Ok(Results.resultset(models.Constants.ADMINUSERSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

@@ -36,7 +36,7 @@ object Constants {
 
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ADMINUSERSCLAZ                  = "Megam::Account"
-  val ADMINUSERSCOLLECTIONCLAZ        = "Megam::AccountsCollection"
+  val ADMINUSERSCOLLECTIONCLAZ        = "Megam::AccountCollection"
 
   val ASSEMBLIESCLAZ                  = "Megam::Assemblies"
   val ASSEMBLIESCOLLECTIONCLAZ        = "Megam::AssembliesCollection"
