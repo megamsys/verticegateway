@@ -10,13 +10,11 @@ import io.megam.auth.funnel._
 import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 import controllers.stack.Results
-import com.datastax.driver.core.{ ResultSet, Row }
-import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 
 
 object Accounts extends Controller with stack.APIAuthElement {
 
-  
+
   def login = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
 
@@ -30,7 +28,7 @@ object Accounts extends Controller with stack.APIAuthElement {
       }
     }
   }
-  
+
   def post = Action(parse.tolerantText) { implicit request =>
     val input = (request.body).toString()
 

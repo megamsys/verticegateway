@@ -3,7 +3,6 @@ package models.events
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
@@ -138,7 +137,7 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
 
   }
 
-  def getRecords(created_at: DateTime, assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def getRecords(email: String, created_at: DateTime, assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
     var count = ""
     if (limit == "0") {
       count = "10"
@@ -147,6 +146,7 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
     }
     val times = getTimes(created_at)
     val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
+    //val res = select.where(_.account_id eqs email).orderBy(_.created_at desc).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -161,7 +161,7 @@ object EventsVm extends ConcreteEventsVm {
 
   def generateCreatedAt(created_at: String): DateTime = {
     if (created_at == "" || created_at == null) {
-      return DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")).minusMinutes(10)
+      return DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")).withTimeAtStartOfDay()
     } else {
       return DateTime.parse(created_at, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
     }
@@ -187,26 +187,34 @@ object EventsVm extends ConcreteEventsVm {
    * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
-  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsVmReturnResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] ⇒
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsVmResult] ⇒
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsVmResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsVmResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
+      if (!nm.isEmpty) {
+        val res = nm.map {
+          evr ⇒ new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+        }
+        Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
+      } else {
+        Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
+      }
     }
 
   }
 
-  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
+  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsVmReturnResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] ⇒
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsVmResult] ⇒
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsVmResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsVmResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
+      if (!nm.isEmpty) {
+        val res = nm.map {
+          evr ⇒ new EventsVmReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
+        }
+        Validation.success[Throwable, Seq[EventsVmReturnResult]](res).toValidationNel
+      } else {
+        Validation.failure[Throwable, Seq[EventsVmReturnResult]](new ResourceItemNotFound(accountID, "EventsVm = nothing found.")).toValidationNel
+      }
     }
 
   }
@@ -214,7 +222,7 @@ object EventsVm extends ConcreteEventsVm {
   def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmReturnResult]] = {
     (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] ⇒ err
     }).flatMap { ws: EventsVmResult ⇒
-      (getRecords(ws.created_at, ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] ⇒
+      (getRecords(email, ws.created_at, ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] ⇒
         new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
       }).toValidationNel.flatMap { nm: Seq[EventsVmResult] ⇒
         if (!nm.isEmpty) {

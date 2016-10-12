@@ -3,94 +3,99 @@
 # ~~~~
 
 # Map static resources from the /public folder to the /public path
-GET    /assets/*file                    controllers.Assets.at(path="/public", file)
+GET   /assets/*file                   controllers.Assets.at(path="/public", file)
 
 # Home page, static routes
-GET    /                                controllers.Application.index
+GET   /                               controllers.Application.index
+
+# Admin Accounts
+GET   /v2/accounts                    controllers.admin.Users.list
+
+# Admin Licenses
+POST  /v2/licenses/content            controllers.admin.Licenses.post
+GET   /v2/licenses/:id                controllers.admin.Licenses.show(id: String)
 
 # Account
-GET    /v2/accounts/:id                 controllers.Accounts.show(id: String)
-GET    /v2/accounts/forgot/:id          controllers.Accounts.forgot(id: String)
-POST   /v2/accounts/login               controllers.Accounts.login
-POST   /v2/accounts/content             controllers.Accounts.post
-POST   /v2/accounts/update            	controllers.Accounts.update
-POST   /v2/accounts/password_reset      controllers.Accounts.password_reset
+GET   /v2/accounts/:id                controllers.Accounts.show(id: String)
+GET   /v2/accounts/forgot/:id         controllers.Accounts.forgot(id: String)
+POST  /v2/accounts/login              controllers.Accounts.login
+POST  /v2/accounts/content            controllers.Accounts.post
+POST  /v2/accounts/update            	controllers.Accounts.update
+POST  /v2/accounts/password_reset     controllers.Accounts.password_reset
 
-#SshKeys
-POST   /v2/sshkeys/content              controllers.SshKeys.post
-GET    /v2/sshkeys                      controllers.SshKeys.list
-GET    /v2/sshkeys/:name                controllers.SshKeys.show(name: String)
-
-#Events
-GET  /v2/eventsvm/:limit                 controllers.EventsVm.list(limit: String)
-POST /v2/eventsvm/show/:limit            controllers.EventsVm.show(limit: String)
-GET  /v2/eventsvm                        controllers.EventsVm.index
-
-GET  /v2/eventscontainer/:limit          controllers.EventsContainer.list(limit: String)
-POST /v2/eventscontainer/show/:limit     controllers.EventsContainer.show(limit: String)
-GET  /v2/eventscontainer                 controllers.EventsContainer.index
-
-GET  /v2/eventsbilling/:limit            controllers.EventsBilling.list(limit: String)
-POST /v2/eventsbilling/show/:limit       controllers.EventsBilling.show(limit: String)
-GET  /v2/eventsbilling                   controllers.EventsBilling.index
-
-GET  /v2/eventsstorage/:limit            controllers.EventsStorage.list(limit: String)
-GET  /v2/eventsstorage                   controllers.EventsStorage.index
-
-#Snapshots
-POST  /v2/snapshots/content              controllers.Snapshots.post
-GET   /v2/snapshots                      controllers.Snapshots.list
-GET   /v2/snapshots/:id                  controllers.Snapshots.show(id: String)
-
-#Disk
-POST  /v2/disks/content                   controllers.Disks.post
-GET   /v2/disks                           controllers.Disks.list
-GET   /v2/disks/:id                       controllers.Disks.show(id: String)
-
-#MarketPlaces
-GET    /v2/marketplaces                  controllers.MarketPlaces.list
-GET    /v2/marketplaces/:flavor          controllers.MarketPlaces.show(flavor: String)
+#Marketplaces
+GET  /v2/marketplaces                 controllers.MarketPlaces.list
+GET  /v2/marketplaces/:flavor         controllers.MarketPlaces.show(flavor: String)
 
 # Requests
-POST   /v2/requests/content            	 controllers.Requests.post
+POST /v2/requests/content            	controllers.Requests.post
 
 #Organizations
-POST   /v2/organizations/content         controllers.team.Organizations.post
-POST   /v2/organizations/invite          controllers.team.Organizations.invite
-GET    /v2/organizations	               controllers.team.Organizations.list()
+POST /v2/organizations/content        controllers.team.Organizations.post
+POST /v2/organizations/invite         controllers.team.Organizations.invite
+GET  /v2/organizations	              controllers.team.Organizations.list()
 
 #Domains
-POST   /v2/domains/content               controllers.team.Domains.post
-GET    /v2/domains                       controllers.team.Domains.list()
+POST /v2/domains/content              controllers.team.Domains.post
+GET  /v2/domains                      controllers.team.Domains.list()
+
+#Events
+GET  /v2/eventsvm/:limit              controllers.EventsVm.list(limit: String)
+POST /v2/eventsvm/show/:limit         controllers.EventsVm.show(limit: String)
+GET  /v2/eventsvm                     controllers.EventsVm.index
+
+GET  /v2/eventscontainer/:limit       controllers.EventsContainer.list(limit: String)
+POST /v2/eventscontainer/show/:limit  controllers.EventsContainer.show(limit: String)
+GET  /v2/eventscontainer              controllers.EventsContainer.index
+
+GET  /v2/eventsbilling/:limit         controllers.EventsBilling.list(limit: String)
+POST /v2/eventsbilling/show/:limit    controllers.EventsBilling.show(limit: String)
+GET  /v2/eventsbilling                controllers.EventsBilling.index
+
+GET  /v2/eventsstorage/:limit         controllers.EventsStorage.list(limit: String)
+GET  /v2/eventsstorage                controllers.EventsStorage.index
+
+#SSH
+POST /v2/sshkeys/content              controllers.SshKeys.post
+GET  /v2/sshkeys                      controllers.SshKeys.list
+GET  /v2/sshkeys/:name                controllers.SshKeys.show(name: String)
+
+#Snapshots
+POST /v2/snapshots/content            controllers.Snapshots.post
+GET  /v2/snapshots                    controllers.Snapshots.list
+GET  /v2/snapshots/:id                controllers.Snapshots.show(id: String)
+
+#Disks (Block storage)
+POST /v2/disks/content                controllers.Disks.post
+GET  /v2/disks                        controllers.Disks.list
+GET  /v2/disks/:id                    controllers.Disks.show(id: String)
 
 #Assemblies
-POST   /v2/assemblies/content           controllers.camp.Assemblies.post
-GET    /v2/assemblies	                  controllers.camp.Assemblies.list
-GET    /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
-GET    /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
-POST   /v2/assembly/update              controllers.camp.Assembly.update
-GET   /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
-GET    /v2/components/:id         	    controllers.camp.Components.show(id: String)
-POST   /v2/components/update        	  controllers.camp.Components.update
+POST /v2/assemblies/content           controllers.camp.Assemblies.post
+GET  /v2/assemblies	                  controllers.camp.Assemblies.list
+GET  /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
+GET  /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
+POST /v2/assembly/update              controllers.camp.Assembly.update
+GET  /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
+GET  /v2/components/:id         	    controllers.camp.Components.show(id: String)
+POST /v2/components/update        	  controllers.camp.Components.update
 
 #billings
-POST	 /v2/balances/content			        controllers.billing.Balances.post
-POST	 /v2/balances/update			        controllers.billing.Balances.update
-GET	   /v2/balances/:id                 controllers.billing.Balances.show(id: String)
+POST /v2/balances/content			        controllers.billing.Balances.post
+POST /v2/balances/update			        controllers.billing.Balances.update
+GET	 /v2/balances/:id                 controllers.billing.Balances.show(id: String)
 
-POST   /v2/billedhistories/content	    controllers.billing.Billedhistories.post
-GET    /v2/billedhistories              controllers.billing.Billedhistories.list
+#called by the 3rd party billing guy (WHMCS)
+POST /v2/billingtransactions/content	controllers.billing.Billingtransactions.post
+GET  /v2/billingtransactions          controllers.billing.Billingtransactions.list
 
-POST   /v2/billingtransactions/content	controllers.billing.Billingtranscations.post
-GET    /v2/billingtransactions          controllers.billing.Billingtranscations.list
+POST /v2/billedhistories/content	    controllers.billing.Billedhistories.post
+GET  /v2/billedhistories              controllers.billing.Billedhistories.list
 
-POST   /v2/subscriptions/content	    controllers.billing.Subscriptions.post
-GET    /v2/subscriptions             controllers.billing.Subscriptions.show
+# Don't know its use.
+POST /v2/subscriptions/content	      controllers.billing.Subscriptions.post
+GET  /v2/subscriptions                controllers.billing.Subscriptions.show
 
-#POST   /v2/invoices/content            controllers.billing.Invoices.post
-#GET    /v2/invoices                    controllers.billing.Invoices.list
-#GET	  /v2/invoices/:id                controllers.billing.Invoices.show(id: String)
-
-#Addons
-POST   /v2/addons/content             controllers.addons.Addons.post
-GET	  /v2/addons/:name                controllers.addons.Addons.show(name: String)
+#Addons (external ids)
+POST /v2/addons/content               controllers.addons.Addons.post
+GET	 /v2/addons/:name                 controllers.addons.Addons.show(name: String)

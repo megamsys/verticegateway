@@ -1,19 +1,3 @@
-/**
- * * Copyright [2013-2016] [Megam Systems]
- *
- * *
- * * Licensed under the Apache License, Version 2.0 (the "License");
- * * you may not use this file except in compliance with the License.
- * * You may obtain a copy of the License at
- * *
- * * http://www.apache.org/licenses/LICENSE-2.0
- * *
- * * Unless required by applicable law or agreed to in writing, software
- * * distributed under the License is distributed on an "AS IS" BASIS,
- * * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * * See the License for the specific language governing permissions and
- * * limitations under the License.
- */
 /*
  * @author rajthilak
  */
@@ -56,6 +40,8 @@ trait BaseContext {
   val X_Megam_ORG = "X-Megam-ORG"
   val X_Megam_PUTTUSAVI = "X-Megam-PUTTUSAVI"
   val X_Megam_PASSWORD = "X-Megam-PASSWORD"
+  val X_Megam_MASTER_KEY = "X-Megam-MASTER-KEY"
+  val X_Megam_MASTERKEY = "X-Megam-MASTERKEY"
   val Content_Type = "Content-Type"
   val application_json = "application/json"
   val Accept = "Accept"
@@ -64,8 +50,9 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "rajeshr@megam.io", X_Megam_APIKEY -> "a0cf83e360845f2639db63e515c94ad35a94cd50",
-    X_Megam_ORG -> "ORG6448151039469968038",
+    X_Megam_EMAIL -> "a@b.com", X_Megam_APIKEY -> "a0cf83e360845f2639db63e515c94ad35a94cd50",
+    X_Megam_ORG -> "ORG7530596076047928291",
+    X_Megam_MASTERKEY -> "true", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",
   //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "YWJj",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
@@ -129,12 +116,23 @@ trait BaseContext {
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + toMD5(contentToEncodeOpt).get
     play.api.Logger.debug("%-20s -->[%s]".format("SIGN", signWithHMAC))
     val puttusavi = headerMap.getOrElse(X_Megam_PUTTUSAVI, "blank_key")
+    val masterkey = headerMap.getOrElse(X_Megam_MASTERKEY, "blank_key")
 
     if (puttusavi == "true") {
 
       val signedWithHMAC = toHMAC((headerMap.getOrElse(X_Megam_PASSWORD, "blank_key")), signWithHMAC)
       val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":"+ signedWithHMAC
       play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_PUTTUSAVI, finalHMAC))
+
+      (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
+        RawBody(contentToEncodeOpt.getOrElse(new String())))
+
+    } else if(masterkey == "true") {
+
+      val signedWithHMAC = toHMAC((headerMap.getOrElse(X_Megam_MASTER_KEY, "blank_key")), signWithHMAC)
+      val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
+
+      play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
 
       (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
         RawBody(contentToEncodeOpt.getOrElse(new String())))

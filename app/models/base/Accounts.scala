@@ -3,7 +3,6 @@ package models.base
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
@@ -52,7 +51,7 @@ case class AccountReset(password_reset_key: String, password_reset_sent_at: Stri
 
 sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   implicit val formats = DefaultFormats
-  
+
   object id extends StringColumn(this)
 
   object name extends JsonColumn[AccountSacks, AccountResult, Name](this) {
@@ -121,7 +120,7 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
   }
 
   object registration_ip_address extends StringColumn(this)
-  
+
   object dates extends JsonColumn[AccountSacks, AccountResult, Dates](this) {
     override def fromJson(obj: String): Dates = {
       JsonParser.parse(obj).extract[Dates]
@@ -149,14 +148,14 @@ sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
 }
 
 abstract class ConcreteAccounts extends AccountSacks with RootConnector {
-  
+
   override lazy val tableName = "accounts"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
   def dbInsert(account: AccountResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, account.id)
-      .value(_.name, account.name)
+    .value(_.name, account.name)
      .value(_.phone, account.phone)
       .value(_.email, NilorNot(account.email, ""))
       .value(_.api_key, NilorNot(account.api_key, ""))
@@ -174,6 +173,12 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     val res = select.where(_.email eqs email).one()
     Await.result(res, 5.seconds).successNel
   }
+
+  def dbSelectAll(email: String, org: String): ValidationNel[Throwable, Seq[AccountResult]] = {
+    val res = select.fetch
+    Await.result(res, 5.seconds).successNel
+  }
+
 
   def dbUpdate(email: String, rip: AccountResult, aor: Option[AccountResult]): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.email eqs NilorNot(email, aor.get.email))
@@ -239,29 +244,29 @@ object Accounts extends ConcreteAccounts {
 
   private def mkAccountResult(id: String, m: AccountInput): ValidationNel[Throwable, AccountResult] = {
     (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
-      val dates = new Dates(m.dates.last_posted_at, m.dates.last_emailed_at, m.dates.previous_visit_at, 
+      val dates = new Dates(m.dates.last_posted_at, m.dates.last_emailed_at, m.dates.previous_visit_at,
           m.dates.first_seen_at, Time.now.toString)
-          
-      val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") 
+
+      val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","")
       AccountResult(id, m.name,  m.phone, m.email, m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  dates)
     } leftMap { t: Throwable => new MalformedBodyError(m.json, t.getMessage) }).toValidationNel
   }
-  
+
   private def mkAccountResultDup(m: AccountResult): ValidationNel[Throwable, AccountResult] = {
     (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       if(m.password!=null && m.password.password_hash!=null && m.password.password_hash.trim.length >0) {
-        val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") 
-      
+        val pwd = new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","")
+
         AccountResult(m.id, m.name,  m.phone, m.email, m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
       } else {
         AccountResult(m.id, m.name,  m.phone, m.email, m.api_key, m.password, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
       }
     }).toValidationNel
   }
-  
+
   private def mkAccountResultWithPassword(m: AccountResult, old: AccountResult): ValidationNel[Throwable, AccountResult] = {
     if (m.password.password_reset_key == old.password.password_reset_key) {
-      val pwd =  new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","") 
+      val pwd =  new Password(SecurePasswordHashing.hashPassword(m.password.password_hash),"","")
 
       val mupd = AccountResult(m.id, m.name,  m.phone, m.email, m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
 
@@ -270,7 +275,7 @@ object Accounts extends ConcreteAccounts {
       Validation.failure[Throwable, AccountResult](new CannotAuthenticateError(m.email, "Password token didn't match.")).toValidationNel
     }
   }
-  
+
   private def mkAccountResultWithToken(t: String): ValidationNel[Throwable, AccountResult] = {
       val pwd =  new Password("",t, Time.now.toString)
       val m = AccountResult("dum")
@@ -278,14 +283,14 @@ object Accounts extends ConcreteAccounts {
       val mupd = AccountResult("", m.name,  m.phone, "", m.api_key, pwd, m.states, m.approval,  m.suspend,  m.registration_ip_address,  m.dates)
 
       Validation.success[Throwable, AccountResult](mupd).toValidationNel
-    
+
   }
   ///////////////// All these conversion stuff should move out. ///////////
 
   private def mkOrgIfEmpty(email: String, orgs: Seq[OrganizationsResult], acc: AccountResult): ValidationNel[Throwable, AccountResult] = {
     val org_json    = "{\"name\":\"" + app.MConfig.org + "\"}"
     val domain_json = "{\"name\":\"" + app.MConfig.domain + "\"}"
-    
+
      if (!orgs.isEmpty)
       return Validation.success[Throwable, AccountResult](acc).toValidationNel
     else {
@@ -305,14 +310,14 @@ object Accounts extends ConcreteAccounts {
       }
     }
   }
-  
+
 
   def login(input: String): ValidationNel[Throwable, AccountResult] = {
     for {
       p <- parseAccount(input)
       a <- (Accounts.findByEmail(p.email) leftMap { t: NonEmptyList[Throwable] => t })
       s <- SecurityActions.Validate(p.password.password_hash, a.get.password.password_hash)
-      e <- Events(a.get.id, EVENTUSER, Events.LOGIN, Map(EVTEMAIL -> p.email)).createAndPub() 
+      e <- Events(a.get.id, EVENTUSER, Events.LOGIN, Map(EVTEMAIL -> p.email)).createAndPub()
     } yield {
      a.get
     }
@@ -331,13 +336,13 @@ object Accounts extends ConcreteAccounts {
       res
     }
   }
-  
+
 
   def update(email: String, input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     val accountResult: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    
+
     for {
       t <- accountResult
       c <- mkAccountResultDup(t)
@@ -350,7 +355,7 @@ object Accounts extends ConcreteAccounts {
 
   def forgot(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
     val token = generateToken(26)
-    
+
     for {
       a <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
       s <- mkAccountResultWithToken(token)
@@ -377,7 +382,7 @@ object Accounts extends ConcreteAccounts {
     }
   }
 
-  
+
     def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
     InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
       name: String =>
@@ -395,7 +400,18 @@ object Accounts extends ConcreteAccounts {
           }
         }
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
+  }
 
+  //Only Admin authority can list users hack for 1.5.
+  def listAll(email: String, org: String): ValidationNel[Throwable, Seq[AccountResult]] = {
+    (dbSelectAll(email, org) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(email, "Users = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[AccountResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[AccountResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[AccountResult]](new ResourceItemNotFound(email, "Users = nothing found.")).toValidationNel
+    }
   }
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {

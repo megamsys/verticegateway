@@ -23,11 +23,13 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.tosca.Assemblies.create(apiAccessed, clientAPIBody) match {
-            case Success(wrapasm) =>
+          new models.tosca.Launcher(grabAuthBag).launch(clientAPIBody) match {
+            case Success(wrapasm) => 
               Status(CREATED)(
-                FunnelResponse(CREATED, """[%s,%s] deployment submitted successfully.""".format(wrapasm.assemblies.mkString("|"),wrapasm.id), "Megam::Assemblies").toJson(true)
+                FunnelResponse(CREATED, """[%s,%s] deployment submitted successfully.""".format(
+                  wrapasm.map(_.get.assemblies.mkString("|")).mkString("|"),wrapasm.map(_.get.id).mkString("|")), "Megam::Assemblies").toJson(true)
             )
+
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

@@ -18,11 +18,6 @@ import controllers.stack.Results
  */
 object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
 
-  /**
-   * GET: findbyEmail: List all the market place names per email
-   * Email grabbed from header.
-   * Output: JSON (MarketPlacesResult)
-   */
   def list = StackAction(parse.tolerantText) { implicit request =>
     play.api.Logger.info("[+] Fetching all the MarketPlaceItems")
 

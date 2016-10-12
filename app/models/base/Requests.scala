@@ -3,7 +3,6 @@ package models.base
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
@@ -142,7 +141,7 @@ object Requests extends ConcreteRequests {
       ogsi <- mkRequestSack(input) leftMap { err: NonEmptyList[Throwable] => err }
       ogsr <- (insertNewRecord(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Request.created successfully", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.BLUE, Console.BOLD, "Request.created successfully", Console.RESET))
       new wash.PQd(ogsi.get.topicFunc, MessagePayLoad(Messages(ogsi.get.toMap.toList)).toJson(false)).some
     }
   }
