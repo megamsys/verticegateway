@@ -14,6 +14,20 @@ CREATE KEYSPACE IF NOT EXISTS vertice
 -- WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 , 'dc2' : 2 }
 -- AND DURABLE_WRITES = false;
 
+-- setting username & password for cassandra
+-- 1. alter system keyspace replication_factor
+alter KEYSPACE system_auth WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '2'}  AND durable_writes = true;
+
+-- 2. create new user and give the modify permission to user
+use system_auth;
+INSERT INTO roles (role , can_login , is_superuser , member_of , salted_hash ) VALUES ( 'vertadmin',True,True, null, '$2a$10$AbJs617QLX6zjZtxUd32oOlzA6msUllv3LF7YiFpRbQ3Wpgv8ulsi');
+INSERT INTO role_permissions (role , resource , permissions ) VALUES ( 'vertadmin', '<keyspace vertice>', {'MODIFY'});
+
+-- Before do next steps you need to manually change the cassandra.yaml file.
+-- 3. login into cqlsh ipaddress -u vertadmin -p $2a$10$AbJs617QLX6zjZtxUd32oOlzA6msUllv3LF7YiFpRbQ3Wpgv8ulsi
+-- then alter the new user password to vertadmin and provide GRANT permission
+alter user vertadmin with password 'vertadmin';
+GRANT ALL PERMISSIONS  ON KEYSPACE vertice  TO vertadmin;
 use vertice;
 
 CREATE TABLE accounts( id text,  name text, phone text, email text,  api_key text, password text, states text, approval text, suspend text, registration_ip_address text, dates text, PRIMARY KEY (email));
