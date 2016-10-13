@@ -104,25 +104,21 @@ object Licenses extends ConcreteLicenses {
   }
 
   def findById(id: String): ValidationNel[Throwable, Option[LicensesResult]] = {
-    InMemory[ValidationNel[Throwable, Option[LicensesResult]]]({
-      name: String ⇒
-        {
-          val lid = id.some.getOrElse(FIRST_ID)
+    val lid = id.some.getOrElse(FIRST_ID)
 
-          play.api.Logger.debug(("%-20s -->[%s]").format("License id", lid))
+    play.api.Logger.debug(("%-20s -->[%s]").format("License id", lid))
 
-          (getRecord(lid) leftMap { t: NonEmptyList[Throwable] ⇒
-            new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
-          }).toValidationNel.flatMap { xso: Option[LicensesResult] ⇒
-            xso match {
-              case Some(xs) ⇒ {
-                Validation.success[Throwable, Option[LicensesResult]](xs.some).toValidationNel
-              }
-              case None ⇒ Validation.failure[Throwable, Option[LicensesResult]](new ResourceItemNotFound(id, "")).toValidationNel
-            }
-          }
+    (getRecord(lid) leftMap { t: NonEmptyList[Throwable] ⇒
+      new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { xso: Option[LicensesResult] ⇒
+      xso match {
+        case Some(xs) ⇒ {
+          Validation.success[Throwable, Option[LicensesResult]](xs.some).toValidationNel
         }
-    }).get(id).eval(InMemoryCache[ValidationNel[Throwable, Option[LicensesResult]]]())
+        case None ⇒ Validation.failure[Throwable, Option[LicensesResult]](new ResourceItemNotFound(id, "")).toValidationNel
+      }
+    }
+
 
   }
 
