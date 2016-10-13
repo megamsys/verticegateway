@@ -125,9 +125,9 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
     snap <- snapshotsInput
     uir <- (UID("sps").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-
+    val uname =  uir.get._2.toString.substring(0, 5)
     val bvalue = Set(email)
-    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name, snap.status, "", "Megam::Snapshots", Time.now.toString)
+    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", "Megam::Snapshots", Time.now.toString)
     json
   }
 }
