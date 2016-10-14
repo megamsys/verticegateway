@@ -220,7 +220,7 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def NilorNot(rip: String, aor: String): String = {
+  private def NilorNot(rip: String, aor: String): String = {
     rip == null || rip == "" match {
       case true => return aor
       case false => return rip
