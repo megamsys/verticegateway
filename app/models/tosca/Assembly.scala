@@ -239,8 +239,20 @@ object Assembly extends ConcreteAssembly {
       asm_collection <- (Assembly.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val asm = asm_collection.head
-      val json = AssemblyResult(rip.id, org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs, asm.get.outputs, asm.get.status, asm.get.state, asm.get.json_claz, asm.get.created_at)
+      val json = AssemblyResult(rip.id, org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs,
+         asm.get.outputs,
+         NilOrNot(rip.status, asm.get.status),
+         NilOrNot(rip.status, asm.get.state),
+         asm.get.json_claz,
+         asm.get.created_at)
       json.some
+    }
+  }
+
+  private def NilOrNot(rip: String, aor: String): String = {
+    rip == null || rip == "" match {
+      case true => return aor
+      case false => return rip
     }
   }
 
