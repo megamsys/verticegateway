@@ -41,8 +41,8 @@ class SnapshotsSpec extends Specification {
       "\"asm_id\": \"ASM5355764237644862\"," +
       "\"org_id\":\"ORG787966332632133744\"," +
       "\"account_id\": \"\"," +
-      "\"name\":\"ttr123.megambox.com\"," +
-      "\"status\":\"progress22\"," +
+      "\"name\":\"rrr.megambox.com\"," +
+      "\"status\":\"progress44\"," +
       "}"
       Some(contentToEncode)
     }

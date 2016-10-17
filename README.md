@@ -102,15 +102,26 @@ You'll see this in your browser.
 
 Now you are all set.
 
-# Contribution
+# API Documentation
 
-For [contribution] (https://github.com/megamsys/vertice/blob/master/CONTRIBUTING.md)
+Update the vertice.raml
+
+```
+
+npm install -g raml2html
+
+raml2html vertice.raml
+
+```
+
+
+# Contribution
 
 As this is heavy on memory, we have a work in progress 2.0 code which is based on rust.
 
 # Documentation
 
-For [documentation] (http://docs.megam.io)  [wiki] (https://github.com/megamsys/vertice/wiki)
+For [documentation] (http://docs.megam.io)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
 
 # License
 

@@ -37,7 +37,7 @@ import com.websudos.phantom.iteratee.Iteratee
  * @author ranjitha
  *
  */
-case class DisksInput( asm_id: String, org_id: String, account_id: String, status: String, size: String) {
+case class DisksInput( asm_id: String, org_id: String, account_id: String, size: String,status: String) {
 }
 case class DisksResult(
   id: String,
@@ -52,7 +52,7 @@ case class DisksResult(
 }
 
 object DisksResult {
-  def apply(id: String, asm_id: String, org_id: String, account_id: String, disk_id: String,status: String, size: String) = new DisksResult(id, asm_id, org_id, account_id, disk_id, status,size, "Megam::Disks", Time.now.toString)
+  def apply(id: String, asm_id: String, org_id: String, account_id: String, disk_id: String, size: String, status: String) = new DisksResult(id, asm_id, org_id, account_id, disk_id, size, status, "Megam::Disks", Time.now.toString)
 }
 
 sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] {
@@ -64,8 +64,8 @@ sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] {
   object org_id extends StringColumn(this)
   object account_id extends StringColumn(this) with PrimaryKey[String]
   object disk_id extends StringColumn(this)
-  object status extends StringColumn(this)
   object size extends StringColumn(this)
+  object status extends StringColumn(this)
   object created_at extends StringColumn(this)
   object json_claz extends StringColumn(this)
 
@@ -76,8 +76,8 @@ sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] {
       org_id(row),
       account_id(row),
       disk_id(row),
-      status(row),
       size(row),
+      status(row),
       json_claz(row),
       created_at(row))
   }
@@ -95,8 +95,8 @@ abstract class ConcreteDisks extends DisksSacks with RootConnector {
       .value(_.org_id, dk.org_id)
       .value(_.account_id, dk.account_id)
       .value(_.disk_id, dk.disk_id)
-      .value(_.status, dk.status)
       .value(_.size, dk.size)
+      .value(_.status, dk.status)
       .value(_.json_claz, dk.json_claz)
       .value(_.created_at, dk.created_at)
       .future()
@@ -133,7 +133,7 @@ private def mkDisksSack(email: String, input: String): ValidationNel[Throwable, 
   } yield {
 
     val bvalue = Set(email)
-    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.status, dsk.size, "Megam::Disks", Time.now.toString)
+    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.size, dsk.status,  "Megam::Disks", Time.now.toString)
     json
   }
 }
