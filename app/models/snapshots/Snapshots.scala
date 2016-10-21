@@ -37,7 +37,7 @@ import com.websudos.phantom.iteratee.Iteratee
  * @author ranjitha
  *
  */
-case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String) {
+case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String) {
 }
 case class SnapshotsResult(
   snap_id: String,
@@ -47,12 +47,15 @@ case class SnapshotsResult(
   name:   String,
   status: String,
   image_id: String,
+  tosca_type: String,
+  inputs: models.tosca.KeyValueList,
+  outputs: models.tosca.KeyValueList,
   json_claz: String,
   created_at: String) {
 }
 
 object SnapshotsResult {
-  def apply(snap_id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String) = new SnapshotsResult(snap_id, asm_id, org_id, account_id, name, status, image_id, "Megam::Snapshots", Time.now.toString)
+  def apply(snap_id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(snap_id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, outputs, "Megam::Snapshots", Time.now.toString)
 }
 
 sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResult] {
@@ -66,6 +69,26 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
   object name extends StringColumn(this)
   object status extends StringColumn(this)
   object image_id extends StringColumn(this)
+  object tosca_type extends StringColumn(this)
+  object inputs extends JsonListColumn[SnapshotsSacks, SnapshotsResult, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
+    }
+
+    override def toJson(obj: KeyValueField): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
+  object outputs extends JsonListColumn[SnapshotsSacks, SnapshotsResult, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
+    }
+
+    override def toJson(obj: KeyValueField): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
   object created_at extends StringColumn(this)
   object json_claz extends StringColumn(this)
 
@@ -78,6 +101,9 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
       name(row),
       status(row),
       image_id(row),
+      tosca_type(row),
+      inputs(row),
+      outputs(row),
       json_claz(row),
       created_at(row))
   }
@@ -97,6 +123,9 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
       .value(_.name, sps.name)
       .value(_.status, sps.status)
       .value(_.image_id, sps.image_id)
+      .value(_.tosca_type, sps.tosca_type)
+      .value(_.inputs, sps.inputs)
+      .value(_.outputs, sps.outputs)
       .value(_.json_claz, sps.json_claz)
       .value(_.created_at, sps.created_at)
       .future()
@@ -127,7 +156,7 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
     val bvalue = Set(email)
-    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", "Megam::Snapshots", Time.now.toString)
+    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", snap.tosca_type, List(), List(), "Megam::Snapshots", Time.now.toString)
     json
   }
 }

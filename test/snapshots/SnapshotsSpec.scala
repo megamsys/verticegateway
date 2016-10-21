@@ -43,6 +43,7 @@ class SnapshotsSpec extends Specification {
       "\"account_id\": \"\"," +
       "\"name\":\"rrr.megambox.com\"," +
       "\"status\":\"progress44\"," +
+      "\"tosca_type\":\"xxxxx\"," +
       "}"
       Some(contentToEncode)
     }
