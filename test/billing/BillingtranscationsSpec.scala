@@ -31,7 +31,7 @@ BillingtransactionsSpec is the implementation that calls the megam_play API serv
       val contentToEncode = "{" +
         "\"accounts_id\": \"5555555\"," +
         "\"gateway\":\"paypal\"," +
-        "\"amountin\": \"10\"," +
+        "\"amountin\": \"20\"," +
         "\"amountout\":\"5.99\"," +
         "\"fees\": \"0.99\"," +
         "\"tranid\": \"HGH111\"," +

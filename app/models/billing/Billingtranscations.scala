@@ -128,9 +128,9 @@ object Billingtransactions extends ConcreteBillingtransactions {
 
     for {
       bill <- billInput
+      set <- (atBalUpdate(email, bill.amountin) leftMap { s: NonEmptyList[Throwable] => s })
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bal = atBalUpdate(email,bill.amountin)
       val bvalue = Set(email)
       val json = new BillingtransactionsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, "Megam::BillingTransactions", Time.now.toString)
       json
@@ -146,23 +146,22 @@ object Billingtransactions extends ConcreteBillingtransactions {
     for {
       wa <- (mkBillingtransactionsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+      acc <- (atAccUpdate(email) leftMap { s: NonEmptyList[Throwable] => s })
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Billingtransactions.created success", Console.RESET))
-      atAccUpdate(email)
       wa.some
     }
   }
 
- def atAccUpdate(email: String) {
+ def atAccUpdate(email: String): ValidationNel[Throwable,Option[AccountResult]] = {
  val approval = Approval("true", "", "")
  val  acc = AccountResult("", Name.empty, Phone.empty, email, new String(), Password.empty, States.empty, approval, Suspend.empty, new String(), Dates.empty)
  models.base.Accounts.update(email, compactRender(Extraction.decompose(acc)))
  }
 
- def atBalUpdate(email: String, amount: String) {
+ def atBalUpdate(email: String, amount: String): ValidationNel[Throwable, BalancesResults] = {
   val bal = BalancesResult("",email,amount,"", "", "")
-  models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)) )
-
+  models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
  }
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email,
