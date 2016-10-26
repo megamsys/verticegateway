@@ -342,7 +342,6 @@ object Accounts extends ConcreteAccounts {
     val accountResult: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
     for {
       t <- accountResult
       c <- mkAccountResultDup(t)

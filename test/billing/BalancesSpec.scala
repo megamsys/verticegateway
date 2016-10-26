@@ -18,8 +18,8 @@ class BalancesSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST  requests with an valid datas" ! create.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
 
   case object create extends Context {

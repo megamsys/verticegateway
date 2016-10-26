@@ -10,6 +10,9 @@ import scalaz.NonEmptyList._
 import cache._
 import db._
 import models.Constants._
+import models.base._
+import io.megam.auth.stack.AccountResult
+import io.megam.auth.stack.{ Name, Phone, Password, States, Approval, Dates, Suspend }
 import io.megam.auth.funnel.FunnelErrors._
 
 import com.datastax.driver.core.{ ResultSet, Row }
@@ -127,7 +130,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
       bill <- billInput
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-
+      val bal = atBalUpdate(email,bill.amountin)
       val bvalue = Set(email)
       val json = new BillingtransactionsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, "Megam::BillingTransactions", Time.now.toString)
       json
@@ -139,15 +142,28 @@ object Billingtransactions extends ConcreteBillingtransactions {
    *
    */
   def create(email: String, input: String): ValidationNel[Throwable, Option[BillingtransactionsResult]] = {
+
     for {
       wa <- (mkBillingtransactionsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Billingtransactions.created success", Console.RESET))
+      atAccUpdate(email)
       wa.some
     }
   }
 
+ def atAccUpdate(email: String) {
+ val approval = Approval("true", "", "")
+ val  acc = AccountResult("", Name.empty, Phone.empty, email, new String(), Password.empty, States.empty, approval, Suspend.empty, new String(), Dates.empty)
+ models.base.Accounts.update(email, compactRender(Extraction.decompose(acc)))
+ }
+
+ def atBalUpdate(email: String, amount: String) {
+  val bal = BalancesResult("",email,amount,"", "", "")
+  models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)) )
+
+ }
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the transcations are listed on the index (account.id) in bucket `Billingtransactions`.
