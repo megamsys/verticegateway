@@ -3,9 +3,12 @@ package models.billing
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
+import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
+import scala.collection.mutable.ListBuffer
 import io.megam.util.Time
 
 import cache._
@@ -93,13 +96,15 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
   }
 
   def updateRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldbal = aor.get.credit.toInt
+    val newbal = rip.credit.toInt
+    val updatecredit = oldbal + newbal
     val res = update.where(_.account_id eqs email)
-      .modify(_.credit setTo NilorNot(rip.credit, aor.get.credit))
+      .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))
       .and(_.updated_at setTo Time.now.toString)
       .future()
       println(res)
       Await.result(res, 5.seconds).successNel
-
   }
 
   def getRecord(id: String): ValidationNel[Throwable, Option[BalancesResult]] = {
@@ -113,8 +118,6 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
       case false => return rip
     }
   }
-
-
 }
 
 object Balances extends ConcreteBalances{
