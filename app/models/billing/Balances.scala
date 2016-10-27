@@ -155,6 +155,15 @@ object Balances extends ConcreteBalances{
     }
   }
 
+  def onboardAccountBalance(email: String): ValidationNel[Throwable, Option[BalancesResult]] = {
+    for {
+      wa <- (create(email, BalancesInput("0").json) leftMap { err: NonEmptyList[Throwable] => err })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Account Balance onboard. success", Console.RESET))
+      wa
+    }
+  }
+
   def update(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
     val ripNel: ValidationNel[Throwable, BalancesResult] = (Validation.fromTryCatchThrowable[BalancesResult,Throwable] {
       parse(input).extract[BalancesResult]
