@@ -3,9 +3,12 @@ package models.billing
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
+import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
+import scala.collection.mutable.ListBuffer
 import io.megam.util.Time
 
 import cache._
@@ -39,15 +42,14 @@ case class BalancesInput(credit: String) {
 
 }
 
-case class BalancesUpdateInput(id: String, name: String, credit: String, created_at: String, updated_at: String) {
-  val json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"credit\":\"" + credit + "\",\"created_at\":\"" + created_at + "\",\"updated_at\":\"" + updated_at + "\"}"
+case class BalancesUpdateInput(id: String, credit: String, created_at: String, updated_at: String) {
+  val json = "{\"id\":\"" + id + "\",\"credit\":\"" + credit + "\",\"created_at\":\"" + created_at + "\",\"updated_at\":\"" + updated_at + "\"}"
 
 }
 
 case class BalancesResult(
     id: String,
     account_id: String,
-    name: String,
     credit: String,
     json_claz: String,
     created_at: String,
@@ -60,7 +62,6 @@ sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult]
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object account_id extends StringColumn(this) with PartitionKey[String]
-  object name extends StringColumn(this)
   object credit extends StringColumn(this)
   object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
@@ -70,7 +71,6 @@ sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult]
     BalancesResult(
       id(row),
       account_id(row),
-      name(row),
       credit(row),
       json_claz(row),
       created_at(row),
@@ -86,7 +86,6 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
 
   def insertNewRecord(ams: BalancesResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, ams.id)
-      .value(_.name, ams.name)
       .value(_.account_id, ams.account_id)
       .value(_.credit, ams.credit)
       .value(_.json_claz, ams.json_claz)
@@ -97,16 +96,19 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
   }
 
   def updateRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldbal = aor.get.credit.toInt
+    val newbal = rip.credit.toInt
+    val updatecredit = oldbal + newbal
     val res = update.where(_.account_id eqs email)
-      .modify(_.name setTo NilorNot(rip.name, aor.get.name))
-      .and(_.credit setTo NilorNot(rip.credit, aor.get.credit))
+      .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))
       .and(_.updated_at setTo Time.now.toString)
       .future()
+      println(res)
       Await.result(res, 5.seconds).successNel
   }
 
   def getRecord(id: String): ValidationNel[Throwable, Option[BalancesResult]] = {
-    val res = select.allowFiltering().where(_.id eqs id).one()
+    val res = select.allowFiltering().where(_.account_id eqs id).one()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -116,8 +118,6 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
       case false => return rip
     }
   }
-
-
 }
 
 object Balances extends ConcreteBalances{
@@ -139,7 +139,7 @@ object Balances extends ConcreteBalances{
     } yield {
 
       val bvalue = Set(email)
-      val json = new BalancesResult(uir.get._1 + uir.get._2, email, "", balance.credit, "Megam::Balances", Time.now.toString, Time.now.toString)
+      val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, "Megam::Balances", Time.now.toString, Time.now.toString)
       json
     }
   }
@@ -158,11 +158,19 @@ object Balances extends ConcreteBalances{
     }
   }
 
+  def onboardAccountBalance(email: String): ValidationNel[Throwable, Option[BalancesResult]] = {
+    for {
+      wa <- (create(email, BalancesInput("0").json) leftMap { err: NonEmptyList[Throwable] => err })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Account Balance onboard. success", Console.RESET))
+      wa
+    }
+  }
+
   def update(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
     val ripNel: ValidationNel[Throwable, BalancesResult] = (Validation.fromTryCatchThrowable[BalancesResult,Throwable] {
       parse(input).extract[BalancesResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
     for {
       rip <- ripNel
       bor <- (Balances.findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
