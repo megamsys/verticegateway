@@ -1,7 +1,7 @@
 Vertice Gateway
 ================
 
-API server for "[Megam vertice](https://www.megam.io)".
+API server for "[MegamVertice](https://vertice.megam.io)".
 
 The API server protects the RESTful resources using
 
@@ -66,18 +66,46 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 
 ```
 
-##set MEGAM_HOME
+## MEGAM_HOME
 
-Set MEGAM_HOME directory  .bashrc file.for example the directory may be '/var/lib/megam'
+Create a home directory to store configuration files for MegamVertice
+
+```
+
+$ cd ~
+
+$ mkdir -p megam/verticegateway
+
+```
+
+Edit your `.bashrc` 
 
 In your .bashrc file add the following line
 
-  export MEGAM_HOME=/var/lib/megam
+```
+
+export MEGAM_HOME=$HOME/megam
+
+```
 
 After this enter save the .bashrc file.Use the following command
 
   source ~/.bashrc  
 
+## Configuration
+
+Copy configuration files to $MEGAM_HOME/verticegateway
+
+```
+
+$ cd vertice_gateway (your cloned location)
+
+$ cp conf/gateway.conf $MEGAM_HOME/verticegateway
+
+$ cp conf/logger.xml $MEGAM_HOME/verticegateway
+
+
+```
 
 ## Start Vertice Gateway
 
