@@ -55,11 +55,13 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 ```
 * cd vertice_gateway/conf
 
-* cqlsh -f vertice.cql
+* cqlsh -f base.cql
 
-* cqlsh -f upgrade_1.5.cql
+* cqlsh -f 1.5.cql
 
-* cqlsh -f marketplaces.cql
+* cqlsh -f ee.cql
+
+* cqlsh -f me.cql
 
 
 ```
