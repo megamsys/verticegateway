@@ -66,6 +66,19 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 
 ```
 
+##set MEGAM_HOME
+
+Set MEGAM_HOME directory  .bashrc file.for example the directory may be '/var/lib/megam'
+
+In your .bashrc file add the following line
+
+  export MEGAM_HOME=/var/lib/megam
+
+After this enter save the .bashrc file.Use the following command
+
+  source ~/.bashrc  
+
+
 ## Start Vertice Gateway
 
 ```
