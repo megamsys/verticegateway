@@ -72,7 +72,11 @@ Set MEGAM_HOME directory  .bashrc file.for example the directory may be '/var/li
 
 In your .bashrc file add the following line
 
-  export MEGAM_HOME=/var/lib/megam 
+  export MEGAM_HOME=/var/lib/megam
+
+After this enter save the .bashrc file.Use the following command
+
+  source ~/.bashrc  
 
 
 ## Start Vertice Gateway
