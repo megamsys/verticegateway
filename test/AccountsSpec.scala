@@ -20,12 +20,12 @@ class AccountsSpec extends Specification {
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
-      //"Correctly do POST update requests with a valid userid and api_key" ! PostUpdate.succeeds ^
+    //  "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+    //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+    //  "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
+    //  "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+    //  "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      "Correctly do POST update requests with a valid userid and api_key" ! PostUpdate.succeeds ^
       end
 
   case object Post extends Context {
@@ -43,7 +43,7 @@ class AccountsSpec extends Specification {
             "\"phone\":\"1998766366\"," +
             "\"phone_verified\":\"verified\"" +
             "}," +
-            "\"email\":\"vert@test.com\"," +
+            "\"email\":\"aa@e.com\"," +
             "\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\"," +
             "\"password\":{" +
         "\"password_hash\":\"user\"," +

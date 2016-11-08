@@ -34,6 +34,7 @@ import scala.annotation.tailrec
 
 import models.team._
 import models.base.Events._
+import models.billing._
 
 /**
  * @author rajthilak
@@ -331,6 +332,7 @@ object Accounts extends ConcreteAccounts {
       ins <- dbInsert(ast)
       org <- Organizations.findByEmail(p.email)
       res <- mkOrgIfEmpty(p.email, org, ast)
+      bal <- Balances.onboardAccountBalance(p.email)
       evn <- Events(ast.id, EVENTUSER, Events.ONBOARD, Map(EVTEMAIL -> ast.email)).createAndPub()
     } yield {
       res
@@ -342,7 +344,6 @@ object Accounts extends ConcreteAccounts {
     val accountResult: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
       parse(input).extract[AccountResult]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
     for {
       t <- accountResult
       c <- mkAccountResultDup(t)

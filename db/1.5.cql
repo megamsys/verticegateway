@@ -32,3 +32,9 @@ CREATE TABLE IF NOT EXISTS disks (id text, disk_id  text, asm_id text, org_id te
 CREATE TABLE IF NOT EXISTS master_keys (id text, key text, created_at text, PRIMARY KEY ((id)));
 
 CREATE TABLE IF NOT EXISTS licenses (id text, data text, created_at text, PRIMARY KEY ((id)));
+
+ALTER TABLE snapshots add tosca_type text;
+
+ALTER TABLE snapshots add inputs list<text>;
+
+ALTER TABLE snapshots add outputs list<text>;
