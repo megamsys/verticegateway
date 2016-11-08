@@ -11,7 +11,7 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.7.0")
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.8")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.3")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.1.4")
 
 libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-api"       % "1.7.21" force(),

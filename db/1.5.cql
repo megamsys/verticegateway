@@ -1,6 +1,10 @@
 -- 1.5 upgradee only.
 -- base.cql should be run already
 
+use system_auth;
+
+GRANT ALL PERMISSIONS  ON KEYSPACE vertice  TO vertadmin;
+
 use vertice;
 
 CREATE TABLE IF NOT EXISTS billingtransactions(id text, account_id text, gateway text, amountin text, amountout text, fees text, tranid text, trandate text, currency_type text,  created_at text, json_claz text, PRIMARY KEY(account_id, trandate, created_at));
