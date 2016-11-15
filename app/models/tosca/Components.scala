@@ -54,7 +54,7 @@ import scala.concurrent.duration._
 case class Artifacts(artifact_type: String, content: String, requirements: KeyValueList) {
 }
 
-case class Repo(rtype: String, source: String, oneclick: String, url: String) {
+case class Repo(rtype: String, source: String, oneclick: String, url: String, branch: String) {
 }
 
 case class ComponentResult(
