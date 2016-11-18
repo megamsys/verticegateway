@@ -1,4 +1,4 @@
-Vertice Gateway
+VirtEngine Gateway
 ================
 
 API server for "[MegamVertice](https://vertice.megam.io)".
@@ -30,9 +30,9 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 
 ```
 
-* git clone https://github.com/<your_github_id>/vertice_gateway.git
+* git clone https://github.com/<your_github_id>/gateway.git
 
-* cd vertice_gateway
+* cd gateway
 
 * sbt
 
@@ -53,7 +53,7 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 ## Setup cassandra keyspace
 
 ```
-* cd vertice_gateway/db
+* cd gateway/db
 
 * cqlsh -f base.cql
 
@@ -74,7 +74,7 @@ Create a home directory to store configuration files for MegamVertice
 
 $ cd ~
 
-$ mkdir -p megam/virtenginegateway
+$ mkdir -p detio/virtenginegateway
 
 ```
 
@@ -84,7 +84,7 @@ In your .bashrc file add the following line
 
 ```
 
-export MEGAM_HOME=$HOME/megam
+export MEGAM_HOME=$HOME/detio
 
 ```
 
