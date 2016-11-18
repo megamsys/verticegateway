@@ -1,5 +1,5 @@
-description "Vertice gateway(https://www.megam.io)"
-author "Rajthilak <rajthilak@megam.io>"
+description "VirtEngine gateway(https://virtengine.com/)"
+author "Rajthilak <rajthilak@virtengine.com>"
 
 # When to start the servicee
 start on runlevel [2345]
@@ -16,21 +16,21 @@ respawn limit 0 60
 
 script
     export HOME="/root"
-    cd /usr/share/megam/virtenginegateway/bin/
-    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) virtenginegateway daemonizing" >> /var/log/megam/virtenginegateway/virtenginegateway.log
-    exec sudo ./virtenginegateway -Dlogger.file=/var/lib/megam/virtenginegateway/logger.xml -Dconfig.file=/var/lib/megam/virtenginegateway/gateway.conf >> /var/log/megam/virtenginegateway/virtenginegateway.log 2>&1
+    cd /usr/share/detio/virtenginegateway/bin/
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) virtenginegateway daemonizing" >> /var/log/detio/virtenginegateway/virtenginegateway.log
+    exec sudo ./virtenginegateway -Dlogger.file=/var/lib/detio/virtenginegateway/logger.xml -Dconfig.file=/var/lib/detio/virtenginegateway/gateway.conf >> /var/log/detio/virtenginegateway/virtenginegateway.log 2>&1
 end script
 
 pre-start script
- [ -d /var/log/megam/virtenginegateway ] || mkdir -p /var/log/megam/virtenginegateway
- [ -d /var/run/megam ] || mkdir -p /var/run/megam
- if [ -f "/usr/share/megam/virtenginegateway/RUNNING_PID" ]; then
-        rm /usr/share/megam/virtenginegateway/RUNNING_PID
+ [ -d /var/log/detio/virtenginegateway ] || mkdir -p /var/log/detio/virtenginegateway
+ [ -d /var/run/detio ] || mkdir -p /var/run/detio
+ if [ -f "/usr/share/detio/virtenginegateway/RUNNING_PID" ]; then
+        rm /usr/share/detio/virtenginegateway/RUNNING_PID
  fi
- echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) starting" >> /var/log/megam/virtenginegateway/virtenginegateway.log
+ echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) starting" >> /var/log/detio/virtenginegateway/virtenginegateway.log
 end script
 
 pre-stop script
-    rm /usr/share/megam/virtenginegateway/RUNNING_PID
-    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) virtenginegateway tata bye!" >> /var/log/megam/virtenginegateway/virtenginegateway.log
+    rm /usr/share/detio/virtenginegateway/RUNNING_PID
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) virtenginegateway tata bye!" >> /var/log/detio/virtenginegateway/virtenginegateway.log
 end script
