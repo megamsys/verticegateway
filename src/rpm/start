@@ -1,11 +1,11 @@
-## Systemd script that starts vertice gateway
+## Systemd script that starts VirtEngine gateway
 [Unit]
-Description=Vertice Gateway
+Description=VirtEngine Gateway
 After=network.target
 After=runlevel2.target
 After=runlevel3.target
 After=runlevel4.target
 After=runlevel5.target
 [Service]
-ExecStart=/usr/share/megam/verticegateway/bin/verticegateway -Dlogger.file=/var/lib/megam/verticegateway/logger.xml -Dconfig.file=/var/lib/megam/verticegateway/gateway.conf
+ExecStart=/usr/share/detio/virtenginegateway/bin/virtenginegateway -Dlogger.file=/var/lib/detio/virtenginegateway/logger.xml -Dconfig.file=/var/lib/detio/virtenginegateway/gateway.conf
 KillMode=mixed

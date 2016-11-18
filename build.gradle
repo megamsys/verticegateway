@@ -13,7 +13,7 @@ model {
 
               sources {
                 resources  {
-                  String gateway_conf = "$System.env.MEGAM_HOME/verticegateway"
+                  String gateway_conf = "$System.env.MEGAM_HOME/virtenginegateway"
 
                   println "conf: " + gateway_conf
                   source.srcDir  "$gateway_conf"
