@@ -4,11 +4,11 @@ set -e
 MEGAM_HOME=/var/lib/megam
 MEGAM_USER=megam
 
-mkdir -p $MEGAM_HOME/verticegateway
-cp  /usr/share/megam/verticegateway/conf/base.cql $MEGAM_HOME/verticegateway/
-cp  /usr/share/megam/verticegateway/conf/gateway.conf  $MEGAM_HOME/verticegateway/gateway.conf
-cp  /usr/share/megam/verticegateway/conf/logger.xml  $MEGAM_HOME/verticegateway/
-cp  /usr/share/megam/verticegateway/conf/VERSION /usr/share/megam/verticegateway/
+mkdir -p $MEGAM_HOME/virtenginegateway
+cp  /usr/share/megam/virtenginegateway/conf/base.cql $MEGAM_HOME/virtenginegateway/
+cp  /usr/share/megam/virtenginegateway/conf/gateway.conf  $MEGAM_HOME/virtenginegateway/gateway.conf
+cp  /usr/share/megam/virtenginegateway/conf/logger.xml  $MEGAM_HOME/virtenginegateway/
+cp  /usr/share/megam/virtenginegateway/conf/VERSION /usr/share/megam/virtenginegateway/
 
 dist=`grep PRETTY_NAME /etc/*-release | awk -F '="' '{print $2}'`
 os=$(echo $dist | awk '{print $1;}')
@@ -16,9 +16,9 @@ id=`grep VERSION_ID /etc/*-release | awk -F '="' '{print $2}'`
 version=$(echo $id | awk '{print $1;}')
 versionId=${version::-1}
 if [ "$os" == "Ubuntu" ] &&  [ "$versionId" == "14.04" ]; then
-  echo $os "verticegateway 1.5"
+  echo $os "virtenginegateway 1.5"
 else if [ "$os" == "Ubuntu" ] &&  [ "$versionId" == "16.04" ] || [ "$os" == "Debian" ]; then
-cat > /etc/systemd/system/verticegateway.service <<EOF
+cat > /etc/systemd/system/virtenginegateway.service <<EOF
 ## Systemd script that starts vertice gateway
 [Unit]
 Description=Vertice Gateway
@@ -28,10 +28,10 @@ After=runlevel3.target
 After=runlevel4.target
 After=runlevel5.target
 [Service]
-ExecStart=/usr/share/megam/verticegateway/bin/verticegateway -Dlogger.file=/var/lib/megam/verticegateway/logger.xml -Dconfig.file=/var/lib/megam/verticegateway/gateway.conf
+ExecStart=/usr/share/megam/virtenginegateway/bin/virtenginegateway -Dlogger.file=/var/lib/megam/virtenginegateway/logger.xml -Dconfig.file=/var/lib/megam/virtenginegateway/gateway.conf
 KillMode=mixed
 EOF
-rm /etc/init/verticegateway.conf
+rm /etc/init/virtenginegateway.conf
 
 else
    echo "Unsupported Linux OS"
@@ -45,4 +45,4 @@ if [ "$1" = "configure" ]; then
 fi
 
 #initctl reload-configuration
-echo "verticegateway not yet started. Try manually 'systemctl start verticegateway or start verticegateway'"
+echo "virtenginegateway not yet started. Try manually 'systemctl start virtenginegateway or start virtenginegateway'"

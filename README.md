@@ -1,4 +1,4 @@
-Vertice Gateway
+VirtEngine Gateway
 ================
 
 API server for "[MegamVertice](https://vertice.megam.io)".
@@ -30,9 +30,9 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 
 ```
 
-* git clone https://github.com/<your_github_id>/vertice_gateway.git
+* git clone https://github.com/<your_github_id>/gateway.git
 
-* cd vertice_gateway
+* cd gateway
 
 * sbt
 
@@ -53,7 +53,7 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 ## Setup cassandra keyspace
 
 ```
-* cd vertice_gateway/conf
+* cd gateway/db
 
 * cqlsh -f base.cql
 
@@ -74,17 +74,17 @@ Create a home directory to store configuration files for MegamVertice
 
 $ cd ~
 
-$ mkdir -p megam/verticegateway
+$ mkdir -p detio/virtenginegateway
 
 ```
 
-Edit your `.bashrc` 
+Edit your `.bashrc`
 
 In your .bashrc file add the following line
 
 ```
 
-export MEGAM_HOME=$HOME/megam
+export MEGAM_HOME=$HOME/detio
 
 ```
 
@@ -94,15 +94,15 @@ After this enter save the .bashrc file.Use the following command
 
 ## Configuration
 
-Copy configuration files to $MEGAM_HOME/verticegateway
+Copy configuration files to $MEGAM_HOME/virtenginegateway
 
 ```
 
 $ cd vertice_gateway (your cloned location)
 
-$ cp conf/gateway.conf $MEGAM_HOME/verticegateway
+$ cp conf/gateway.conf $MEGAM_HOME/virtenginegateway
 
-$ cp conf/logger.xml $MEGAM_HOME/verticegateway
+$ cp conf/logger.xml $MEGAM_HOME/virtenginegateway
 
 
 ```
@@ -110,7 +110,7 @@ $ cp conf/logger.xml $MEGAM_HOME/verticegateway
 ## Start Vertice Gateway
 
 ```
-* cd vertice_gateway
+* cd gateway
 
 * sbt
 
@@ -164,7 +164,7 @@ As this is heavy on memory, we have a work in progress 2.0 code which is based o
 
 # Documentation
 
-For [documentation] (http://docs.megam.io)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
+For [documentation] (http://docs.virtengine.com)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
 
 # License
 
@@ -173,4 +173,4 @@ MIT
 
 # Authors
 
-Megam - Humans (<info@megam.io>)
+VirtEngine Humans <hello@virtengine.com>
