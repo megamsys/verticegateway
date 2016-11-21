@@ -53,7 +53,7 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 ## Setup cassandra keyspace
 
 ```
-* cd vertice_gateway/conf
+* cd vertice_gateway/db
 
 * cqlsh -f base.cql
 
@@ -78,7 +78,7 @@ $ mkdir -p megam/verticegateway
 
 ```
 
-Edit your `.bashrc` 
+Edit your `.bashrc`
 
 In your .bashrc file add the following line
 
