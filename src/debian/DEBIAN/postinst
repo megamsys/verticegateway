@@ -2,7 +2,6 @@
 set -e
 
 MEGAM_HOME=/var/lib/detio
-MEGAM_USER=detio
 
 mkdir -p $MEGAM_HOME/virtenginegateway
 cp  /usr/share/detio/virtenginegateway/conf/base.cql $MEGAM_HOME/virtenginegateway/
