@@ -1,6 +1,6 @@
 #!/bin/bash
-[ -d /var/log/megam/virtenginegateway/ ] ||  mkdir -p /var/log/megam/virtenginegateway/
+[ -d /var/log/detio/virtenginegateway/ ] ||  mkdir -p /var/log/detio/virtenginegateway/
 
-[ -d /var/lib/megam/virtenginegateway/ ] ||  mkdir -p /var/lib/megam/virtenginegateway/
+[ -d /var/lib/detio/virtenginegateway/ ] ||  mkdir -p /var/lib/detio/virtenginegateway/
 
-[ -d /var/run/megam ] || mkdir /var/run/megam
+[ -d /var/run/detio ] || mkdir /var/run/detio
