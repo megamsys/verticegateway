@@ -1,7 +1,7 @@
 VirtEngine Gateway
 ================
 
-API server for "[MegamVertice](https://vertice.megam.io)".
+API server for "[VirtEngine](https://virtengine.com)".
 
 The API server protects the RESTful resources using
 
