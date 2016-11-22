@@ -115,9 +115,9 @@ packageSummary in Linux := "VerticeGateway is a REST API server."
 
 packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam vertice."
 
-daemonUser in Linux := "megam" // user which will execute the application
+daemonUser in Linux := "root" // user which will execute the application
 
-daemonGroup in Linux := "megam"    // group which will execute the application
+daemonGroup in Linux := "root"    // group which will execute the application
 
 debianPackageDependencies in Debian ++= Seq("curl", "verticecommon")
 
