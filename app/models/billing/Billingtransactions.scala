@@ -160,7 +160,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
  }
 
  def atBalUpdate(email: String, amount: String): ValidationNel[Throwable, BalancesResults] = {
-  val bal = BalancesResult("",email,amount,"", "", "")
+   val bal = BalancesResult("",email,amount,"", "", "")
   models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
  }
   /*

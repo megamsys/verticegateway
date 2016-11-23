@@ -96,8 +96,8 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
   }
 
   def updateRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
-    val oldbal = aor.get.credit.toInt
-    val newbal = rip.credit.toInt
+    val oldbal = aor.get.credit.toFloat
+    val newbal = rip.credit.toFloat
     val updatecredit = oldbal + newbal
     val res = update.where(_.account_id eqs email)
       .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))

@@ -17,9 +17,10 @@ class BalancesSpec extends Specification {
   BalancesSpec is the implementation that calls the megam_play API server with the /balances url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+    //  "Correctly do POST  requests with an valid datas" ! create.succeeds ^
       //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do GET  requests with an valid valid email id" ! Get.succeeds ^
       end
 
   case object create extends Context {
@@ -66,6 +67,18 @@ class BalancesSpec extends Specification {
       resp.code must beTheSameResponseCodeAs(HttpResponseCode.NotFound)
     }
   }
+
+  case object Get extends Context {
+      protected override def urlSuffix: String ="balances/ranji@megam.io"
+
+      protected def headersOpt: Option[Map[String, String]] = None
+      private val get = GET(url)(httpClient)
+        .addHeaders(headers)
+      def succeeds = {
+        val resp = execute(get)
+        resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+      }
+    }
 
   case object PostInvalidBody extends Context {
 

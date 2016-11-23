@@ -2,7 +2,6 @@
 set -e
 
 MEGAM_HOME=/var/lib/megam
-MEGAM_USER=megam
 
 mkdir -p $MEGAM_HOME/verticegateway
 cp  /usr/share/megam/verticegateway/conf/base.cql $MEGAM_HOME/verticegateway/
@@ -36,12 +35,6 @@ rm /etc/init/verticegateway.conf
 else
    echo "Unsupported Linux OS"
 fi
-fi
-
-if [ "$1" = "configure" ]; then
-    if ! dpkg-statoverride --list /var/log/megam >/dev/null 2>&1; then
-         dpkg-statoverride --update --add $MEGAM_USER root 755 /var/log/megam
-    fi
 fi
 
 #initctl reload-configuration
