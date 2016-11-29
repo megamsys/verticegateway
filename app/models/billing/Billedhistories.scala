@@ -80,7 +80,7 @@ sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, B
 
 abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootConnector {
   // you can even rename the table in the schema to whatever you like.
-  override lazy val tableName = "bhistory"
+  override lazy val tableName = "billedhistories"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
