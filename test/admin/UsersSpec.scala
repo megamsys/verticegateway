@@ -19,8 +19,9 @@ class UsersSpec extends Specification {
   UsersSpec is the implementation that calls the megam_play API server with the /accounts url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do GET list of users" ! Get.succeeds ^
-      "Correctly do GET list fails with a invalid authority" ! GetInvalidAuthority.succeeds ^
+      //"Correctly do GET list of users" ! Get.succeeds ^
+      "Correctly do GET reports of users" ! List.succeeds ^
+    //  "Correctly do GET list fails with a invalid authority" ! GetInvalidAuthority.succeeds ^
       end
 
 
@@ -50,4 +51,16 @@ class UsersSpec extends Specification {
     }
   }
 
+  case object List extends Context {
+    protected override def urlSuffix: String = "reports/2016-11-23/2016-11-23"
+
+    protected def headersOpt: Option[Map[String, String]] = None
+
+    private val get = GET(url)(httpClient)
+      .addHeaders(headers)
+    def succeeds = {
+      val resp = execute(get)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Ok)
+    }
+  }
 }

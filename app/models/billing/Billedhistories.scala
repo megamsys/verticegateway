@@ -31,7 +31,7 @@ import java.nio.charset.Charset
  *
  */
 
-case class BilledhistoriesInput(assembly_id: String, bill_type: String, billing_amount: String, currency_type: String) {
+case class BilledhistoriesInput(assembly_id: String, bill_type: String, billing_amount: String, currency_type: String, start_date: DateTime, end_date: DateTime) {
 
 }
 
@@ -42,6 +42,8 @@ case class BilledhistoriesResult(
     bill_type: String,
     billing_amount: String,
     currency_type: String,
+    start_date:  DateTime,
+    end_date: DateTime,
     json_claz: String,
     created_at: String) {
 }
@@ -56,6 +58,8 @@ sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, B
   object bill_type extends StringColumn(this)
   object billing_amount extends StringColumn(this)
   object currency_type extends StringColumn(this)
+  object start_date extends DateTimeColumn(this) with PrimaryKey[DateTime]
+  object end_date extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object json_claz extends StringColumn(this)
   object created_at extends StringColumn(this)
 
@@ -67,6 +71,8 @@ sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, B
       bill_type(row),
       billing_amount(row),
       currency_type(row),
+      start_date(row),
+      end_date(row),
       json_claz(row),
       created_at(row))
   }
@@ -85,6 +91,8 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
       .value(_.bill_type, ams.bill_type)
       .value(_.billing_amount, ams.billing_amount)
       .value(_.currency_type, ams.currency_type)
+      .value(_.start_date, ams.start_date)
+      .value(_.end_date, ams.end_date)
       .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
       .future()
@@ -93,6 +101,10 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
 
   def listRecords(id: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
     val res = select.where(_.account_id eqs id).fetch()
+    Await.result(res, 5.seconds).successNel
+  }
+  def listAllRecords(): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
+   val res = select.fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -117,7 +129,7 @@ object Billedhistories extends ConcreteBilledhistories {
     } yield {
 
       val bvalue = Set(email)
-      val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, email, bill.assembly_id, bill.bill_type, bill.billing_amount, bill.currency_type, "Megam::Billedhistories", Time.now.toString)
+      val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, email, bill.assembly_id, bill.bill_type, bill.billing_amount, bill.currency_type, bill.start_date, bill.end_date, "Megam::Billedhistories", Time.now.toString)
       json
     }
   }
@@ -152,6 +164,17 @@ object Billedhistories extends ConcreteBilledhistories {
         Validation.failure[Throwable, Seq[BilledhistoriesResult]](new ResourceItemNotFound(email, "Billedhistories = nothing found.")).toValidationNel
     }
 
+  }
+
+  def listAll(): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
+    (listAllRecords() leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("", "Billedhistories = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[BilledhistoriesResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[BilledhistoriesResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[BilledhistoriesResult]](new ResourceItemNotFound("", "Assembly = nothing found.")).toValidationNel
+    }
   }
 
 }
