@@ -36,34 +36,7 @@ case class LicensesInput(data: String) {
 
   val json = "{" + half_json + "}"
 }
-case class BillingAggregate(aid: String, b:  Seq[models.billing.BilledhistoriesResult]) {
 
-    private lazy val start_dates = b.map(_.start_date)
-
-    private lazy val end_dates = b.map(_.end_date)
-
-    //lazy val start_date = start_dates.sortBy(r => (r.start_date)).head
-
-   //  lazy val end_date = end_dates.sortBy(r => (r.start_date)).head
-
-    lazy val sum = b.map(_.billing_amount.toInt).sum
-
-
-    //def toString(): String = "[" + aid + " sales from " + start_date + " to " + end_date + " is:"+ sum +"]";
-
-}
-
-case class SalesReport( asm_id: String, asm_name: String, status: String, state: String,startdate: String, enddate: String, cost: String)
-
-case class SalesReporter(als: Seq[models.tosca.AssemblyResult], bha: BillingAggregate) {
-
-  lazy val report = als.map(al =>  {
-      val bh = bha
-
-      //SalesReport( al.id, al.name,al.status, al.state, bh.start_date, bh.end_date, bh.sum.toString)
-   })
-
-}
 
 case class LicensesResult(id: String, data: String, created_at: String) {}
 
@@ -154,29 +127,5 @@ object Licenses extends ConcreteLicenses {
       maybeASediment.isSuccess
     }
   }
-
-  def listReports(starttime: String, endtime: String): ValidationNel[Throwable, Seq[models.billing.BilledhistoriesResult]] = {
-   println("####################")
-  for {
-  a <- (models.tosca.Assembly.listAll() leftMap { err: NonEmptyList[Throwable] ⇒ err })
-  b <- (models.billing.Billedhistories.listAll() leftMap { err: NonEmptyList[Throwable] ⇒ err })
-  } yield {
-   cal(a,b)
-  b
-  }
-
-  }
-  def cal(a: Seq[models.tosca.AssemblyResult],b: Seq[models.billing.BilledhistoriesResult] ) ={
-
-   for {
-   x <- b.groupBy(_.assembly_id).map{  case (k,v) => BillingAggregate(k,v)}
-
-   } yield {
-     println(x)
-     //SalesReporter(a, x)
-   }
-
-   }
-
 
 }
