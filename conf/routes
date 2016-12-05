@@ -15,6 +15,9 @@ GET   /v2/accounts                    controllers.admin.Users.list
 POST  /v2/licenses/content            controllers.admin.Licenses.post
 GET   /v2/licenses/:id                controllers.admin.Licenses.show(id: String)
 
+# Admin Reports
+POST  /v2/reports/content             controllers.admin.Reports.post
+
 # Account
 GET   /v2/accounts/:id                controllers.Accounts.show(id: String)
 GET   /v2/accounts/forgot/:id         controllers.Accounts.forgot(id: String)
@@ -75,6 +78,7 @@ POST /v2/assemblies/content           controllers.camp.Assemblies.post
 GET  /v2/assemblies	                  controllers.camp.Assemblies.list
 GET  /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
 GET  /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
+GET  /v2/assembly	                    controllers.camp.Assembly.list
 POST /v2/assembly/update              controllers.camp.Assembly.update
 GET  /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 GET  /v2/components/:id         	    controllers.camp.Components.show(id: String)

@@ -28,6 +28,8 @@ import java.nio.charset.Charset
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
+//import com.websudos.phantom.reactivestreams._
+import com.websudos.phantom.iteratee.Iteratee
 import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
@@ -148,6 +150,11 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+
+  def listallRecords(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+    val res = select.fetch()
+    Await.result(res, 5.seconds).successNel
+  }
   def getRecord(id: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
     val res = select.allowFiltering().where(_.id eqs id).one()
     Await.result(res, 5.seconds).successNel
@@ -227,6 +234,18 @@ object Assembly extends ConcreteAssembly {
     } map {
       _.foldRight((AssemblyResults.empty).successNel[Throwable])(_ +++ _)
     }).head //return the folded element in the head.
+  }
+
+
+  def listAll(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+    (listallRecords() leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("", "Assembly = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[AssemblyResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[AssemblyResult]](new ResourceItemNotFound("", "Assembly = nothing found.")).toValidationNel
+    }
   }
 
   private def updateAssemblySack(org_id: String, input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {

@@ -38,3 +38,7 @@ ALTER TABLE snapshots add tosca_type text;
 ALTER TABLE snapshots add inputs list<text>;
 
 ALTER TABLE snapshots add outputs list<text>;
+
+ALTER TABLE billedhistories add start_date timestamp;
+
+ALTER TABLE billedhistories  add end_date timestamp;
