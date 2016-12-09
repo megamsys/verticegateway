@@ -18,8 +18,6 @@ import controllers.stack.{APIAuthElement, PermissionElement}
 
 
 object Users extends Controller with APIAuthElement with PermissionElement {
-  implicit val formats = DefaultFormats
-
   def list = StackAction(parse.tolerantText, AuthorityKey -> Administrator) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
@@ -29,7 +27,7 @@ object Users extends Controller with APIAuthElement with PermissionElement {
           val org    = freq.maybeOrg.getOrElse(throw new CannotAuthenticateError("Org not found (or) invalid.", "Read docs.megam.io/api."))
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
-          models.base.Accounts.listAll(email, org) match {
+          models.admin.Users.list match {
             case Success(succ) => {
               Ok(Results.resultset(models.Constants.ADMINUSERSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
              }
@@ -44,6 +42,34 @@ object Users extends Controller with APIAuthElement with PermissionElement {
         }
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable =>   { val rn: FunnelResponse = new HttpReturningError(nels(t));  Status(rn.code)(rn.toJson(true)) } })
+  }
+
+  def update = StackAction(parse.tolerantText, AuthorityKey -> Administrator) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+          val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
+
+          models.admin.Users.update(clientAPIBody) match {
+            case Success(succ) =>
+              Status(CREATED)(
+                FunnelResponse(CREATED, "Admin: updated users profile successfully.", "Megam::Account").toJson(true))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
 }

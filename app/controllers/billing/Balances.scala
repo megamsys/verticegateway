@@ -23,7 +23,6 @@ import controllers.stack.{APIAuthElement, PermissionElement}
  */
 
 object Balances extends Controller with APIAuthElement with PermissionElement {
-  implicit val formats = DefaultFormats
   /**
    * Create a new balance entry by email/json input.
    */

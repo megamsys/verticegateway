@@ -23,7 +23,6 @@ import controllers.stack.{APIAuthElement, PermissionElement}
  */
 
 object Billingtransactions extends Controller with APIAuthElement with PermissionElement {
-implicit val formats = DefaultFormats
   /**
    * Create a new billing transcations for the user.
    **/

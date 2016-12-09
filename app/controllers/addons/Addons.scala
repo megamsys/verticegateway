@@ -19,7 +19,6 @@ import net.liftweb.json.JsonParser._
 
 
 object Addons extends Controller with controllers.stack.APIAuthElement {
-  implicit val formats = DefaultFormats
   /**
    * Create a new Addons for the user.
    **/

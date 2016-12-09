@@ -62,7 +62,6 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
 
           models.team.Domains.findByOrgId(grabAuthBag) match {
             case Success(succ) =>
-            implicit val formats = DefaultFormats
             Ok(Results.resultset(models.Constants.DOMAINCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

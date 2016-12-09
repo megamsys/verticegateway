@@ -34,6 +34,9 @@ object Constants {
 
   val DOMAIN          = "domain"
 
+  val REPORT_SALES    = "sales"
+  val REPORT_NOOP     = "noop"
+
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ADMINUSERSCLAZ                  = "Megam::Account"
   val ADMINUSERSCOLLECTIONCLAZ        = "Megam::AccountCollection"
@@ -94,4 +97,6 @@ object Constants {
   val SUBSCRIPTIONSCLAZ               = "Megam::Subscriptions"
   val SUBSCRIPTIONSCOLLECTIONCLAZ     = "Megam::SubscriptionsCollection"
   val MEGAM_PROMOSCLAZ                = "Megam::Promos"
+  val REPORTSCOLLECTIONCLAZ           = "Megam::ReportsCollection"
+  val REPORTSCLAZ                     = "Megam::Reports"
 }
