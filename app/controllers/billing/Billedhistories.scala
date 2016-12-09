@@ -19,7 +19,6 @@ import net.liftweb.json.JsonParser._
 
 
 object Billedhistories extends Controller with controllers.stack.APIAuthElement {
-implicit val formats = DefaultFormats
   /**
    * Create a new billing history for the user.
    **/

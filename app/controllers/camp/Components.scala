@@ -13,12 +13,7 @@ import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 
 object Components extends Controller with controllers.stack.APIAuthElement {
-  implicit val formats = DefaultFormats
-  /*
-   * GET: findById: Show component for a compid per user(by email)
-   * Email grabbed from header
-   * Output: JSON (ComponentsResults)
-   **/
+
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {

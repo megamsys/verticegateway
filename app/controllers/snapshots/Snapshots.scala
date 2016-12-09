@@ -12,7 +12,6 @@ import controllers.stack.Results
 
 object Snapshots extends Controller with controllers.stack.APIAuthElement {
 
-implicit val formats = DefaultFormats
 
 def post = StackAction(parse.tolerantText) { implicit request =>
   (Validation.fromTryCatchThrowable[Result, Throwable] {

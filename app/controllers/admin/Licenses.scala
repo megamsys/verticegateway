@@ -59,7 +59,6 @@ object Licenses extends Controller with APIAuthElement with PermissionElement {
 
           models.admin.Licenses.findById(id) match {
             case Success(succ) => {
-              implicit val formats = DefaultFormats
 
               Ok(Results.resultset(models.Constants.ADMINLICENSECLAZ, compactRender(Extraction.decompose(succ))))
              }

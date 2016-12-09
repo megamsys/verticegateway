@@ -19,7 +19,6 @@ import net.liftweb.json.JsonParser._
 
 
 object Subscriptions extends Controller with controllers.stack.APIAuthElement {
-implicit val formats = DefaultFormats
   /**
    * Create a new subscription for the user.
    **/

@@ -20,6 +20,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import app.MConfig
 import io.megam.common.uid.UID
 import net.liftweb.json._
@@ -103,8 +106,15 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
     val res = select.where(_.account_id eqs id).fetch()
     Await.result(res, 5.seconds).successNel
   }
-  def listAllRecords(): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
-   val res = select.fetch()
+
+  def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
+//    val starttime = DateTime.parse(startdate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
+//    val endtime   = DateTime.parse(enddate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
+    val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
+    val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
+
+  //  val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at endtime).fetch()
+    val res = select.fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -166,14 +176,11 @@ object Billedhistories extends ConcreteBilledhistories {
 
   }
 
-  def listAll(): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
-    (listAllRecords() leftMap { t: NonEmptyList[Throwable] =>
+  def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
+    (dateRangeBy(startdate, enddate) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Billedhistories = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[BilledhistoriesResult] =>
-      if (!nm.isEmpty)
         Validation.success[Throwable, Seq[BilledhistoriesResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[BilledhistoriesResult]](new ResourceItemNotFound("", "Assembly = nothing found.")).toValidationNel
     }
   }
 

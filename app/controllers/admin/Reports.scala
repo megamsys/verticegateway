@@ -20,7 +20,6 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
 
   def post = StackAction(parse.tolerantText, AuthorityKey -> Administrator) { implicit request =>
     val input = (request.body).toString()
-
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
@@ -30,11 +29,12 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
           models.admin.Reports.create(input) match {
-            case Success(succ) => {
-              Status(CREATED)(
-                FunnelResponse(CREATED, """Report created '%s'.""".
-                  format("●●●●●●●●●").stripMargin, "Megam::Report").toJson(true))
-           }
+            case Success(succ) =>  {
+              val c =  Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ))))
+              play.api.Logger.debug("%-20s -->[%s]".format("RES", c))
+              //Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+              Ok(c)
+            }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

@@ -14,7 +14,6 @@ import play.api.mvc._
 import controllers.stack.Results
 
 object Assemblies extends Controller with controllers.stack.APIAuthElement {
-  implicit val formats = DefaultFormats
 
   def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
