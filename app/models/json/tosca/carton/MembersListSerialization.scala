@@ -9,12 +9,13 @@ import scala.collection.mutable.ListBuffer
 import models.tosca._
 import models.json.tosca._
 import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
+
 /**
  * @author rajthilak
  *
  */
-object MembersListSerialization extends io.megam.json.SerializationBase[MembersList] {
-  implicit val formats = DefaultFormats
+object MembersListSerialization extends io.megam.json.SerializationBase[MembersList] with ImplicitJsonFormats {
 
   implicit override val writer = new JSONW[MembersList] {
     override def write(h: MembersList): JValue = {

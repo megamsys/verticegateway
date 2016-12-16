@@ -17,7 +17,6 @@ import play.api.libs.iteratee.Enumerator
 import models.base.Accounts
 import models.base.MasterKeys
 import io.megam.auth.stack.Role._
-import net.liftweb.json.DefaultFormats
 import io.megam.auth.stack.{RequestAttributeKeyConstants}
 
 /**
@@ -29,10 +28,8 @@ import io.megam.auth.stack.{RequestAttributeKeyConstants}
  * And result return in super trait proceed method,
  * when stack action is called then this stackable controller is executed
  */
-trait APIAuthElement extends io.megam.auth.stack.AuthElement with RequestAttributeKeyConstants {
+trait APIAuthElement extends io.megam.auth.stack.AuthElement with RequestAttributeKeyConstants with ImplicitJsonFormats {
   self: Controller =>
-
-  implicit val formats = DefaultFormats
 
   override def authImpl(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
     Accounts.findByEmail(input)

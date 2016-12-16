@@ -48,7 +48,6 @@ GET  /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 # Assembly
 GET  /v2/assembly	                    controllers.camp.Assembly.list
 POST /v2/assembly/update              controllers.camp.Assembly.update
-GET  /v2/assembly/upgrade/:id        	controllers.camp.Assembly.upgrade(id: String)
 
 # Components
 GET  /v2/components/:id         	    controllers.camp.Components.show(id: String)
@@ -103,6 +102,12 @@ GET  /v2/billingtransactions          controllers.billing.Billingtransactions.li
 
 POST /v2/billedhistories/content	    controllers.billing.Billedhistories.post
 GET  /v2/billedhistories              controllers.billing.Billedhistories.list
+
+POST /v2/quotas/content	              controllers.billing.Quotas.post
+POST /v2/quotas/update                controllers.billing.Quotas.update
+GET  /v2/quotas/:name                 controllers.billing.Quotas.show(name: String)
+GET  /v2/quotas                       controllers.billing.Quotas.list
+
 
 # Addons (external ids)
 POST /v2/addons/content               controllers.addons.Addons.post

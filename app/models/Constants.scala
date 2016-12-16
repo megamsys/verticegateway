@@ -6,6 +6,8 @@ object Constants {
 
   val JSON_CLAZ       = "json_claz"
 
+  val DOMAIN            = "domain"
+
   val STATE           = "state"
   val CREATE          = "create"
   val DELETE          = "destroy"
@@ -26,16 +28,25 @@ object Constants {
   val BIND            = "bind"
   val BUILD           = "build"
 
-  val OPERTATIONS     = "operations"
-  val UPGRADE         = "upgrade"
+  val CATTYPE_DOCKER    = "microservices"
+  val CATTYPE_TORPEDO   = "torpedo"
+  val CATTYPE_CUSTOMAPP = "app"
+  val CATTYPE_SERVICE   = "service"
+  val BITNAMI           = "bitnami"
+  val ANALYTICS         = "analytics"
+  val COLLABORATION     = "collaboration"
 
-  val CATTYPE_DOCKER  = "microservices"
-  val CATTYPE_TORPEDO = "torpedo"
+  val REPORT_SALES                        = "sales"
+  val REPORT_USRCOUNT                     = "usercounter"
+  val REPORT_LANCOUNT                     = "launchcounter"
+  val REPORT_NOOP                         = "noop"
+  val REPORT_FILTER_VM                    = List(CATTYPE_TORPEDO)
+  val REPORT_FILTER_BITNAMI_PREPACKAGED   = List(BITNAMI)
+  val REPORT_FILTER_VERTICE_PREPACKAGED   = List(COLLABORATION, ANALYTICS)
+  val REPORT_FILTER_CUSTOMAPPS            = List(CATTYPE_CUSTOMAPP)
+  val REPORT_FILTER_SERVICES              = List(CATTYPE_SERVICE)
+  val REPORT_FILTER_CONTAINERS            = List(CATTYPE_DOCKER)
 
-  val DOMAIN          = "domain"
-
-  val REPORT_SALES    = "sales"
-  val REPORT_NOOP     = "noop"
 
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ADMINUSERSCLAZ                  = "Megam::Account"
@@ -99,4 +110,6 @@ object Constants {
   val MEGAM_PROMOSCLAZ                = "Megam::Promos"
   val REPORTSCOLLECTIONCLAZ           = "Megam::ReportsCollection"
   val REPORTSCLAZ                     = "Megam::Reports"
+  val QUOTASCOLLECTIONCLAZ            = "Megam::QuotasCollection"
+  val QUOTASCLAZ                      = "Megam::Quotas"
 }

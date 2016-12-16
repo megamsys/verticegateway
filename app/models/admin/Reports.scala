@@ -18,6 +18,7 @@ import io.megam.util.Time
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
 import models.admin.reports.Builder
 
 //The input, and report classes for any report.
@@ -28,9 +29,7 @@ case class ReportResult(id: String, data: Option[Seq[models.tosca.KeyValueList]]
 //A generic ability to generate any report.
 //No change is needed here, all we need to add is a new Reporter under admin/reports.
 //Right now we send back Sales, Machines
-object Reports {
-
-  implicit val formats = DefaultFormats
+object Reports extends ImplicitJsonFormats {
 
   private def mkReportInput(input: String): ValidationNel[Throwable, ReportInput] = {
    (Validation.fromTryCatchThrowable[ReportInput, Throwable] {

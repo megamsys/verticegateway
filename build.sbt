@@ -84,14 +84,15 @@ resolvers += "Websudos" at "https://dl.bintray.com/websudos/oss-releases/"
 val phantomV = "1.25.4"
 
 libraryDependencies ++= Seq(filters, cache,
-  "org.yaml"          % "snakeyaml" % "1.17",
+  "org.yaml"          %  "snakeyaml" % "1.17",
   "io.megam"          %% "libcommon" % "1.8.3",
+  "net.liftweb"       %  "lift-json-ext_2.11" % "3.0.1",
   "io.megam"          %% "newman" % "1.3.12",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.8",
-  "com.websudos"      %%  "phantom-dsl"               % phantomV,
-  "com.websudos"      %%  "phantom-connectors"        % phantomV,
+  "com.websudos"      %% "phantom-dsl"               % phantomV,
+  "com.websudos"      %% "phantom-connectors"        % phantomV,
   "org.specs2"        %% "specs2-core" % "3.7.2-scalaz-7.1.7" % "test",
-  "org.specs2"        % "specs2-matcher-extra_2.11" % "3.7.2-scalaz-7.1.7" % "test")
+  "org.specs2"        %  "specs2-matcher-extra_2.11" % "3.7.2-scalaz-7.1.7" % "test")
 
 //routesGenerator := InjectedRoutesGenerator
 

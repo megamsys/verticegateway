@@ -10,17 +10,8 @@ import net.liftweb.json._
 import controllers.stack.Results
 
 
-/**
- * @author morpheyesh
- *
- */
-
 object  Domains extends Controller with controllers.stack.APIAuthElement {
 
-  /*
-   * Create or update a new domains by email/json input.
-   * Old value for the same key gets wiped out.
-   */
   def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {
@@ -47,11 +38,7 @@ object  Domains extends Controller with controllers.stack.APIAuthElement {
 
   }
 
-  /*
-   * GET: List: Show all domains by orgId
-   * Email provided in the URI.
-   * Output: JSON (DomainsResult)
-   **/
+
   def list = StackAction(parse.tolerantText) { implicit request =>
       (Validation.fromTryCatchThrowable[Result,Throwable] {
       reqFunneled match {

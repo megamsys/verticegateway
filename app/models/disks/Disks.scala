@@ -15,11 +15,14 @@ import models.json.tosca._
 import models.json.tosca.carton._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
 import models.base._
 import wash._
 
+import utils.DateHelper
 import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -32,13 +35,14 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import com.websudos.phantom.iteratee.Iteratee
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author ranjitha
  *
  */
-case class DisksInput( asm_id: String, org_id: String, account_id: String, size: String,status: String) {
-}
+case class DisksInput( asm_id: String, org_id: String, account_id: String, size: String,status: String)
+
 case class DisksResult(
   id: String,
   asm_id:  String,
@@ -48,16 +52,13 @@ case class DisksResult(
   size:  String,
   status:  String,
   json_claz: String,
-  created_at: String) {
-}
+  created_at: DateTime)
 
 object DisksResult {
-  def apply(id: String, asm_id: String, org_id: String, account_id: String, disk_id: String, size: String, status: String) = new DisksResult(id, asm_id, org_id, account_id, disk_id, size, status, "Megam::Disks", Time.now.toString)
+  def apply(id: String, asm_id: String, org_id: String, account_id: String, disk_id: String, size: String, status: String) = new DisksResult(id, asm_id, org_id, account_id, disk_id, size, status, "Megam::Disks", DateHelper.now())
 }
 
-sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] {
-
-  implicit val formats = DefaultFormats
+sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with  PartitionKey[String]
   object asm_id extends StringColumn(this) with PrimaryKey[String]
@@ -66,7 +67,7 @@ sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] {
   object disk_id extends StringColumn(this)
   object size extends StringColumn(this)
   object status extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
   object json_claz extends StringColumn(this)
 
   def fromRow(row: Row): DisksResult = {
@@ -84,7 +85,7 @@ sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] {
 }
 
 abstract class ConcreteDisks extends DisksSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "disks"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -116,12 +117,6 @@ abstract class ConcreteDisks extends DisksSacks with RootConnector {
 
 object Disks extends ConcreteDisks {
 
-/**
- * A private method which chains computation to make GunnySack when provided with an input json, email.
- * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
- * After that flatMap on its success and the account id information is looked up.
- * If the account id is looked up successfully, then yield the GunnySack object.
- */
 private def mkDisksSack(email: String, input: String): ValidationNel[Throwable, DisksResult] = {
   val DiskInput: ValidationNel[Throwable, DisksInput] = (Validation.fromTryCatchThrowable[DisksInput, Throwable] {
     parse(input).extract[DisksInput]
@@ -133,15 +128,12 @@ private def mkDisksSack(email: String, input: String): ValidationNel[Throwable, 
   } yield {
 
     val bvalue = Set(email)
-    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.size, dsk.status,  "Megam::Disks", Time.now.toString)
+    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.size, dsk.status,  "Megam::Disks", DateHelper.now())
     json
   }
 }
 
-/*
- * create new Disk for the user.
- *
- */
+
 def create(email: String, input: String): ValidationNel[Throwable, Option[DisksResult]] = {
   for {
     wa <- (mkDisksSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
@@ -153,12 +145,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
   }
 }
 
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
-   */
+
   def findByEmail(accountID: String): ValidationNel[Throwable, Seq[DisksResult]] = {
     (listRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Disks = nothing found.")

@@ -19,21 +19,22 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import utils.DateHelper
 import io.megam.util.Time
-import app.MConfig
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author ranjitha
  *
  */
-
-case class SubscriptionsInput( model: String, license: String, trial_ends: String) {
-
-}
+case class SubscriptionsInput( model: String, license: String, trial_ends: String)
 
 case class SubscriptionsResult(
     id: String,
@@ -42,12 +43,10 @@ case class SubscriptionsResult(
     license: String,
     trial_ends: String,
     json_claz: String,
-    created_at: String) {
+    created_at: DateTime) {
 }
 
-sealed class SubscriptionsSacks extends CassandraTable[SubscriptionsSacks, SubscriptionsResult] {
-
-  implicit val formats = DefaultFormats
+sealed class SubscriptionsSacks extends CassandraTable[SubscriptionsSacks, SubscriptionsResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with  PartitionKey[String]
   object account_id extends StringColumn(this) with PrimaryKey[String]
@@ -55,7 +54,7 @@ sealed class SubscriptionsSacks extends CassandraTable[SubscriptionsSacks, Subsc
   object license extends StringColumn(this)
   object trial_ends extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): SubscriptionsResult = {
     SubscriptionsResult(
@@ -70,7 +69,6 @@ sealed class SubscriptionsSacks extends CassandraTable[SubscriptionsSacks, Subsc
 }
 
 abstract class ConcreteSubscriptions extends SubscriptionsSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
   override lazy val tableName = "subscriptions"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -96,12 +94,6 @@ abstract class ConcreteSubscriptions extends SubscriptionsSacks with RootConnect
 
 object Subscriptions extends ConcreteSubscriptions {
 
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
   private def mkSubscriptionsSack(email: String, input: String): ValidationNel[Throwable, SubscriptionsResult] = {
     val subInput: ValidationNel[Throwable, SubscriptionsInput] = (Validation.fromTryCatchThrowable[SubscriptionsInput, Throwable] {
       parse(input).extract[SubscriptionsInput]
@@ -113,15 +105,11 @@ object Subscriptions extends ConcreteSubscriptions {
     } yield {
 
       val bvalue = Set(email)
-      val json = new SubscriptionsResult(uir.get._1 + uir.get._2, email, sub.model, sub.license, sub.trial_ends, "Megam::Subscriptions", Time.now.toString)
+      val json = new SubscriptionsResult(uir.get._1 + uir.get._2, email, sub.model, sub.license, sub.trial_ends, "Megam::Subscriptions", DateHelper.now())
       json
     }
   }
 
-  /*
-   * create new subscriptions for user.
-   *
-   */
   def create(email: String, input: String): ValidationNel[Throwable, Option[SubscriptionsResult]] = {
     for {
       wa <- (mkSubscriptionsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })

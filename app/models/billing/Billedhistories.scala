@@ -19,41 +19,41 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import utils.DateHelper
 import io.megam.util.Time
 import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
 
-import app.MConfig
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author rajthilak
  *
  */
-
-case class BilledhistoriesInput(assembly_id: String, bill_type: String, billing_amount: String, currency_type: String, start_date: DateTime, end_date: DateTime) {
-
-}
+case class BilledhistoriesInput(assembly_id: String,
+                                bill_type: String,
+                                billing_amount: String,
+                                currency_type: String,
+                                start_date: DateTime,
+                                end_date: DateTime)
 
 case class BilledhistoriesResult(
-    id: String,
-    account_id: String,
-    assembly_id: String,
-    bill_type: String,
-    billing_amount: String,
-    currency_type: String,
-    start_date:  DateTime,
-    end_date: DateTime,
-    json_claz: String,
-    created_at: String) {
-}
+                                id: String,
+                                account_id: String,
+                                assembly_id: String,
+                                bill_type: String,
+                                billing_amount: String,
+                                currency_type: String,
+                                start_date:  DateTime,
+                                end_date: DateTime,
+                                json_claz: String,
+                                created_at: DateTime)
 
-sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, BilledhistoriesResult] {
-
-  implicit val formats = DefaultFormats
+sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, BilledhistoriesResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object account_id extends StringColumn(this) with PartitionKey[String]
@@ -64,7 +64,7 @@ sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, B
   object start_date extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object end_date extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): BilledhistoriesResult = {
     BilledhistoriesResult(
@@ -82,7 +82,7 @@ sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, B
 }
 
 abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "billedhistories"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -108,13 +108,12 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
   }
 
   def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
-//    val starttime = DateTime.parse(startdate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
-//    val endtime   = DateTime.parse(enddate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
     val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
     val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
-
-  //  val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at endtime).fetch()
-    val res = select.fetch()
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, starttime, Console.RESET))
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, endtime, Console.RESET))
+    //val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
+     val res = select.fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -122,12 +121,6 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
 
 object Billedhistories extends ConcreteBilledhistories {
 
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
   private def mkBilledhistoriesSack(email: String, input: String): ValidationNel[Throwable, BilledhistoriesResult] = {
     val billInput: ValidationNel[Throwable, BilledhistoriesInput] = (Validation.fromTryCatchThrowable[BilledhistoriesInput, Throwable] {
       parse(input).extract[BilledhistoriesInput]
@@ -137,17 +130,13 @@ object Billedhistories extends ConcreteBilledhistories {
       bill <- billInput
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-
       val bvalue = Set(email)
-      val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, email, bill.assembly_id, bill.bill_type, bill.billing_amount, bill.currency_type, bill.start_date, bill.end_date, "Megam::Billedhistories", Time.now.toString)
+      val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, email, bill.assembly_id, bill.bill_type, bill.billing_amount, bill.currency_type, bill.start_date, bill.end_date, "Megam::Billedhistories", DateHelper.now())
       json
     }
   }
 
-  /*
-   * create new billing histories for currently pay the bill of user.
-   *
-   */
+
   def create(email: String, input: String): ValidationNel[Throwable, Option[BilledhistoriesResult]] = {
     for {
       wa <- (mkBilledhistoriesSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
@@ -158,12 +147,7 @@ object Billedhistories extends ConcreteBilledhistories {
     }
   }
 
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the histories are listed on the index (account.id) in bucket `Billinghistories`.
-   * Using a "Billinghistories name" as key, return a list of ValidationNel[List[BillinghistoriesResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[BillinghistoriesResult]]]
-   */
+
   def findByEmail(email: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
     (listRecords(email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(email, "Billedhistories = nothing found.")

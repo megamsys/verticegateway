@@ -22,39 +22,43 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import utils.DateHelper
 import io.megam.util.Time
-import app.MConfig
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author rajesh
  *
  */
 
-case class BillingtransactionsInput(gateway: String, amountin: String, amountout: String, fees: String, tranid: String, trandate: String, currency_type: String) {
+case class BillingtransactionsInput(gateway: String,
+                                    amountin: String,
+                                    amountout: String,
+                                    fees: String,
+                                    tranid: String,
+                                    trandate: String,
+                                    currency_type: String)
 
-}
+case class BillingtransactionsResult(id: String,
+                                    account_id: String,
+                                    gateway: String,
+                                    amountin: String,
+                                    amountout: String,
+                                    fees: String,
+                                    tranid: String,
+                                    trandate: String,
+                                    currency_type: String,
+                                    json_claz: String,
+                                    created_at: DateTime)
 
-case class BillingtransactionsResult(
-    id: String,
-    account_id: String,
-    gateway: String,
-    amountin: String,
-    amountout: String,
-    fees: String,
-    tranid: String,
-    trandate: String,
-    currency_type: String,
-    json_claz: String,
-    created_at: String) {
-}
-
-sealed class BillingtransactionsSacks extends CassandraTable[BillingtransactionsSacks, BillingtransactionsResult] {
-
-  implicit val formats = DefaultFormats
+sealed class BillingtransactionsSacks extends CassandraTable[BillingtransactionsSacks, BillingtransactionsResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this)
   object account_id extends StringColumn(this) with PartitionKey[String]
@@ -66,7 +70,7 @@ sealed class BillingtransactionsSacks extends CassandraTable[Billingtransactions
   object trandate extends StringColumn(this) with PrimaryKey[String]
   object currency_type extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this) with PrimaryKey[String]
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
 
   def fromRow(row: Row): BillingtransactionsResult = {
     BillingtransactionsResult(
@@ -85,7 +89,7 @@ sealed class BillingtransactionsSacks extends CassandraTable[Billingtransactions
 }
 
 abstract class ConcreteBillingtransactions extends BillingtransactionsSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "billingtransactions"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -115,12 +119,6 @@ abstract class ConcreteBillingtransactions extends BillingtransactionsSacks with
 
 object Billingtransactions extends ConcreteBillingtransactions {
 
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
   private def mkBillingtransactionsSack(email: String, input: String): ValidationNel[Throwable, BillingtransactionsResult] = {
     val billInput: ValidationNel[Throwable, BillingtransactionsInput] = (Validation.fromTryCatchThrowable[BillingtransactionsInput, Throwable] {
       parse(input).extract[BillingtransactionsInput]
@@ -132,7 +130,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(email)
-      val json = new BillingtransactionsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, "Megam::BillingTransactions", Time.now.toString)
+      val json = new BillingtransactionsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, "Megam::BillingTransactions",DateHelper.now())
       json
     }
   }
@@ -142,7 +140,6 @@ object Billingtransactions extends ConcreteBillingtransactions {
    *
    */
   def create(email: String, input: String): ValidationNel[Throwable, Option[BillingtransactionsResult]] = {
-
     for {
       wa <- (mkBillingtransactionsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
@@ -160,7 +157,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
  }
 
  def atBalUpdate(email: String, amount: String): ValidationNel[Throwable, BalancesResults] = {
-   val bal = BalancesResult("",email,amount,"", "", "")
+   val bal = BalancesResult("",email,amount,"", DateHelper.now(), DateHelper.now())
   models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
  }
   /*

@@ -9,9 +9,9 @@ import scalaz.NonEmptyList._
 
 import cache._
 import db._
-import models.tosca._
-import models.json.tosca._
 import models.Constants._
+import models.json.tosca._
+import models.tosca.{ KeyValueField, KeyValueList}
 import io.megam.auth.funnel.FunnelErrors._
 
 import com.datastax.driver.core.{ ResultSet, Row }
@@ -21,21 +21,23 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import utils.DateHelper
 import io.megam.util.Time
-import app.MConfig
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
+import controllers.stack.ImplicitJsonFormats
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+
 
 /**
  * @author ranjitha
  *
  */
-
-case class AddonsInput( provider_id: String, provider_name: String, options: models.tosca.KeyValueList) {
-
-}
+case class AddonsInput( provider_id: String, provider_name: String, options: models.tosca.KeyValueList)
 
 case class AddonsResult(
     id: String,
@@ -44,12 +46,9 @@ case class AddonsResult(
     provider_name: String,
     options: models.tosca.KeyValueList,
     json_claz: String,
-    created_at: String) {
-}
+    created_at: DateTime)
 
-sealed class AddonsSacks extends CassandraTable[AddonsSacks, AddonsResult] {
-
-  implicit val formats = DefaultFormats
+sealed class AddonsSacks extends CassandraTable[AddonsSacks, AddonsResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this)
   object provider_id extends StringColumn(this)
@@ -66,7 +65,7 @@ sealed class AddonsSacks extends CassandraTable[AddonsSacks, AddonsResult] {
     }
   }
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): AddonsResult = {
     AddonsResult(
@@ -81,7 +80,7 @@ sealed class AddonsSacks extends CassandraTable[AddonsSacks, AddonsResult] {
 }
 
 abstract class ConcreteAddons extends AddonsSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "addons"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -107,12 +106,7 @@ abstract class ConcreteAddons extends AddonsSacks with RootConnector {
 
 object Addons extends ConcreteAddons {
 
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
+
   private def mkAddonsSack(email: String, input: String): ValidationNel[Throwable, AddonsResult] = {
     val adnInput: ValidationNel[Throwable, AddonsInput] = (Validation.fromTryCatchThrowable[AddonsInput, Throwable] {
       parse(input).extract[AddonsInput]
@@ -124,15 +118,12 @@ object Addons extends ConcreteAddons {
     } yield {
 
       val bvalue = Set(email)
-      val json = new AddonsResult(uir.get._1 + uir.get._2, ads.provider_id, email, ads.provider_name, ads.options, "Megam::Addons", Time.now.toString)
+      val json = new AddonsResult(uir.get._1 + uir.get._2, ads.provider_id, email, ads.provider_name, ads.options, "Megam::Addons", DateHelper.now())
       json
     }
   }
 
-  /*
-   * create new addons for user.
-   *
-   */
+
   def create(email: String, input: String): ValidationNel[Throwable, Option[AddonsResult]] = {
     for {
       wa <- (mkAddonsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })

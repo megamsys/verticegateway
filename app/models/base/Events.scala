@@ -21,8 +21,7 @@ case class EventInput(id: String, accounts_id: String, etype: String, action: St
   val email = inputs(Events.EVTEMAIL)
 }
 
-case class EventResult(id: String, accounts_id: String, etype: String, action: String, inputs: Map[String, String],
-  created_at: String) {
+case class EventResult(id: String, accounts_id: String, etype: String, action: String, inputs: Map[String, String], created_at: String) {
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(inputs)
 

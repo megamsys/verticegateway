@@ -42,8 +42,7 @@ class Sales(ri: ReportInput) extends Reporter {
      ba <- (abt._2.groupBy(_.assembly_id).map { case (k,v) => (k -> BillingAggregate(k,v)) }).some
      sa <-  SalesAggregate(abt._1, ba).some
     } yield {
-      val a = sa.aggregate
-      a
+      sa.aggregate
    }
   }
 }
@@ -83,9 +82,12 @@ case class SalesResult( asm_id: String, asm_name: String, status: String, state:
 
   def shouldZero = isEmpty(startdate) || isEmpty(enddate)
 
-  def calculateHours =  if (shouldZero) "0"
-                         else (new Period(DateTime.parse(startdate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")),
-                         DateTime.parse(startdate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))).toString)
+  def calculateHours =   if (shouldZero) {  "0" }
+                         else  {
+                           val runningTime =  (new Period(DateTime.parse(startdate), DateTime.parse(enddate))).toStandardDuration.getStandardMinutes
+                           (runningTime.toFloat/60).toString
+                       }
+
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
