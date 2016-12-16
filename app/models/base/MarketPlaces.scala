@@ -30,12 +30,7 @@ import com.twitter.conversions.time._
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.iteratee.Iteratee
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
-
-/**
- *
- * @author morpheyesh
- */
-
+import controllers.stack.ImplicitJsonFormats
 
 case class MarketPlaceSack(
   settings_name: String,
@@ -52,8 +47,8 @@ case class MarketPlaceSack(
 
 
 //table class for holding the ds of a particular type(mkp in our case)
-sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] {
-  implicit val formats = DefaultFormats
+sealed class MarketPlaceT extends CassandraTable[MarketPlaceT, MarketPlaceSack] with ImplicitJsonFormats  {
+
   object settings_name extends StringColumn(this)
   object cattype extends StringColumn(this)
   object flavor extends StringColumn(this) with PrimaryKey[String]

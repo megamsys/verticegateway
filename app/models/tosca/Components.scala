@@ -9,18 +9,10 @@ import scalaz.NonEmptyList._
 
 import cache._
 import db._
-import models.json.tosca._
 import models.Constants._
+import models.json.tosca._
+import models.json.tosca.carton._
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
-import models.base._
-
-import io.megam.util.Time
-
-import io.megam.common.uid.UID
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import java.nio.charset.Charset
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -29,10 +21,15 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-/**
- * @author rajthilak
- *
- */
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
+import io.megam.common.uid.UID
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
 
 // The component inputs field have following fields
 //    1.domain
@@ -51,11 +48,9 @@ import scala.concurrent.duration._
 //    15.dbpassword
 // These fields are presents at inputs array for APP or SERVICE components
 
-case class Artifacts(artifact_type: String, content: String, requirements: KeyValueList) {
-}
+case class Artifacts(artifact_type: String, content: String, requirements: KeyValueList)
 
-case class Repo(rtype: String, source: String, oneclick: String, url: String, branch: String) {
-}
+case class Repo(rtype: String, source: String, oneclick: String, url: String, branch: String)
 
 case class ComponentResult(
     id: String,
@@ -71,7 +66,7 @@ case class ComponentResult(
     state: String,
     repo: Repo,
     json_claz: String,
-    created_at: String) {
+    created_at: DateTime) {
 }
 
 sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResult] {
@@ -148,7 +143,7 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
   }
 
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): ComponentResult = {
     ComponentResult(
@@ -170,7 +165,7 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
 }
 
 abstract class ConcreteComponent extends ComponentSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "components"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -250,7 +245,6 @@ case class Component(
 
 object Component extends ConcreteComponent {
 
-  //def empty: Component = new Component(new String(), new String(), KeyValueList.empty, KeyValueList.empty, KeyValueList.empty, Artifacts.empty, BindLinks.empty, OperationList.empty, Repo.empty, new String())
 
   def findById(componentID: Option[List[String]]): ValidationNel[Throwable, ComponentResults] = {
     (componentID map {
@@ -308,10 +302,6 @@ object ComponentsList extends ConcreteComponent {
 
   def apply(componentList: List[Component]): ComponentsList = { componentList }
 
-  /**
-   * parses the json, and converts it to nodeinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   */
   private def mkComponentSack(authBag: Option[io.megam.auth.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, Option[ComponentResult]] = {
     for {
       uir <- (UID("com").get leftMap { ut: NonEmptyList[Throwable] => ut })
@@ -324,7 +314,7 @@ object ComponentsList extends ConcreteComponent {
             MKT_FLAG_APIKEY -> authBag.get.api_key,
             MKT_FLAG_ASSEMBLY_ID -> asm_id,
             MKT_FLAG_COMP_ID -> (uir.get._1 + uir.get._2))), input.artifacts,
-        input.related_components, input.operations, input.status, input.state, input.repo, "Megam::Components", Time.now.toString)
+        input.related_components, input.operations, input.status, input.state, input.repo, "Megam::Components", DateHelper.now())
       json.some
     }
   }
@@ -340,10 +330,7 @@ object ComponentsList extends ConcreteComponent {
     res
   }
 
-  /*
-   * create new market place item with the 'name' of the item provide as input.
-   * A index name assemblies name will point to the "csars" bucket
-   */
+
   def create(authBag: Option[io.megam.auth.stack.AuthBag], input: Component, asm_id: String): ValidationNel[Throwable, ComponentLists] = {
     for {
       ogsi <- mkComponentSack(authBag, input, asm_id) leftMap { err: NonEmptyList[Throwable] => err }

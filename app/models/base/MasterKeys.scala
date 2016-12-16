@@ -29,6 +29,7 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.annotation.tailrec
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author rajthilak
@@ -39,9 +40,7 @@ case class MasterKeysInput(key: String) {
   val json = "{" + half_json + "}"
 }
 
-sealed class MasterKeysSacks extends CassandraTable[MasterKeysSacks, MasterKeyResult] {
-
-  implicit val formats = DefaultFormats
+sealed class MasterKeysSacks extends CassandraTable[MasterKeysSacks, MasterKeyResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object key extends StringColumn(this)
@@ -56,7 +55,6 @@ sealed class MasterKeysSacks extends CassandraTable[MasterKeysSacks, MasterKeyRe
 }
 
 abstract class ConcreteMasterKeys extends MasterKeysSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
   override lazy val tableName = "master_keys"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session

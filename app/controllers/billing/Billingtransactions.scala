@@ -52,10 +52,6 @@ object Billingtransactions extends Controller with APIAuthElement with Permissio
     }).fold(succ = { a: Result => a }, fail = { t: Throwable =>   { val rn: FunnelResponse = new HttpReturningError(nels(t));  Status(rn.code)(rn.toJson(true)) } })
    }
 
- /**
-   * GET: findbyEmail: List all the billing transcations per email
-   * Email grabbed from header.   * Output: JSON (BillingtransactionsResult)
-   */
 
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {

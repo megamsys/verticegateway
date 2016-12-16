@@ -18,6 +18,7 @@ import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
+import utils.DateHelper
 import wash._
 
 import io.megam.util.Time
@@ -25,6 +26,8 @@ import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -33,33 +36,31 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import com.websudos.phantom.iteratee.Iteratee
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author rajesh
  *
  */
+case class EventsStorageInput(account_id: String, created_at: String, event_type: String, data: KeyValueList)
 
-case class EventsStorageInput(account_id: String, created_at: String, event_type: String, data: KeyValueList) {
-}
 case class EventsStorageResult(
+  id: String,
   account_id: String,
-  created_at: String,
+  created_at: DateTime,
   event_type: String,
   data: models.tosca.KeyValueList,
   json_claz: String
-) {
-}
+)
 
 object EventsStorageResult {
-  def apply(account_id: String, created_at: String, event_type: String, data: models.tosca.KeyValueList) = new EventsStorageResult(account_id, created_at, event_type, data, "Megam::EventsStorage")
+  def apply(id: String, account_id: String, created_at: DateTime, event_type: String, data: models.tosca.KeyValueList) = new EventsStorageResult(id, account_id, created_at, event_type, data, "Megam::EventsStorage")
 }
 
-sealed class EventsStorageSacks extends CassandraTable[EventsStorageSacks, EventsStorageResult] {
-
-  implicit val formats = DefaultFormats
+sealed class EventsStorageSacks extends CassandraTable[EventsStorageSacks, EventsStorageResult] with ImplicitJsonFormats {
 
   object account_id extends StringColumn(this) with PartitionKey[String]
-  object created_at extends StringColumn(this) with PrimaryKey[String]
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object event_type extends StringColumn(this) with PrimaryKey[String]
 
   object data extends JsonListColumn[EventsStorageSacks, EventsStorageResult, KeyValueField](this) {
@@ -72,10 +73,12 @@ sealed class EventsStorageSacks extends CassandraTable[EventsStorageSacks, Event
     }
   }
 
+  object id extends StringColumn(this)
   object json_claz extends StringColumn(this)
 
   def fromRow(row: Row): EventsStorageResult = {
     EventsStorageResult(
+      id(row),
       account_id(row),
       created_at(row),
       event_type(row),
@@ -85,13 +88,13 @@ sealed class EventsStorageSacks extends CassandraTable[EventsStorageSacks, Event
 }
 
 abstract class ConcreteEventsStorage extends EventsStorageSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
   override lazy val tableName = "events_for_storages"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
   def insertNewRecord(evt: EventsStorageResult): ValidationNel[Throwable, ResultSet] = {
-    val res = insert.value(_.account_id, evt.account_id)
+    val res = insert.value(_.id, evt.id)
+      .value(_.account_id, evt.account_id)
       .value(_.created_at, evt.created_at)
       .value(_.event_type, evt.event_type)
       .value(_.data, evt.data)
@@ -101,12 +104,7 @@ abstract class ConcreteEventsStorage extends EventsStorageSacks with RootConnect
   }
 
   def listRecords(email: String, limit: String): ValidationNel[Throwable, Seq[EventsStorageResult]] = {
-      var count = " "
-     if (limit == "0") {
-        count = "10"
-     } else {
-       count = limit
-     }
+    val count = (if (limit == "0")  "10" else  limit)
     val res = select.where(_.account_id eqs email).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
     }
@@ -119,44 +117,37 @@ abstract class ConcreteEventsStorage extends EventsStorageSacks with RootConnect
 }
 
 object EventsStorage extends ConcreteEventsStorage {
+
 private def mkEventsStorageSack(email: String, input: String): ValidationNel[Throwable, EventsStorageResult] = {
   val EventsStorageInput: ValidationNel[Throwable, EventsStorageInput] = (Validation.fromTryCatchThrowable[EventsStorageInput, Throwable] {
     parse(input).extract[EventsStorageInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
   for {
     eventsstorage <- EventsStorageInput
-    //uir <- (UID("sps").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
     val bvalue = Set(email)
-    val json = new EventsStorageResult(email, eventsstorage.created_at, eventsstorage.event_type, eventsstorage.data, "Megam::EventsStorage")
+    val json = new EventsStorageResult("",email, DateHelper.now(eventsstorage.created_at), eventsstorage.event_type, eventsstorage.data, "Megam::EventsStorage")
     json
   }
 }
 
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
-   */
+
   def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsStorageResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsStorageResult] =>
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[EventsStorageResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsStorageResult]](new ResourceItemNotFound(accountID, "EventsStorage = nothing found.")).toValidationNel
+       else   Validation.failure[Throwable, Seq[EventsStorageResult]](new ResourceItemNotFound(accountID, "EventsStorage = nothing found.")).toValidationNel
+
     }
   }
   def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsStorageResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsStorageResult] =>
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[EventsStorageResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[EventsStorageResult]](new ResourceItemNotFound(accountID, "EventsStorage = nothing found.")).toValidationNel
+      if (!nm.isEmpty) Validation.success[Throwable, Seq[EventsStorageResult]](nm).toValidationNel
+      else Validation.failure[Throwable, Seq[EventsStorageResult]](new ResourceItemNotFound(accountID, "EventsStorage = nothing found.")).toValidationNel
     }
   }
 }

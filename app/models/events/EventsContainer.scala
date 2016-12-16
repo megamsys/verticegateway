@@ -17,6 +17,7 @@ import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import app.MConfig
 import models.base._
+import utils.DateHelper
 import wash._
 
 import io.megam.util.Time
@@ -34,6 +35,8 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import com.websudos.phantom.iteratee.Iteratee
+import controllers.stack.ImplicitJsonFormats
+
 
 /**
  * @author rajesh
@@ -58,22 +61,11 @@ case class EventsContainerResult(
   json_claz: String) {
 }
 
-case class EventsContainerReturnResult(
-  id: String,
-  account_id: String,
-  created_at: String,
-  assembly_id: String,
-  event_type: String,
-  data: models.tosca.KeyValueList,
-  json_claz: String) {}
-
 object EventsContainerResult {
   def apply(id: String, account_id: String, created_at: DateTime, assembly_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsContainerResult(id, account_id, created_at, assembly_id, event_type, data, "Megam::EventsContainer")
 }
 
-sealed class EventsContainerSacks extends CassandraTable[EventsContainerSacks, EventsContainerResult] {
-
-  implicit val formats = DefaultFormats
+sealed class EventsContainerSacks extends CassandraTable[EventsContainerSacks, EventsContainerResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this)
   object account_id extends StringColumn(this) with PartitionKey[String]
@@ -189,50 +181,35 @@ def generateCreatedAt(created_at: String): DateTime = {
    * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
    */
-  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerReturnResult]] = {
+  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsContainerResult] =>
-    if (!nm.isEmpty) {
-      val res = nm.map {
-        evr ⇒ new EventsContainerReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
-      }
-      Validation.success[Throwable, Seq[EventsContainerReturnResult]](res).toValidationNel
-    } else {
-        Validation.failure[Throwable, Seq[EventsContainerReturnResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
-        }
+    if (!nm.isEmpty)
+      Validation.success[Throwable, Seq[EventsContainerResult]](nm).toValidationNel
+     else    Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
     }
   }
-  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsContainerReturnResult]] = {
+  def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsContainerResult] =>
-    if (!nm.isEmpty) {
-      val res = nm.map {
-        evr ⇒ new EventsContainerReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
-      }
-      Validation.success[Throwable, Seq[EventsContainerReturnResult]](res).toValidationNel
-    } else {
-        Validation.failure[Throwable, Seq[EventsContainerReturnResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
-        }
+    if (!nm.isEmpty)
+      Validation.success[Throwable, Seq[EventsContainerResult]](nm).toValidationNel
+     else  Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
+
     }
 
   }
 
-  def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerReturnResult]] = {
+  def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
     (mkEventsContainerSack(email, input) leftMap { err: NonEmptyList[Throwable] => err
     }).flatMap { ws: EventsContainerResult =>
       (getRecords(email, ws.created_at, ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] =>
         new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
       }).toValidationNel.flatMap { nm: Seq[EventsContainerResult] =>
-        if (!nm.isEmpty) {
-          val res = nm.map {
-            evr ⇒ new EventsContainerReturnResult(evr.id, evr.account_id, evr.created_at.toString(), evr.assembly_id, evr.event_type, evr.data, evr.json_claz)
-          }
-          Validation.success[Throwable, Seq[EventsContainerReturnResult]](res).toValidationNel
-        } else {
-          Validation.failure[Throwable, Seq[EventsContainerReturnResult]](new ResourceItemNotFound(ws.assembly_id, "EventsContainer = nothing found.")).toValidationNel
-          }
+        if (!nm.isEmpty)   Validation.success[Throwable, Seq[EventsContainerResult]](nm).toValidationNel
+        else  Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(ws.assembly_id, "EventsContainer = nothing found.")).toValidationNel
       }
 
     }

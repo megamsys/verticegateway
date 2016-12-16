@@ -35,6 +35,8 @@ import scala.annotation.tailrec
 import models.team._
 import models.base.Events._
 import models.billing._
+import controllers.stack.ImplicitJsonFormats
+
 
 /**
  * @author rajthilak
@@ -50,8 +52,7 @@ case class AccountReset(password_reset_key: String, password_reset_sent_at: Stri
 
 }
 
-sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
-  implicit val formats = DefaultFormats
+sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult]  with ImplicitJsonFormats {
 
   object id extends StringColumn(this)
 

@@ -17,11 +17,15 @@ import io.megam.auth.funnel.FunnelErrors._
 
 import io.megam.common.amqp.response.AMQPResponse
 import io.megam.common.amqp._
-import io.megam.util.Time
 import io.megam.common.uid._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import java.nio.charset.Charset
+
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -29,6 +33,7 @@ import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author ram
@@ -43,7 +48,7 @@ case class RequestInput(cat_id: String,
   val json = "{" + half_json + "}"
 }
 
-case class RequestResult(id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: String) {
+case class RequestResult(id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: DateTime) {
 
   def toMap: Map[String, String] = {
     Map[String, String](
@@ -73,12 +78,10 @@ case class RequestResult(id: String, cat_id: String, cattype: String, name: Stri
 }
 
 object RequestResult {
-  def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), new String)
+  def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), DateHelper.now())
 }
 
-sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] {
-
-  implicit val formats = DefaultFormats
+sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object cat_id extends StringColumn(this)
@@ -86,7 +89,7 @@ sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] {
   object name extends StringColumn(this)
   object action extends StringColumn(this)
   object category extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): RequestResult = {
     RequestResult(
@@ -101,7 +104,7 @@ sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] {
 }
 
 abstract class ConcreteRequests extends RequestSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "requests"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -130,12 +133,11 @@ object Requests extends ConcreteRequests {
       rip <- ripNel
       uir <- (UID("rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val res = RequestResult((uir.get._1 + uir.get._2), rip.cat_id, rip.cattype, rip.name, rip.action, rip.category, Time.now.toString)
+      val res = RequestResult((uir.get._1 + uir.get._2), rip.cat_id, rip.cattype, rip.name, rip.action, rip.category, DateHelper.now())
       res.some
     }
   }
 
-  //create request from input
   def create(input: String): ValidationNel[Throwable, Option[wash.PQd]] = {
     for {
       ogsi <- mkRequestSack(input) leftMap { err: NonEmptyList[Throwable] => err }
