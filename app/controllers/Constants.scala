@@ -8,7 +8,6 @@ import io.megam.auth.stack.HeaderConstants._
  * @author ram
  *
  */
-
 object Constants {
 
   lazy val WithGzipHeader: Map[String, String] = Map(CONTENT_TYPE -> application_gzip)

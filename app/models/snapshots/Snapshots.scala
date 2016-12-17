@@ -198,13 +198,13 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def atPub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, CATTYPE_TORPEDO, "", SNAPSHOT_CREATE, SNAPSHOT).json)
+    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, email, CATTYPE_TORPEDO, "", SNAPSHOT_CREATE, SNAPSHOT).json)
     wa.successNel[Throwable]
   }
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def dePub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, CATTYPE_TORPEDO, "", SNAPSHOT_REMOVE, SNAPSHOT).json)
+    models.base.Requests.createAndPub(email, RequestInput(wa.snap_id, email, CATTYPE_TORPEDO, "", SNAPSHOT_REMOVE, SNAPSHOT).json)
     wa.successNel[Throwable]
   }
 
