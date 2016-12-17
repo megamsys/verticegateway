@@ -39,7 +39,7 @@ CREATE TABLE domains (id text, org_id text,  name text, json_claz text, created_
 
 CREATE TABLE sshkeys (id text, org_id text, name text, privatekey text, publickey text, json_claz text, created_at timestamp, PRIMARY KEY((org_id), name));
 
-CREATE TABLE requests( id text, cat_id text, cattype text,  name text,  action text, category text, created_at timestamp, PRIMARY KEY (id));
+CREATE TABLE requests( id text, account_id text, cat_id text, cattype text,  name text,  action text, category text, created_at timestamp, PRIMARY KEY (id));
 
 CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  options list<text>, plans map <text, text>,  PRIMARY KEY ((settings_name), flavor) );
 
