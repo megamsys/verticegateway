@@ -22,7 +22,7 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import utils.DateHelper
+import utils.{DateHelper, StringStuff}
 import io.megam.util.Time
 import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
@@ -130,10 +130,31 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def updateRecord(email: String, rip: SnapshotsResult, aor: Option[SnapshotsResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldstatus  = aor.get.status
+    val newstatus  = rip.status
+
+    val oldimage_id= aor.get.image_id
+    val newimage_id = rip.image_id
+
+    val res = update.where(_.account_id eqs email)
+      .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
+      .and(_.image_id setTo StringStuff.NilOrNot(newimage_id, oldimage_id))
+      .future()
+      Await.result(res, 5.seconds).successNel
+  }
+
   def listRecords(email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
     val res = select.allowFiltering().where(_.account_id eqs email).fetch()
     Await.result(res, 5.seconds).successNel
   }
+
+  def getRecord(snap_id: String, assembly_id: String,  email: String): ValidationNel[Throwable, Option[SnapshotsResult]] = {
+    val res = select.allowFiltering().where(_.snap_id eqs snap_id).and(_.account_id eqs email).and(_.asm_id eqs assembly_id).one()
+    Await.result(res, 5.seconds).successNel
+  }
+
+
   def getRecords(assembly_id: String, email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
   val res = select.allowFiltering().where(_.account_id eqs email).and(_.asm_id eqs assembly_id).fetch()
     Await.result(res, 5.seconds).successNel
@@ -171,6 +192,18 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
   }
 }
 
+def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResult] = {
+  val ripNel: ValidationNel[Throwable, SnapshotsResult] = (Validation.fromTryCatchThrowable[SnapshotsResult,Throwable] {
+    parse(input).extract[SnapshotsResult]
+  } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  for {
+    rip <- ripNel
+    qor <- (Snapshots.findBySnapId(rip.snap_id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    set <- updateRecord(email, rip, qor.some)
+  } yield {
+    qor
+  }
+}
 
   def findByEmail(accountID: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
     (listRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
@@ -182,6 +215,19 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
         Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(accountID, "Snapshots = nothing found.")).toValidationNel
     }
 
+  }
+
+  def findBySnapId(snap_id: String, assembly_id: String, email: String): ValidationNel[Throwable, SnapshotsResult] = {
+    (getRecord(snap_id, assembly_id, email) leftMap { t: NonEmptyList[Throwable] ⇒
+      new ServiceUnavailableError(snap_id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { xso: Option[SnapshotsResult] ⇒
+      xso match {
+        case Some(xs) ⇒ {
+          Validation.success[Throwable, SnapshotsResult](xs).toValidationNel
+        }
+        case None ⇒ Validation.failure[Throwable, SnapshotsResult](new ResourceItemNotFound(snap_id, "")).toValidationNel
+      }
+    }
   }
 
   def findById(assemblyID: String, email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
