@@ -11,17 +11,17 @@ import net.liftweb.json._
 import io.megam.util.Time
 import org.joda.time.{DateTime, Period}
 import org.joda.time.format.DateTimeFormat
-import models.Constants.{JSON_CLAZ, REPORTSCLAZ, REPORT_USRCOUNT}
+import models.Constants.{JSON_CLAZ, REPORTSCLAZ, REPORT_USRDOT}
 import models.admin.{ReportInput, ReportResult}
 
-class Users(ri: ReportInput) extends Reporter {
+class UsersDot(ri: ReportInput) extends Reporter {
 
   def report: ValidationNel[Throwable, Option[ReportResult]] = {
     for {
       alt <-   all  leftMap { err: NonEmptyList[Throwable] ⇒ err }
       adt <-   admin  leftMap { err: NonEmptyList[Throwable] ⇒ err }
     } yield {
-      ReportResult(REPORT_USRCOUNT, new UserCounted(alt, adt).toKeyList.asInstanceOf[Seq[List[models.tosca.KeyValueField]]].some, REPORTSCLAZ, Time.now.toString).some
+      ReportResult(REPORT_USRDOT, new UserCounted(alt, adt).toKeyList.asInstanceOf[Seq[List[models.tosca.KeyValueField]]].some, REPORTSCLAZ, Time.now.toString).some
     }
   }
 
