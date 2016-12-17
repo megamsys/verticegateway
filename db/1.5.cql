@@ -42,3 +42,5 @@ ALTER TABLE snapshots add outputs list<text>;
 ALTER TABLE billedhistories add start_date timestamp;
 
 ALTER TABLE billedhistories  add end_date timestamp;
+
+CREATE TABLE IF NOT EXISTS quotas (id text, name text, account_id text, allowed text, allocated_to text, inputs list<text>, created_at text, updated_to text, PRIMARY KEY ((id)));

@@ -111,3 +111,7 @@ GET	 /v2/addons/:name                 controllers.addons.Addons.show(name: Strin
 # We don't use it.
 POST /v2/subscriptions/content	      controllers.billing.Subscriptions.post
 GET  /v2/subscriptions                controllers.billing.Subscriptions.show
+
+#quotas
+#POST /v2/quotas/content	       controllers.billing.Quotas.post
+#GET  /v2/quotas                controllers.billing.Quotas.list
