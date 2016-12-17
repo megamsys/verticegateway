@@ -7,80 +7,79 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import models.tosca.KeyValueList
 import net.liftweb.json._
 import io.megam.util.Time
 import org.joda.time.{DateTime, Period}
 import org.joda.time.format.DateTimeFormat
-import models.Constants.{JSON_CLAZ, REPORTSCLAZ, REPORT_LANCOUNT}
-import models.Constants.{REPORT_FILTER_VM, REPORT_FILTER_VERTICE_PREPACKAGED, REPORT_FILTER_BITNAMI_PREPACKAGED}
-import models.Constants.{REPORT_FILTER_CUSTOMAPPS, REPORT_FILTER_CONTAINERS}
+import models.Constants.{JSON_CLAZ, REPORTSCLAZ, REPORT_LAUNCHES}
 import models.admin.{ReportInput, ReportResult}
 
 class Launches(ri: ReportInput) extends Reporter {
 
   def report: ValidationNel[Throwable, Option[ReportResult]] = {
     for {
-      alt <-   build(ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      vdt <-   aggregate(alt, REPORT_FILTER_VM).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      edt <-   aggregate(alt, REPORT_FILTER_VERTICE_PREPACKAGED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      bdt <-   aggregate(alt, REPORT_FILTER_BITNAMI_PREPACKAGED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      cut <-   aggregate(alt, REPORT_FILTER_CUSTOMAPPS).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      cdt <-   aggregate(alt, REPORT_FILTER_CONTAINERS).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      pdt <-   popular(alt).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      abt <-   build(ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      aal <-   LaunchesAggregate(abt).aggregate.successNel
     } yield {
-      ReportResult(REPORT_LANCOUNT,
-                  new LaunchCounted(vdt, edt, bdt, cut, cdt, pdt).toKeyList.asInstanceOf[Seq[models.tosca.KeyValueList]].some,
-                  REPORTSCLAZ, Time.now.toString).some
+      ReportResult(REPORT_LAUNCHES, aal.map(_.toKeyList).some, REPORTSCLAZ, Time.now.toString).some
     }
   }
 
-  def build(startdate: String, enddate: String): ValidationNel[Throwable,Seq[models.tosca.AssemblyResult]] = {
-     for {
-      a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
-    } yield a
-
-   }
-
-   def aggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String]) = {
+ def build(startdate: String, enddate: String): ValidationNel[Throwable,Seq[models.tosca.AssemblyResult]] = {
     for {
-      ba <- abt.filter { a => (f.filter(x => a.tosca_type.contains(x)).size > 0) }.some
-    } yield ba.size.toString
-   }
-
-
-
-   def popular(abt: Seq[models.tosca.AssemblyResult]) = {
-    for {
-      ba <- (abt.groupBy(_.tosca_type).map { case (k,v) => (k -> v.size.toInt) }).some
-    } yield ba.max
-   }
-
-
+     a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+   } yield a
+  }
 }
 
+case class LaunchesAggregate(als: Seq[models.tosca.AssemblyResult]) {
+  lazy val aggregate: Seq[LaunchesResult] = als.map(al =>  {
+    LaunchesResult(al.id, al.name, al.account_id, al.state, al.status, al.tosca_type,
+      KeyValueList.toMap(al.inputs), KeyValueList.toMap(al.outputs), al.created_at)
+   })
+}
 
-case class LaunchCounted(vm: Option[String],
-                         vertice_prepackaged: Option[String],
-                         bitnami_prepackaged: Option[String],
-                         customapps: Option[String],
-                         containers: Option[String],
-                         popular: Option[(String, Int)]) {
+case class LaunchesResult(id: String, name: String, account_id: String, state: String, status: String, tosca_type: String,
+                         inputProps: Map[String, String], outputProps: Map[String, String], created_at: DateTime) {
+    val X = "x"
+    val Y = "y"
 
-  private val VMS          = "total_vms"
-  private val VERTICE      = "total_prepackaged_vertice"
-  private val BITNAMI      = "total_prepackaged_bitnami"
-  private val CUSTOM       = "total_customapps"
-  private val CONTAINERS   = "total_containers"
-  private val POPULAR      = "most_popular"
+    val ID   = "id"
+    val NAME = "name"
+    val ACCOUNT_ID = "account_id"
+    val STATE = "state"
+    val STATUS = "status"
+    val TOSCA_TYPE = "type"
+    val CREATED_AT = "created_at"
+    val INPUTPROPS = "inputprops"
+    val OUTPUTPROPS = "resultprops"
+
+    val NUMBER_OF_HOURS = "number_of_hours"
+
+  def isEmpty(x: String) = Option(x).forall(_.isEmpty)
+
+  def shouldZero = isEmpty(created_at.toString)
+
+  def calculateHours =   if (shouldZero) {  "0" }
+                         else  {
+                           val runningTime =  (new Period(created_at, DateTime.parse(Time.now.toString))).toStandardDuration.getStandardMinutes
+                           (runningTime.toFloat/60).toString
+                       }
+
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-    Map((VMS -> vm.getOrElse("0")),
-        (VERTICE -> vertice_prepackaged.getOrElse("0")),
-        (BITNAMI -> bitnami_prepackaged.getOrElse("0")),
-        (CUSTOM -> customapps.getOrElse("0")),
-        (CONTAINERS -> containers.getOrElse("0")),
-        (POPULAR -> popular.getOrElse(("none yet.","0")).toString)
-      )
-    )
+    Map((X -> created_at.toString),
+        (Y -> "0"),
+        (ID -> id),
+        (NAME -> name),
+        (ACCOUNT_ID -> account_id),
+        (STATE -> status),
+        (STATUS -> state),
+        (TOSCA_TYPE -> tosca_type),
+        (INPUTPROPS -> inputProps.map(pair => pair._1+"="+pair._2).mkString("",":",",")),
+        (OUTPUTPROPS -> outputProps.map(pair => pair._1+"="+pair._2).mkString("",":",",")),
+        (CREATED_AT -> created_at.toString),
+        (NUMBER_OF_HOURS -> calculateHours)))
 }
