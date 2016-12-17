@@ -113,6 +113,10 @@ abstract class ConcreteDisks extends DisksSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecord(acc_id: String, asm_id: String, id: String): ValidationNel[Throwable, ResultSet] = {
+ val res = delete.where(_.account_id eqs acc_id).and(_.id eqs id).and(_.asm_id eqs asm_id).future()
+ Await.result(res,5.seconds).successNel
+ }
 }
 
 object Disks extends ConcreteDisks {
@@ -144,7 +148,15 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
     wa.some
   }
 }
-
+def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, Option[Seq[DisksResult]]] = {
+  for {
+    wa <- (findById(asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    set <- (deleteRecord(email, asm_id, id) leftMap { t: NonEmptyList[Throwable] => t })
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete success", Console.RESET))
+    wa.some
+  }
+}
 
   def findByEmail(accountID: String): ValidationNel[Throwable, Seq[DisksResult]] = {
     (listRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>

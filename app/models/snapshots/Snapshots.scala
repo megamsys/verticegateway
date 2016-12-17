@@ -138,7 +138,10 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
   val res = select.allowFiltering().where(_.account_id eqs email).and(_.asm_id eqs assembly_id).fetch()
     Await.result(res, 5.seconds).successNel
   }
-
+ def deleteRecord(acc_id: String, asm_id: String, id: String): ValidationNel[Throwable, ResultSet] = {
+val res = delete.where(_.account_id eqs acc_id).and(_.snap_id eqs id).and(_.asm_id eqs asm_id).future()
+Await.result(res,5.seconds).successNel
+}
 }
 
 object Snapshots extends ConcreteSnapshots {
@@ -170,7 +173,15 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
     wa.some
   }
 }
-
+def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, Option[Seq[SnapshotsResult]]] = {
+  for {
+    wa <- (findById(asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    set <- (deleteRecord(email, asm_id, id) leftMap { t: NonEmptyList[Throwable] => t })
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Snapshots.delete success", Console.RESET))
+    wa.some
+  }
+}
 
   def findByEmail(accountID: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
     (listRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
