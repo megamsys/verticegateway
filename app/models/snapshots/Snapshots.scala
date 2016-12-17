@@ -195,13 +195,13 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Snapsh
   }
 }
 
-def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, Option[Seq[SnapshotsResult]]] = {
+def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, SnapshotsResult] = {
   for {
-    wa <- (findById(asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    wa <- (findBySnapId(id,asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
     set <- (deleteRecord(email, asm_id, id) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Snapshots.delete success", Console.RESET))
-    wa.some
+    wa
 }
 }
 def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResult] = {
@@ -214,7 +214,6 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
     set <- updateRecord(email, rip, qor.some)
   } yield {
     qor
-
   }
 }
 
