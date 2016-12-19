@@ -230,7 +230,7 @@ object Assemblies extends ConcreteAssemblies {
 
   /* Lets clean it up in 2.0 using Messageable  */
   private def pub(email: String, wa: WrapAssembliesResult): ValidationNel[Throwable, AssembliesResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.ams.get.id, email, wa.cattype, "", CREATE, STATE).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.ams.get.id, wa.cattype, "", CREATE, STATE).json)
     wa.ams.get.successNel[Throwable]
   }
 }

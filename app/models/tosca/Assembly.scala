@@ -156,8 +156,6 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
   def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
       val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
       val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, starttime, Console.RESET))
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, endtime, Console.RESET))
 
      val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
     Await.result(res, 5.seconds).successNel
