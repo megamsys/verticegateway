@@ -59,20 +59,25 @@ GET  /v2/marketplaces/:flavor         controllers.MarketPlaces.show(flavor: Stri
 
 # Requests
 POST /v2/requests/content            	controllers.Requests.post
+GET   /v2/requests/:id                controllers.Requests.show(id: String)
 
 # Events
+POST  /v2/eventsvm/content            controllers.EventsVm.post
 GET  /v2/eventsvm/:limit              controllers.EventsVm.list(limit: String)
 POST /v2/eventsvm/show/:limit         controllers.EventsVm.show(limit: String)
 GET  /v2/eventsvm                     controllers.EventsVm.index
 
+POST  /v2/eventscontainer/content     controllers.EventsContainer.post
 GET  /v2/eventscontainer/:limit       controllers.EventsContainer.list(limit: String)
 POST /v2/eventscontainer/show/:limit  controllers.EventsContainer.show(limit: String)
 GET  /v2/eventscontainer              controllers.EventsContainer.index
 
+POST  /v2/eventsbilling/content       controllers.EventsBilling.post
 GET  /v2/eventsbilling/:limit         controllers.EventsBilling.list(limit: String)
 POST /v2/eventsbilling/show/:limit    controllers.EventsBilling.show(limit: String)
 GET  /v2/eventsbilling                controllers.EventsBilling.index
 
+POST  /v2/eventsstorage/content       controllers.EventsStorage.post
 GET  /v2/eventsstorage/:limit         controllers.EventsStorage.list(limit: String)
 GET  /v2/eventsstorage                controllers.EventsStorage.index
 

@@ -44,7 +44,6 @@ import controllers.stack.ImplicitJsonFormats
  */
 case class EventsVmInput(
   account_id: String,
-  created_at: String,
   assembly_id: String,
   event_type: String,
   data: KeyValueList)
@@ -135,15 +134,29 @@ object EventsVm extends ConcreteEventsVm {
 
 
   private def mkEventsVmSack(email: String, input: String): ValidationNel[Throwable, EventsVmResult] = {
-    val EventsVmInput: ValidationNel[Throwable, EventsVmInput] = (Validation.fromTryCatchThrowable[EventsVmInput, Throwable] {
+    val nelVM: ValidationNel[Throwable, EventsVmInput] = (Validation.fromTryCatchThrowable[EventsVmInput, Throwable] {
       parse(input).extract[EventsVmInput]
-    } leftMap { t: Throwable ⇒ new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
     for {
-      eventsvm ← EventsVmInput
+      vm <-  nelVM
+      uir <- (UID("EVM").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
+
       val bvalue = Set(email)
-      val json = new EventsVmResult("", email, DateHelper.now(eventsvm.created_at), eventsvm.assembly_id, eventsvm.event_type, eventsvm.data, "Megam::EventsVm")
+      val json = new EventsVmResult(uir.get._1 + uir.get._2, email, DateHelper.now(), vm.assembly_id, vm.event_type, vm.data, "Megam::EventsVm")
       json
+    }
+  }
+
+
+  def create(email: String, input: String): ValidationNel[Throwable, Option[EventsVmResult]] = {
+    for {
+      wa <- (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsVm.created success", Console.RESET))
+      wa.some
     }
   }
 

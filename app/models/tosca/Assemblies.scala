@@ -196,12 +196,12 @@ object Assemblies extends ConcreteAssemblies {
   def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
     (assembliesID map {
       _.map { asm_id =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("Assemblies Id", asm_id))
         (getRecord(asm_id) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[AssembliesResult] =>
           xso match {
             case Some(xs) => {
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assemblies."+asm_id + " successfully", Console.RESET))
               Validation.success[Throwable, AssembliesResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
@@ -230,7 +230,7 @@ object Assemblies extends ConcreteAssemblies {
 
   /* Lets clean it up in 2.0 using Messageable  */
   private def pub(email: String, wa: WrapAssembliesResult): ValidationNel[Throwable, AssembliesResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.ams.get.id, email, wa.cattype, "", CREATE, STATE).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.ams.get.id, wa.cattype, "", CREATE, STATE).json)
     wa.ams.get.successNel[Throwable]
   }
 }

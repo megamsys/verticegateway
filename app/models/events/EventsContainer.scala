@@ -45,7 +45,6 @@ import controllers.stack.ImplicitJsonFormats
 
 case class EventsContainerInput(
   account_id: String,
-  created_at: String,
   assembly_id: String,
   event_type: String,
   data: KeyValueList) {
@@ -132,55 +131,41 @@ abstract class ConcreteEventsContainer extends EventsContainerSacks with RootCon
 
   }
   def getRecords(email: String, created_at: DateTime, assembly_id: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
-    var count = ""
-    if (limit == "0") {
-      count = "10"
-    } else {
-      count = limit
-    }
-    val times = getTimes(created_at)
-    //val res = select.where(_.account_id eqs email).orderBy(_.created_at desc).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
+    val count = (if (limit == "0")  "10" else  limit)
+
+    val times = DateHelper.toTimeRange(created_at)
+
     val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
   }
-
-def getTimes(created_at: DateTime) = {
-  new Tuple2(
-    created_at,
-    DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")))
- }
 }
 
 object EventsContainer extends ConcreteEventsContainer {
 
-def generateCreatedAt(created_at: String): DateTime = {
-  if (created_at == "" || created_at == null) {
-    return DateTime.parse(Time.now.toString, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z")).withTimeAtStartOfDay()
-  } else {
-    return DateTime.parse(created_at, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"))
-  }
-}
-
   private def mkEventsContainerSack(email: String, input: String): ValidationNel[Throwable, EventsContainerResult] = {
-    val EventsContainerInput: ValidationNel[Throwable, EventsContainerInput] = (Validation.fromTryCatchThrowable[EventsContainerInput, Throwable] {
+    val nelConts: ValidationNel[Throwable, EventsContainerInput] = (Validation.fromTryCatchThrowable[EventsContainerInput, Throwable] {
       parse(input).extract[EventsContainerInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     for {
-      eventscontainer <- EventsContainerInput
-      //uir <- (UID("sps").get leftMap { ut: NonEmptyList[Throwable] => ut })
+      con <- nelConts
+      uir <- (UID("EVC").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val bvalue = Set(email)
-      val json = new EventsContainerResult("", email, generateCreatedAt(eventscontainer.created_at), eventscontainer.assembly_id, eventscontainer.event_type, eventscontainer.data, "Megam::EventsContainer")
-      json
+      new EventsContainerResult(uir.get._1 + uir.get._2, email, DateHelper.now(), con.assembly_id, con.event_type, con.data, "Megam::EventsContainer")
     }
   }
 
-  /*
-   * An IO wrapped finder using an email. Upon fetching the account_id for an email,
-   * the csarnames are listed on the index (account.id) in bucket `CSARs`.
-   * Using a "csarname" as key, return a list of ValidationNel[List[CSARResult]]
-   * Takes an email, and returns a Future[ValidationNel, List[Option[CSARResult]]]
-   */
+
+  def create(email: String, input: String): ValidationNel[Throwable, Option[EventsContainerResult]] = {
+    for {
+      wa <- (mkEventsContainerSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsContainer.created success", Console.RESET))
+      wa.some
+    }
+  }
+
+
   def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
@@ -190,6 +175,7 @@ def generateCreatedAt(created_at: String): DateTime = {
      else    Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
     }
   }
+  
   def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")

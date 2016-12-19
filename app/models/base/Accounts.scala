@@ -155,6 +155,11 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
+  def dbCount: ValidationNel[Throwable, Option[Long]] =  {
+    val res = select.count.one
+    Await.result(res, 5.seconds).successNel
+  }
+
   def dbInsert(account: AccountResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, account.id)
     .value(_.name, account.name)
@@ -429,6 +434,8 @@ object Accounts extends ConcreteAccounts {
       c.some
     }
   }
+
+  def countAll: ValidationNel[Throwable, String] = dbCount.map(_.getOrElse(0).toString)
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {

@@ -53,7 +53,7 @@ case class LaunchesResult(id: String, name: String, account_id: String, state: S
     val TOSCA_TYPE = "type"
     val CREATED_AT = "created_at"
     val INPUTPROPS = "inputprops"
-    val OUTPUTPROPS = "resultprops"
+    val OUTPUTPROPS = "outputprops"
 
     val NUMBER_OF_HOURS = "number_of_hours"
 
@@ -63,7 +63,7 @@ case class LaunchesResult(id: String, name: String, account_id: String, state: S
 
   def calculateHours =   if (shouldZero) {  "0" }
                          else  {
-                           val runningTime =  (new Period(created_at, DateTime.parse(Time.now.toString))).toStandardDuration.getStandardMinutes
+                           val runningTime =  (new Period(DateTime.parse(created_at.toString), new DateTime())).toStandardDuration.getStandardMinutes
                            (runningTime.toFloat/60).toString
                        }
 
@@ -78,8 +78,8 @@ case class LaunchesResult(id: String, name: String, account_id: String, state: S
         (STATE -> status),
         (STATUS -> state),
         (TOSCA_TYPE -> tosca_type),
-        (INPUTPROPS -> inputProps.map(pair => pair._1+"="+pair._2).mkString("",":",",")),
-        (OUTPUTPROPS -> outputProps.map(pair => pair._1+"="+pair._2).mkString("",":",",")),
+        (INPUTPROPS -> inputProps.map(pair => pair._1+"="+pair._2).mkString("",",",",")),
+        (OUTPUTPROPS -> outputProps.map(pair => pair._1+"="+pair._2).mkString("",",",",")),
         (CREATED_AT -> created_at.toString),
         (NUMBER_OF_HOURS -> calculateHours)))
 }

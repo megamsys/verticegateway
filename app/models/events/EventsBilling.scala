@@ -41,7 +41,6 @@ import controllers.stack.ImplicitJsonFormats
  *
  */
 case class EventsBillingInput(account_id: String,
-                              created_at: String,
                               assembly_id: String,
                               event_type: String,
                               data: KeyValueList)
@@ -135,18 +134,27 @@ abstract class ConcreteEventsBilling extends EventsBillingSacks with RootConnect
 object EventsBilling extends ConcreteEventsBilling {
 
 private def mkEventsBillingSack(email: String, input: String): ValidationNel[Throwable, EventsBillingResult] = {
-  val EventsBillingInput: ValidationNel[Throwable, EventsBillingInput] = (Validation.fromTryCatchThrowable[EventsBillingInput, Throwable] {
+  val nelBill: ValidationNel[Throwable, EventsBillingInput] = (Validation.fromTryCatchThrowable[EventsBillingInput, Throwable] {
     parse(input).extract[EventsBillingInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
   for {
-    eventsbilling <- EventsBillingInput
+    bil <- nelBill
+    uir <- (UID("EVB").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-    val bvalue = Set(email)
-    val json = new EventsBillingResult("",email,DateHelper.now(eventsbilling.created_at),eventsbilling.assembly_id,eventsbilling.event_type,eventsbilling.data, "Megam::EventsBilling")
-    json
+     new EventsBillingResult(uir.get._1 + uir.get._2,email,DateHelper.now(),bil.assembly_id, bil.event_type, bil.data, "Megam::EventsBilling")
   }
 }
 
+
+def create(email: String, input: String): ValidationNel[Throwable, Option[EventsBillingResult]] = {
+  for {
+    wa <- (mkEventsBillingSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+    set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsBilling.created success", Console.RESET))
+    wa.some
+  }
+}
 
   def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsBillingResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>

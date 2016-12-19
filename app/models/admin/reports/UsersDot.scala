@@ -13,6 +13,8 @@ import org.joda.time.{DateTime, Period}
 import org.joda.time.format.DateTimeFormat
 import models.Constants.{JSON_CLAZ, REPORTSCLAZ, REPORT_USRDOT}
 import models.admin.{ReportInput, ReportResult}
+import io.megam.auth.stack.Role.{ADMIN}
+
 
 class UsersDot(ri: ReportInput) extends Reporter {
 
@@ -40,13 +42,14 @@ class UsersDot(ri: ReportInput) extends Reporter {
 
 
 case class UserCounted(all: String, admin: String) {
-    val X = "x"
-    val Y = "y"
-    val ALL = "all"
-    val ADMIN = "admin"
+    private val X = "x"
+    private val Y = "y"
+    private val ALL = "all"
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-    Map((ALL -> all),
+    Map((X -> "usersdot" ),
+        (Y -> "nos"),
+        (ALL -> all),
         (ADMIN -> admin)))
 }
