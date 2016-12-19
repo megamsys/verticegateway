@@ -167,7 +167,6 @@ def generateCreatedAt(created_at: String): DateTime = {
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     for {
       eventscontainer <- EventsContainerInput
-      //uir <- (UID("sps").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(email)
       val json = new EventsContainerResult("", email, generateCreatedAt(eventscontainer.created_at), eventscontainer.assembly_id, eventscontainer.event_type, eventscontainer.data, "Megam::EventsContainer")
@@ -175,6 +174,33 @@ def generateCreatedAt(created_at: String): DateTime = {
     }
   }
 
+
+  private def EventsContainerSack(email: String, input: String): ValidationNel[Throwable, EventsContainerResult] = {
+    val EventsContainerInput: ValidationNel[Throwable, EventsContainerInput] = (Validation.fromTryCatchThrowable[EventsContainerInput, Throwable] {
+      parse(input).extract[EventsContainerInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      container <- EventsContainerInput
+      uir <- (UID("ECT").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+
+      val bvalue = Set(email)
+      val json = new EventsContainerResult(uir.get._1 + uir.get._2, email, DateHelper.now(container.created_at), container.assembly_id, container.event_type, container.data, "Megam::EventsContainer")
+      json
+    }
+  }
+
+
+  def create(email: String, input: String): ValidationNel[Throwable, Option[EventsContainerResult]] = {
+    for {
+      wa <- (EventsContainerSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsContainer.created success", Console.RESET))
+      wa.some
+    }
+  }
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the csarnames are listed on the index (account.id) in bucket `CSARs`.

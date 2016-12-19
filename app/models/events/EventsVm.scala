@@ -147,6 +147,33 @@ object EventsVm extends ConcreteEventsVm {
     }
   }
 
+  private def EventsVmSack(email: String, input: String): ValidationNel[Throwable, EventsVmResult] = {
+    val EventsVmInput: ValidationNel[Throwable, EventsVmInput] = (Validation.fromTryCatchThrowable[EventsVmInput, Throwable] {
+      parse(input).extract[EventsVmInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      vm <- EventsVmInput
+      uir <- (UID("EVM").get leftMap { ut: NonEmptyList[Throwable] => ut })
+    } yield {
+
+      val bvalue = Set(email)
+      val json = new EventsVmResult(uir.get._1 + uir.get._2, email, DateHelper.now(vm.created_at), vm.assembly_id, vm.event_type, vm.data, "Megam::EventsVm")
+      json
+    }
+  }
+
+
+  def create(email: String, input: String): ValidationNel[Throwable, Option[EventsVmResult]] = {
+    for {
+      wa <- (EventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsVm.created success", Console.RESET))
+      wa.some
+    }
+  }
+
  def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] ⇒
       new ResourceItemNotFound(accountID, "Events = nothing found.")
