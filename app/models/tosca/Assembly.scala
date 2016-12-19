@@ -12,59 +12,57 @@ import scala.collection.mutable.ListBuffer
 
 import cache._
 import db._
+import models.Constants._
 import models.json.tosca._
 import models.json.tosca.carton._
-import models.Constants._
+import models.base.RequestInput
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
-import models.base._
-import models.tosca._
-
-import io.megam.util.Time
-import io.megam.common.uid.UID
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import java.nio.charset.Charset
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
-//import com.websudos.phantom.reactivestreams._
-import com.websudos.phantom.iteratee.Iteratee
 import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
+import io.megam.common.uid.UID
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
+
+
 /**
  * @author rajthilak
  *
  */
-case class Operation(operation_type: String, description: String, properties: models.tosca.KeyValueList, status: String) {
-}
+case class Operation(operation_type: String, description: String, properties: models.tosca.KeyValueList, status: String)
 
-case class AssemblyResult(
-  id: String,
-  org_id: String,
-  account_id: String,
-  name: String,
-  components: models.tosca.ComponentLinks,
-  tosca_type: String,
-  policies: models.tosca.PoliciesList,
-  inputs: models.tosca.KeyValueList,
-  outputs: models.tosca.KeyValueList,
-  status: String,
-  state: String,
-  json_claz: String,
-  created_at: String) {
-}
+case class AssemblyResult(id: String,
+                          org_id: String,
+                          account_id: String,
+                          name: String,
+                          components: models.tosca.ComponentLinks,
+                          tosca_type: String,
+                          policies: models.tosca.PoliciesList,
+                          inputs: models.tosca.KeyValueList,
+                          outputs: models.tosca.KeyValueList,
+                          status: String,
+                          state: String,
+                          json_claz: String,
+                          created_at: DateTime)
 
-sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult] {
+sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]  with ImplicitJsonFormats {
 
-  implicit val formats = DefaultFormats
-
-  object id extends StringColumn(this) with PrimaryKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
-  object account_id extends StringColumn(this)
+  object id extends StringColumn(this) with PrimaryKey[String]
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
+    object account_id extends StringColumn(this)
   object name extends StringColumn(this)
   object components extends ListColumn[AssemblySacks, AssemblyResult, String](this)
   object tosca_type extends StringColumn(this)
@@ -101,7 +99,6 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
   object status extends StringColumn(this)
   object state extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
 
   def fromRow(row: Row): AssemblyResult = {
     AssemblyResult(
@@ -122,7 +119,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
 }
 
 abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "assembly"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -150,13 +147,24 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-
+  //Grand dump of all.
   def listallRecords(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
-    val res = select.fetch()
+     val res = select.fetch()
+    Await.result(res, 5.seconds).successNel
+   }
+
+  def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+      val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
+      val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, starttime, Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, endtime, Console.RESET))
+
+     val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
     Await.result(res, 5.seconds).successNel
   }
+
   def getRecord(id: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
-    val res = select.allowFiltering().where(_.id eqs id).one()
+    val res = select.allowFiltering().where(_.id eqs id).and(_.created_at lte DateHelper.now()).one()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -170,38 +178,36 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
       .and(_.outputs setTo rip.outputs)
       .and(_.status setTo rip.status)
       .and(_.state setTo rip.state)
-      .and(_.created_at setTo rip.created_at)
       .future()
     Await.result(res, 5.seconds).successNel
   }
 
 }
 
-case class Policy(name: String, ptype: String, members: models.tosca.MembersList) {
-}
+case class Policy(name: String, ptype: String, members: models.tosca.MembersList)
 
 case class Assembly(name: String,
-  components: models.tosca.ComponentsList,
-  tosca_type: String,
-  policies: models.tosca.PoliciesList,
-  inputs: models.tosca.KeyValueList,
-  outputs: models.tosca.KeyValueList,
-  status: String, state: String) {
-}
+                    components: models.tosca.ComponentsList,
+                    tosca_type: String,
+                    policies: models.tosca.PoliciesList,
+                    inputs: models.tosca.KeyValueList,
+                    outputs: models.tosca.KeyValueList,
+                    status: String,
+                    state: String)
 
 // The difference between Assembly and AssemblyUpdateInput is the `id` field
 case class AssemblyUpdateInput(id: String,
-  name: String,
-  components: models.tosca.ComponentLinks,
-  tosca_type: String,
-  policies: models.tosca.PoliciesList,
-  inputs: models.tosca.KeyValueList,
-  outputs: models.tosca.KeyValueList, status: String, state: String) {
+                               name: String,
+                               components: models.tosca.ComponentLinks,
+                               tosca_type: String,
+                               policies: models.tosca.PoliciesList,
+                               inputs: models.tosca.KeyValueList,
+                               outputs: models.tosca.KeyValueList,
+                               status: String,
+                               state: String) {
 }
 
-case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
-
-  implicit val formats = DefaultFormats
+case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) extends ImplicitJsonFormats  {
 
   val asm = thatGS.get
   val cattype = asm.tosca_type.split('.')(1)
@@ -211,8 +217,6 @@ case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) {
 }
 
 object Assembly extends ConcreteAssembly {
-
-  //def empty: Assembly = new Assembly(new String(), ComponentsList.empty, new String(), PoliciesList.empty, KeyValueList.empty, KeyValueList.empty, new String())
 
   def findById(assemblyID: Option[List[String]]): ValidationNel[Throwable, AssemblyResults] = {
     (assemblyID map {
@@ -236,15 +240,23 @@ object Assembly extends ConcreteAssembly {
     }).head //return the folded element in the head.
   }
 
-
   def listAll(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
-    (listallRecords() leftMap { t: NonEmptyList[Throwable] =>
+     (listallRecords() leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Assembly = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[AssemblyResult]](nm).toValidationNel
       else
         Validation.failure[Throwable, Seq[AssemblyResult]](new ResourceItemNotFound("", "Assembly = nothing found.")).toValidationNel
+     }
+  }
+
+
+  def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+    (dateRangeBy(startdate, enddate) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("", "Assembly = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
+        Validation.success[Throwable, Seq[AssemblyResult]](nm).toValidationNel
     }
   }
 
@@ -258,10 +270,10 @@ object Assembly extends ConcreteAssembly {
       asm_collection <- (Assembly.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val asm = asm_collection.head
-      val json = AssemblyResult(rip.id, org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies ::: asm.get.policies, rip.inputs ::: asm.get.inputs,
+      val json = AssemblyResult(rip.id, org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies, rip.inputs,
          asm.get.outputs,
          NilOrNot(rip.status, asm.get.status),
-         NilOrNot(rip.status, asm.get.state),
+         NilOrNot(rip.state, asm.get.state),
          asm.get.json_claz,
          asm.get.created_at)
       json.some
@@ -284,22 +296,6 @@ object Assembly extends ConcreteAssembly {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
       gs
     }
-  }
-
-  def upgrade(email: String, id: String): ValidationNel[Throwable, AssemblyResult] = {
-    for {
-      asm_collection <- (Assembly.findById(List(id).some) leftMap { t: NonEmptyList[Throwable] => t })
-    } yield {
-      val asm = asm_collection.head
-      pub(email, WrapAssemblyResult(asm))
-    }
-  }
-
-  /* Lets clean it up in 1.0 using Messageable  */
-  private def pub(email: String, wa: WrapAssemblyResult): AssemblyResult = {
-    models.base.Requests.createAndPub(email,
-      RequestInput(wa.asm.id, wa.cattype, wa.alma, UPGRADE, OPERTATIONS).json)
-    wa.asm
   }
 }
 
@@ -343,7 +339,7 @@ object AssemblysList extends ConcreteAssembly {
           }
         }
       }
-      val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, authBag.get.email, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, rip.state, "Megam::Assembly", Time.now.toString)
+      val json = AssemblyResult(uir.get._1 + uir.get._2, authBag.get.org_id, authBag.get.email, rip.name, components_links.toList, rip.tosca_type, rip.policies, rip.inputs, outlist, rip.status, rip.state, "Megam::Assembly", DateHelper.now())
       json.some
     }
   }

@@ -10,19 +10,11 @@ import scalaz.syntax.SemigroupOps
 
 import cache._
 import db._
+import models.Constants._
 import models.json.tosca._
 import models.json.tosca.carton._
-import models.Constants._
+import models.base.RequestInput
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
-import models.base._
-import wash._
-
-import io.megam.util.Time
-import io.megam.common.uid.UID
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import java.nio.charset.Charset
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -30,7 +22,18 @@ import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import com.websudos.phantom.iteratee.Iteratee
+
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
+import io.megam.common.uid.UID
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
+
 
 /**
  * @author rajthilak
@@ -85,16 +88,14 @@ case class AssembliesResult(id: String,
     assemblies: models.tosca.AssemblyLinks,
     inputs: KeyValueList,
     json_claz: String,
-    created_at: String) {
+    created_at: DateTime) {
 }
 
 object AssembliesResult {
-  def apply(id: String, org_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList) = new AssembliesResult(id, org_id, name, assemblies, inputs, "Megam::Assemblies", Time.now.toString)
+  def apply(id: String, org_id: String, name: String, assemblies: models.tosca.AssemblyLinks, inputs: KeyValueList) = new AssembliesResult(id, org_id, name, assemblies, inputs, "Megam::Assemblies", DateHelper.now())
 }
 
-sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesResult] {
-
-  implicit val formats = DefaultFormats
+sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
@@ -112,7 +113,7 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
   }
 
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): AssembliesResult = {
     AssembliesResult(
@@ -127,7 +128,7 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
 }
 
 abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "assemblies"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -156,9 +157,7 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
 
 }
 
-case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[String, String]) {
-
-  implicit val formats = DefaultFormats
+case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[String, String]) extends  ImplicitJsonFormats {
 
   val ams = thatGS
 
@@ -231,7 +230,7 @@ object Assemblies extends ConcreteAssemblies {
 
   /* Lets clean it up in 2.0 using Messageable  */
   private def pub(email: String, wa: WrapAssembliesResult): ValidationNel[Throwable, AssembliesResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.ams.get.id, wa.cattype, "", CREATE, STATE).json)
+    models.base.Requests.createAndPub(email, RequestInput(wa.ams.get.id, email, wa.cattype, "", CREATE, STATE).json)
     wa.ams.get.successNel[Throwable]
   }
 }

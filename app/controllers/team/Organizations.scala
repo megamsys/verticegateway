@@ -59,7 +59,6 @@ object Organizations extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.team.Organizations.findByEmail(email) match {
             case Success(succ) => {
-              implicit val formats = DefaultFormats
               Ok(Results.resultset(models.Constants.ORGANIZATIONSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             }
             case Failure(err) =>

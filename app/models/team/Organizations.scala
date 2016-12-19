@@ -8,36 +8,29 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 
-import models.json._
-import models.base._
-import db._
 import cache._
-import app.MConfig
+import db._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import scalaz.Validation
-import scalaz.Validation.FlatMap._
 
+import com.datastax.driver.core.{ ResultSet, Row }
+import com.websudos.phantom.dsl._
+import scala.concurrent.{ Future => ScalaFuture }
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+import utils.DateHelper
 import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-//import com.twitter.util.{ Future, Await }
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import controllers.stack.ImplicitJsonFormats
 
-//import com.twitter.conversions.time._
-import org.joda.time.DateTime
-
-import com.websudos.phantom.dsl._
-import com.websudos.phantom.iteratee.Iteratee
-import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
-
-/**
- *
- * @author morpheyesh
- */
 
 case class OrganizationsInput(name: String) {
   val json = "{\"name\":\"" + name + "\"}"
@@ -52,10 +45,10 @@ case class OrganizationsResult(
   accounts_id: String,
   name: String,
   json_claz: String,
-  created_at: String) {}
+  created_at: DateTime) {}
 
 object OrganizationsResult {
-  val empty = new OrganizationsResult("", "", "", "Megam::Organizations", "")
+  val empty = new OrganizationsResult("", "", "", "Megam::Organizations", DateHelper.now())
 }
 
 sealed class OrganizationsT extends CassandraTable[OrganizationsT, OrganizationsResult] {
@@ -64,7 +57,7 @@ sealed class OrganizationsT extends CassandraTable[OrganizationsT, Organizations
   object accounts_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   override def fromRow(r: Row): OrganizationsResult = {
     OrganizationsResult(
@@ -96,9 +89,7 @@ abstract class ConcreteOrg extends OrganizationsT with ScyllaConnector {
 
 }
 
-object Organizations extends ConcreteOrg {
-
-  implicit val formats = DefaultFormats
+object Organizations extends ConcreteOrg  with ImplicitJsonFormats {
 
   private def orgNel(input: String): ValidationNel[Throwable, OrganizationsInput] = {
     (Validation.fromTryCatchThrowable[OrganizationsInput, Throwable] {
@@ -114,7 +105,7 @@ object Organizations extends ConcreteOrg {
 
   private def organizationsSet(id: String, email: String, c: OrganizationsInput): ValidationNel[Throwable, OrganizationsResult] = {
     (Validation.fromTryCatchThrowable[OrganizationsResult, Throwable] {
-      OrganizationsResult(id, email, c.name, "Megam::Organizations", Time.now.toString)
+      OrganizationsResult(id, email, c.name, "Megam::Organizations", DateHelper.now())
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
@@ -123,7 +114,6 @@ object Organizations extends ConcreteOrg {
       c <- orgNel(input)
       uir <- (UID("org").get leftMap { u: NonEmptyList[Throwable] => u })
       org <- organizationsSet(uir.get._1 + uir.get._2, email, c)
-      //  s <-
     } yield {
       insertNewRecord(org)
       org.some
@@ -145,7 +135,7 @@ object Organizations extends ConcreteOrg {
       c <- inviteNel(input)
       upd <- findById(c.id)
     } yield {
-      val org = new OrganizationsResult(upd.head.id, email, upd.head.name, upd.head.json_claz, Time.now.toString)
+      val org = new OrganizationsResult(upd.head.id, email, upd.head.name, upd.head.json_claz, DateHelper.now())
       insertNewRecord(org)
     }
   }

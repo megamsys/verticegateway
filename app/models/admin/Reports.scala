@@ -18,27 +18,29 @@ import io.megam.util.Time
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-
-import models.admin.reports.Reported
+import controllers.stack.ImplicitJsonFormats
 import models.admin.reports.Builder
 
+//The input, and report classes for any report.
 case class ReportInput(type_of: String, start_date: String, end_date: String, category: String, group: String)
 
-object Reports {
+case class ReportResult(id: String, data: Option[Seq[models.tosca.KeyValueList]], json_claz: String, created_at: String)
 
-  implicit val formats = DefaultFormats
+//A generic ability to generate any report.
+//No change is needed here, all we need to add is a new Reporter under admin/reports.
+//Right now we send back Sales, Machines
+object Reports extends ImplicitJsonFormats {
 
   private def mkReportInput(input: String): ValidationNel[Throwable, ReportInput] = {
-    (Validation.fromTryCatchThrowable[ReportInput, Throwable] {
+   (Validation.fromTryCatchThrowable[ReportInput, Throwable] {
       parse(input).extract[ReportInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   }
 
-  def create(input: String): ValidationNel[Throwable, Reported] = {
+  def create(input: String): ValidationNel[Throwable, Option[ReportResult]] = {
     for {
       r   <- mkReportInput(input)
-      res <- new Builder(r).build
-  //    evn <- Events(ast.id, EVENTUSER, Events.ONBOARD, Map(EVTEMAIL -> ast.email)).createAndPub()
+      res <- Builder(r).build
     } yield {
       res
     }

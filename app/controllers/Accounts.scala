@@ -20,7 +20,6 @@ object Accounts extends Controller with stack.APIAuthElement {
 
     models.base.Accounts.login(input) match {
       case Success(succ) =>
-         implicit val formats = DefaultFormats
           Status(FOUND)(Results.resultset(models.Constants.ACCOUNTCLAZ, compactRender(Extraction.decompose(succ))))
       case Failure(err) => {
         val rn: FunnelResponse = new HttpReturningError(err)
@@ -52,7 +51,6 @@ object Accounts extends Controller with stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
       models.base.Accounts.findByEmail(id) match {
         case Success(succ) =>
-            implicit val formats = DefaultFormats
             Ok(Results.resultset(models.Constants.ACCOUNTCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

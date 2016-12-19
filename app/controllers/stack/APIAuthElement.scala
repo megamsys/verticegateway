@@ -28,7 +28,7 @@ import io.megam.auth.stack.{RequestAttributeKeyConstants}
  * And result return in super trait proceed method,
  * when stack action is called then this stackable controller is executed
  */
-trait APIAuthElement extends io.megam.auth.stack.AuthElement with RequestAttributeKeyConstants {
+trait APIAuthElement extends io.megam.auth.stack.AuthElement with RequestAttributeKeyConstants with ImplicitJsonFormats {
   self: Controller =>
 
   override def authImpl(input: String): ValidationNel[Throwable, Option[AccountResult]] = {

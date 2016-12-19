@@ -8,38 +8,30 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 
-import models.json._
-import models.base._
-import db._
 import cache._
-import app.MConfig
+import db._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import scalaz.Validation
-import scalaz.Validation.FlatMap._
 
+import com.datastax.driver.core.{ ResultSet, Row }
+import com.websudos.phantom.dsl._
+import scala.concurrent.{ Future => ScalaFuture }
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+import utils.DateHelper
 import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-//import com.twitter.util.{ Future, Await }
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import com.datastax.driver.core.{ ResultSet, Row }
-//import com.twitter.conversions.time._
-import org.joda.time.DateTime
-import scala.concurrent.{ Future => ScalaFuture }
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import com.websudos.phantom.dsl._
-import com.websudos.phantom.iteratee.Iteratee
-import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
+import controllers.stack.ImplicitJsonFormats
 
-/**
- *
- * @author morpheyesh
- */
+
 
 case class SshKeysInput(name: String, privatekey: String, publickey: String) {
   val json = "{\"name\":\"" + name + "\",\"privatekey\":\"" + privatekey + "\",\"publickey\":\"" + publickey + "\"}"
@@ -53,8 +45,7 @@ case class SshKeysResult(
   privatekey: String,
   publickey: String,
   json_claz: String,
-  created_at: String) {}
-
+  created_at: DateTime)
 
 
 sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
@@ -65,7 +56,7 @@ sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
   object privatekey extends StringColumn(this)
   object publickey extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   override def fromRow(r: Row): SshKeysResult = {
     SshKeysResult(
@@ -79,9 +70,6 @@ sealed class SshKeysT extends CassandraTable[SshKeysT, SshKeysResult] {
   }
 }
 
-/*
- *   This class talks to scylla and performs the actions
- */
 
 abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
 
@@ -98,9 +86,8 @@ abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
       .future()
     Await.result(res, 5.seconds)
   }
-/*
- * Lists all the record
- */
+
+
   def listRecords(org_id: String): ValidationNel[Throwable, Seq[SshKeysResult]] = {
     val resp = select.allowFiltering().where(_.org_id eqs org_id).fetch()
     (Await.result(resp, 5.seconds)).successNel
@@ -112,9 +99,7 @@ abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
 }
 
 
-object SshKeys extends ConcreteOrg {
-
-  implicit val formats = DefaultFormats
+object SshKeys extends ConcreteOrg with ImplicitJsonFormats {
 
   private def sshNel(input: String): ValidationNel[Throwable, SshKeysInput] = {
     (Validation.fromTryCatchThrowable[SshKeysInput, Throwable] {
@@ -124,7 +109,7 @@ object SshKeys extends ConcreteOrg {
 
   private def SshKeysSet(id: String, org_id: String, c: SshKeysInput): ValidationNel[Throwable, SshKeysResult] = {
     (Validation.fromTryCatchThrowable[SshKeysResult, Throwable] {
-      SshKeysResult(id, org_id, c.name, c.privatekey, c.publickey, "Megam::SshKey", Time.now.toString)
+      SshKeysResult(id, org_id, c.name, c.privatekey, c.publickey, "Megam::SshKey", DateHelper.now())
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
@@ -164,10 +149,10 @@ object SshKeys extends ConcreteOrg {
            }
          }
        }
-     } // -> VNel -> fold by using an accumulator or successNel of empty. +++ => VNel1 + VNel2
+     }
    } map {
      _.foldRight((SshKeysResults.empty).successNel[Throwable])(_ +++ _)
-   }).head //return the folded element in the head.
+   }).head
  }
 
 }

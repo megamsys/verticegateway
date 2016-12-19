@@ -14,7 +14,6 @@ import play.api.mvc._
 import controllers.stack.Results
 
 object Assemblies extends Controller with controllers.stack.APIAuthElement {
-  implicit val formats = DefaultFormats
 
   def post = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
@@ -44,11 +43,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  /*
-   * GET: findById: Show requests for a  node name per user(by email)
-   * Email grabbed from header
-   * Output: JSON (AssembliesResults)
-   **/
+
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
@@ -72,11 +67,7 @@ object Assemblies extends Controller with controllers.stack.APIAuthElement {
 
   }
 
-  /*
-   * GET: findbyEmail: List all the Assemblies per email
-   * Email grabbed from header.
-   * Output: JSON (AssembliesResult)
-   */
+
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {

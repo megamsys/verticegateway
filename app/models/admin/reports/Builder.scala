@@ -3,9 +3,9 @@ package models.admin.reports
 import scalaz._
 import Scalaz._
 import scalaz.Validation.FlatMap._
-import models.admin.ReportInput
+import models.admin.{ ReportInput, ReportResult }
 
-trait Reporter { def report: ValidationNel[Throwable, Option[Reported]] }
+trait Reporter { def report: ValidationNel[Throwable, Option[ReportResult]] }
 
 object Builder {
   def apply(ri: ReportInput): Builder = new Builder(ri)
@@ -13,17 +13,25 @@ object Builder {
 
 class Builder(ri: ReportInput) {
 
-  val SALES     = "sales"
+  //When a new report type is needed add a constant type here.
+  val SALES         = "sales"
+  val LAUNCHES      = "launches"
 
-  private val GLOBAL_REPORTS = Map(SALES -> "model.admin.reports.Sales")
+  val USERDOT       = "userdot"
+  val LAUNCHDOT     = "launchdot"
 
-  //private val claz =  GLOBAL_REPORTS.get(ri.type_of).getOrElse("DefaultReporter")
-  //private val constructor = classOf[claz].getConstructors()(0)
-  //private val reporter: Reporter = constructor.newInstance(ri:_*).asInstanceOf[reportClaz]
-  private val reporter: Reporter = new Sales(ri)
+  //When a new report is needed add a class that will be a reporter.
+  private val GLOBAL_REPORTS = Map(SALES         -> "models.admin.reports.Sales",
+                                   USERDOT       -> "models.admin.reports.UsersDot",
+                                   LAUNCHDOT     -> "models.admin.reports.LaunchesDot",
+                                   LAUNCHES      -> "models.admin.reports.Launches")
 
-  def build(): ValidationNel[Throwable, String] = (reporter.report flatMap {x => "test".successNel })
+  private lazy val cls =  GLOBAL_REPORTS.get(ri.type_of).getOrElse("models.admin.reports.NoOp")
 
-  override def toString: String = "Builder: {" + ri.toString //+ "," + reportClaz + "}"
+  private lazy val reporter: Reporter = {
+    Class.forName(cls).getConstructor(Class.forName("models.admin.ReportInput")).newInstance(ri).asInstanceOf[Reporter]
+  }
+
+  def build: ValidationNel[Throwable, Option[ReportResult]] = reporter.report
 
 }

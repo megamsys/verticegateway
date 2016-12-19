@@ -23,7 +23,6 @@ import controllers.stack.{APIAuthElement, PermissionElement}
  */
 
 object Billingtransactions extends Controller with APIAuthElement with PermissionElement {
-implicit val formats = DefaultFormats
   /**
    * Create a new billing transcations for the user.
    **/
@@ -34,7 +33,6 @@ implicit val formats = DefaultFormats
         case Success(succ) => {
           val freq   = succ.getOrElse(throw new CannotAuthenticateError("Invalid header.", "Read docs.megam.io/api."))
           val email  = freq.maybeEmail.getOrElse(throw new CannotAuthenticateError("Email not found (or) invalid.", "Read docs.megam.io/api."))
-          val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
 
           models.billing.Billingtransactions.create(email, clientAPIBody) match {
@@ -54,10 +52,6 @@ implicit val formats = DefaultFormats
     }).fold(succ = { a: Result => a }, fail = { t: Throwable =>   { val rn: FunnelResponse = new HttpReturningError(nels(t));  Status(rn.code)(rn.toJson(true)) } })
    }
 
- /**
-   * GET: findbyEmail: List all the billing transcations per email
-   * Email grabbed from header.   * Output: JSON (BillingtransactionsResult)
-   */
 
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result,Throwable] {

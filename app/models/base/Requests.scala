@@ -17,11 +17,15 @@ import io.megam.auth.funnel.FunnelErrors._
 
 import io.megam.common.amqp.response.AMQPResponse
 import io.megam.common.amqp._
-import io.megam.util.Time
 import io.megam.common.uid._
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz.{ Result, UncategorizedError }
 import java.nio.charset.Charset
+
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -29,25 +33,27 @@ import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import controllers.stack.ImplicitJsonFormats
 
 /**
  * @author ram
  */
-case class RequestInput(cat_id: String,
-    cattype: String,
-    name: String,
-    action: String,
-    category: String) {
-  val half_json = "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
-
+case class RequestInput(account_id: String,
+                        cat_id: String,
+                        cattype: String,
+                        name: String,
+                        action: String,
+                        category: String) {
+  val half_json = "\"account_id\":\"" + account_id + "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
   val json = "{" + half_json + "}"
 }
 
-case class RequestResult(id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: String) {
+case class RequestResult(id: String, account_id: String, cat_id: String, cattype: String, name: String, action: String, category: String, created_at: DateTime) {
 
   def toMap: Map[String, String] = {
     Map[String, String](
       ("id" -> id),
+      ("account_id" -> account_id),
       ("cat_id" -> cat_id),
       ("cattype" -> cattype),
       ("name" -> name),
@@ -73,24 +79,24 @@ case class RequestResult(id: String, cat_id: String, cattype: String, name: Stri
 }
 
 object RequestResult {
-  def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), new String)
+  def apply = new RequestResult(new String(), new String(), new String(), new String(), new String(), new String(), new String(), DateHelper.now())
 }
 
-sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] {
-
-  implicit val formats = DefaultFormats
+sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with PrimaryKey[String]
+  object account_id extends StringColumn(this)
   object cat_id extends StringColumn(this)
   object cattype extends StringColumn(this)
   object name extends StringColumn(this)
   object action extends StringColumn(this)
   object category extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): RequestResult = {
     RequestResult(
       id(row),
+      account_id(row),
       cat_id(row),
       cattype(row),
       name(row),
@@ -101,13 +107,14 @@ sealed class RequestSacks extends CassandraTable[RequestSacks, RequestResult] {
 }
 
 abstract class ConcreteRequests extends RequestSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "requests"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
   def insertNewRecord(ams: RequestResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, ams.id)
+      .value(_.account_id, ams.account_id)
       .value(_.cat_id, ams.cat_id)
       .value(_.cattype, ams.cattype)
       .value(_.name, ams.name)
@@ -118,6 +125,11 @@ abstract class ConcreteRequests extends RequestSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def getRecord(id: String): ValidationNel[Throwable, Option[RequestResult]] = {
+    val res = select.allowFiltering().where(_.id eqs id).one()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object Requests extends ConcreteRequests {
@@ -125,17 +137,16 @@ object Requests extends ConcreteRequests {
   private def mkRequestSack(input: String): ValidationNel[Throwable, Option[RequestResult]] = {
     val ripNel: ValidationNel[Throwable, RequestInput] = (Validation.fromTryCatchThrowable[models.base.RequestInput, Throwable] {
       parse(input).extract[RequestInput]
-    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
     for {
       rip <- ripNel
       uir <- (UID("rip").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      val res = RequestResult((uir.get._1 + uir.get._2), rip.cat_id, rip.cattype, rip.name, rip.action, rip.category, Time.now.toString)
+      val res = RequestResult((uir.get._1 + uir.get._2), rip.account_id, rip.cat_id, rip.cattype, rip.name, rip.action, rip.category, DateHelper.now())
       res.some
     }
   }
 
-  //create request from input
   def create(input: String): ValidationNel[Throwable, Option[wash.PQd]] = {
     for {
       ogsi <- mkRequestSack(input) leftMap { err: NonEmptyList[Throwable] => err }
@@ -143,6 +154,20 @@ object Requests extends ConcreteRequests {
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.BLUE, Console.BOLD, "Request.created successfully", Console.RESET))
       new wash.PQd(ogsi.get.topicFunc, MessagePayLoad(Messages(ogsi.get.toMap.toList)).toJson(false)).some
+    }
+  }
+
+
+  def findById(email: String, id: String): ValidationNel[Throwable, Option[RequestResult]] = {
+    (getRecord(id) leftMap { t: NonEmptyList[Throwable] ⇒
+      new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { xso: Option[RequestResult] ⇒
+      xso match {
+        case Some(xs) ⇒ {
+          Validation.success[Throwable, Option[RequestResult]](xs.some).toValidationNel
+        }
+        case None ⇒ Validation.failure[Throwable, Option[RequestResult]](new ResourceItemNotFound(id, "")).toValidationNel
+      }
     }
   }
 

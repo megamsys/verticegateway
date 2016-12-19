@@ -46,7 +46,6 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.SshKeys.findByOrgId(grabAuthBag) match {
             case Success(succ) =>
-            implicit val formats = DefaultFormats
             Ok(Results.resultset(models.Constants.SSHKEYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -69,7 +68,6 @@ object SshKeys extends Controller with controllers.stack.APIAuthElement {
             val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
             models.base.SshKeys.findByName(List(id).some) match {
               case Success(succ) =>
-                implicit val formats = DefaultFormats
                 Ok(Results.resultset(models.Constants.SSHKEYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
               case Failure(err) =>
                 val rn: FunnelResponse = new HttpReturningError(err)

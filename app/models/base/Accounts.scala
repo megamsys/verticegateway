@@ -35,6 +35,8 @@ import scala.annotation.tailrec
 import models.team._
 import models.base.Events._
 import models.billing._
+import controllers.stack.ImplicitJsonFormats
+
 
 /**
  * @author rajthilak
@@ -50,8 +52,7 @@ case class AccountReset(password_reset_key: String, password_reset_sent_at: Stri
 
 }
 
-sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult] {
-  implicit val formats = DefaultFormats
+sealed class AccountSacks extends CassandraTable[AccountSacks, AccountResult]  with ImplicitJsonFormats {
 
   object id extends StringColumn(this)
 
@@ -175,7 +176,7 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def dbSelectAll(email: String, org: String): ValidationNel[Throwable, Seq[AccountResult]] = {
+  def dbSelectAll: ValidationNel[Throwable, Seq[AccountResult]] = {
     val res = select.fetch
     Await.result(res, 5.seconds).successNel
   }
@@ -384,7 +385,7 @@ object Accounts extends ConcreteAccounts {
   }
 
 
-    def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+  def findByEmail(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
     InMemory[ValidationNel[Throwable, Option[AccountResult]]]({
       name: String =>
         {
@@ -403,15 +404,29 @@ object Accounts extends ConcreteAccounts {
     }).get(email).eval(InMemoryCache[ValidationNel[Throwable, Option[AccountResult]]]())
   }
 
-  //Only Admin authority can list users hack for 1.5.
-  def listAll(email: String, org: String): ValidationNel[Throwable, Seq[AccountResult]] = {
-    (dbSelectAll(email, org) leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound(email, "Users = nothing found.")
+  //Admin authority can list users hack for 1.5.
+  def list: ValidationNel[Throwable, Seq[AccountResult]] = {
+    (dbSelectAll leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("Admin", "Users = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[AccountResult] =>
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[AccountResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[AccountResult]](new ResourceItemNotFound(email, "Users = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[AccountResult]](new ResourceItemNotFound("Admin", "Users = nothing found.")).toValidationNel
+    }
+  }
+
+  //Admin authority: scaffolding method to call update for another users
+  def update(input: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    val accountResult: ValidationNel[Throwable, AccountResult] = (Validation.fromTryCatchThrowable[AccountResult, Throwable] {
+      parse(input).extract[AccountResult]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+
+    for {
+      c  <- accountResult
+      a  <- update(c.email, input)
+    } yield {
+      c.some
     }
   }
 

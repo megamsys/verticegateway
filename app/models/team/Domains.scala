@@ -9,34 +9,28 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 
-import models.json._
-import models.base._
-import db._
 import cache._
-import app.MConfig
+import db._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import scalaz.Validation
-import scalaz.Validation.FlatMap._
 
+import com.datastax.driver.core.{ ResultSet, Row }
+import com.websudos.phantom.dsl._
+import scala.concurrent.{ Future => ScalaFuture }
+import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+import utils.DateHelper
 import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
-import org.joda.time.DateTime
-
-import com.websudos.phantom.dsl._
-import com.websudos.phantom.iteratee.Iteratee
-import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
-
-/**
- *
- * @author morpheyesh
- */
+import controllers.stack.ImplicitJsonFormats
 
 case class DomainsInput(name: String) {
   val json = "{\"name\":\"" + name + "\"}"
@@ -47,9 +41,7 @@ case class DomainsResult(
   org_id: String,
   name: String,
   json_claz: String,
-  created_at: String) {}
-
-
+  created_at: DateTime)
 
 sealed class DomainsT extends CassandraTable[DomainsT, DomainsResult] {
 
@@ -57,7 +49,7 @@ sealed class DomainsT extends CassandraTable[DomainsT, DomainsResult] {
   object org_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   override def fromRow(r: Row): DomainsResult = {
     DomainsResult(
@@ -68,10 +60,6 @@ sealed class DomainsT extends CassandraTable[DomainsT, DomainsResult] {
       created_at(r))
   }
 }
-
-/*
- *   This class talks to scylla and performs the actions
- */
 
 abstract class ConcreteDmn extends DomainsT with ScyllaConnector {
 
@@ -94,9 +82,8 @@ abstract class ConcreteDmn extends DomainsT with ScyllaConnector {
 
 }
 
-object Domains extends ConcreteDmn {
+object Domains extends ConcreteDmn with ImplicitJsonFormats {
 
-  implicit val formats = DefaultFormats
 
   private def dmnNel(input: String): ValidationNel[Throwable, DomainsInput] = {
     (Validation.fromTryCatchThrowable[DomainsInput, Throwable] {
@@ -106,13 +93,10 @@ object Domains extends ConcreteDmn {
 
   private def domainsSet(id: String, org_id: String, c: DomainsInput): ValidationNel[Throwable, DomainsResult] = {
     (Validation.fromTryCatchThrowable[DomainsResult, Throwable] {
-      DomainsResult(id, org_id, c.name, "Megam::Domains", Time.now.toString)
+      DomainsResult(id, org_id, c.name, "Megam::Domains", DateHelper.now())
     } leftMap { t: Throwable => new MalformedBodyError(c.json, t.getMessage) }).toValidationNel
   }
 
-  /*
-   * org_id is set as the partition key - orgId is retrieved from header
-   */
 
   def create(org_id: String, input: String): ValidationNel[Throwable, DomainsResult] = {
     for {
