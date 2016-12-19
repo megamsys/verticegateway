@@ -41,7 +41,7 @@ import controllers.stack.ImplicitJsonFormats
 case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String)
 
 case class SnapshotsResult(
-  snap_id: String,
+  id: String,
   asm_id:  String,
   org_id: String,
   account_id: String,
@@ -55,12 +55,12 @@ case class SnapshotsResult(
   created_at: DateTime)
 
 object SnapshotsResult {
-  def apply(snap_id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(snap_id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, outputs, "Megam::Snapshots", DateTime.now())
+  def apply(id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, outputs, "Megam::Snapshots", DateTime.now())
 }
 
 sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResult] with ImplicitJsonFormats {
 
-  object snap_id extends StringColumn(this) with  PartitionKey[String]
+  object id extends StringColumn(this) with  PartitionKey[String]
   object asm_id extends StringColumn(this) with PrimaryKey[String]
   object org_id extends StringColumn(this)
   object account_id extends StringColumn(this) with PrimaryKey[String]
@@ -92,7 +92,7 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
 
   def fromRow(row: Row): SnapshotsResult = {
     SnapshotsResult(
-      snap_id(row),
+      id(row),
       asm_id(row),
       org_id(row),
       account_id(row),
@@ -114,7 +114,7 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
   override implicit def session: Session = scyllaConnection.session
 
   def insertNewRecord(sps: SnapshotsResult): ValidationNel[Throwable, ResultSet] = {
-    val res = insert.value(_.snap_id, sps.snap_id)
+    val res = insert.value(_.id, sps.id)
       .value(_.asm_id, sps.asm_id)
       .value(_.org_id, sps.org_id)
       .value(_.account_id, sps.account_id)
@@ -149,8 +149,8 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def getRecord(snap_id: String, assembly_id: String,  email: String): ValidationNel[Throwable, Option[SnapshotsResult]] = {
-    val res = select.allowFiltering().where(_.snap_id eqs snap_id).and(_.account_id eqs email).and(_.asm_id eqs assembly_id).one()
+  def getRecord(id: String, assembly_id: String,  email: String): ValidationNel[Throwable, Option[SnapshotsResult]] = {
+    val res = select.allowFiltering().where(_.id eqs id).and(_.account_id eqs email).and(_.asm_id eqs assembly_id).one()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -160,7 +160,7 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
  def deleteRecord(acc_id: String, asm_id: String, id: String): ValidationNel[Throwable, ResultSet] = {
-val res = delete.where(_.account_id eqs acc_id).and(_.snap_id eqs id).and(_.asm_id eqs asm_id).future()
+val res = delete.where(_.account_id eqs acc_id).and(_.id eqs id).and(_.asm_id eqs asm_id).future()
 Await.result(res,5.seconds).successNel
 }
 }
@@ -210,7 +210,7 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   for {
     rip <- ripNel
-    qor <- (Snapshots.findBySnapId(rip.snap_id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    qor <- (Snapshots.findBySnapId(rip.id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
     set <- updateRecord(email, rip, qor.some)
   } yield {
     qor
@@ -229,15 +229,15 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
 
   }
 
-  def findBySnapId(snap_id: String, assembly_id: String, email: String): ValidationNel[Throwable, SnapshotsResult] = {
-    (getRecord(snap_id, assembly_id, email) leftMap { t: NonEmptyList[Throwable] ⇒
-      new ServiceUnavailableError(snap_id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+  def findBySnapId(id: String, assembly_id: String, email: String): ValidationNel[Throwable, SnapshotsResult] = {
+    (getRecord(id, assembly_id, email) leftMap { t: NonEmptyList[Throwable] ⇒
+      new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[SnapshotsResult] ⇒
       xso match {
         case Some(xs) ⇒ {
           Validation.success[Throwable, SnapshotsResult](xs).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, SnapshotsResult](new ResourceItemNotFound(snap_id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, SnapshotsResult](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }
@@ -256,13 +256,13 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def atPub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.snap_id, CATTYPE_TORPEDO, "", SNAPSHOT_CREATE, SNAPSHOT).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_TORPEDO, "", SNAPSHOT_CREATE, SNAPSHOT).json)
     wa.successNel[Throwable]
   }
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def dePub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.snap_id, CATTYPE_TORPEDO, "", SNAPSHOT_REMOVE, SNAPSHOT).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_TORPEDO, "", SNAPSHOT_REMOVE, SNAPSHOT).json)
     wa.successNel[Throwable]
   }
 

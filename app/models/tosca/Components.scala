@@ -249,12 +249,12 @@ object Component extends ConcreteComponent {
   def findById(componentID: Option[List[String]]): ValidationNel[Throwable, ComponentResults] = {
     (componentID map {
       _.map { asm_id =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("component Id", asm_id))
         (getRecord(asm_id) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[ComponentResult] =>
           xso match {
             case Some(xs) => {
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Components."+asm_id + " successfully", Console.RESET))
               Validation.success[Throwable, ComponentResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
@@ -278,7 +278,7 @@ object Component extends ConcreteComponent {
       com_collection <- (Component.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val com = com_collection.head
-      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type, com.get.inputs ::: rip.inputs, com.get.outputs ::: rip.outputs, com.get.envs ::: rip.envs, com.get.artifacts, com.get.related_components ::: rip.related_components, com.get.operations ::: rip.operations, com.get.status, com.get.state, com.get.repo, com.get.json_claz, com.get.created_at)
+      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type,  rip.inputs, rip.outputs, rip.envs, rip.artifacts, rip.related_components, rip.operations, rip.status, rip.state, rip.repo, com.get.json_claz, com.get.created_at)
       json.some
     }
   }
