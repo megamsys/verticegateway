@@ -28,6 +28,7 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
+import utils.{DateHelper, StringStuff}
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
 import scala.concurrent.{ Future => ScalaFuture }
@@ -112,7 +113,29 @@ abstract class ConcreteDisks extends DisksSacks with RootConnector {
     val res = select.allowFiltering().where(_.account_id eqs email).and(_.asm_id eqs assembly_id).fetch()
     Await.result(res, 5.seconds).successNel
   }
+  def getRecord(id: String, assembly_id: String,  email: String): ValidationNel[Throwable, Option[DisksResult]] = {
+    val res = select.allowFiltering().where(_.id eqs id).and(_.account_id eqs email).and(_.asm_id eqs assembly_id).one()
+    Await.result(res, 5.seconds).successNel
+  }
 
+  def updateRecord(email: String, rip: DisksResult, aor: Option[DisksResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldstatus  = aor.get.status
+    val newstatus  = rip.status
+
+    val oldimage_id= aor.get.disk_id
+    val newimage_id = rip.disk_id
+
+    val res = update.where(_.account_id eqs email)
+      .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
+      .and(_.disk_id setTo StringStuff.NilOrNot(newimage_id, oldimage_id))
+      .future()
+      Await.result(res, 5.seconds).successNel
+  }
+
+  def deleteRecord(acc_id: String, asm_id: String, id: String): ValidationNel[Throwable, ResultSet] = {
+ val res = delete.where(_.account_id eqs acc_id).and(_.id eqs id).and(_.asm_id eqs asm_id).future()
+ Await.result(res,5.seconds).successNel
+ }
 }
 
 object Disks extends ConcreteDisks {
@@ -144,8 +167,28 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
     wa.some
   }
 }
+def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, DisksResult] = {
+  for {
+    wa <- (findByDiskId(id, asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    set <- (deleteRecord(email, asm_id, id) leftMap { t: NonEmptyList[Throwable] => t })
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete success", Console.RESET))
+    wa
+  }
+}
 
-
+def update(email: String, input: String): ValidationNel[Throwable, DisksResult] = {
+  val ripNel: ValidationNel[Throwable, DisksResult] = (Validation.fromTryCatchThrowable[DisksResult,Throwable] {
+    parse(input).extract[DisksResult]
+  } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+  for {
+    rip <- ripNel
+    qor <- (Disks.findByDiskId(rip.id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    set <- updateRecord(email, rip, qor.some)
+  } yield {
+    qor
+  }
+}
   def findByEmail(accountID: String): ValidationNel[Throwable, Seq[DisksResult]] = {
     (listRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Disks = nothing found.")
@@ -158,6 +201,19 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
 
   }
 
+
+  def findByDiskId(id: String, assembly_id: String, email: String): ValidationNel[Throwable, DisksResult] = {
+    (getRecord(id, assembly_id, email) leftMap { t: NonEmptyList[Throwable] ⇒
+      new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { xso: Option[DisksResult] ⇒
+      xso match {
+        case Some(xs) ⇒ {
+          Validation.success[Throwable, DisksResult](xs).toValidationNel
+        }
+        case None ⇒ Validation.failure[Throwable, DisksResult](new ResourceItemNotFound(id, "")).toValidationNel
+      }
+    }
+  }
   def findById(assemblyID: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
     (getRecords(assemblyID, email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(assemblyID, "Disk = nothing found.")
