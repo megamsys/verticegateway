@@ -119,8 +119,6 @@ object Licenses extends ConcreteLicenses {
         case None ⇒ Validation.failure[Throwable, Option[LicensesResult]](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
-
-
   }
 
   implicit val sedimentLicenses = new Sedimenter[ValidationNel[Throwable, Option[LicensesResult]]] {

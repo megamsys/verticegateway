@@ -37,8 +37,9 @@ object Constants {
   val COLLABORATION     = "collaboration"
 
   val REPORT_SALES                        = "sales"
-  val REPORT_USRCOUNT                     = "usercounter"
-  val REPORT_LANCOUNT                     = "launchcounter"
+  val REPORT_USRDOT                       = "userdot"
+  val REPORT_LANDOT                       = "launchdot"
+  val REPORT_LAUNCHES                     = "launches"
   val REPORT_NOOP                         = "noop"
   val REPORT_FILTER_VM                    = List(CATTYPE_TORPEDO)
   val REPORT_FILTER_BITNAMI_PREPACKAGED   = List(BITNAMI)

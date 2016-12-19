@@ -39,13 +39,13 @@ import controllers.stack.ImplicitJsonFormats
  * @author rajthilak
  *
  */
-case class QuotasInput(name: String, account_id: String, allowed: String, allocated_to: String, cost: String, inputs: KeyValueList)
+case class QuotasInput(name: String, account_id: String, allowed: Allowed, allocated_to: String, cost: String, inputs: KeyValueList)
 
 case class QuotasResult(
     id: String,
     name: String,
     account_id: String,
-    allowed: String,
+    allowed: Allowed,
     allocated_to: String,
     cost: String,
     inputs: models.tosca.KeyValueList,
@@ -54,12 +54,32 @@ case class QuotasResult(
     updated_at: DateTime)
 
 
+case class Allowed(ram: String, cpu: String, disk: String, disk_type: String) {
+  val json = "{\"ram\":\"" + ram + "\",\"cpu\":\"" + cpu + "\",\"disk\":\"" + disk + "\",\"disk_type\":\"" + disk_type + "\"}"
+}
+
+object Allowed {
+  def empty: Allowed = new Allowed(new String(), new String(), new String(), new String())
+}
+
+
+
 sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this)
   object name extends StringColumn(this) with PrimaryKey[String]
   object account_id extends StringColumn(this) with PartitionKey[String]
-  object allowed extends StringColumn(this)
+
+  object allowed extends JsonColumn[QuotasSacks, QuotasResult, Allowed](this) {
+    override def fromJson(obj: String): Allowed = {
+      JsonParser.parse(obj).extract[Allowed]
+    }
+
+    override def toJson(obj: Allowed): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
   object allocated_to extends StringColumn(this)
   object cost extends StringColumn(this)
 
@@ -125,7 +145,12 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
 
     val res = update.where(_.account_id eqs email)
       .modify(_.allocated_to setTo NilorNot(newallocated_to, oldallocated_to))
-      .and(_.allowed setTo NilorNot(newallowed, oldallowed))
+
+      .and(_.allowed setTo new Allowed(NilorNot(newallowed.ram, oldallowed.ram),
+        NilorNot(newallowed.cpu, oldallowed.cpu),
+        NilorNot(newallowed.disk, oldallowed.disk),
+        NilorNot(newallowed.disk_type, oldallowed.disk_type)))
+
       .and(_.cost setTo NilorNot(newcost, oldcost))
       .and(_.inputs setTo rip.inputs)
       .and(_.updated_at setTo DateHelper.now())
