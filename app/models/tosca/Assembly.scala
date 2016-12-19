@@ -167,7 +167,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
   }
 
   def updateRecord(org_id: String, rip: AssemblyResult): ValidationNel[Throwable, ResultSet] = {
-    val res = update.where(_.id eqs rip.id).and(_.org_id eqs org_id)
+    val res = update.where(_.created_at eqs rip.created_at).and(_.id eqs rip.id).and(_.org_id eqs org_id)
       .modify(_.name setTo rip.name)
       .and(_.components setTo rip.components)
       .and(_.tosca_type setTo rip.tosca_type)
@@ -219,12 +219,12 @@ object Assembly extends ConcreteAssembly {
   def findById(assemblyID: Option[List[String]]): ValidationNel[Throwable, AssemblyResults] = {
     (assemblyID map {
       _.map { asm_id =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("Assembly Id", asm_id))
         (getRecord(asm_id) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[AssemblyResult] =>
           xso match {
             case Some(xs) => {
+              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly."+asm_id + " successfully", Console.RESET))
               Validation.success[Throwable, AssemblyResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {

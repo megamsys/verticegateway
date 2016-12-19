@@ -39,7 +39,7 @@ import controllers.stack.ImplicitJsonFormats
  * @author rajthilak
  *
  */
-case class QuotasInput(name: String, account_id: String, allowed: Allowed, allocated_to: String, cost: String, inputs: KeyValueList)
+case class QuotasInput(name: String, account_id: String, allowed: Allowed, allocated_to: String, inputs: KeyValueList)
 
 case class QuotasResult(
     id: String,
@@ -47,7 +47,6 @@ case class QuotasResult(
     account_id: String,
     allowed: Allowed,
     allocated_to: String,
-    cost: String,
     inputs: models.tosca.KeyValueList,
     json_claz: String,
     created_at: DateTime,
@@ -81,7 +80,6 @@ sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with 
   }
 
   object allocated_to extends StringColumn(this)
-  object cost extends StringColumn(this)
 
   object inputs extends JsonListColumn[QuotasSacks, QuotasResult, KeyValueField](this) {
     override def fromJson(obj: String): KeyValueField = {
@@ -104,7 +102,6 @@ sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with 
       account_id(row),
       allowed(row),
       allocated_to(row),
-      cost(row),
       inputs(row),
       json_claz(row),
       created_at(row),
@@ -124,7 +121,6 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
       .value(_.account_id, qs.account_id)
       .value(_.allowed, qs.allowed)
       .value(_.allocated_to, qs.allocated_to)
-      .value(_.cost, qs.cost)
       .value(_.inputs, qs.inputs)
       .value(_.json_claz, qs.json_claz)
       .value(_.created_at, qs.created_at)
@@ -140,9 +136,6 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
     val oldallowed = aor.get.allowed
     val newallowed = rip.allowed
 
-    val oldcost = aor.get.cost
-    val newcost = rip.cost
-
     val res = update.where(_.account_id eqs email)
       .modify(_.allocated_to setTo NilorNot(newallocated_to, oldallocated_to))
 
@@ -151,7 +144,6 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
         NilorNot(newallowed.disk, oldallowed.disk),
         NilorNot(newallowed.disk_type, oldallowed.disk_type)))
 
-      .and(_.cost setTo NilorNot(newcost, oldcost))
       .and(_.inputs setTo rip.inputs)
       .and(_.updated_at setTo DateHelper.now())
       .future()
@@ -188,7 +180,7 @@ object Quotas extends ConcreteQuotas {
       quota <- quotasInput
       uir <- (UID("quo").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      new QuotasResult(uir.get._1 + uir.get._2, quota.name, email, quota.allowed, quota.allocated_to, quota.cost, quota.inputs, "Megam::Quotas", DateHelper.now(), DateHelper.now())
+      new QuotasResult(uir.get._1 + uir.get._2, quota.name, email, quota.allowed, quota.allocated_to, quota.inputs, "Megam::Quotas", DateHelper.now(), DateHelper.now())
     }
   }
 
