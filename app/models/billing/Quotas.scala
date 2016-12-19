@@ -213,9 +213,7 @@ object Quotas extends ConcreteQuotas {
       new ResourceItemNotFound(email, "Quotas = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[QuotasResult] =>
       if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[QuotasResult]](nm.map(q => QuotasResult(
-          q.id, q.name, q.account_id, q.allowed, q.allocated_to, q.inputs, QUOTASCLAZ, q.created_at, q.updated_at)
-         )).toValidationNel
+        Validation.success[Throwable, Seq[QuotasResult]](nm).toValidationNel
       else
         Validation.failure[Throwable, Seq[QuotasResult]](new ResourceItemNotFound(email, "Quotas = nothing found.")).toValidationNel
     }
