@@ -44,7 +44,7 @@ case class RequestInput(account_id: String,
                         name: String,
                         action: String,
                         category: String) {
-  val half_json = "\"account_id\":\"" + account_id + "\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
+  val half_json = "\"account_id\":\"" + account_id + "\",\"cat_id\":\"" + cat_id + "\",\"cattype\":\"" + cattype + "\",\"name\":\"" + name + "\",\"action\":\"" + action + "\",\"category\":\"" + category + "\""
   val json = "{" + half_json + "}"
 }
 
@@ -138,6 +138,7 @@ object Requests extends ConcreteRequests {
     val ripNel: ValidationNel[Throwable, RequestInput] = (Validation.fromTryCatchThrowable[models.base.RequestInput, Throwable] {
       parse(input).extract[RequestInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+
     for {
       rip <- ripNel
       uir <- (UID("rip").get leftMap { ut: NonEmptyList[Throwable] => ut })

@@ -42,7 +42,7 @@ import controllers.stack.ImplicitJsonFormats
  * @author rajesh
  *
  */
-case class EventsStorageInput(account_id: String, created_at: String, event_type: String, data: KeyValueList)
+case class EventsStorageInput(account_id: String, event_type: String, data: KeyValueList)
 
 case class EventsStorageResult(
   id: String,
@@ -119,38 +119,20 @@ abstract class ConcreteEventsStorage extends EventsStorageSacks with RootConnect
 object EventsStorage extends ConcreteEventsStorage {
 
 private def mkEventsStorageSack(email: String, input: String): ValidationNel[Throwable, EventsStorageResult] = {
-  val EventsStorageInput: ValidationNel[Throwable, EventsStorageInput] = (Validation.fromTryCatchThrowable[EventsStorageInput, Throwable] {
+  val nelStor: ValidationNel[Throwable, EventsStorageInput] = (Validation.fromTryCatchThrowable[EventsStorageInput, Throwable] {
     parse(input).extract[EventsStorageInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
   for {
-    eventsstorage <- EventsStorageInput
+    stor <- nelStor
+    uir <- (UID("EVS").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-    val bvalue = Set(email)
-    val json = new EventsStorageResult("",email, DateHelper.now(eventsstorage.created_at), eventsstorage.event_type, eventsstorage.data, "Megam::EventsStorage")
-    json
+     new EventsStorageResult(uir.get._1 + uir.get._2,email, DateHelper.now(), stor.event_type, stor.data, "Megam::EventsStorage")
   }
 }
-
-private def EventsStorageSack(email: String, input: String): ValidationNel[Throwable, EventsStorageResult] = {
-  val EventsStorageInput: ValidationNel[Throwable, EventsStorageInput] = (Validation.fromTryCatchThrowable[EventsStorageInput, Throwable] {
-    parse(input).extract[EventsStorageInput]
-  } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-
-  for {
-    store <- EventsStorageInput
-    uir <- (UID("EST").get leftMap { ut: NonEmptyList[Throwable] => ut })
-  } yield {
-
-    val bvalue = Set(email)
-    val json = new EventsStorageResult(uir.get._1 + uir.get._2, email, DateHelper.now(store.created_at), store.event_type, store.data, "Megam::EventsStorage")
-    json
-  }
-}
-
 
 def create(email: String, input: String): ValidationNel[Throwable, Option[EventsStorageResult]] = {
   for {
-    wa <- (EventsStorageSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+    wa <- (mkEventsStorageSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsStorage.created success", Console.RESET))

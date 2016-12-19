@@ -59,6 +59,7 @@ GET  /v2/marketplaces/:flavor         controllers.MarketPlaces.show(flavor: Stri
 
 # Requests
 POST /v2/requests/content            	controllers.Requests.post
+GET   /v2/requests/:id                controllers.Requests.show(id: String)
 
 # Events
 POST  /v2/eventsvm/content            controllers.EventsVm.post

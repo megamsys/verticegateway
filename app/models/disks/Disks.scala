@@ -227,13 +227,13 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def atPub(email: String, wa: DisksResult): ValidationNel[Throwable, DisksResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.id, email, CATTYPE_TORPEDO, "", ATTACH_DISK, DISKS).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_TORPEDO, "", ATTACH_DISK, DISKS).json)
     wa.successNel[Throwable]
   }
 
   //We support dettaching disks for a VM. When we do containers we need to rethink.
   private def dePub(email: String, wa: DisksResult): ValidationNel[Throwable, DisksResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(wa.id, email, CATTYPE_TORPEDO, "", DETACH_DISK, DISKS).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id,CATTYPE_TORPEDO, "", DETACH_DISK, DISKS).json)
     wa.successNel[Throwable]
   }
 
