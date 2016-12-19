@@ -18,7 +18,7 @@ class RequestSpec extends Specification {
   RequestSpec is the implementation that calls the API server with the /requests url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST requests for a torpedo(create)" ! TorpedoCreate.succeeds ^
+      //"Correctly do POST requests for a torpedo(create)" ! TorpedoCreate.succeeds ^
      /* "Correctly do POST requests for a torpedo(start)" ! TorpedoStart.succeeds ^
       "Correctly do POST requests for a torpedo(stop)" ! TorpedoStop.succeeds ^
       "Correctly do POST requests for a torpedo(delete)" ! TorpedoDelete.succeeds ^
@@ -42,7 +42,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("AMS4628632947365253886", "app", "", "create", "state").json
+      val contentToEncode = RequestInput("AMS4628632947365253886", "", "app", "", "create", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -62,8 +62,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu",
-        "katru.megambox.com", "start", "CONTROL").json
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.torpedo.ubuntu", "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -83,8 +82,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu",
-        "katru.megambox.com", "stop", "CONTROL").json
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.torpedo.ubuntu", "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -104,8 +102,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.torpedo.ubuntu",
-        "katru.megambox.com", "destroy", "state").json
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.torpedo.ubuntu", "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -127,8 +124,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
-        "", "create", "state").json
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.app.java", "", "create", "state").json
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
@@ -148,7 +144,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.app.java",
         "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -169,7 +165,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.app.java",
         "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -190,7 +186,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.app.java",
         "katru.megambox.com", "restart", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -211,7 +207,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.app.java",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.app.java",
         "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
@@ -234,7 +230,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.service.postgresql",
         "", "create", "state").json
       Some(new String(contentToEncode))
     }
@@ -255,7 +251,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.service.postgresql",
         "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -276,7 +272,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.service.postgresql",
         "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -297,7 +293,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.service.postgresql",
         "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
@@ -318,7 +314,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.service.postgresql",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.service.postgresql",
         "katru.megambox.com", "restart", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -341,7 +337,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.microservice.dockercontainer",
         "", "create", "state").json
       Some(new String(contentToEncode))
     }
@@ -362,7 +358,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.microservice.dockercontainer",
         "katru.megambox.com", "start", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -383,7 +379,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.microservice.dockercontainer",
         "katru.megambox.com", "stop", "CONTROL").json
       Some(new String(contentToEncode))
     }
@@ -404,7 +400,7 @@ class RequestSpec extends Specification {
     protected override def urlSuffix: String = "requests/content"
 
     protected override def bodyToStick: Option[String] = {
-      val contentToEncode = RequestInput("ASM1136003656177549312", "tosca.microservice.dockercontainer",
+      val contentToEncode = RequestInput("ASM1136003656177549312", "", "tosca.microservice.dockercontainer",
         "katru.megambox.com", "destroy", "state").json
       Some(new String(contentToEncode))
     }
