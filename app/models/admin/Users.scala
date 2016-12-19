@@ -15,6 +15,7 @@ import io.megam.auth.stack.AccountResult
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import io.megam.auth.stack.Role.{ADMIN}
 
 object Users {
 
@@ -26,8 +27,10 @@ object Users {
       models.base.Accounts.update(input)
   }
 
-  def countAll: ValidationNel[Throwable, String] = "test".successNel
+  def countAll: ValidationNel[Throwable, String] = models.base.Accounts.countAll
 
-  def countAdmin: ValidationNel[Throwable, String] = "test".successNel
+  def countAdmin: ValidationNel[Throwable, String] = list.flatMap { x =>
+      Validation.success(x.map {_.states.authority.equalsIgnoreCase(ADMIN)}.size.toString)
+  }
 
 }
