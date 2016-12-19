@@ -146,7 +146,32 @@ private def mkEventsBillingSack(email: String, input: String): ValidationNel[Thr
     json
   }
 }
+private def EventsBillingSack(email: String, input: String): ValidationNel[Throwable, EventsBillingResult] = {
+  val EventsBillingInput: ValidationNel[Throwable, EventsBillingInput] = (Validation.fromTryCatchThrowable[EventsBillingInput, Throwable] {
+    parse(input).extract[EventsBillingInput]
+  } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
+  for {
+    bill <- EventsBillingInput
+    uir <- (UID("EBL").get leftMap { ut: NonEmptyList[Throwable] => ut })
+  } yield {
+
+    val bvalue = Set(email)
+    val json = new EventsBillingResult(uir.get._1 + uir.get._2, email, DateHelper.now(bill.created_at), bill.assembly_id, bill.event_type, bill.data, "Megam::EventsBilling")
+    json
+  }
+}
+
+
+def create(email: String, input: String): ValidationNel[Throwable, Option[EventsBillingResult]] = {
+  for {
+    wa <- (EventsBillingSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+    set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsBilling.created success", Console.RESET))
+    wa.some
+  }
+}
 
   def findByEmail(accountID: String, limit: String): ValidationNel[Throwable, Seq[EventsBillingResult]] = {
     (listRecords(accountID, limit) leftMap { t: NonEmptyList[Throwable] =>
