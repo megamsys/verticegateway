@@ -24,7 +24,7 @@ You'll need `sbt` build tool. and `OpenJDK8.0`
 
 ### Fork
 
-After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
+After you have forked a copy of https://github.com/VirtEngine/gateway.git
 
 ### Steps
 
@@ -98,7 +98,7 @@ Copy configuration files to $MEGAM_HOME/virtenginegateway
 
 ```
 
-$ cd vertice_gateway (your cloned location)
+$ cd virtenginegateway (your cloned location)
 
 $ cp conf/gateway.conf $MEGAM_HOME/virtenginegateway
 
