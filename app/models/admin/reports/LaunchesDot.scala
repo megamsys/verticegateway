@@ -29,8 +29,9 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
       pdt <-   popular(alt).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
     } yield {
       ReportResult(REPORT_LANDOT,
-                  new LaunchCounted(vdt, edt, bdt, cut, cdt, pdt).toKeyList.asInstanceOf[Seq[models.tosca.KeyValueList]].some,
-                  REPORTSCLAZ, Time.now.toString).some
+          new LaunchCounted(vdt, edt, bdt, cut, cdt, pdt).toKeyList.asInstanceOf[Seq[models.tosca.KeyValueList]].some,
+         REPORTSCLAZ, Time.now.toString).some
+
     }
   }
 
@@ -65,6 +66,8 @@ case class LaunchCounted(vm: Option[String],
                          customapps: Option[String],
                          containers: Option[String],
                          popular: Option[(String, Int)]) {
+  private val X = "x"
+  private val Y = "y"
 
   private val VMS          = "total_vms"
   private val VERTICE      = "total_prepackaged_vertice"
@@ -75,7 +78,9 @@ case class LaunchCounted(vm: Option[String],
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-    Map((VMS -> vm.getOrElse("0")),
+    Map((X -> "launchesdot" ),
+        (Y -> "nos"),
+        (VMS -> vm.getOrElse("0")),
         (VERTICE -> vertice_prepackaged.getOrElse("0")),
         (BITNAMI -> bitnami_prepackaged.getOrElse("0")),
         (CUSTOM -> customapps.getOrElse("0")),

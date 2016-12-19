@@ -55,16 +55,16 @@ case class BilledhistoriesResult(
 
 sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, BilledhistoriesResult] with ImplicitJsonFormats {
 
-  object id extends StringColumn(this) with PrimaryKey[String]
+  object id extends StringColumn(this)
   object account_id extends StringColumn(this) with PartitionKey[String]
-  object assembly_id extends StringColumn(this)
-  object bill_type extends StringColumn(this)
+  object assembly_id extends StringColumn(this) with PartitionKey[String]
+  object bill_type extends StringColumn(this) with PrimaryKey[String]
   object billing_amount extends StringColumn(this)
   object currency_type extends StringColumn(this)
-  object start_date extends DateTimeColumn(this) with PrimaryKey[DateTime]
-  object end_date extends DateTimeColumn(this) with PrimaryKey[DateTime]
+  object start_date extends DateTimeColumn(this)
+  object end_date extends DateTimeColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends DateTimeColumn(this)
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
 
   def fromRow(row: Row): BilledhistoriesResult = {
     BilledhistoriesResult(
@@ -108,12 +108,10 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
   }
 
   def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
-    val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
-    val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, starttime, Console.RESET))
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, endtime, Console.RESET))
-    //val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
-     val res = select.fetch()
+      val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
+      val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
+
+     val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
