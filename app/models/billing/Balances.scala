@@ -9,14 +9,11 @@ import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
 import scala.collection.mutable.ListBuffer
-import io.megam.util.Time
 
 import cache._
 import db._
-import models.base.Accounts
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -25,12 +22,17 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
 import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
+
 
 /**
  * @author rajthilak
@@ -52,20 +54,18 @@ case class BalancesResult(
     account_id: String,
     credit: String,
     json_claz: String,
-    created_at: String,
-    updated_at: String) {
+    created_at: DateTime,
+    updated_at: DateTime) {
 }
 
-sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult] {
-
-  implicit val formats = DefaultFormats
+sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object account_id extends StringColumn(this) with PartitionKey[String]
   object credit extends StringColumn(this)
   object json_claz extends StringColumn(this)
-  object created_at extends StringColumn(this)
-  object updated_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
+  object updated_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): BalancesResult = {
     BalancesResult(
@@ -79,7 +79,7 @@ sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult]
 }
 
 abstract class ConcreteBalances extends BalancesSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "balances"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -101,7 +101,7 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
     val updatecredit = oldbal + newbal
     val res = update.where(_.account_id eqs email)
       .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))
-      .and(_.updated_at setTo Time.now.toString)
+      .and(_.updated_at setTo DateHelper.now())
       .future()
       println(res)
       Await.result(res, 5.seconds).successNel
@@ -122,12 +122,7 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
 
 object Balances extends ConcreteBalances{
 
-  /**
-   * A private method which chains computation to make GunnySack when provided with an input json, email.
-   * parses the json, and converts it to eventsinput, if there is an error during parsing, a MalformedBodyError is sent back.
-   * After that flatMap on its success and the account id information is looked up.
-   * If the account id is looked up successfully, then yield the GunnySack object.
-   */
+
   private def mkBalancesSack(email: String, input: String): ValidationNel[Throwable, BalancesResult] = {
     val balancesInput: ValidationNel[Throwable, BalancesInput] = (Validation.fromTryCatchThrowable[BalancesInput, Throwable] {
       parse(input).extract[BalancesInput]
@@ -139,15 +134,12 @@ object Balances extends ConcreteBalances{
     } yield {
 
       val bvalue = Set(email)
-      val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, "Megam::Balances", Time.now.toString, Time.now.toString)
+      val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, "Megam::Balances", DateHelper.now(), DateHelper.now())
       json
     }
   }
 
-  /*
-   * create a new balance entry for the user.
-   *
-   */
+
   def create(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
     for {
       wa <- (mkBalancesSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })

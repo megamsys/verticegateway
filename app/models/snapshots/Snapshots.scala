@@ -10,20 +10,10 @@ import scalaz.syntax.SemigroupOps
 
 import cache._
 import db._
-import models.tosca._
-import models.json.tosca._
-import models.json.tosca.carton._
+import models.base.RequestInput
+import models.tosca.{ KeyValueField, KeyValueList}
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import app.MConfig
-import models.base._
-import wash._
-
-import io.megam.util.Time
-import io.megam.common.uid.UID
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import java.nio.charset.Charset
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -31,14 +21,25 @@ import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import com.websudos.phantom.iteratee.Iteratee
+
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
+import io.megam.common.uid.UID
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
+import controllers.stack.ImplicitJsonFormats
+
 
 /**
  * @author ranjitha
  *
  */
-case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String) {
-}
+case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String)
+
 case class SnapshotsResult(
   snap_id: String,
   asm_id:  String,
@@ -51,16 +52,13 @@ case class SnapshotsResult(
   inputs: models.tosca.KeyValueList,
   outputs: models.tosca.KeyValueList,
   json_claz: String,
-  created_at: String) {
-}
+  created_at: DateTime)
 
 object SnapshotsResult {
-  def apply(snap_id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(snap_id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, outputs, "Megam::Snapshots", Time.now.toString)
+  def apply(snap_id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(snap_id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, outputs, "Megam::Snapshots", DateTime.now())
 }
 
-sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResult] {
-
-  implicit val formats = DefaultFormats
+sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResult] with ImplicitJsonFormats {
 
   object snap_id extends StringColumn(this) with  PartitionKey[String]
   object asm_id extends StringColumn(this) with PrimaryKey[String]
@@ -89,7 +87,7 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
       compactRender(Extraction.decompose(obj))
     }
   }
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
   object json_claz extends StringColumn(this)
 
   def fromRow(row: Row): SnapshotsResult = {
@@ -110,7 +108,7 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
 }
 
 abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "snapshots"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -148,7 +146,7 @@ object Snapshots extends ConcreteSnapshots {
 private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwable, SnapshotsResult] = {
   val snapshotsInput: ValidationNel[Throwable, SnapshotsInput] = (Validation.fromTryCatchThrowable[SnapshotsInput, Throwable] {
     parse(input).extract[SnapshotsInput]
-  } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+  } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
 
   for {
     snap <- snapshotsInput
@@ -156,7 +154,7 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
     val bvalue = Set(email)
-    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", snap.tosca_type, List(), List(), "Megam::Snapshots", Time.now.toString)
+    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", snap.tosca_type, List(), List(), "Megam::Snapshots", DateHelper.now())
     json
   }
 }

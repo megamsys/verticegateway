@@ -10,23 +10,26 @@ import scalaz.NonEmptyList._
 
 import cache._
 import db._
+import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
-import controllers.Constants._
 
-import io.megam.common.uid.UID
-import io.megam.util.Time
-import net.liftweb.json._
-import net.liftweb.json.scalaz.JsonScalaz._
-import java.nio.charset.Charset
-
-import java.util.UUID
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
-import scala.concurrent.{ Future ⇒ ScalaFuture }
+import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.annotation.tailrec
+
+import utils.DateHelper
+import io.megam.util.Time
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
+
+import io.megam.common.uid.UID
+import net.liftweb.json._
+import controllers.stack.ImplicitJsonFormats
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
 
 /**
  * @author rajthilak
@@ -38,16 +41,14 @@ case class LicensesInput(data: String) {
 }
 
 
-case class LicensesResult(id: String, data: String, created_at: String) {}
+case class LicensesResult(id: String, data: String, created_at: DateTime) {}
 
 
-sealed class LicensesSack extends CassandraTable[LicensesSack, LicensesResult] {
-
-  implicit val formats = DefaultFormats
+sealed class LicensesSack extends CassandraTable[LicensesSack, LicensesResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object data extends StringColumn(this)
-  object created_at extends StringColumn(this)
+  object created_at extends DateTimeColumn(this)
 
   def fromRow(row: Row): LicensesResult = {
     LicensesResult(
@@ -58,7 +59,7 @@ sealed class LicensesSack extends CassandraTable[LicensesSack, LicensesResult] {
 }
 
 abstract class ConcreteLicenses extends LicensesSack with RootConnector {
-  // you can even rename the table in the schema to whatever you like.
+
   override lazy val tableName = "licenses"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
@@ -89,7 +90,7 @@ object Licenses extends ConcreteLicenses {
     for {
       rip ← ripNel
     } yield {
-      val res = LicensesResult(FIRST_ID, rip.data, Time.now.toString)
+      val res = LicensesResult(FIRST_ID, rip.data, DateHelper.now())
       res.some
     }
   }

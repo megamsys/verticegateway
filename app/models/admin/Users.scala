@@ -26,4 +26,8 @@ object Users {
       models.base.Accounts.update(input)
   }
 
+  def countAll: ValidationNel[Throwable, String] = "test".successNel
+
+  def countAdmin: ValidationNel[Throwable, String] = "test".successNel
+
 }

@@ -91,18 +91,4 @@ object Assembly extends Controller with controllers.stack.APIAuthElement with Pe
     }).fold(succ = { a: Result => a }, fail = { t: Throwable =>   { val rn: FunnelResponse = new HttpReturningError(nels(t));  Status(rn.code)(rn.toJson(true)) } })
   }
 
-
-
-  //publicly exposed API. Tighten it later.
-  def upgrade(id: String) = Action(parse.tolerantText) { implicit request =>
-    models.tosca.Assembly.upgrade("", id) match {
-      case Success(succ) => {
-        Status(CREATED)(FunnelResponse(CREATED, "Deployment upgrade submitted successfully", "Megam::Assembly").toJson(true))
-      }
-      case Failure(err) => {
-        val rn: FunnelResponse = new HttpReturningError(err)
-        Status(rn.code)(rn.toJson(true))
-      }
-    }
-  }
 }
