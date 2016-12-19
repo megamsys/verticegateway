@@ -50,9 +50,10 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "a0cf83e360845f2639db63e515c94ad35a94cd50",
-    X_Megam_ORG -> "ORG7530596076047928291",
-    X_Megam_MASTERKEY -> "true", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",
+    //X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "a0cf83e360845f2639db63e515c94ad35a94cd50",
+    X_Megam_EMAIL -> "thilak@b.com", X_Megam_APIKEY -> "ea3716197a95d49df25bdb9a91485f0e2c051e93",
+    //X_Megam_ORG -> "ORG7530596076047928291",
+    //X_Megam_MASTERKEY -> "true", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",
   //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "YWJj",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
