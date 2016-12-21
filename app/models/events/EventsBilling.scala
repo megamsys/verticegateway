@@ -141,7 +141,7 @@ private def mkEventsBillingSack(email: String, input: String): ValidationNel[Thr
     bil <- nelBill
     uir <- (UID("EVB").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-     new EventsBillingResult(uir.get._1 + uir.get._2,email,DateHelper.now().withTimeAtStartOfDay(),bil.assembly_id, bil.event_type, bil.data, "Megam::EventsBilling")
+     new EventsBillingResult(uir.get._1 + uir.get._2,email,DateHelper.now(),bil.assembly_id, bil.event_type, bil.data, "Megam::EventsBilling")
   }
 }
 
@@ -184,7 +184,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Events
   def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsBillingResult]] = {
    (mkEventsBillingSack(email, input) leftMap { err: NonEmptyList[Throwable] => err
    }).flatMap {ws: EventsBillingResult =>
-    (getRecords(ws.created_at,ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] =>
+    (getRecords(ws.created_at.withTimeAtStartOfDay(),ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsBillingResult] =>
       if (!nm.isEmpty)
