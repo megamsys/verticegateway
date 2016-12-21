@@ -144,7 +144,7 @@ object EventsVm extends ConcreteEventsVm {
     } yield {
 
       val bvalue = Set(email)
-      val json = new EventsVmResult(uir.get._1 + uir.get._2, email, DateHelper.now().withTimeAtStartOfDay(), vm.assembly_id, vm.event_type, vm.data, "Megam::EventsVm")
+      val json = new EventsVmResult(uir.get._1 + uir.get._2, email, DateHelper.now(), vm.assembly_id, vm.event_type, vm.data, "Megam::EventsVm")
       json
     }
   }
@@ -182,7 +182,7 @@ object EventsVm extends ConcreteEventsVm {
   def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsVmResult]] = {
     (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] ⇒ err
     }).flatMap { ws: EventsVmResult ⇒
-      (getRecords(email, ws.created_at, ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] ⇒
+      (getRecords(email, ws.created_at.withTimeAtStartOfDay(), ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] ⇒
         new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
       }).toValidationNel.flatMap { nm: Seq[EventsVmResult] ⇒
         if (!nm.isEmpty)

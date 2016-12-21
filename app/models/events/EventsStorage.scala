@@ -126,7 +126,7 @@ private def mkEventsStorageSack(email: String, input: String): ValidationNel[Thr
     stor <- nelStor
     uir <- (UID("EVS").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-     new EventsStorageResult(uir.get._1 + uir.get._2,email, DateHelper.now().withTimeAtStartOfDay(), stor.event_type, stor.data, "Megam::EventsStorage")
+     new EventsStorageResult(uir.get._1 + uir.get._2,email, DateHelper.now(), stor.event_type, stor.data, "Megam::EventsStorage")
   }
 }
 
