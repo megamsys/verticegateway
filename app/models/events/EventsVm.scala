@@ -144,7 +144,7 @@ object EventsVm extends ConcreteEventsVm {
     } yield {
 
       val bvalue = Set(email)
-      val json = new EventsVmResult(uir.get._1 + uir.get._2, email, DateHelper.now(), vm.assembly_id, vm.event_type, vm.data, "Megam::EventsVm")
+      val json = new EventsVmResult(uir.get._1 + uir.get._2, email, DateHelper.now().withTimeAtStartOfDay(), vm.assembly_id, vm.event_type, vm.data, "Megam::EventsVm")
       json
     }
   }

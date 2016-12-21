@@ -150,7 +150,7 @@ object EventsContainer extends ConcreteEventsContainer {
       con <- nelConts
       uir <- (UID("EVC").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      new EventsContainerResult(uir.get._1 + uir.get._2, email, DateHelper.now(), con.assembly_id, con.event_type, con.data, "Megam::EventsContainer")
+      new EventsContainerResult(uir.get._1 + uir.get._2, email, DateHelper.now().withTimeAtStartOfDay(), con.assembly_id, con.event_type, con.data, "Megam::EventsContainer")
     }
   }
 
@@ -175,7 +175,7 @@ object EventsContainer extends ConcreteEventsContainer {
      else    Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(accountID, "EventsContainer = nothing found.")).toValidationNel
     }
   }
-  
+
   def IndexEmail(accountID: String): ValidationNel[Throwable, Seq[EventsContainerResult]] = {
     (indexRecords(accountID) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountID, "Events = nothing found.")
