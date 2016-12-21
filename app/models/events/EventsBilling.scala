@@ -141,7 +141,7 @@ private def mkEventsBillingSack(email: String, input: String): ValidationNel[Thr
     bil <- nelBill
     uir <- (UID("EVB").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-     new EventsBillingResult(uir.get._1 + uir.get._2,email,DateHelper.now(),bil.assembly_id, bil.event_type, bil.data, "Megam::EventsBilling")
+     new EventsBillingResult(uir.get._1 + uir.get._2,email,DateHelper.now().withTimeAtStartOfDay(),bil.assembly_id, bil.event_type, bil.data, "Megam::EventsBilling")
   }
 }
 
