@@ -269,7 +269,7 @@ object Assembly extends ConcreteAssembly {
     } yield {
       val asm = asm_collection.head
       val json = AssemblyResult(rip.id, org_id, asm.get.account_id, asm.get.name, asm.get.components, asm.get.tosca_type, rip.policies, rip.inputs,
-         asm.get.outputs,
+         rip.outputs,
          NilOrNot(rip.status, asm.get.status),
          NilOrNot(rip.state, asm.get.state),
          asm.get.json_claz,
