@@ -137,7 +137,9 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
     val oldimage_id= aor.get.image_id
     val newimage_id = rip.image_id
 
-    val res = update.where(_.account_id eqs email)
+    val res = update.where(_.id eqs rip.id)
+        .and(_.account_id eqs email)
+        .and(_.asm_id eqs rip.asm_id)
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.image_id setTo StringStuff.NilOrNot(newimage_id, oldimage_id))
       .future()
@@ -159,6 +161,11 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
   val res = select.allowFiltering().where(_.account_id eqs email).and(_.asm_id eqs assembly_id).fetch()
     Await.result(res, 5.seconds).successNel
   }
+  def getSnapRecords(id: String, email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
+  val res = select.allowFiltering().where(_.id eqs id).and(_.account_id eqs email).fetch()
+    Await.result(res, 5.seconds).successNel
+  }
+
  def deleteRecord(acc_id: String, asm_id: String, id: String): ValidationNel[Throwable, ResultSet] = {
 val res = delete.where(_.account_id eqs acc_id).and(_.id eqs id).and(_.asm_id eqs asm_id).future()
 Await.result(res,5.seconds).successNel
@@ -250,6 +257,18 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
         Validation.success[Throwable, Seq[SnapshotsResult]](nm).toValidationNel
       else
         Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(assemblyID, "Snapshots = nothing found.")).toValidationNel
+    }
+
+  }
+
+  def getById(id: String, email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
+    (getSnapRecords(id, email) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(id, "Snapshots = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[SnapshotsResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[SnapshotsResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(id, "Snapshots = nothing found.")).toValidationNel
     }
 
   }
