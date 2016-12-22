@@ -38,18 +38,20 @@ import controllers.stack.ImplicitJsonFormats
 
 case class SensorsInput(account_id: String, sensor_type: String, assembly_id: String, assembly_name: String, assemblies_id: String,
                         node: String, system: String, status: String, source: String, message: String, audit_period_beginning: String,
-                        audit_period_ending: String, audit_period_delta: String, metrics: models.tosca.KeyValueList,
+                        audit_period_ending: String, audit_period_delta: String, metrics: models.tosca.MetricsList,
                         created_at: DateTime)
 
 case class SensorsResult(id: String, account_id: String, sensor_type: String, assembly_id: String, assembly_name: String, assemblies_id: String,
                         node: String, system: String, status: String, source: String, message: String, audit_period_beginning: String,
-                        audit_period_ending: String, audit_period_delta: String, metrics: models.tosca.KeyValueList,
+                        audit_period_ending: String, audit_period_delta: String, metrics: models.tosca.MetricsList,
                         created_at: DateTime)
+
+case class Metrics(metric_name: String, metric_value: String, metric_units: String, metric_type: String)
 
 object SensorsResult {
   def apply(id: String, account_id: String, sensor_type: String, assembly_id: String, assembly_name: String, assemblies_id: String,
             node: String, system: String, status: String, source: String, message: String, audit_period_beginning: String,
-            audit_period_ending: String, audit_period_delta: String, metrics: models.tosca.KeyValueList) =
+            audit_period_ending: String, audit_period_delta: String, metrics: models.tosca.MetricsList) =
             new SensorsResult(id, account_id, sensor_type, assembly_id, assembly_name,  assemblies_id,
             node, system, status, source, message, audit_period_beginning, audit_period_ending, audit_period_delta,
             metrics, DateHelper.now())
@@ -73,15 +75,14 @@ sealed class SensorsSacks extends CassandraTable[SensorsSacks, SensorsResult] wi
   object audit_period_ending extends StringColumn(this)
   object audit_period_delta extends StringColumn(this)
 
-  object metrics extends JsonListColumn[SensorsSacks, SensorsResult, KeyValueField](this) {
-    override def fromJson(obj: String): KeyValueField = {
-      JsonParser.parse(obj).extract[KeyValueField]
+  object metrics extends JsonListColumn[SensorsSacks, SensorsResult, Metrics](this) {
+    override def fromJson(obj: String): Metrics = {
+      JsonParser.parse(obj).extract[Metrics]
     }
-
-    override def toJson(obj: KeyValueField): String = {
+    override def toJson(obj: Metrics): String = {
       compactRender(Extraction.decompose(obj))
     }
-  }
+}
 
 
   def fromRow(row: Row): SensorsResult = {

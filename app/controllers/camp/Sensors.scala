@@ -23,7 +23,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         models.tosca.Sensors.create(email, clientAPIBody) match {
           case Success(succ) =>
             Status(CREATED)(
-              FunnelResponse(CREATED, """Sensor reated successfully.""", "Megam::Sensors").toJson(true))
+              FunnelResponse(CREATED, """Sensor created successfully.""", "Megam::Sensors").toJson(true))
           case Failure(err) =>
             val rn: FunnelResponse = new HttpReturningError(err)
             Status(rn.code)(rn.toJson(true))

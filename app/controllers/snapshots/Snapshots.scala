@@ -58,6 +58,28 @@ def post = StackAction(parse.tolerantText) { implicit request =>
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
+
+  def get(id: String) = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.snapshots.Snapshots.getById(id,email) match {
+            case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
+
   def list = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
