@@ -117,7 +117,10 @@ abstract class ConcreteDisks extends DisksSacks with RootConnector {
     val res = select.allowFiltering().where(_.id eqs id).and(_.account_id eqs email).and(_.asm_id eqs assembly_id).one()
     Await.result(res, 5.seconds).successNel
   }
-
+  def getDiskRecords(id: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
+    val res = select.allowFiltering().where(_.id eqs id).and(_.account_id eqs email).fetch()
+    Await.result(res, 5.seconds).successNel
+  }
   def updateRecord(email: String, rip: DisksResult, aor: Option[DisksResult]): ValidationNel[Throwable, ResultSet] = {
     val oldstatus  = aor.get.status
     val newstatus  = rip.status
@@ -125,7 +128,9 @@ abstract class ConcreteDisks extends DisksSacks with RootConnector {
     val oldimage_id= aor.get.disk_id
     val newimage_id = rip.disk_id
 
-    val res = update.where(_.account_id eqs email)
+    val res = update.where(_.id eqs rip.id)
+      .and(_.account_id eqs email)
+      .and(_.asm_id eqs rip.asm_id)
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.disk_id setTo StringStuff.NilOrNot(newimage_id, oldimage_id))
       .future()
@@ -222,6 +227,17 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
         Validation.success[Throwable, Seq[DisksResult]](nm).toValidationNel
       else
         Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(assemblyID, "Disks = nothing found.")).toValidationNel
+    }
+  }
+
+  def getById(id: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
+    (getDiskRecords(id, email) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(id, "Disk = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[DisksResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[DisksResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(id, "Disks = nothing found.")).toValidationNel
     }
   }
 

@@ -45,6 +45,8 @@ GET  /v2/assemblies	                  controllers.camp.Assemblies.list
 GET  /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
 GET  /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 
+#Sensors
+POST /v2/sensors/content              controllers.camp.Sensor.post
 # Assembly
 GET  /v2/assembly	                    controllers.camp.Assembly.list
 POST /v2/assembly/update              controllers.camp.Assembly.update
@@ -90,6 +92,7 @@ GET  /v2/sshkeys/:name                controllers.SshKeys.show(name: String)
 POST /v2/snapshots/content            controllers.Snapshots.post
 GET  /v2/snapshots                    controllers.Snapshots.list
 GET  /v2/snapshots/:id                controllers.Snapshots.show(id: String)
+GET  /v2/snapshots/show/:id           controllers.Snapshots.get(id: String)
 POST /v2/snapshots/update             controllers.Snapshots.update
 GET /v2/snapshots/delete/:assembly_id/:id    controllers.Snapshots.delete(assembly_id: String, id: String)
 
@@ -97,6 +100,7 @@ GET /v2/snapshots/delete/:assembly_id/:id    controllers.Snapshots.delete(assemb
 POST /v2/disks/content                controllers.Disks.post
 GET  /v2/disks                        controllers.Disks.list
 GET  /v2/disks/:id                    controllers.Disks.show(id: String)
+GET  /v2/disks/show/:id               controllers.Disks.get(id: String)
 GET  /v2/disks/delete/:assembly_id/:id  controllers.Disks.delete(assembly_id: String, id: String)
 POST /v2/disks/update             controllers.Disks.update
 
