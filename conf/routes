@@ -45,6 +45,8 @@ GET  /v2/assemblies	                  controllers.camp.Assemblies.list
 GET  /v2/assemblies/:id               controllers.camp.Assemblies.show(id: String)
 GET  /v2/assembly/:id           	    controllers.camp.Assembly.show(id: String)
 
+#Sensors
+POST /v2/sensors/content              controllers.camp.Sensor.post
 # Assembly
 GET  /v2/assembly	                    controllers.camp.Assembly.list
 POST /v2/assembly/update              controllers.camp.Assembly.update
