@@ -11,6 +11,7 @@ import cache._
 import db._
 import models.Constants._
 import models.base._
+import models.tosca.{ KeyValueField, KeyValueList}
 import io.megam.auth.stack.AccountResult
 import io.megam.auth.stack.{ Name, Phone, Password, States, Approval, Dates, Suspend }
 import io.megam.auth.funnel.FunnelErrors._
@@ -44,7 +45,9 @@ case class BillingtransactionsInput(gateway: String,
                                     fees: String,
                                     tranid: String,
                                     trandate: String,
-                                    currency_type: String)
+                                    currency_type: String,
+                                    inputs: models.tosca.KeyValueList
+                                    )
 
 case class BillingtransactionsResult(id: String,
                                     account_id: String,
@@ -55,6 +58,7 @@ case class BillingtransactionsResult(id: String,
                                     tranid: String,
                                     trandate: String,
                                     currency_type: String,
+                                    inputs: models.tosca.KeyValueList,
                                     json_claz: String,
                                     created_at: DateTime)
 
@@ -69,8 +73,20 @@ sealed class BillingtransactionsSacks extends CassandraTable[Billingtransactions
   object tranid extends StringColumn(this)
   object trandate extends StringColumn(this) with PrimaryKey[String]
   object currency_type extends StringColumn(this)
+
+  object inputs extends JsonListColumn[BillingtransactionsSacks, BillingtransactionsResult, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
+    }
+
+    override def toJson(obj: KeyValueField): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
   object json_claz extends StringColumn(this)
   object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
+
 
   def fromRow(row: Row): BillingtransactionsResult = {
     BillingtransactionsResult(
@@ -83,6 +99,7 @@ sealed class BillingtransactionsSacks extends CassandraTable[Billingtransactions
       tranid(row),
       trandate(row),
       currency_type(row),
+      inputs(row),
       json_claz(row),
       created_at(row))
   }
@@ -104,6 +121,7 @@ abstract class ConcreteBillingtransactions extends BillingtransactionsSacks with
       .value(_.tranid, ams.tranid)
       .value(_.trandate, ams.trandate)
       .value(_.currency_type, ams.currency_type)
+      .value(_.inputs, ams.inputs)
       .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
       .future()
@@ -126,11 +144,11 @@ object Billingtransactions extends ConcreteBillingtransactions {
 
     for {
       bill <- billInput
-      set <- (atBalUpdate(email, bill.amountin) leftMap { s: NonEmptyList[Throwable] => s })
+      set <- (atBalUpdate(email, bill.amountin, bill.inputs) leftMap { s: NonEmptyList[Throwable] => s })
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(email)
-      val json = new BillingtransactionsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, "Megam::BillingTransactions",DateHelper.now())
+      val json = new BillingtransactionsResult(uir.get._1 + uir.get._2, email, bill.gateway, bill.amountin, bill.amountout, bill.fees, bill.tranid, bill.trandate, bill.currency_type, bill.inputs, "Megam::BillingTransactions",DateHelper.now())
       json
     }
   }
@@ -156,15 +174,27 @@ object Billingtransactions extends ConcreteBillingtransactions {
  models.base.Accounts.update(email, compactRender(Extraction.decompose(acc)))
  }
 
- def atBalUpdate(email: String, amount: String): ValidationNel[Throwable, BalancesResults] = {
-   val bal = BalancesResult("",email,amount,"", DateHelper.now(), DateHelper.now())
-  models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
+ def atBalUpdate(email: String, amount: String, inputs: models.tosca.KeyValueList): ValidationNel[Throwable, BalancesResults] = {
+
+  val quotaOpt = inputs.find(_.key.equalsIgnoreCase("quota_based")).toBoolean.some
+
+for {
+  quota <- quotaOpt
+ } yield {
+  val bal = BalancesResult("",email,amount,"", DateHelper.now(), DateHelper.now())
+   if  (quota.value == "false") {
+    models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
+   } else {
+    bal
+   }
  }
+}
+
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email,
    * the transcations are listed on the index (account.id) in bucket `Billingtransactions`.
    * Using a "Billingtransactions name" as key, r      wa <- (msSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
-eturn a list of ValidationNel[List[BillinghistoriesResult]]
+return a list of ValidationNel[List[BillinghistoriesResult]]
    * Takes an email, and returns a Future[ValidationNel, List[Option[BillingtransactionsResult]]]
    */
   def findByEmail(email: String): ValidationNel[Throwable, Seq[BillingtransactionsResult]] = {
