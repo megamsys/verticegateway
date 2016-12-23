@@ -169,26 +169,21 @@ object Billingtransactions extends ConcreteBillingtransactions {
   }
 
  def atAccUpdate(email: String): ValidationNel[Throwable,Option[AccountResult]] = {
- val approval = Approval("true", "", "")
- val  acc = AccountResult("", Name.empty, Phone.empty, email, new String(), Password.empty, States.empty, approval, Suspend.empty, new String(), Dates.empty)
- models.base.Accounts.update(email, compactRender(Extraction.decompose(acc)))
+   val approval = Approval("true", "", "")
+   val  acc = AccountResult("", Name.empty, Phone.empty, email, new String(), Password.empty, States.empty, approval, Suspend.empty, new String(), Dates.empty)
+   models.base.Accounts.update(email, compactRender(Extraction.decompose(acc)))
  }
 
  def atBalUpdate(email: String, amount: String, inputs: models.tosca.KeyValueList): ValidationNel[Throwable, BalancesResults] = {
+   val quota = inputs.find(_.key.equalsIgnoreCase("quota_based")).getOrElse(models.tosca.KeyValueField.empty).value.toBoolean
 
-  val quotaOpt = inputs.find(_.key.equalsIgnoreCase("quota_based")).toBoolean.some
-
-for {
-  quota <- quotaOpt
- } yield {
-  val bal = BalancesResult("",email,amount,"", DateHelper.now(), DateHelper.now())
-   if  (quota.value == "false") {
-    models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
-   } else {
-    bal
-   }
- }
-}
+      val bal = BalancesResult("",email,amount,"", DateHelper.now(), DateHelper.now())
+      if  (!quota) {
+        models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
+      } else {
+        List(bal.some).successNel
+      }
+  }
 
   /*
    * An IO wrapped finder using an email. Upon fetching the account_id for an email,

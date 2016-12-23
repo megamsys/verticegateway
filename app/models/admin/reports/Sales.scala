@@ -33,6 +33,7 @@ class Sales(ri: ReportInput) extends Reporter {
      a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
      b <- (models.billing.Billedhistories.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
    } yield {
+      play.api.Logger.debug("%-20s -->[%s]".format("MEMCACHE:", a +  "," + b))
        (a, b)
       }
   }
