@@ -29,11 +29,8 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
           models.admin.Reports.create(input) match {
-            case Success(succ) =>  {
-              val c =  Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ))))
-              play.api.Logger.debug("%-20s -->[%s]".format("RES", c))
-              //Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
-              Ok(c)
+            case Success(succ) =>  {                      
+              Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
