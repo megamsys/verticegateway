@@ -179,11 +179,11 @@ object Requests extends ConcreteRequests {
     }).flatMap { pq: Option[wash.PQd] =>
       if (!MConfig.mute_emails.contains(email)) {
         new wash.AOneWasher(pq.get).wash flatMap { maybeGS: AMQPResponse =>
-          play.api.Logger.debug(("%-20s -->[%s]").format("Request.published successfully", input))
+          play.api.Logger.debug(("%-20s -->[%s]").format("Request.pub ✔", input))
           pq.successNel[Throwable]
         }
       } else {
-        play.api.Logger.debug(("%-20s -->[%s]").format("Request.publish skipped", input))
+        play.api.Logger.debug(("%-20s").format("Request.pub ✗"))
         wash.PQd.empty.some.successNel[Throwable]
       }
     }

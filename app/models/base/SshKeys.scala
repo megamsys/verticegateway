@@ -135,13 +135,11 @@ object SshKeys extends ConcreteOrg with ImplicitJsonFormats {
  def findByName(sshKeysNameList: Option[List[String]]): ValidationNel[Throwable, SshKeysResults] = {
    (sshKeysNameList map {
      _.map { sshKeysName =>
-       play.api.Logger.debug(("%-20s -->[%s]").format("sshKeysName", sshKeysName))
        (getRecord(sshKeysName) leftMap { t: NonEmptyList[Throwable] =>
          new ServiceUnavailableError(sshKeysName, (t.list.map(m => m.getMessage)).mkString("\n"))
        }).toValidationNel.flatMap { xso: Option[SshKeysResult] =>
          xso match {
            case Some(xs) => {
-             play.api.Logger.debug(("%-20s -->[%s]").format("SshKeysResult", xs))
              Validation.success[Throwable, SshKeysResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
            }
            case None => {

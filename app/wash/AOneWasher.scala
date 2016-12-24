@@ -8,7 +8,6 @@ import io.megam.common.amqp._
 import io.megam.common.amqp.request._
 import io.megam.common.amqp.response._
 import models.base.RequestResult
-import play.api.Logger
 import controllers.Constants._
 
 /**

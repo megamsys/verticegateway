@@ -33,7 +33,6 @@ class Sales(ri: ReportInput) extends Reporter {
      a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
      b <- (models.billing.Billedhistories.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
    } yield {
-      play.api.Logger.debug("%-20s -->[%s]".format("MEMCACHE:", a +  "," + b))
        (a, b)
       }
   }
@@ -58,14 +57,14 @@ case class SalesAggregate(als: Seq[models.tosca.AssemblyResult], bh: Map[String,
 }
 
 case class BillingAggregate(aid: String, b:  Seq[models.billing.BilledhistoriesResult]) {
-
     private lazy val start_dates = b.map(_.start_date.toString)
     lazy val start_date = start_dates.sortBy({r => r}).head
+
 
     private lazy val end_dates = b.map(_.end_date.toString)
     lazy val end_date = end_dates.sortBy({r => r}).head
 
-    lazy val sum = b.map(_.billing_amount.toInt).sum
+    lazy val sum = (b.map{x =>  scala.util.Try { x.billing_amount.toDouble }.toOption.getOrElse(0.0)}).sum
 
     override def toString() = "[" + aid + " sales from " + start_date + " to " + end_date + " is:"+ sum +"]";
 }

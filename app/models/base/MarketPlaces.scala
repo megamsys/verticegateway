@@ -125,13 +125,11 @@ object MarketPlaces extends ConcreteMkp {
   def findByFlavor(mkpFlavor: Option[List[String]]): ValidationNel[Throwable, MarketPlaceResults] = {
     (mkpFlavor map {
       _.map { mkp_fla =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("MarketPlace flavor Id", mkp_fla))
         (getRecord(mkp_fla) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(mkp_fla, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[MarketPlaceSack] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("MarketPlaceSack", xs))
               Validation.success[Throwable, MarketPlaceResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
