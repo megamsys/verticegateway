@@ -99,6 +99,8 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
 
   object id extends StringColumn(this) with PrimaryKey[String]
   object org_id extends StringColumn(this) with PartitionKey[String]
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
+
   object name extends StringColumn(this)
   object assemblies extends ListColumn[AssembliesSacks, AssembliesResult, String](this)
 
@@ -113,7 +115,7 @@ sealed class AssembliesSacks extends CassandraTable[AssembliesSacks, AssembliesR
   }
 
   object json_claz extends StringColumn(this)
-  object created_at extends DateTimeColumn(this)
+
 
   def fromRow(row: Row): AssembliesResult = {
     AssembliesResult(
@@ -150,8 +152,23 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
+    val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
+    val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
+
+    val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
+    Await.result(res, 5.seconds).successNel
+  }
+
+  //Grand dump of all.
+  def listAllRecords(): ValidationNel[Throwable, Seq[AssembliesResult]] = {
+     val res = select.fetch()
+    Await.result(res, 5.seconds).successNel
+   }
+
+
   def getRecord(id: String): ValidationNel[Throwable, Option[AssembliesResult]] = {
-    val res = select.allowFiltering().where(_.id eqs id).one()
+    val res = select.allowFiltering().where(_.id eqs id).and(_.created_at lte DateHelper.now()).one()  
     Await.result(res, 5.seconds).successNel
   }
 
@@ -192,6 +209,13 @@ object Assemblies extends ConcreteAssemblies {
     }
   }
 
+   def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
+     (dateRangeBy(startdate, enddate) leftMap { t: NonEmptyList[Throwable] =>
+       new ResourceItemNotFound("", "Assemblies = nothing found.")
+     }).toValidationNel.flatMap { nm: Seq[AssembliesResult] =>
+         Validation.success[Throwable, Seq[AssembliesResult]](nm).toValidationNel
+     }
+    }
 
   def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
     (assembliesID map {
