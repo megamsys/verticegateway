@@ -27,7 +27,7 @@ use vertice;
 
 CREATE TABLE accounts( id text,  name text, phone text, email text,  api_key text, password text, states text, approval text, suspend text, registration_ip_address text, dates text, PRIMARY KEY (email));
 
-CREATE TABLE assemblies (id text, org_id text, name text, assemblies list<text>, inputs list<text>, json_claz text, created_at timestamp, PRIMARY KEY ((org_id), id));
+CREATE TABLE assemblies (id text, org_id text, name text, assemblies list<text>, inputs list<text>, json_claz text, created_at timestamp, PRIMARY KEY ((org_id),created_at, id));
 
 CREATE TABLE assembly (id text, org_id text, account_id text, name text, components list<text>, tosca_type text, policies list<text>, inputs list<text>, outputs list<text>, status text, state text, json_claz text, created_at timestamp, PRIMARY KEY ((org_id),created_at, id));
 

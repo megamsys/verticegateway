@@ -9,7 +9,6 @@ import io.megam.common.amqp._
 import io.megam.common.amqp.request._
 import io.megam.common.amqp.response._
 import io.megam.common.concurrent._
-import play.api.Logger
 
 /**
  * @author rajthilak

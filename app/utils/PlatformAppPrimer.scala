@@ -13,7 +13,6 @@ import controllers.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import io.megam.util.Time
 import models.base._
-import play.api.Logger
 import models.base._
 import models.team._
 

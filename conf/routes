@@ -19,6 +19,10 @@ GET   /v2/admin/licenses/:id          controllers.admin.Licenses.show(id: String
 
 # Reports
 POST  /v2/admin/reports/content       controllers.admin.Reports.post
+
+# Assemblys
+GET   /v2/admin/assembly/:id          controllers.admin.Assembly.show(id: String)
+
 ### ADMIN ROUTES : END
 
 ### USER ROUTES
