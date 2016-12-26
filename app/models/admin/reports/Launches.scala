@@ -20,32 +20,46 @@ class Launches(ri: ReportInput) extends Reporter {
   def report: ValidationNel[Throwable, Option[ReportResult]] = {
     for {
       abt <-   build(ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      aal <-   LaunchesAggregate(abt).aggregate.successNel
+      aal <-   aggregate(abt).successNel
     } yield {
-      ReportResult(REPORT_LAUNCHES, aal.map(_.toKeyList).some, REPORTSCLAZ, Time.now.toString).some
+      ReportResult(REPORT_LAUNCHES, aal.map(_.map(_.toKeyList)), REPORTSCLAZ, Time.now.toString).some
     }
   }
 
- def build(startdate: String, enddate: String): ValidationNel[Throwable,Seq[models.tosca.AssemblyResult]] = {
+ def build(startdate: String, enddate: String): ValidationNel[Throwable,Tuple2[Seq[models.tosca.AssembliesResult],
+                Seq[models.tosca.AssemblyResult]]] = {
     for {
-     a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
-   } yield a
+     al <- (models.tosca.Assemblies.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+     as <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+   } yield (al, as)
+  }
+
+  def aggregate(abt: Tuple2[Seq[models.tosca.AssembliesResult], Seq[models.tosca.AssemblyResult]]) = {
+   for {
+     ba <- (abt._1.map { asms => (asms.assemblies.map {x => (x, asms.id)})}).flatten.toMap.some
+     la <-  LaunchesAggregate(abt._2, ba).some
+    } yield {
+      la.aggregate
+   }
   }
 }
 
-case class LaunchesAggregate(als: Seq[models.tosca.AssemblyResult]) {
+
+case class LaunchesAggregate(als: Seq[models.tosca.AssemblyResult],
+                             tal: Map[String, String]) {
   lazy val aggregate: Seq[LaunchesResult] = als.map(al =>  {
-    LaunchesResult(al.id, al.name, al.account_id, al.state, al.status, al.tosca_type,
+    LaunchesResult(al.id, tal.get(al.id).getOrElse(""), al.name, al.account_id, al.state, al.status, al.tosca_type,
       KeyValueList.toMap(al.inputs), KeyValueList.toMap(al.outputs), al.created_at)
    })
 }
 
-case class LaunchesResult(id: String, name: String, account_id: String, state: String, status: String, tosca_type: String,
+case class LaunchesResult(id: String, asms_id: String, name: String, account_id: String, state: String, status: String, tosca_type: String,
                          inputProps: Map[String, String], outputProps: Map[String, String], created_at: DateTime) {
     val X = "x"
     val Y = "y"
 
     val ID   = "id"
+    val ASMS_ID = "asms_id"
     val NAME = "name"
     val ACCOUNT_ID = "account_id"
     val STATE = "state"
@@ -73,6 +87,7 @@ case class LaunchesResult(id: String, name: String, account_id: String, state: S
     Map((X -> created_at.toString),
         (Y -> "0"),
         (ID -> id),
+        (ASMS_ID -> asms_id),
         (NAME -> name),
         (ACCOUNT_ID -> account_id),
         (STATE -> status),
