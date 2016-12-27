@@ -39,28 +39,18 @@ import controllers.stack.ImplicitJsonFormats
  * @author rajthilak
  *
  */
-case class QuotasInput(name: String, account_id: String, allowed: List[Allowed], allocated_to: String, inputs: KeyValueList)
+case class QuotasInput(name: String, account_id: String, allowed: KeyValueList, allocated_to: String, inputs: KeyValueList)
 
 case class QuotasResult(
     id: String,
     name: String,
     account_id: String,
-    allowed: List[Allowed],
+    allowed: models.tosca.KeyValueList,
     allocated_to: String,
     inputs: models.tosca.KeyValueList,
     json_claz: String,
     created_at: DateTime,
     updated_at: DateTime)
-
-
-case class Allowed(ram: String, cpu: String, disk: String, disk_type: String) {
-  val json = "{\"ram\":\"" + ram + "\",\"cpu\":\"" + cpu + "\",\"disk\":\"" + disk + "\",\"disk_type\":\"" + disk_type + "\"}"
-}
-
-object Allowed {
-  def empty: Allowed = new Allowed(new String(), new String(), new String(), new String())
-}
-
 
 
 sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with ImplicitJsonFormats {
@@ -69,12 +59,12 @@ sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with 
   object name extends StringColumn(this) with PrimaryKey[String]
   object account_id extends StringColumn(this) with PartitionKey[String]
 
-  object allowed extends JsonListColumn[QuotasSacks, QuotasResult, Allowed](this) {
-    override def fromJson(obj: String): Allowed = {
-      JsonParser.parse(obj).extract[Allowed]
+  object allowed extends JsonListColumn[QuotasSacks, QuotasResult, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
     }
 
-    override def toJson(obj: Allowed): String = {
+    override def toJson(obj: KeyValueField): String = {
       compactRender(Extraction.decompose(obj))
     }
   }
