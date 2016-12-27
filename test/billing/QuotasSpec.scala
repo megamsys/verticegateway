@@ -31,15 +31,14 @@ class QuotasSpec extends Specification {
       val contentToEncode = "{" +
         "\"name\":\"cloud-s-02\"," +
         "\"account_id\":\"thilak@b.com\"," +
-        "\"account_id\":{"+
-          "\"ram\":\"4 GB\"," +
-          "\"cpu\":\"2 Cores\"," +
-          "\"disk\":\"60 GB\"," +
-          "\"disk_type\":\"SSD\"" +
-         "},"+
+        "\"allocated\":[{"+
+          "\"RAM\":\"4 GB\"} , {" +
+          "\"CPU\":\"2 Cores\"}, {" +
+          "\"DISK\":\"60 GB\"}, {" +
+          "\"DISK_TYPE\":\"SSD\"" +
+         "}],"+
          "\"allocated_to\":\"\","+
-         "\"cost\":\"\"," +
-         "\"inputs\":\"[]\"," +
+         "\"inputs\":[]" +
         "}"
 
       Some(new String(contentToEncode))

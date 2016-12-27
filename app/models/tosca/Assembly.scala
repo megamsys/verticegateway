@@ -62,7 +62,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
   object org_id extends StringColumn(this) with PartitionKey[String]
   object id extends StringColumn(this) with PrimaryKey[String]
   object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
-  object account_id extends StringColumn(this)
+    object account_id extends StringColumn(this)
   object name extends StringColumn(this)
   object components extends ListColumn[AssemblySacks, AssemblyResult, String](this)
   object tosca_type extends StringColumn(this)
@@ -148,7 +148,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
   }
 
   //Grand dump of all.
-  def listAllRecords(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+  def listallRecords(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
      val res = select.fetch()
     Await.result(res, 5.seconds).successNel
    }
@@ -239,7 +239,7 @@ object Assembly extends ConcreteAssembly {
   }
 
   def listAll(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
-     (listAllRecords() leftMap { t: NonEmptyList[Throwable] =>
+     (listallRecords() leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Assembly = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
       if (!nm.isEmpty)
@@ -251,10 +251,9 @@ object Assembly extends ConcreteAssembly {
 
 
   def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
-    (dateRangeBy(startdate, enddate) leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound("", "Assembly = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
-        Validation.success[Throwable, Seq[AssemblyResult]](nm).toValidationNel
+    dateRangeBy(startdate, enddate) match {
+      case Success(value) => Validation.success[Throwable, Seq[AssemblyResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[AssemblyResult]](List()).toValidationNel
     }
   }
 

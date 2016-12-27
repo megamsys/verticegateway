@@ -53,8 +53,8 @@ case class QuotasResult(
     updated_at: DateTime)
 
 
-case class Allowed(ram: String, cpu: String, disk: String, disk_type: String) {
-  val json = "{\"ram\":\"" + ram + "\",\"cpu\":\"" + cpu + "\",\"disk\":\"" + disk + "\",\"disk_type\":\"" + disk_type + "\"}"
+case class Allowed(RAM: String, CPU: String, DISK: String, DISK_TYPE: String) {
+  val json = "{\"RAM\":\"" + RAM + "\",\"CPU\":\"" + CPU + "\",\"DISK\":\"" + DISK + "\",\"DISK_TYPE\":\"" + DISK_TYPE + "\"}"
 }
 
 object Allowed {

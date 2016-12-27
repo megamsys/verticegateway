@@ -435,7 +435,7 @@ object Accounts extends ConcreteAccounts {
     }
   }
 
-  def countAll: ValidationNel[Throwable, String] = dbCount.map(_.getOrElse(0).toString)
+  def countAll: ValidationNel[Throwable, String] = dbCount.map(l => l.getOrElse(0L).toString)
 
   implicit val sedimentAccountEmail = new Sedimenter[ValidationNel[Throwable, Option[AccountResult]]] {
     def sediment(maybeASediment: ValidationNel[Throwable, Option[AccountResult]]): Boolean = {
