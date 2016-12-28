@@ -30,13 +30,13 @@ class QuotasSpec extends Specification {
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
         "\"name\":\"cloud-s-02\"," +
-        "\"account_id\":\"thilak@b.com\"," +
-        "\"allocated\":[{"+
-          "\"RAM\":\"4 GB\"} , {" +
-          "\"CPU\":\"2 Cores\"}, {" +
-          "\"DISK\":\"60 GB\"}, {" +
-          "\"DISK_TYPE\":\"SSD\"" +
-         "}],"+
+        "\"account_id\":\"vino.v@megam.io\"," +
+        "\"allowed\":["+
+          "{\"key\":\"ram\",\"value\":\"4 GB\"}," +
+          "{\"key\":\"cpu\",\"value\":\"2 Cores\"}," +
+          "{\"key\":\"disk\",\"value\":\"60 GB\"}," +
+          "{\"key\":\"disk_type\",\"value\":\"SSD\"}" +
+         "],"+
          "\"allocated_to\":\"\","+
          "\"inputs\":[]" +
         "}"
