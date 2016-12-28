@@ -101,12 +101,13 @@ POST /v2/snapshots/update             controllers.Snapshots.update
 GET /v2/snapshots/delete/:assembly_id/:id    controllers.Snapshots.delete(assembly_id: String, id: String)
 
 # Disks (Block storage)
-POST /v2/disks/content                controllers.Disks.post
-GET  /v2/disks                        controllers.Disks.list
-GET  /v2/disks/:id                    controllers.Disks.show(id: String)
-GET  /v2/disks/show/:id               controllers.Disks.get(id: String)
-GET  /v2/disks/delete/:assembly_id/:id  controllers.Disks.delete(assembly_id: String, id: String)
-POST /v2/disks/update             controllers.Disks.update
+POST   /v2/disks/content                  controllers.Disks.post
+GET    /v2/disks                          controllers.Disks.list
+GET    /v2/disks/:id                      controllers.Disks.show(id: String)
+GET    /v2/disks/show/:id                 controllers.Disks.get(id: String)
+GET    /v2/disks/delete/:assembly_id/:id  controllers.Disks.initdel(assembly_id: String, id: String)
+DELETE /v2/disks/:id                      controllers.Disks.delete(assembly_id: String, id: String)
+POST   /v2/disks/update                   controllers.Disks.update
 
 # Billings
 # Called by the 3rd party billing (WHMCS or any others)
