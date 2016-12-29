@@ -45,7 +45,7 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
    def aggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String]) = {
     for {
       ba <- abt.filter { a => (f.filter(x => a.tosca_type.contains(x)).size > 0) }.some
-    } yield ba.size.toString
+    } yield  ba.size.toString
    }
 
 
@@ -53,7 +53,9 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
    def popular(abt: Seq[models.tosca.AssemblyResult]) = {
     for {
       ba <- (abt.groupBy(_.tosca_type).map { case (k,v) => (k -> v.size.toInt) }).some
-    } yield ba.max
+    } yield {
+      if (!ba.isEmpty) ba.max else ("",0)
+    }
    }
 
 

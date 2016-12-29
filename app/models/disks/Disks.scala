@@ -169,7 +169,6 @@ private def findByDiskAndAssemblyId(id: String, assembly_id: String, email: Stri
   }).toValidationNel.flatMap { xso: Option[DisksResult] ⇒
     xso match {
       case Some(xs) ⇒ {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.created success " + xs, Console.RESET))
         Validation.success[Throwable, DisksResult](xs).toValidationNel
       }
       case None ⇒ Validation.failure[Throwable, DisksResult](new ResourceItemNotFound(id, "")).toValidationNel
@@ -254,9 +253,7 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
     (getDiskRecords(id, email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(id, "Disk = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[DisksResult] =>
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks " + nm, Console.RESET))
-
-      if (!nm.isEmpty)
+     if (!nm.isEmpty)
         Validation.success[Throwable, Seq[DisksResult]](nm).toValidationNel
       else
         Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(id, "Disks = nothing found.")).toValidationNel
