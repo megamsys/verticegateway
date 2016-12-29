@@ -106,7 +106,7 @@ GET    /v2/disks                          controllers.Disks.list
 GET    /v2/disks/:id                      controllers.Disks.show(id: String)
 GET    /v2/disks/show/:id                 controllers.Disks.get(id: String)
 GET    /v2/disks/delete/:assembly_id/:id  controllers.Disks.initdel(assembly_id: String, id: String)
-DELETE /v2/disks/:id                      controllers.Disks.delete(assembly_id: String, id: String)
+DELETE /v2/disks/:assembly_id/:id         controllers.Disks.delete(assembly_id: String, id: String)
 POST   /v2/disks/update                   controllers.Disks.update
 
 # Billings

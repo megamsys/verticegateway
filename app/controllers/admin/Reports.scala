@@ -29,7 +29,7 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
           models.admin.Reports.create(input) match {
-            case Success(succ) =>  {                      
+            case Success(succ) =>  {
               Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
             }
             case Failure(err) =>

@@ -168,7 +168,7 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
 
 
   def getRecord(id: String): ValidationNel[Throwable, Option[AssembliesResult]] = {
-    val res = select.allowFiltering().where(_.id eqs id).and(_.created_at lte DateHelper.now()).one()  
+    val res = select.allowFiltering().where(_.id eqs id).and(_.created_at lte DateHelper.now()).one()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -209,12 +209,11 @@ object Assemblies extends ConcreteAssemblies {
     }
   }
 
-   def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
-     (dateRangeBy(startdate, enddate) leftMap { t: NonEmptyList[Throwable] =>
-       new ResourceItemNotFound("", "Assemblies = nothing found.")
-     }).toValidationNel.flatMap { nm: Seq[AssembliesResult] =>
-         Validation.success[Throwable, Seq[AssembliesResult]](nm).toValidationNel
-     }
+  def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
+      dateRangeBy(startdate, enddate) match {
+        case Success(value) => Validation.success[Throwable, Seq[AssembliesResult]](value).toValidationNel
+        case Failure(err) => Validation.success[Throwable, Seq[AssembliesResult]](List()).toValidationNel
+      }
     }
 
   def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
