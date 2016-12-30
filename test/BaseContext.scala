@@ -51,7 +51,7 @@ trait BaseContext {
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
     //X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "a0cf83e360845f2639db63e515c94ad35a94cd50",
-    X_Megam_EMAIL -> "vino.v@megam.io", X_Megam_APIKEY -> "757028fe8d51d4892b4d6c2e375c5f18f38f2335",
+    X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
     X_Megam_ORG -> "ORG7530596076047928291",
     //X_Megam_MASTERKEY -> "true", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",
   //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "YWJj",
@@ -105,14 +105,6 @@ trait BaseContext {
   protected def sandboxHeaderAndBody(contentToEncodeOpt: Option[String],
     headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {
     val headerMap: Map[String, String] = headerOpt.getOrElse(defaultHeaderOpt)
-    play.api.Logger.debug("%-20s -->[%s]".format("HEADER MAP", ((for (x <- headerMap) yield (x)).mkString("\n", "\n", ""))))
-    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_APIKEY, headerMap.getOrElse(X_Megam_APIKEY, "blank_key")))
-    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_PUTTUSAVI, headerMap.getOrElse(X_Megam_PUTTUSAVI, "blank_key")))
-    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_DATE, headerMap.getOrElse(X_Megam_DATE, currentDate)))
-    play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_EMAIL, headerMap.getOrElse(X_Megam_EMAIL, "blank_email")))
-    play.api.Logger.debug("%-20s -->[%s]".format("PATH", path))
-
-    play.api.Logger.debug("%-20s -->[%s]".format("HEAD", Headers))
 
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + toMD5(contentToEncodeOpt).get
     play.api.Logger.debug("%-20s -->[%s]".format("SIGN", signWithHMAC))
@@ -123,8 +115,6 @@ trait BaseContext {
 
       val signedWithHMAC = toHMAC((headerMap.getOrElse(X_Megam_PASSWORD, "blank_key")), signWithHMAC)
       val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":"+ signedWithHMAC
-      play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_PUTTUSAVI, finalHMAC))
-
       (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
         RawBody(contentToEncodeOpt.getOrElse(new String())))
 
@@ -132,8 +122,6 @@ trait BaseContext {
 
       val signedWithHMAC = toHMAC((headerMap.getOrElse(X_Megam_MASTER_KEY, "blank_key")), signWithHMAC)
       val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
-
-      play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
 
       (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
         RawBody(contentToEncodeOpt.getOrElse(new String())))
@@ -143,8 +131,6 @@ trait BaseContext {
       val signedWithHMAC = toHMAC((headerMap.getOrElse(X_Megam_APIKEY, "blank_key")), signWithHMAC)
       val finalHMAC = headerMap.getOrElse(X_Megam_EMAIL, "blank_email") + ":" + signedWithHMAC
 
-      play.api.Logger.debug("%-20s -->[%s]".format(X_Megam_HMAC, finalHMAC))
-
       (Headers((headerMap + (X_Megam_HMAC -> finalHMAC)).toList),
         RawBody(contentToEncodeOpt.getOrElse(new String())))
     }
@@ -152,18 +138,12 @@ trait BaseContext {
 }
 
 trait Context extends BaseContext {
-  play.api.Logger.debug("<---------------------------------------->")
-  play.api.Logger.debug("%-20s".format("Context"))
   val httpClient = new ApacheHttpClient
-  play.api.Logger.debug("<---------------------------------------->")
-  play.api.Logger.debug("%-20s".format("client"))
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())
   protected def headersOpt: Option[Map[String, String]]
-  play.api.Logger.debug("<---------------------------------------->")
-  play.api.Logger.debug("%-20s -->[%s]".format("RESP SEND", urlSuffix))
-
   lazy val url = new URL("http://localhost:9000/v2/" + urlSuffix)
+  play.api.Logger.debug("<---------------------------------------->")
   play.api.Logger.debug("%-20s -->[%s]".format("MYURL", url))
   play.api.Logger.debug("%-20s -->[%s]".format("MYBODY", bodyToStick))
 
@@ -173,9 +153,6 @@ trait Context extends BaseContext {
   protected val body = headerAndBody._2
 
   val h1 = headers.map { x => (for (j <- x.list) yield (j._1 + "=" + j._2)).mkString("\n", "\n", "") }
-
-  play.api.Logger.debug("%-20s -->[%s]".format("*** FINHEAD", h1))
-  play.api.Logger.debug("%-20s -->[%s]".format("*** FINBODY", new String(body)))
 
   implicit private val encoding = Constants.UTF8Charset
 

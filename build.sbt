@@ -8,6 +8,8 @@ version := "1.5.5"
 
 scalaVersion := "2.11.8"
 
+ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
+
 organization := "Megam Systems"
 
 homepage := Some(url("https://www.megam.io"))

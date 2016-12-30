@@ -159,10 +159,9 @@ object Billedhistories extends ConcreteBilledhistories {
   }
 
   def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
-    (dateRangeBy(startdate, enddate) leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound("", "Billedhistories = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[BilledhistoriesResult] =>
-        Validation.success[Throwable, Seq[BilledhistoriesResult]](nm).toValidationNel
+    dateRangeBy(startdate, enddate) match {
+      case Success(value) => Validation.success[Throwable, Seq[BilledhistoriesResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[BilledhistoriesResult]](List()).toValidationNel
     }
   }
 
