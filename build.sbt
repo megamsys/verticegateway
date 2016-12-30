@@ -8,7 +8,7 @@ version := "1.5.5"
 
 scalaVersion := "2.11.8"
 
-organization := "VirtEngine"
+ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 homepage := Some(url("https://virtengine.com"))
 

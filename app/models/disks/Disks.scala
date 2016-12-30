@@ -7,6 +7,7 @@ import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
 import scalaz.syntax.SemigroupOps
+import models.Constants._
 
 import cache._
 import db._
@@ -34,6 +35,7 @@ import com.websudos.phantom.dsl._
 import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
+import models.Constants._
 import scala.concurrent.duration._
 import com.websudos.phantom.iteratee.Iteratee
 import controllers.stack.ImplicitJsonFormats
@@ -56,7 +58,7 @@ case class DisksResult(
   created_at: DateTime)
 
 object DisksResult {
-  def apply(id: String, asm_id: String, org_id: String, account_id: String, disk_id: String, size: String, status: String) = new DisksResult(id, asm_id, org_id, account_id, disk_id, size, status, "Megam::Disks", DateHelper.now())
+  def apply(id: String, asm_id: String, org_id: String, account_id: String, disk_id: String, size: String, status: String) = new DisksResult(id, asm_id, org_id, account_id, disk_id, size, status, DISKSCLAZ, DateHelper.now())
 }
 
 sealed class DisksSacks extends CassandraTable[DisksSacks, DisksResult] with ImplicitJsonFormats {
@@ -156,10 +158,24 @@ private def mkDisksSack(email: String, input: String): ValidationNel[Throwable, 
   } yield {
 
     val bvalue = Set(email)
-    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.size, dsk.status,  "Megam::Disks", DateHelper.now())
+    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.size, dsk.status,  DISKSCLAZ, DateHelper.now())
     json
   }
 }
+
+private def findByDiskAndAssemblyId(id: String, assembly_id: String, email: String): ValidationNel[Throwable, DisksResult] = {
+  (getRecord(id, assembly_id, email) leftMap { t: NonEmptyList[Throwable] ⇒
+    new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+  }).toValidationNel.flatMap { xso: Option[DisksResult] ⇒
+    xso match {
+      case Some(xs) ⇒ {
+        Validation.success[Throwable, DisksResult](xs).toValidationNel
+      }
+      case None ⇒ Validation.failure[Throwable, DisksResult](new ResourceItemNotFound(id, "")).toValidationNel
+    }
+  }
+}
+
 
 
 def create(email: String, input: String): ValidationNel[Throwable, Option[DisksResult]] = {
@@ -172,12 +188,25 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
     wa.some
   }
 }
+
+
 def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, DisksResult] = {
   for {
-    wa <- (findByDiskId(id, asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    wa <- (findByDiskAndAssemblyId(id, asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
     set <- (deleteRecord(email, asm_id, id) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete success", Console.RESET))
+    wa
+  }
+}
+
+
+def initdel(email: String, asm_id: String, id: String): ValidationNel[Throwable, DisksResult] = {
+  for {
+    wa <- (findByDiskAndAssemblyId(id, asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete started", Console.RESET))
+    dePub(email, wa)
     wa
   }
 }
@@ -188,7 +217,7 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   for {
     rip <- ripNel
-    qor <- (Disks.findByDiskId(rip.id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    qor <- (Disks.findByDiskAndAssemblyId(rip.id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
     set <- updateRecord(email, rip, qor.some)
   } yield {
     qor
@@ -207,19 +236,7 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
   }
 
 
-  def findByDiskId(id: String, assembly_id: String, email: String): ValidationNel[Throwable, DisksResult] = {
-    (getRecord(id, assembly_id, email) leftMap { t: NonEmptyList[Throwable] ⇒
-      new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
-    }).toValidationNel.flatMap { xso: Option[DisksResult] ⇒
-      xso match {
-        case Some(xs) ⇒ {
-          Validation.success[Throwable, DisksResult](xs).toValidationNel
-        }
-        case None ⇒ Validation.failure[Throwable, DisksResult](new ResourceItemNotFound(id, "")).toValidationNel
-      }
-    }
-  }
-  def findById(assemblyID: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
+  def findByAssemblyId(assemblyID: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
     (getRecords(assemblyID, email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(assemblyID, "Disk = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[DisksResult] =>
@@ -230,11 +247,13 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
     }
   }
 
-  def getById(id: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
+  def findById(id: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks " + id, Console.RESET))
+
     (getDiskRecords(id, email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(id, "Disk = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[DisksResult] =>
-      if (!nm.isEmpty)
+     if (!nm.isEmpty)
         Validation.success[Throwable, Seq[DisksResult]](nm).toValidationNel
       else
         Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(id, "Disks = nothing found.")).toValidationNel
