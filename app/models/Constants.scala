@@ -42,6 +42,8 @@ object Constants {
   val REPORT_LAUNCHES                     = "launches"
   val REPORT_NOOP                         = "noop"
   val REPORT_FILTER_VM                    = List(CATTYPE_TORPEDO)
+  val REPORT_DEAD                         = List("destroying", "destroyed", "posterror")
+  val REPORT_NOTINITED                    = List("preerror", "initializing")
   val REPORT_FILTER_BITNAMI_PREPACKAGED   = List(BITNAMI)
   val REPORT_FILTER_VERTICE_PREPACKAGED   = List(COLLABORATION, ANALYTICS)
   val REPORT_FILTER_CUSTOMAPPS            = List(CATTYPE_CUSTOMAPP)

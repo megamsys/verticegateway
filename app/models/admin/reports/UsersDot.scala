@@ -51,5 +51,6 @@ case class UserCounted(all: String, admin: String) {
     Map((X -> "usersdot" ),
         (Y -> "nos"),
         (ALL -> all),
-        (ADMIN -> admin)))
+        (ADMIN -> admin)
+      ))
 }
