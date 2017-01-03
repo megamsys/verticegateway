@@ -36,3 +36,5 @@ CREATE TABLE IF NOT EXISTS licenses (id text, data text, created_at timestamp, P
 CREATE TABLE IF NOT EXISTS quotas (id text, name text, account_id text, allowed list<text>, allocated_to text, inputs list<text>, json_claz text, created_at timestamp, updated_at timestamp, PRIMARY KEY ((account_id), created_at, name));
 
 ALTER TABLE billingtransactions ADD inputs list<text>;
+
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'FreeBSD', 'freebsd.png', '1', 'https://www.freebsd.org/', 'Megam::MarketPlace' , [], [], {'10.3':'FreeBSD is an advanced computer operating system used to power modern servers, desktops, and embedded platforms.'});
