@@ -22,7 +22,7 @@ import controllers.stack.{APIAuthElement, PermissionElement}
  *
  */
 
-object Credit extends Controller with APIAuthElement with PermissionElement {
+object Credits extends Controller with APIAuthElement with PermissionElement {
   implicit val formats = DefaultFormats
   /**
    * Create a new credit entry by email/json input.
@@ -36,10 +36,10 @@ object Credit extends Controller with APIAuthElement with PermissionElement {
           val org    = freq.maybeOrg.getOrElse(throw new CannotAuthenticateError("Org not found (or) invalid.", "Read docs.megam.io/api."))
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.billing.Credit.create(email, clientAPIBody) match {
+          models.billing.Credits.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, "Your Credit created successfully.", "Megam::Credit").toJson(true))
+                FunnelResponse(CREATED, "Your Credits created successfully.", "Megam::Credits").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -62,9 +62,9 @@ object Credit extends Controller with APIAuthElement with PermissionElement {
           val org    = freq.maybeOrg.getOrElse(throw new CannotAuthenticateError("Org not found (or) invalid.", "Read docs.megam.io/api."))
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
-          models.billing.Credit.list match {
+          models.billing.Credits.list match {
             case Success(succ) => {
-              Ok(Results.resultset(models.Constants.CREDITCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+              Ok(Results.resultset(models.Constants.CREDITSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
              }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -88,9 +88,9 @@ object Credit extends Controller with APIAuthElement with PermissionElement {
           val org    = freq.maybeOrg.getOrElse(throw new CannotAuthenticateError("Org not found (or) invalid.", "Read docs.megam.io/api."))
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
-          models.billing.Credit.findById(account_id) match {
+          models.billing.Credits.findById(account_id) match {
             case Success(succ) => {
-              Ok(Results.resultset(models.Constants.CREDITCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+              Ok(Results.resultset(models.Constants.CREDITSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
              }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

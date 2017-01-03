@@ -8,4 +8,4 @@ GRANT ALL PERMISSIONS  ON KEYSPACE vertice  TO vertadmin;
 use vertice;
 
 
-CREATE TABLE IF NOT EXISTS credit (id text, account_id text, credit text, json_claz text, created_at timestamp, PRIMARY KEY((account_id), created_at));
+CREATE TABLE IF NOT EXISTS credits (id text, account_id text, credit text, json_claz text, created_at timestamp, PRIMARY KEY((account_id), created_at));

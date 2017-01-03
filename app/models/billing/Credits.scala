@@ -39,12 +39,12 @@ import controllers.stack.ImplicitJsonFormats
  *
  */
 
-case class CreditInput(account_id: String, credit: String) {
+case class CreditsInput(account_id: String, credit: String) {
   val json = "{\"account_id\":\"" + account_id + "\",\"credit\":\"" + credit + "\"}"
 
 }
 
-case class CreditResult(
+case class CreditsResult(
     id: String,
     account_id: String,
     credit: String,
@@ -52,7 +52,7 @@ case class CreditResult(
     created_at: DateTime) {
 }
 
-sealed class CreditSacks extends CassandraTable[CreditSacks, CreditResult] with ImplicitJsonFormats {
+sealed class CreditsSacks extends CassandraTable[CreditsSacks, CreditsResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this)
   object account_id extends StringColumn(this) with PartitionKey[String]
@@ -60,8 +60,8 @@ sealed class CreditSacks extends CassandraTable[CreditSacks, CreditResult] with 
   object json_claz extends StringColumn(this)
   object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
 
-  def fromRow(row: Row): CreditResult = {
-    CreditResult(
+  def fromRow(row: Row): CreditsResult = {
+    CreditsResult(
       id(row),
       account_id(row),
       credit(row),
@@ -70,13 +70,13 @@ sealed class CreditSacks extends CassandraTable[CreditSacks, CreditResult] with 
   }
 }
 
-abstract class ConcreteCredit extends CreditSacks with RootConnector {
+abstract class ConcreteCredits extends CreditsSacks with RootConnector {
 
-  override lazy val tableName = "credit"
+  override lazy val tableName = "credits"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
-  def insertNewRecord(ams: CreditResult): ValidationNel[Throwable, ResultSet] = {
+  def insertNewRecord(ams: CreditsResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, ams.id)
       .value(_.account_id, ams.account_id)
       .value(_.credit, ams.credit)
@@ -86,70 +86,70 @@ abstract class ConcreteCredit extends CreditSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def getRecords(account_id: String): ValidationNel[Throwable, Seq[CreditResult]] = {
+  def getRecords(account_id: String): ValidationNel[Throwable, Seq[CreditsResult]] = {
     val res = select.allowFiltering().where(_.account_id eqs account_id).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
-  def listRecords(): ValidationNel[Throwable, Seq[CreditResult]] = {
+  def listRecords(): ValidationNel[Throwable, Seq[CreditsResult]] = {
     val res = select.fetch()
     Await.result(res, 5.seconds).successNel
   }
 
 }
 
-object Credit extends ConcreteCredit{
+object Credits extends ConcreteCredits{
 
 
-  private def mkCreditSack(email: String, input: String): ValidationNel[Throwable, CreditResult] = {
-    val creditInput: ValidationNel[Throwable, CreditInput] = (Validation.fromTryCatchThrowable[CreditInput, Throwable] {       
-      parse(input).extract[CreditInput]
+  private def mkCreditsSack(email: String, input: String): ValidationNel[Throwable, CreditsResult] = {
+    val creditsInput: ValidationNel[Throwable, CreditsInput] = (Validation.fromTryCatchThrowable[CreditsInput, Throwable] {
+      parse(input).extract[CreditsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    println(creditInput)
+    println(creditsInput)
     for {
-      cr <- creditInput
+      cr <- creditsInput
       uir <- (UID("cr").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
 
       val bvalue = Set(email)
-      val json = new CreditResult(uir.get._1 + uir.get._2, cr.account_id, cr.credit, "Megam::Credit", DateHelper.now())
+      val json = new CreditsResult(uir.get._1 + uir.get._2, cr.account_id, cr.credit, "Megam::Credits", DateHelper.now())
       json
     }
   }
 
 
-  def create(email: String, input: String): ValidationNel[Throwable, Option[CreditResult]] = {
+  def create(email: String, input: String): ValidationNel[Throwable, Option[CreditsResult]] = {
     for {
-      wa <- (mkCreditSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      wa <- (mkCreditsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Credit.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Credits.created success", Console.RESET))
       wa.some
     }
   }
 
-  def list: ValidationNel[Throwable, Seq[CreditResult]] = {
+  def list: ValidationNel[Throwable, Seq[CreditsResult]] = {
     (listRecords() leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound("", "Credit = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[CreditResult] =>
+      new ResourceItemNotFound("", "Credits = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[CreditsResult] =>
       if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[CreditResult]](nm).toValidationNel
+        Validation.success[Throwable, Seq[CreditsResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[CreditResult]](new ResourceItemNotFound("", "Credit = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[CreditsResult]](new ResourceItemNotFound("", "Credits = nothing found.")).toValidationNel
     }
 
   }
 
-  def findById(email: String): ValidationNel[Throwable, Seq[CreditResult]] = {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Credit " + email, Console.RESET))
+  def findById(email: String): ValidationNel[Throwable, Seq[CreditsResult]] = {
+    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Credits " + email, Console.RESET))
 
     (getRecords(email) leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound(email, "Credit = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[CreditResult] =>
+      new ResourceItemNotFound(email, "Credits = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[CreditsResult] =>
      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[CreditResult]](nm).toValidationNel
+        Validation.success[Throwable, Seq[CreditsResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[CreditResult]](new ResourceItemNotFound(email, "Credit = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[CreditsResult]](new ResourceItemNotFound(email, "Credits = nothing found.")).toValidationNel
     }
   }
 

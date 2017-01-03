@@ -10,10 +10,10 @@ import com.stackmob.newman._
 import com.stackmob.newman.dsl._
 import test.{ Context }
 
-class CreditSpec extends Specification {
+class CreditsSpec extends Specification {
 
   def is =
-    "CreditSpec".title ^ end ^ """
+    "CreditsSpec".title ^ end ^ """
   CreditSpec is the implementation that calls the megam_play API server with the /credit url
   """ ^ end ^
       "The Client Should" ^
@@ -26,7 +26,7 @@ class CreditSpec extends Specification {
 
   case object create extends Context {
 
-    protected override def urlSuffix: String = "credit/content"
+    protected override def urlSuffix: String = "credits/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
@@ -50,7 +50,7 @@ class CreditSpec extends Specification {
 
   case object PostInvalidUrl extends Context {
 
-    protected override def urlSuffix: String = "credit/contentinvalidurl"
+    protected override def urlSuffix: String = "credits/contentinvalidurl"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
@@ -71,7 +71,7 @@ class CreditSpec extends Specification {
   }
 
   case object Get extends Context {
-      protected override def urlSuffix: String ="credit/rrr"
+      protected override def urlSuffix: String ="credits/rrr"
 
       protected def headersOpt: Option[Map[String, String]] = None
       private val get = GET(url)(httpClient)
@@ -83,7 +83,7 @@ class CreditSpec extends Specification {
     }
 
     case object List extends Context {
-        protected override def urlSuffix: String ="credit"
+        protected override def urlSuffix: String ="credits"
 
         protected def headersOpt: Option[Map[String, String]] = None
         private val get = GET(url)(httpClient)
@@ -96,7 +96,7 @@ class CreditSpec extends Specification {
 
   case object PostInvalidBody extends Context {
 
-    protected override def urlSuffix: String = "credit/content"
+    protected override def urlSuffix: String = "credits/content"
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{\"collapsedmail\":\"tee@test.com\", \"inval_api_key\":\"IamAtlas{74}NobodyCanSeeME#075488\", \"authority\":\"user\"}"
