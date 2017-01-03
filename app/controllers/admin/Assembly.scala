@@ -16,10 +16,9 @@ import play.api.mvc._
 import controllers.stack.Results
 import controllers.stack.{APIAuthElement, PermissionElement}
 
-object Reports extends Controller with APIAuthElement with PermissionElement {
 
-  def post = StackAction(parse.tolerantText, AuthorityKey -> Administrator) { implicit request =>
-    val input = (request.body).toString()
+object Assembly extends Controller with APIAuthElement with PermissionElement {
+  def show(id: String) = StackAction(parse.tolerantText, AuthorityKey -> Administrator) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
@@ -28,10 +27,10 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
           val org    = freq.maybeOrg.getOrElse(throw new CannotAuthenticateError("Org not found (or) invalid.", "Read docs.megam.io/api."))
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
-          models.admin.Reports.create(input) match {
-            case Success(succ) =>  {
-              Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
-            }
+          models.admin.Assembly.show(id) match {
+            case Success(succ) => {
+              Ok(Results.resultset(models.Constants.ASSEMBLYCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -44,5 +43,4 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
       }
     }).fold(succ = { a: Result => a }, fail = { t: Throwable =>   { val rn: FunnelResponse = new HttpReturningError(nels(t));  Status(rn.code)(rn.toJson(true)) } })
   }
-
 }

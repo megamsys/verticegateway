@@ -19,13 +19,13 @@ class AccountsSpec extends Specification {
   AccountsSpec is the implementation that calls the megam_play API server with the /accounts url
   """ ^ end ^
       "The Client Should" ^
-    //  "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
-    //  "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-    //  "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      "Correctly do POST requests with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       "Correctly do GET requests with a valid userid and api key" ! Get.succeeds ^
-    //  "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
-    //  "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
-    //  "Correctly do POST update requests with a valid userid and api_key" ! PostUpdate.succeeds ^
+      "Correctly do GET requests with a invalid apikey" ! GetInvalidApi.succeeds ^
+      "Correctly do GET requests with a invalid email" ! GetInvalidEmail.succeeds ^
+      "Correctly do POST update requests with a valid userid and api_key" ! PostUpdate.succeeds ^
       end
 
   case object Post extends Context {
@@ -33,7 +33,6 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/content"
 
     protected override def bodyToStick: Option[String] = {
-      //val contentToEncode = "{\"first_name\":\"Darth\", \"last_name\":\"Vader\", \"phone\":\"19090909090\", \"email\":\"rr@test.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\" }"
       val contentToEncode = "{" +
             "\"name\":{" +
           "\"first_name\":\"Darth\"," +
@@ -43,7 +42,7 @@ class AccountsSpec extends Specification {
             "\"phone\":\"1998766366\"," +
             "\"phone_verified\":\"verified\"" +
             "}," +
-            "\"email\":\"aa@e.com\"," +
+            "\"email\":\"megam@megam.io\"," +
             "\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\"," +
             "\"password\":{" +
         "\"password_hash\":\"user\"," +
@@ -131,7 +130,7 @@ class AccountsSpec extends Specification {
   }
 
   case object Get extends Context {
-    protected override def urlSuffix: String = "accounts/vertice123@test.com"
+    protected override def urlSuffix: String = "accounts/megam@megam.io"
 
     protected def headersOpt: Option[Map[String, String]] = None
 
@@ -176,7 +175,6 @@ class AccountsSpec extends Specification {
     protected override def urlSuffix: String = "accounts/update"
 
     protected override def bodyToStick: Option[String] = {
-      //val contentToEncode = "{\"id\":\"ACT4978057755611970607\",\"first_name\":\"Darth\", \"last_name\":\"moon\", \"phone\":\"435643656\", \"email\":\"tee@test.com\", \"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\", \"password\":\"user\", \"authority\":\"user\", \"password_reset_key\":\"user\",\"password_reset_sent_at\":\"\",\"created_at\":\"2016-02-25 13:00:28 +0000\" }"
       val contentToEncode = "{" +
            "\"id\":\"ACT5367653782019016209\","+
             "\"name\":{" +
@@ -187,7 +185,7 @@ class AccountsSpec extends Specification {
             "\"phone\":\"4456778344\"," +
             "\"phone_verified\":\"verified\"" +
             "}," +
-            "\"email\":\"vertice123@test.com\"," +
+            "\"email\":\"megam@megam.io\"," +
             "\"api_key\":\"IamAtlas{74}NobodyCanSeeME#07\"," +
             "\"password\":{" +
         "\"password_hash\":\"user\"," +

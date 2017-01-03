@@ -107,8 +107,6 @@ object Licenses extends ConcreteLicenses {
   def findById(id: String): ValidationNel[Throwable, Option[LicensesResult]] = {
     val lid = id.some.getOrElse(FIRST_ID)
 
-    play.api.Logger.debug(("%-20s -->[%s]").format("License id", lid))
-
     (getRecord(lid) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[LicensesResult] ⇒

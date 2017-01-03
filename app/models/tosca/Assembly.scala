@@ -251,10 +251,9 @@ object Assembly extends ConcreteAssembly {
 
 
   def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
-    (dateRangeBy(startdate, enddate) leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound("", "Assembly = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
-        Validation.success[Throwable, Seq[AssemblyResult]](nm).toValidationNel
+    dateRangeBy(startdate, enddate) match {
+      case Success(value) => Validation.success[Throwable, Seq[AssemblyResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[AssemblyResult]](List()).toValidationNel
     }
   }
 
