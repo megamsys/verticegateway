@@ -115,6 +115,10 @@ POST /v2/balances/content			        controllers.billing.Balances.post
 POST /v2/balances/update			        controllers.billing.Balances.update
 GET	 /v2/balances/:id                 controllers.billing.Balances.show(id: String)
 
+POST /v2/credits/content			        controllers.billing.Credits.post
+GET	 /v2/credits                     controllers.billing.Credits.list
+GET /v2/credits/:account_id           controllers.billing.Credits.show(account_id: String)
+
 POST /v2/billingtransactions/content	controllers.billing.Billingtransactions.post
 GET  /v2/billingtransactions          controllers.billing.Billingtransactions.list
 
