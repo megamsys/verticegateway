@@ -182,7 +182,15 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
 
 }
 
-case class Policy(name: String, ptype: String, members: models.tosca.MembersList)
+case class Policy(name: String,
+ ptype: String,
+ resources: models.tosca.MembersList,
+ rules: models.tosca.KeyValueList,
+ properties: models.tosca.KeyValueList,
+ status: String,
+ applying_date: DateTime,
+ updated_date: DateTime,
+ created_at: DateTime)
 
 case class Assembly(name: String,
                     components: models.tosca.ComponentsList,
