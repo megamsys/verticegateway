@@ -23,6 +23,9 @@ INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'DockerMachine', 'dockermachine.png', '1', 'https://docs.docker.com/machine/overview/', 'Megam::MarketPlace' , ['{"key":"tcp-port", "value":"2376"}'], [], {'1.12': 'Install Docker Engine on virtual hosts, and manage the hosts with docker-machine'});
 
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'FreeBSD', 'freebsd.png', '1', 'https://www.freebsd.org/', 'Megam::MarketPlace' , [], [], {'10.3':'FreeBSD is an advanced computer operating system used to power modern servers, desktops, and embedded platforms.'});
+
+
 -- Common collaboration software
 -- Apache2, PostgreSQL, MySQL, Cassandra, Riak, RabbitMQ, Redis
 -- Zarafa, OwnCloud, WordPress, Moodle, PrestaShop,MediaWiki
