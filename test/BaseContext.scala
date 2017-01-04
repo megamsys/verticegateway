@@ -50,8 +50,9 @@ trait BaseContext {
   val currentDate = new SimpleDateFormat("yyy-MM-dd HH:mm") format Calendar.getInstance.getTime
 
   val defaultHeaderOpt = Map(Content_Type -> application_json,
-    X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
-    X_Megam_ORG -> "ORG7530596076047928291",
+    X_Megam_EMAIL -> "sona@b.com", X_Megam_APIKEY -> "6316b165e77eb83a213d2a895508e47f5f17dc98",
+    //X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
+    X_Megam_ORG -> "ORG7173537550825473930",
     //X_Megam_MASTERKEY -> "true", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",
   //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "YWJj",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
@@ -104,7 +105,7 @@ trait BaseContext {
   protected def sandboxHeaderAndBody(contentToEncodeOpt: Option[String],
     headerOpt: Option[Map[String, String]], path: String): (Headers, RawBody) = {
     val headerMap: Map[String, String] = headerOpt.getOrElse(defaultHeaderOpt)
-  
+
     val signWithHMAC = headerMap.getOrElse(X_Megam_DATE, currentDate) + "\n" + path + "\n" + toMD5(contentToEncodeOpt).get
     play.api.Logger.debug("%-20s -->[%s]".format("SIGN", signWithHMAC))
     val puttusavi = headerMap.getOrElse(X_Megam_PUTTUSAVI, "blank_key")
