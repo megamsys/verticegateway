@@ -23,6 +23,9 @@ POST  /v2/admin/reports/content       controllers.admin.Reports.post
 # Assemblys
 GET   /v2/admin/assembly/:id          controllers.admin.Assembly.show(id: String)
 
+# Balances
+POST  /v2/admin/balances/update       controllers.admin.Balances.update
+
 ### ADMIN ROUTES : END
 
 ### USER ROUTES
@@ -112,8 +115,12 @@ POST   /v2/disks/update                   controllers.Disks.update
 # Billings
 # Called by the 3rd party billing (WHMCS or any others)
 POST /v2/balances/content			        controllers.billing.Balances.post
-POST /v2/balances/update			        controllers.billing.Balances.update
+POST /v2/balances/bill                controllers.billing.Balances.bill
 GET	 /v2/balances/:id                 controllers.billing.Balances.show(id: String)
+
+POST /v2/credits/content			        controllers.billing.Credits.post
+GET	 /v2/credits                     controllers.billing.Credits.list
+GET /v2/credits/:account_id           controllers.billing.Credits.show(account_id: String)
 
 POST /v2/billingtransactions/content	controllers.billing.Billingtransactions.post
 GET  /v2/billingtransactions          controllers.billing.Billingtransactions.list
