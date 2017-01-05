@@ -168,11 +168,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
     }
   }
 
- def atAccUpdate(email: String): ValidationNel[Throwable,Option[AccountResult]] = {
-   val approval = Approval("true", "", "")
-   val  acc = AccountResult("", Name.empty, Phone.empty, email, new String(), Password.empty, States.empty, approval, Suspend.empty, new String(), Dates.empty)
-   models.base.Accounts.update(email, compactRender(Extraction.decompose(acc)))
- }
+
 
  def atBalUpdate(email: String, amount: String, inputs: models.tosca.KeyValueList): ValidationNel[Throwable, BalancesResults] = {
    val quota = inputs.find(_.key.equalsIgnoreCase("quota_based")).getOrElse(models.tosca.KeyValueField.empty).value.toBoolean
