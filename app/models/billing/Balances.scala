@@ -95,7 +95,7 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def updateRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
+  def creditRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
     val oldbal = aor.get.credit.toFloat
     val newbal = rip.credit.toFloat
     val updatecredit = oldbal + newbal
@@ -104,6 +104,14 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
       .and(_.updated_at setTo DateHelper.now())
       .future()
       println(res)
+      Await.result(res, 5.seconds).successNel
+  }
+
+  def updateRecord(email: String, rip: BalancesResult): ValidationNel[Throwable, ResultSet] = {
+    val res = update.where(_.account_id eqs email)
+      .modify(_.credit setTo rip.credit)
+      .and(_.updated_at setTo DateHelper.now())
+      .future()
       Await.result(res, 5.seconds).successNel
   }
 
@@ -166,9 +174,51 @@ object Balances extends ConcreteBalances{
     for {
       rip <- ripNel
       bor <- (Balances.findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
-      set <- updateRecord(email, rip, bor.head)
+      set <- creditRecord(email, rip, bor.head)
     } yield {
       bor
+    }
+  }
+
+  def update(input: String): ValidationNel[Throwable, BalancesResults] = {
+    val ripNel: ValidationNel[Throwable, BalancesResult] = (Validation.fromTryCatchThrowable[BalancesResult,Throwable] {
+      parse(input).extract[BalancesResult]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+    for {
+      rip <- ripNel
+      bor <- (Balances.findByEmail(List(rip.account_id).some) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- creditRecord(rip.account_id, rip, bor.head)
+    } yield {
+      bor
+    }
+  }
+
+  private def updateBalancesSack(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
+    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatchThrowable[BalancesUpdateInput,Throwable] {
+      parse(input).extract[BalancesUpdateInput]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
+
+    for {
+      rip <- ripNel
+      bor_collection <- (findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val bor = bor_collection.head
+      val json = BalancesResult(bor.get.id, bor.get.account_id, rip.credit,
+         bor.get.json_claz,
+         bor.get.created_at,
+         bor.get.updated_at)
+      json.some
+    }
+  }
+
+
+  def bill(email: String, input: String): ValidationNel[Throwable, Option[BalancesResult]] = {
+    for {
+      gs <- (updateBalancesSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (updateRecord(email, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.updated successfully", Console.RESET))
+      gs
     }
   }
 

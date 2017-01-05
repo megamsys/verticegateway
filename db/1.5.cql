@@ -37,7 +37,4 @@ CREATE TABLE IF NOT EXISTS quotas (id text, name text, account_id text, allowed 
 
 ALTER TABLE billingtransactions ADD inputs list<text>;
 
-INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'FreeBSD', 'freebsd.png', '1', 'https://www.freebsd.org/', 'Megam::MarketPlace' , [], [], {'10.3':'FreeBSD is an advanced computer operating system used to power modern servers, desktops, and embedded platforms.'});
-
-
 CREATE TABLE IF NOT EXISTS credits (id text, account_id text, credit text, json_claz text, created_at timestamp, PRIMARY KEY((account_id), created_at));
