@@ -36,3 +36,5 @@ CREATE TABLE IF NOT EXISTS licenses (id text, data text, created_at timestamp, P
 CREATE TABLE IF NOT EXISTS quotas (id text, name text, account_id text, allowed list<text>, allocated_to text, inputs list<text>, json_claz text, created_at timestamp, updated_at timestamp, PRIMARY KEY ((account_id), created_at, name));
 
 ALTER TABLE billingtransactions ADD inputs list<text>;
+
+CREATE TABLE IF NOT EXISTS credits (id text, account_id text, credit text, json_claz text, created_at timestamp, PRIMARY KEY((account_id), created_at));
