@@ -76,14 +76,14 @@ object Quotas extends Controller with APIAuthElement  {
   }
 
 
-  def show(name: String) = StackAction(parse.tolerantText) { implicit request =>
+  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
 
-          models.billing.Quotas.findById(name) match {
+          models.billing.Quotas.findById(id) match {
             case Success(succ) =>
             Ok(Results.resultset(models.Constants.QUOTASCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
