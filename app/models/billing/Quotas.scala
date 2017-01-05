@@ -13,6 +13,8 @@ import scala.collection.mutable.ListBuffer
 import cache._
 import db._
 import models.Constants._
+import io.megam.auth.stack.AccountResult
+import io.megam.auth.stack.{ Name, Phone, Password, States, Approval, Dates, Suspend }
 import models.tosca.{ KeyValueField, KeyValueList}
 import io.megam.auth.funnel.FunnelErrors._
 
@@ -55,8 +57,8 @@ case class QuotasResult(
 
 sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with ImplicitJsonFormats {
 
-  object id extends StringColumn(this)
-  object name extends StringColumn(this) with PrimaryKey[String]
+  object id extends StringColumn(this) with PrimaryKey[String]
+  object name extends StringColumn(this)
   object account_id extends StringColumn(this) with PartitionKey[String]
 
   object allowed extends JsonListColumn[QuotasSacks, QuotasResult, KeyValueField](this) {
@@ -142,8 +144,8 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def getRecord(name: String): ValidationNel[Throwable, Option[QuotasResult]] = {
-    val res = select.allowFiltering().where(_.name eqs name).one()
+  def getRecord(id: String): ValidationNel[Throwable, Option[QuotasResult]] = {
+    val res = select.allowFiltering().where(_.created_at lte DateHelper.now()).and(_.id eqs id).one()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -176,6 +178,7 @@ object Quotas extends ConcreteQuotas {
     for {
       wa <- (mkQuotasSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
+      acc <- (atAccUpdate(email) leftMap { s: NonEmptyList[Throwable] => s })
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Quotas.created success", Console.RESET))
       wa.some
@@ -206,15 +209,15 @@ object Quotas extends ConcreteQuotas {
     }
   }
 
-  def findById(name: String): ValidationNel[Throwable, QuotasResult] = {
-    (getRecord(name) leftMap { t: NonEmptyList[Throwable] ⇒
-      new ServiceUnavailableError(name, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+  def findById(id: String): ValidationNel[Throwable, QuotasResult] = {
+    (getRecord(id) leftMap { t: NonEmptyList[Throwable] ⇒
+      new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[QuotasResult] ⇒
       xso match {
         case Some(xs) ⇒ {
           Validation.success[Throwable, QuotasResult](xs).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, QuotasResult](new ResourceItemNotFound(name, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, QuotasResult](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }
