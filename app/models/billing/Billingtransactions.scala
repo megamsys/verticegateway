@@ -169,15 +169,15 @@ object Billingtransactions extends ConcreteBillingtransactions {
   }
 
 
-
  def atBalUpdate(email: String, amount: String, inputs: models.tosca.KeyValueList): ValidationNel[Throwable, BalancesResults] = {
    val quota = inputs.find(_.key.equalsIgnoreCase("quota_based")).getOrElse(models.tosca.KeyValueField.empty).value.toBoolean
 
-      val bal = BalancesResult("",email,amount,"", DateHelper.now(), DateHelper.now())
+      val bal = BalancesUpdateInput("", amount, DateHelper.now().toString(), DateHelper.now().toString())
       if  (!quota) {
         models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
       } else {
-        List(bal.some).successNel
+        val dummy = BalancesResult("", email, amount, "", DateHelper.now(), DateHelper.now())
+        List(dummy.some).successNel
       }
   }
 

@@ -38,8 +38,8 @@ case class BilledhistoriesInput(assembly_id: String,
                                 bill_type: String,
                                 billing_amount: String,
                                 currency_type: String,
-                                start_date: DateTime,
-                                end_date: DateTime)
+                                start_date: String,
+                                end_date: String)
 
 case class BilledhistoriesResult(
                                 id: String,
@@ -53,7 +53,7 @@ case class BilledhistoriesResult(
                                 json_claz: String,
                                 created_at: DateTime)
 
-sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, BilledhistoriesResult] with ImplicitJsonFormats {
+sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, BilledhistoriesResult]  with ImplicitJsonFormats{
 
   object id extends StringColumn(this)
   object account_id extends StringColumn(this) with PartitionKey[String]
@@ -119,8 +119,8 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
 
 object Billedhistories extends ConcreteBilledhistories {
 
-  private def mkBilledhistoriesSack(email: String, input: String): ValidationNel[Throwable, BilledhistoriesResult] = {
-    val billInput: ValidationNel[Throwable, BilledhistoriesInput] = (Validation.fromTryCatchThrowable[BilledhistoriesInput, Throwable] {
+    private def mkBilledhistoriesSack(email: String, input: String): ValidationNel[Throwable, BilledhistoriesResult] = {
+      val billInput: ValidationNel[Throwable, BilledhistoriesInput] = (Validation.fromTryCatchThrowable[BilledhistoriesInput, Throwable] {
       parse(input).extract[BilledhistoriesInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
 
@@ -129,7 +129,7 @@ object Billedhistories extends ConcreteBilledhistories {
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(email)
-      val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, email, bill.assembly_id, bill.bill_type, bill.billing_amount, bill.currency_type, bill.start_date, bill.end_date, "Megam::Billedhistories", DateHelper.now())
+      val json = new BilledhistoriesResult(uir.get._1 + uir.get._2, email, bill.assembly_id, bill.bill_type, bill.billing_amount, bill.currency_type, DateTime.parse(bill.start_date), DateTime.parse(bill.end_date), "Megam::Billedhistories", DateHelper.now())
       json
     }
   }

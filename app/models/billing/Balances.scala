@@ -103,7 +103,6 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
       .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))
       .and(_.updated_at setTo DateHelper.now())
       .future()
-      println(res)
       Await.result(res, 5.seconds).successNel
   }
 
@@ -167,12 +166,22 @@ object Balances extends ConcreteBalances{
     }
   }
 
-  def update(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
-    val ripNel: ValidationNel[Throwable, BalancesResult] = (Validation.fromTryCatchThrowable[BalancesResult,Throwable] {
-      parse(input).extract[BalancesResult]
+  private def mkUpdateWithAmount(email: String, input: String): ValidationNel[Throwable, BalancesResult] = {
+    val ripNel: ValidationNel[Throwable, BalancesUpdateInput] = (Validation.fromTryCatchThrowable[BalancesUpdateInput,Throwable] {
+      parse(input).extract[BalancesUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
     for {
-      rip <- ripNel
+      bor <- ripNel
+    } yield {
+      val json = BalancesResult(bor.id, email, bor.credit,
+         "", DateTime.parse(bor.created_at), DateTime.parse(bor.updated_at))
+      json
+    }
+  }
+
+  def update(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
+    for {
+      rip <- (mkUpdateWithAmount(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       bor <- (Balances.findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
       set <- creditRecord(email, rip, bor.head)
     } yield {

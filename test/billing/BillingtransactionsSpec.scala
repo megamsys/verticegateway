@@ -37,8 +37,8 @@ BillingtransactionsSpec is the implementation that calls the megam_play API serv
         "\"tranid\": \"HGH111\"," +
         "\"trandate\": \"31/21/2012\"," +
         "\"currency_type\":\"USD\"," +
+        "\"inputs\":[{\"key\":\"quota_based\",\"value\":\"false\"}]," +
         "}"
-
       Some(new String(contentToEncode))
     }
     protected override def headersOpt: Option[Map[String, String]] = None
