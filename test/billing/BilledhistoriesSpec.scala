@@ -18,9 +18,9 @@ BilledhistoriesSpec is the implementation that calls the megam_play API server w
   """ ^ end ^
       "The Client Should" ^
       "Correctly do POST  requests with an valid datas " ! create.succeeds ^
-      "Correctly do GET   requests with an valid datas " ! List.succeeds ^
-      "Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
-      "Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
+      //"Correctly do GET   requests with an valid datas " ! List.succeeds ^
+      //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
+      //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
       end
 
   case object create extends Context {
@@ -29,11 +29,12 @@ BilledhistoriesSpec is the implementation that calls the megam_play API server w
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"accounts_id\": \"5555555\"," +
-        "\"assembly_id\":\"67889\"," +
-        "\"bill_type\": \"paypal\"," +
-        "\"billing_amount\":\"2000\"," +
-        "\"currency_type\":\"USD\"," +
+        "\"assembly_id\":\"ASM5406416737153376007\"," +
+        "\"bill_type\": \"VM\"," +
+        "\"billing_amount\":\"0.002279\"," +
+        "\"start_date\":\"2017-01-05T15:00:46.322723107+01:00\"," +
+        "\"end_date\":\"2017-01-05T15:00:46.322723199+01:00\"," +
+          "\"currency_type\":\"\"" +
         "}"
 
       Some(new String(contentToEncode))
