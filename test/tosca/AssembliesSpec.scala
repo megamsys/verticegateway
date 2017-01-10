@@ -27,9 +27,10 @@ class AssembliesSpec extends Specification {
   AssembliesSpec is the implementation that calls the megam_play API server with the /assemblies url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds ^
-      "Correctly do GET  requests with an valid Assemblies ID" ! idNotFound.succeeds ^
-      "Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
+      //"Correctly do POST assemblies with a valid userid and api key" ! Post.succeeds ^
+      "Correctly do POST assemblies for quota with a valid userid and api key" ! PostQuota.succeeds ^
+      //"Correctly do GET  requests with an valid Assemblies ID" ! idNotFound.succeeds ^
+      //"Correctly do LIST requests with a valid userid and api key" ! List.succeeds ^
       end
 
   case object Post extends Context {
@@ -38,6 +39,29 @@ class AssembliesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{\"name\":\"\", \"org_id\":\"ORG123\",\"assemblies\":[{\"name\":\"covey\",\"json_claz\":\"Megam::Assembly\",\"tosca_type\":\"tosca.app.java\",\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}],\"outputs\":[],\"policies\":[],\"status\":\"error\",\"state\":\"error\",\"created_at\":\"2016-02-02 07:50:49 +0000\",\"components\":[{\"name\":\"sheba\",\"tosca_type\":\"tosca.app.java\",\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}],\"outputs\":[],\"envs\":[{\"key\":\"port\",\"value\":\"8080\"},{\"key\":\"tomcat_username\",\"value\":\"megam\"},{\"key\":\"tomcat_password\",\"value\":\"megam\"}],\"repo\":{\"rtype\":\"source\",\"source\":\"github\",\"oneclick\":\"\",\"url\":\"https://github.com/rajthilakmca/java-spring-petclinic.git\"},\"artifacts\":{\"artifact_type\":\"\",\"content\":\"\",\"requirements\":[]},\"related_components\":[],\"operations\":[{\"operation_type\":\"CI\",\"description\":\"always up to date code. sweet.\",\"properties\":[{\"key\":\"type\",\"value\":\"github\"},{\"key\":\"token\",\"value\":\"066b697558f048459412410483ca8965415bf7de\"},{\"key\":\"username\",\"value\":\"rajthilakmca\"}],\"status\":\"notbound\"}],\"status\":\"error\",\"state\":\"error\"}]}],\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}]}"
+      Some(contentToEncode)
+    }
+
+    protected override def headersOpt: Option[Map[String, String]] = None
+
+    private val post = POST(url)(httpClient)
+      .addHeaders(headers)
+      .addBody(body)
+
+    def succeeds: SpecsResult = {
+      val resp = execute(post)
+      print(resp)
+      resp.code must beTheSameResponseCodeAs(HttpResponseCode.Created)
+    }
+
+  }
+
+  case object PostQuota extends Context {
+
+    protected override def urlSuffix: String = "assemblies/content"
+
+    protected override def bodyToStick: Option[String] = {
+      val contentToEncode = "{\"name\":\"\", \"org_id\":\"ORG8869455491546544795\",\"assemblies\":[{\"name\":\"covey\",\"json_claz\":\"Megam::Assembly\",\"tosca_type\":\"tosca.app.java\",\"inputs\":[{\"key\":\"quota_id\",\"value\":\"QUO6653843206928466274\"},{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}],\"outputs\":[],\"policies\":[],\"status\":\"error\",\"state\":\"error\",\"created_at\":\"2016-02-02 07:50:49 +0000\",\"components\":[{\"name\":\"sheba\",\"tosca_type\":\"tosca.app.java\",\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}],\"outputs\":[],\"envs\":[{\"key\":\"port\",\"value\":\"8080\"},{\"key\":\"tomcat_username\",\"value\":\"megam\"},{\"key\":\"tomcat_password\",\"value\":\"megam\"}],\"repo\":{\"rtype\":\"source\",\"source\":\"github\",\"oneclick\":\"\",\"url\":\"https://github.com/rajthilakmca/java-spring-petclinic.git\"},\"artifacts\":{\"artifact_type\":\"\",\"content\":\"\",\"requirements\":[]},\"related_components\":[],\"operations\":[{\"operation_type\":\"CI\",\"description\":\"always up to date code. sweet.\",\"properties\":[{\"key\":\"type\",\"value\":\"github\"},{\"key\":\"token\",\"value\":\"066b697558f048459412410483ca8965415bf7de\"},{\"key\":\"username\",\"value\":\"rajthilakmca\"}],\"status\":\"notbound\"}],\"status\":\"error\",\"state\":\"error\"}]}],\"inputs\":[{\"key\":\"domain\",\"value\":\"megambox.com\"},{\"key\":\"sshkey\",\"value\":\"a@b.com_rtr\"},{\"key\":\"provider\",\"value\":\"one\"},{\"key\":\"cpu\",\"value\":\"0.5\"},{\"key\":\"ram\",\"value\":\"896\"},{\"key\":\"version\",\"value\":\"8.x\"},{\"key\":\"lastsuccessstatusupdate\",\"value\":\"02 Feb 16 13:20 IST\"},{\"key\":\"status\",\"value\":\"error\"}]}"
       Some(contentToEncode)
     }
 
