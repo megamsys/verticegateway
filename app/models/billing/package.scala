@@ -20,12 +20,19 @@ import net.liftweb.json.JsonParser._
  */
 package object billing {
  implicit val formats = DefaultFormats
-  type BalancesResults = List[Option[BalancesResult]]
 
+  type BalancesResults = List[Option[BalancesResult]]
   object BalancesResults {
     val emptyPR = List(Option.empty[BalancesResult])
     def apply(m: BalancesResult): BalancesResults = List(m.some)
     def empty: BalancesResults = List()
+  }
+
+  type QuotasResults = List[Option[QuotasResult]]
+  object QuotasResults {
+    val emptyPR = List(Option.empty[QuotasResult])
+    def apply(m: QuotasResult): QuotasResults = List(m.some)
+    def empty: QuotasResults = List()
   }
 
   def atAccUpdate(email: String): ValidationNel[Throwable,Option[AccountResult]] = {

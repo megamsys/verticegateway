@@ -192,9 +192,9 @@ object Quotas extends ConcreteQuotas {
     for {
       rip <- ripNel
       qor <- (Quotas.findById(rip.name) leftMap { t: NonEmptyList[Throwable] => t })
-      set <- updateRecord(email, rip, qor.some)
+      set <- updateRecord(email, rip, qor.head)
     } yield {
-      qor
+      qor.head.get
     }
   }
 
@@ -209,15 +209,15 @@ object Quotas extends ConcreteQuotas {
     }
   }
 
-  def findById(id: String): ValidationNel[Throwable, QuotasResult] = {
+  def findById(id: String): ValidationNel[Throwable, QuotasResults] = {
     (getRecord(id) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[QuotasResult] ⇒
       xso match {
         case Some(xs) ⇒ {
-          Validation.success[Throwable, QuotasResult](xs).toValidationNel
+          Validation.success[Throwable, QuotasResults](List(xs.some)).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, QuotasResult](new ResourceItemNotFound(id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, QuotasResults](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }

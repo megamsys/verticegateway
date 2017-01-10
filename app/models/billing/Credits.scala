@@ -107,7 +107,6 @@ object Credits extends ConcreteCredits{
     val creditsInput: ValidationNel[Throwable, CreditsInput] = (Validation.fromTryCatchThrowable[CreditsInput, Throwable] {
       parse(input).extract[CreditsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    println(creditsInput)
     for {
       cr <- creditsInput
       uir <- (UID("cr").get leftMap { ut: NonEmptyList[Throwable] => ut })
