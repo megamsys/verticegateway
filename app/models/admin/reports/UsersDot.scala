@@ -30,14 +30,14 @@ class UsersDot(ri: ReportInput) extends Reporter {
  def all: ValidationNel[Throwable, String] = {
     for {
      a <- (models.admin.Users.countAll leftMap { err: NonEmptyList[Throwable] ⇒ err })
-   } yield a
+   } yield   a   
   }
 
   def admin: ValidationNel[Throwable, String] = {
      for {
       a <- (models.admin.Users.countAdmin leftMap { err: NonEmptyList[Throwable] ⇒ err })
     } yield a
-   }
+    }
 }
 
 
