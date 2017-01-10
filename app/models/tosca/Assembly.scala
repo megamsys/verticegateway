@@ -17,6 +17,7 @@ import models.json.tosca._
 import models.json.tosca.carton._
 import models.base.RequestInput
 import io.megam.auth.funnel.FunnelErrors._
+import models.billing.{ QuotasResult, QuotasUpdateInput }
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
@@ -321,11 +322,23 @@ object AssemblysList extends ConcreteAssembly {
     }
   }
 
+  def atQuotaUpdate(email: String, asm: Assembly, asm_id: String): ValidationNel[Throwable, QuotasResult] = {
+    val quota_id = asm.inputs.find(_.key.equalsIgnoreCase("quota_id"))
+    val quo = QuotasUpdateInput(quota_id.get.value, email, null, asm_id, null, DateHelper.now().toString())
+
+    if (quota_id.get.value != null) {
+      models.billing.Quotas.update(email, compactRender(Extraction.decompose(quo)))
+    } else {
+      QuotasResult(quota_id.get.value, "", email, models.tosca.KeyValueList.empty, asm_id, models.tosca.KeyValueList.empty, "", DateHelper.now(), DateHelper.now()).successNel
+    }
+  }
+
   private def mkAssemblySack(authBag: Option[io.megam.auth.stack.AuthBag], rip: Assembly): ValidationNel[Throwable, Option[AssemblyResult]] = {
     var outlist = rip.outputs
     for {
       uir <- (UID("asm").get leftMap { ut: NonEmptyList[Throwable] => ut })
       com <- (ComponentsList.createLinks(authBag, rip.components, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
+      quo <- (atQuotaUpdate(authBag.get.email, rip, (uir.get._1 + uir.get._2)) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       var components_links = new ListBuffer[String]()
       if (com.size > 1) {
@@ -340,5 +353,4 @@ object AssemblysList extends ConcreteAssembly {
       json.some
     }
   }
-
 }
