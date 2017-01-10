@@ -30,7 +30,8 @@ object Users {
   def countAll: ValidationNel[Throwable, String] = models.base.Accounts.countAll
 
   def countAdmin: ValidationNel[Throwable, String] = list.flatMap { x =>
-      Validation.success(x.map {_.states.authority.equalsIgnoreCase(ADMIN)}.filter(f => f).size.toString)
+      val z = x.filter { y =>(y.states.authority!=null && y.states.authority.trim.length > 0) }
+      Validation.success(z.map {_.states.authority.equalsIgnoreCase(ADMIN)}.filter(f => f).size.toString)
   }
 
 }
