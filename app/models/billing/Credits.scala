@@ -107,7 +107,6 @@ object Credits extends ConcreteCredits{
     val creditsInput: ValidationNel[Throwable, CreditsInput] = (Validation.fromTryCatchThrowable[CreditsInput, Throwable] {
       parse(input).extract[CreditsInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel //capture failure
-    println(creditsInput)
     for {
       cr <- creditsInput
       uir <- (UID("cr").get leftMap { ut: NonEmptyList[Throwable] => ut })
@@ -124,7 +123,7 @@ object Credits extends ConcreteCredits{
     for {
       wa <- (mkCreditsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
-      acc <- (atAccUpdate(email) leftMap { s: NonEmptyList[Throwable] => s })
+      acc <- (atAccUpdate(wa.account_id) leftMap { s: NonEmptyList[Throwable] => s })
     } yield {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Credits.created success", Console.RESET))
       wa.some

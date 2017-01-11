@@ -54,6 +54,13 @@ case class QuotasResult(
     created_at: DateTime,
     updated_at: DateTime)
 
+  case class QuotasUpdateInput(
+        id: String,
+        account_id: String,
+        allowed: models.tosca.KeyValueList,
+        allocated_to: String,
+        inputs: models.tosca.KeyValueList,
+        created_at: String)
 
 sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with ImplicitJsonFormats {
 
@@ -121,19 +128,19 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def updateRecord(email: String, rip: QuotasResult, aor: Option[QuotasResult]): ValidationNel[Throwable, ResultSet] = {
+  def updateRecord(email: String, rip: QuotasUpdateInput, aor: Option[QuotasResult]): ValidationNel[Throwable, ResultSet] = {
     val oldallocated_to  = aor.get.allocated_to
     val newallocated_to = rip.allocated_to
 
     val oldallowed = aor.get.allowed
     val newallowed = rip.allowed
 
-    val res = update.where(_.account_id eqs email)
+    val res = update.where(_.account_id eqs email).and(_.created_at eqs aor.get.created_at).and(_.id eqs rip.id)
       .modify(_.allocated_to setTo NilorNot(newallocated_to, oldallocated_to))
 
-      .and(_.allowed setTo rip.allowed)
+      //.and(_.allowed setTo rip.allowed)
 
-      .and(_.inputs setTo rip.inputs)
+      //.and(_.inputs setTo rip.inputs)
       .and(_.updated_at setTo DateHelper.now())
       .future()
       Await.result(res, 5.seconds).successNel
@@ -186,17 +193,19 @@ object Quotas extends ConcreteQuotas {
   }
 
   def update(email: String, input: String): ValidationNel[Throwable, QuotasResult] = {
-    val ripNel: ValidationNel[Throwable, QuotasResult] = (Validation.fromTryCatchThrowable[QuotasResult,Throwable] {
-      parse(input).extract[QuotasResult]
+    val ripNel: ValidationNel[Throwable, QuotasUpdateInput] = (Validation.fromTryCatchThrowable[QuotasUpdateInput,Throwable] {
+      parse(input).extract[QuotasUpdateInput]
     } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+
     for {
       rip <- ripNel
-      qor <- (Quotas.findById(rip.name) leftMap { t: NonEmptyList[Throwable] => t })
-      set <- updateRecord(email, rip, qor.some)
+      qor <- (Quotas.findById(rip.id) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- updateRecord(email, rip, qor.head)
     } yield {
-      qor
+      qor.head.get
     }
   }
+
 
   def findByEmail(email: String): ValidationNel[Throwable, Seq[QuotasResult]] = {
     (listRecords(email) leftMap { t: NonEmptyList[Throwable] =>
@@ -209,15 +218,15 @@ object Quotas extends ConcreteQuotas {
     }
   }
 
-  def findById(id: String): ValidationNel[Throwable, QuotasResult] = {
+  def findById(id: String): ValidationNel[Throwable, QuotasResults] = {
     (getRecord(id) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[QuotasResult] ⇒
       xso match {
         case Some(xs) ⇒ {
-          Validation.success[Throwable, QuotasResult](xs).toValidationNel
+          Validation.success[Throwable, QuotasResults](List(xs.some)).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, QuotasResult](new ResourceItemNotFound(id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, QuotasResults](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }

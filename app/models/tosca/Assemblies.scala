@@ -186,7 +186,6 @@ object Assemblies extends ConcreteAssemblies {
 
   private def mkAssembliesSack(authBag: Option[io.megam.auth.stack.AuthBag], input: AssembliesInput): ValidationNel[Throwable, WrapAssembliesResult] = {
     val inp: ValidationNel[Throwable, AssembliesInput] = input.successNel[Throwable]
-
     for {
       iip <- inp
       ams <- (AssemblysList.createLinks(authBag, iip.assemblies) leftMap { t: NonEmptyList[Throwable] => t })
