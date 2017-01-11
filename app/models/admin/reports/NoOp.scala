@@ -19,4 +19,6 @@ class NoOp(ri: ReportInput) extends Reporter {
   def report: ValidationNel[Throwable, Option[ReportResult]] = {
       ReportResult(REPORT_NOOP, KeyValueList.empty.asInstanceOf[Seq[KeyValueList]].some, REPORTSCLAZ,  Time.now.toString).some.successNel
     }
+
+    def reportFor(email: String, org: String)= none.successNel
 }
