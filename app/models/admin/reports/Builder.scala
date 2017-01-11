@@ -5,7 +5,10 @@ import Scalaz._
 import scalaz.Validation.FlatMap._
 import models.admin.{ ReportInput, ReportResult }
 
-trait Reporter { def report: ValidationNel[Throwable, Option[ReportResult]] }
+trait Reporter {
+  def report: ValidationNel[Throwable, Option[ReportResult]]
+  def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]]
+}
 
 object Builder {
   def apply(ri: ReportInput): Builder = new Builder(ri)
@@ -32,6 +35,10 @@ class Builder(ri: ReportInput) {
     Class.forName(cls).getConstructor(Class.forName("models.admin.ReportInput")).newInstance(ri).asInstanceOf[Reporter]
   }
 
+  //builds global report of everything
   def build: ValidationNel[Throwable, Option[ReportResult]] = reporter.report
+
+  //build report and filter for an user.
+  def buildFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = reporter.reportFor(email, org)
 
 }

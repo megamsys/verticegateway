@@ -46,4 +46,13 @@ object Reports extends ImplicitJsonFormats {
     }
   }
 
+  def createFor(email: String, org: String, input: String): ValidationNel[Throwable, Option[ReportResult]] = {
+    for {
+      r   <- mkReportInput(input)
+      res <- Builder(r).buildFor(email, org)
+    } yield {
+      res
+    }
+  }
+
 }

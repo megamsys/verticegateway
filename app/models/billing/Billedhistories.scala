@@ -57,7 +57,7 @@ sealed class BilledhistoriesSacks extends CassandraTable[BilledhistoriesSacks, B
 
   object id extends StringColumn(this)
   object account_id extends StringColumn(this) with PartitionKey[String]
-  object assembly_id extends StringColumn(this) with PartitionKey[String]
+  object assembly_id extends StringColumn(this) with PrimaryKey[String]
   object bill_type extends StringColumn(this) with PrimaryKey[String]
   object billing_amount extends StringColumn(this)
   object currency_type extends StringColumn(this)
@@ -115,6 +115,14 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
     Await.result(res, 5.seconds).successNel
   }
 
+  def dateRangeFor(email: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
+     val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
+     val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
+
+     val res = select.allowFiltering().where(_.account_id eqs email).and(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
+       Await.result(res, 5.seconds).successNel
+   }
+
 }
 
 object Billedhistories extends ConcreteBilledhistories {
@@ -165,4 +173,10 @@ object Billedhistories extends ConcreteBilledhistories {
     }
   }
 
+  def findByDateRangeFor(email: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
+    dateRangeFor(email, startdate, enddate) match {
+      case Success(value) => Validation.success[Throwable, Seq[BilledhistoriesResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[BilledhistoriesResult]](List()).toValidationNel
+    }
+  }
 }
