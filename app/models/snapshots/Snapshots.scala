@@ -142,6 +142,8 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
         .and(_.asm_id eqs rip.asm_id)
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.image_id setTo StringStuff.NilOrNot(newimage_id, oldimage_id))
+      .and(_.inputs setTo rip.inputs)
+      .and(_.outputs setTo rip.outputs)
       .future()
       Await.result(res, 5.seconds).successNel
   }
