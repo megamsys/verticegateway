@@ -10,8 +10,9 @@ GET   /                               controllers.Application.index
 
 ### ADMIN ROUTES : START
 # Accounts
-GET   /v2/admin/accounts              controllers.admin.Users.list
-POST  /v2/admin/accounts/update       controllers.admin.Users.update
+GET     /v2/admin/accounts            controllers.admin.Users.list
+DELETE  /v2/admin/accounts/:id        controllers.admin.Users.delete(id: String)
+POST    /v2/admin/accounts/update     controllers.admin.Users.update
 
 # Licenses
 POST  /v2/admin/licenses/content      controllers.admin.Licenses.post
@@ -25,6 +26,9 @@ GET   /v2/admin/assembly/:id          controllers.admin.Assembly.show(id: String
 
 # Balances
 POST  /v2/admin/balances/update       controllers.admin.Balances.update
+
+# Snapshots
+GET   /v2/admin/snapshots             controllers.admin.Snapshots.list
 
 ### ADMIN ROUTES : END
 
@@ -101,7 +105,7 @@ GET  /v2/snapshots                    controllers.Snapshots.list
 GET  /v2/snapshots/:id                controllers.Snapshots.show(id: String)
 GET  /v2/snapshots/show/:id           controllers.Snapshots.get(id: String)
 POST /v2/snapshots/update             controllers.Snapshots.update
-GET /v2/snapshots/delete/:assembly_id/:id    controllers.Snapshots.delete(assembly_id: String, id: String)
+DELETE /v2/snapshots/:assembly_id/:id    controllers.Snapshots.delete(assembly_id: String, id: String)
 
 # Disks (Block storage)
 POST   /v2/disks/content                  controllers.Disks.post
@@ -119,7 +123,7 @@ POST /v2/balances/bill                controllers.billing.Balances.bill
 GET	 /v2/balances/:id                 controllers.billing.Balances.show(id: String)
 
 POST /v2/credits/content			        controllers.billing.Credits.post
-GET	 /v2/credits                     controllers.billing.Credits.list
+GET	 /v2/credits                      controllers.billing.Credits.list
 GET /v2/credits/:account_id           controllers.billing.Credits.show(account_id: String)
 
 POST /v2/billingtransactions/content	controllers.billing.Billingtransactions.post
@@ -133,15 +137,13 @@ POST /v2/quotas/update                controllers.billing.Quotas.update
 GET  /v2/quotas/:name                 controllers.billing.Quotas.show(name: String)
 GET  /v2/quotas                       controllers.billing.Quotas.list
 
-
 # Addons (external ids)
 POST /v2/addons/content               controllers.addons.Addons.post
 GET	 /v2/addons/:name                 controllers.addons.Addons.show(name: String)
 
-# We don't use it.
+# User Reports
+POST  /v2/accounts/reports/content    controllers.Reports.post
+
+# We don't use this thing for now.
 POST /v2/subscriptions/content	      controllers.billing.Subscriptions.post
 GET  /v2/subscriptions                controllers.billing.Subscriptions.show
-
-#quotas
-#POST /v2/quotas/content	       controllers.billing.Quotas.post
-#GET  /v2/quotas                controllers.billing.Quotas.list

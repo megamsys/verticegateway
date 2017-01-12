@@ -34,6 +34,24 @@ class Launches(ri: ReportInput) extends Reporter {
    } yield (al, as)
   }
 
+  def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = {
+    for {
+      abt <-   buildFor(email, org,  ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      aal <-   aggregate(abt).successNel
+    } yield {
+      ReportResult(REPORT_LAUNCHES, aal.map(_.map(_.toKeyList)), REPORTSCLAZ, Time.now.toString).some
+    }
+  }
+
+ def buildFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable,Tuple2[Seq[models.tosca.AssembliesResult],
+                Seq[models.tosca.AssemblyResult]]] = {
+    for {
+     al <- (models.tosca.Assemblies.findByDateRangeFor(email, org,  startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+     as <- (models.tosca.Assembly.findByDateRangeFor(email, org, startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+   } yield (al, as)
+  }
+
+
   def aggregate(abt: Tuple2[Seq[models.tosca.AssembliesResult], Seq[models.tosca.AssemblyResult]]) = {
    for {
      ba <- (abt._1.map { asms => (asms.assemblies.map {x => (x, asms.id)})}).flatten.toMap.some

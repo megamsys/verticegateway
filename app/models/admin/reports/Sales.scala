@@ -27,6 +27,7 @@ class Sales(ri: ReportInput) extends Reporter {
     }
   }
 
+
  def build(startdate: String, enddate: String): ValidationNel[Throwable,Tuple2[Seq[models.tosca.AssemblyResult],
                 Seq[models.billing.BilledhistoriesResult]]] = {
     for {
@@ -36,6 +37,26 @@ class Sales(ri: ReportInput) extends Reporter {
        (a, b)
       }
   }
+
+
+  def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = {
+    for {
+      abt <-   buildFor(email, org, ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      sal <-   aggregate(abt).successNel
+    } yield {
+      ReportResult(REPORT_SALES, sal.map(_.map(_.toKeyList)), REPORTSCLAZ, Time.now.toString).some
+    }
+  }
+
+  def buildFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable,Tuple2[Seq[models.tosca.AssemblyResult],
+                 Seq[models.billing.BilledhistoriesResult]]] = {
+     for {
+      a <- (models.tosca.Assembly.findByDateRangeFor(email, org, startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+      b <- (models.billing.Billedhistories.findByDateRangeFor(email, startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+    } yield {
+        (a, b)
+       }
+   }
 
   def aggregate(abt: Tuple2[Seq[models.tosca.AssemblyResult], Seq[models.billing.BilledhistoriesResult]]) = {
    for {

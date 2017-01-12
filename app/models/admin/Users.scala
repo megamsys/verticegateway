@@ -22,10 +22,23 @@ object Users {
   //An Admin can list all the users
   def list: ValidationNel[Throwable, Seq[AccountResult]] = models.base.Accounts.list
 
-  //Admin can suspend, impersonate, block, unblock, active users hack for 1.5.
-  def update(input: String): ValidationNel[Throwable, Option[AccountResult]] =  {
-      models.base.Accounts.update(input)
+  //An Admin can delete an user
+  //- delete billedhistories
+  //- delete billingtransactions
+  //- delete addons
+  //- delete the snapshots
+  //- delete disks
+  //- delete components
+  //- delete assembly
+  //- delete assemblies
+  //- delete organization
+  //- delete accounts
+  def delete(id: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    models.base.Accounts.update(id)
   }
+
+  //Admin can suspend, impersonate, block, unblock, active users hack for 1.5.
+  def update(input: String): ValidationNel[Throwable, Option[AccountResult]] = models.base.Accounts.update(input)
 
   def countAll: ValidationNel[Throwable, String] = models.base.Accounts.countAll
 

@@ -160,6 +160,14 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def dateRangeByFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
+    val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
+    val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
+
+    val res = select.allowFiltering().where(_.org_id eqs org).and(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
+    Await.result(res, 5.seconds).successNel
+  }
+
   //Grand dump of all.
   def listAllRecords(): ValidationNel[Throwable, Seq[AssembliesResult]] = {
      val res = select.fetch()
@@ -208,12 +216,6 @@ object Assemblies extends ConcreteAssemblies {
     }
   }
 
-  def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
-      dateRangeBy(startdate, enddate) match {
-        case Success(value) => Validation.success[Throwable, Seq[AssembliesResult]](value).toValidationNel
-        case Failure(err) => Validation.success[Throwable, Seq[AssembliesResult]](List()).toValidationNel
-      }
-    }
 
   def findById(assembliesID: Option[List[String]]): ValidationNel[Throwable, AssembliesResults] = {
     (assembliesID map {
@@ -247,8 +249,22 @@ object Assemblies extends ConcreteAssemblies {
       else
         Validation.failure[Throwable, Seq[AssembliesResult]](new ResourceItemNotFound(email, "Assemblies = nothing found.")).toValidationNel
     }
-
   }
+
+  def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
+      dateRangeBy(startdate, enddate) match {
+        case Success(value) => Validation.success[Throwable, Seq[AssembliesResult]](value).toValidationNel
+        case Failure(err) => Validation.success[Throwable, Seq[AssembliesResult]](List()).toValidationNel
+      }
+    }
+
+  def findByDateRangeFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssembliesResult]] = {
+    dateRangeByFor(email, org, startdate, enddate) match {
+      case Success(value) => Validation.success[Throwable, Seq[AssembliesResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[AssembliesResult]](List()).toValidationNel
+    }
+  }
+
 
   /* Lets clean it up in 2.0 using Messageable  */
   private def pub(email: String, wa: WrapAssembliesResult): ValidationNel[Throwable, AssembliesResult] = {
