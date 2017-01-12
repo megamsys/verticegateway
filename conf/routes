@@ -105,7 +105,7 @@ GET  /v2/snapshots                    controllers.Snapshots.list
 GET  /v2/snapshots/:id                controllers.Snapshots.show(id: String)
 GET  /v2/snapshots/show/:id           controllers.Snapshots.get(id: String)
 POST /v2/snapshots/update             controllers.Snapshots.update
-GET /v2/snapshots/delete/:assembly_id/:id    controllers.Snapshots.delete(assembly_id: String, id: String)
+DELETE /v2/snapshots/:assembly_id/:id    controllers.Snapshots.delete(assembly_id: String, id: String)
 
 # Disks (Block storage)
 POST   /v2/disks/content                  controllers.Disks.post
