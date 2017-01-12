@@ -9,7 +9,7 @@ use vertice;
 
 CREATE TABLE IF NOT EXISTS billingtransactions(id text, account_id text, gateway text, amountin text, amountout text, fees text, tranid text, trandate text, currency_type text,  created_at timestamp, json_claz text, PRIMARY KEY(account_id, trandate, created_at));
 
-CREATE TABLE IF NOT EXISTS billedhistories (id text, account_id text, assembly_id text, bill_type text, start_date timestamp, end_date timestamp, billing_amount text, currency_type text, json_claz text, created_at timestamp, PRIMARY KEY((account_id, assembly_id), bill_type, created_at));
+CREATE TABLE IF NOT EXISTS billedhistories (id text, account_id text, assembly_id text, bill_type text, start_date timestamp, end_date timestamp, billing_amount text, currency_type text, json_claz text, created_at timestamp, PRIMARY KEY(account_id, assembly_id,  bill_type, created_at));
 
 CREATE TABLE IF NOT EXISTS balances (id text, account_id text, credit text, json_claz text, created_at timestamp, updated_at timestamp, PRIMARY KEY((account_id)));
 

@@ -162,6 +162,15 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+
+  def dateRangeByFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+      val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
+      val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
+
+     val res = select.allowFiltering().where(_.org_id eqs org).and(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
+    Await.result(res, 5.seconds).successNel
+  }
+
   def getRecord(id: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
     val res = select.allowFiltering().where(_.id eqs id).and(_.created_at lte DateHelper.now()).one()
     Await.result(res, 5.seconds).successNel
@@ -258,6 +267,13 @@ object Assembly extends ConcreteAssembly {
     }
   }
 
+  def findByDateRangeFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+    dateRangeByFor(email, org, startdate, enddate) match {
+      case Success(value) => Validation.success[Throwable, Seq[AssemblyResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[AssemblyResult]](List()).toValidationNel
+    }
+  }
+
   private def updateAssemblySack(org_id: String, input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
     val ripNel: ValidationNel[Throwable, AssemblyUpdateInput] = (Validation.fromTryCatchThrowable[AssemblyUpdateInput, Throwable] {
       parse(input).extract[AssemblyUpdateInput]
@@ -325,7 +341,7 @@ object AssemblysList extends ConcreteAssembly {
   def atQuotaUpdate(email: String, asm: Assembly, asm_id: String): ValidationNel[Throwable, QuotasResult] = {
     val quota_id = asm.inputs.find(_.key.equalsIgnoreCase("quota_id")).getOrElse(models.tosca.KeyValueField.empty).value
     val quo = QuotasUpdateInput(quota_id, email, null, asm_id, null, DateHelper.now().toString())
-  
+
     if (quota_id != "") {
       models.billing.Quotas.update(email, compactRender(Extraction.decompose(quo)))
     } else {

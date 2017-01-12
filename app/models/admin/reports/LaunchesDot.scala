@@ -44,6 +44,9 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
     } yield a
    }
 
+   def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = none.successNel
+
+
    def aggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String]) = {
     for {
       ba <- abt.filter { a => (f.filter(x => a.tosca_type.contains(x)).size > 0) }.some

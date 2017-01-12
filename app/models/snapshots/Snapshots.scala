@@ -151,6 +151,12 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def listAllRecords: ValidationNel[Throwable, Seq[SnapshotsResult]] = {
+    val res = select.fetch
+    Await.result(res, 5.seconds).successNel
+  }
+
+
   def getRecord(id: String, assembly_id: String,  email: String): ValidationNel[Throwable, Option[SnapshotsResult]] = {
     val res = select.allowFiltering().where(_.id eqs id).and(_.account_id eqs email).and(_.asm_id eqs assembly_id).one()
     Await.result(res, 5.seconds).successNel
@@ -259,6 +265,18 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
         Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(assemblyID, "Snapshots = nothing found.")).toValidationNel
     }
 
+  }
+
+  //Admin authority can list all snapshots for 1.5.
+  def list: ValidationNel[Throwable, Seq[SnapshotsResult]] = {
+    (listAllRecords leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("Admin", "Snapshots = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[SnapshotsResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[SnapshotsResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound("Admin", "Snapshots = nothing found.")).toValidationNel
+    }
   }
 
   def getById(id: String, email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
