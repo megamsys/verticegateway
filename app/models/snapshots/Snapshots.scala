@@ -269,14 +269,11 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
 
   //Admin authority can list all snapshots for 1.5.
   def list: ValidationNel[Throwable, Seq[SnapshotsResult]] = {
-    (listAllRecords leftMap { t: NonEmptyList[Throwable] =>
-      new ResourceItemNotFound("Admin", "Snapshots = nothing found.")
-    }).toValidationNel.flatMap { nm: Seq[SnapshotsResult] =>
-      if (!nm.isEmpty)
-        Validation.success[Throwable, Seq[SnapshotsResult]](nm).toValidationNel
-      else
-        Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound("Admin", "Snapshots = nothing found.")).toValidationNel
-    }
+    listAllRecords match {
+      case Success(value) => Validation.success[Throwable, Seq[SnapshotsResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[SnapshotsResult]](List()).toValidationNel
+    }   
+
   }
 
   def getById(id: String, email: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
