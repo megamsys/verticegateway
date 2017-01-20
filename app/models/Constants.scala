@@ -28,7 +28,7 @@ object Constants {
   val BIND            = "bind"
   val BUILD           = "build"
 
-  val CATTYPE_DOCKER    = "microservices"
+  val CATTYPE_DOCKER    = "containers"
   val CATTYPE_TORPEDO   = "torpedo"
   val CATTYPE_CUSTOMAPP = "app"
   val CATTYPE_SERVICE   = "service"
