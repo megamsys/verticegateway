@@ -65,6 +65,7 @@ case class RequestResult(id: String, account_id: String, cat_id: String, cattype
     val nsqcontainers = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.containers")
     val nsqvms = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.vms")
     val DQACTIONS = Array[String](CREATE, DELETE)
+    val CSACTIONS = Array[String](START, STOP, REBOOT)
 
     if (cattype.equalsIgnoreCase(CATTYPE_DOCKER)) {
       nsqcontainers

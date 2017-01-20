@@ -103,7 +103,7 @@ case class LaunchesResult(id: String, asms_id: String, name: String, account_id:
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
     Map((X -> created_at.toString),
-        (Y -> "0"),
+        (Y -> "1"),
         (ID -> id),
         (ASMS_ID -> asms_id),
         (NAME -> name),
