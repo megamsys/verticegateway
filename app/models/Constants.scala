@@ -36,6 +36,7 @@ object Constants {
   val ANALYTICS         = "analytics"
   val COLLABORATION     = "collaboration"
 
+
   val REPORT_SALES                        = "sales"
   val REPORT_USRDOT                       = "userdot"
   val REPORT_LANDOT                       = "launchdot"
@@ -50,6 +51,13 @@ object Constants {
   val REPORT_FILTER_SERVICES              = List(CATTYPE_SERVICE)
   val REPORT_FILTER_CONTAINERS            = List(CATTYPE_DOCKER)
 
+  val REPORT_CATEGORYMAP                  = Map(
+    "all" -> (REPORT_FILTER_VM  ++ REPORT_FILTER_CUSTOMAPPS ++ REPORT_FILTER_BITNAMI_PREPACKAGED ++  REPORT_FILTER_VERTICE_PREPACKAGED
+              ++ REPORT_FILTER_SERVICES ++ REPORT_FILTER_CONTAINERS),
+    "service" -> REPORT_FILTER_SERVICES,          
+    "vm" -> REPORT_FILTER_VM,
+    "application" -> (REPORT_FILTER_CUSTOMAPPS ++ REPORT_FILTER_BITNAMI_PREPACKAGED ++  REPORT_FILTER_VERTICE_PREPACKAGED),
+    "container" -> REPORT_FILTER_CONTAINERS)
 
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ADMINUSERSCLAZ                  = "Megam::Account"
