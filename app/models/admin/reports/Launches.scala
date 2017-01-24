@@ -12,7 +12,7 @@ import net.liftweb.json._
 import io.megam.util.Time
 import org.joda.time.{DateTime, Period}
 import org.joda.time.format.DateTimeFormat
-import models.Constants.{JSON_CLAZ, REPORTSCLAZ, REPORT_LAUNCHES}
+import models.Constants.{JSON_CLAZ, REPORTSCLAZ, REPORT_LAUNCHES, REPORT_CATEGORYMAP}
 import models.admin.{ReportInput, ReportResult}
 
 class Launches(ri: ReportInput) extends Reporter {
@@ -21,8 +21,9 @@ class Launches(ri: ReportInput) extends Reporter {
     for {
       abt <-   build(ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
       aal <-   aggregate(abt).successNel
+      fal <-   subaggregate(aal).successNel
     } yield {
-      ReportResult(REPORT_LAUNCHES, aal.map(_.map(_.toKeyList)), REPORTSCLAZ, Time.now.toString).some
+      ReportResult(REPORT_LAUNCHES, fal.map(_.map(_.toKeyList)), REPORTSCLAZ, Time.now.toString).some
     }
   }
 
@@ -52,13 +53,28 @@ class Launches(ri: ReportInput) extends Reporter {
   }
 
 
-  def aggregate(abt: Tuple2[Seq[models.tosca.AssembliesResult], Seq[models.tosca.AssemblyResult]]) = {
+  private def aggregate(abt: Tuple2[Seq[models.tosca.AssembliesResult], Seq[models.tosca.AssemblyResult]]) = {
    for {
      ba <- (abt._1.map { asms => (asms.assemblies.map {x => (x, asms.id)})}).flatten.toMap.some
      la <-  LaunchesAggregate(abt._2, ba).some
     } yield {
       la.aggregate
    }
+  }
+
+  private def subaggregate(olrt: Option[Seq[LaunchesResult]])  = {
+
+  val lrt = olrt.getOrElse(List[LaunchesResult]())
+  val f: List[String] = REPORT_CATEGORYMAP.get(ri.category).getOrElse(List[String]("all"))
+  val g: List[String] = List(ri.group)
+
+  for {
+      ba <- lrt.filter { a => {
+         (f.filter(x => a.tosca_type.contains(x)).size > 0) &&
+         (if (g.size > 2) (g.filter(x => a.status.contains(x)).size > 0) else  true)
+      }
+    }.some
+  } yield  ba
   }
 }
 
