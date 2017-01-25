@@ -67,7 +67,7 @@ case class RequestResult(id: String, account_id: String, cat_id: String, cattype
     val DQACTIONS = Array[String](CREATE, DELETE)
     val CSACTIONS = Array[String](START, STOP, REBOOT)
 
-    if (cattype.equalsIgnoreCase(CATTYPE_DOCKER)) {
+    if (cattype.toLowerCase.contains(CATTYPE_DOCKER)) {
       nsqcontainers
     } else if (cattype.equalsIgnoreCase(CATTYPE_TORPEDO)) {
       nsqvms

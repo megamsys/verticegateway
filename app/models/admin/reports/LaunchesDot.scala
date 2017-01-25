@@ -47,13 +47,13 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
    def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = none.successNel
 
 
-   def aggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String]) = {
+   private def aggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String]) = {
     for {
       ba <- abt.filter { a => (f.filter(x => a.tosca_type.contains(x)).size > 0) }.some
     } yield  ba.size.toString
    }
 
-   def subaggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String], g: List[String]) = {
+   private def subaggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String], g: List[String]) = {
      for {
        ba <- abt.filter { a =>
          (f.filter(x => a.tosca_type.contains(x)).size > 0)  &&
@@ -62,7 +62,7 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
      } yield  ba.size.toString
    }
 
-   def popular(abt: Seq[models.tosca.AssemblyResult]) = {
+   private def popular(abt: Seq[models.tosca.AssemblyResult]) = {
     for {
       ba <- (abt.groupBy(_.tosca_type).map { case (k,v) => (k -> v.size.toInt) }).some
     } yield {
