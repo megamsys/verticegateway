@@ -133,6 +133,12 @@ abstract class ConcreteSensors extends SensorsSacks with RootConnector {
       .future()
     Await.result(res, 5.seconds).successNel
   }
+
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object Sensors extends ConcreteSensors {
@@ -160,6 +166,13 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Sensor
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Sensors.created success", Console.RESET))
     se.some
+  }
+}
+
+def delete(email: String): ValidationNel[Throwable, Option[SensorsResult]] = {
+  deleteRecords(email) match {
+    case Success(value) => Validation.success[Throwable, Option[SensorsResult]](none).toValidationNel
+    case Failure(err) => Validation.success[Throwable, Option[SensorsResult]](none).toValidationNel
   }
 }
 

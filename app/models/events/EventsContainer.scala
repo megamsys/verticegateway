@@ -138,6 +138,11 @@ abstract class ConcreteEventsContainer extends EventsContainerSacks with RootCon
     val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
   }
+
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
 }
 
 object EventsContainer extends ConcreteEventsContainer {
@@ -197,7 +202,13 @@ object EventsContainer extends ConcreteEventsContainer {
         if (!nm.isEmpty)   Validation.success[Throwable, Seq[EventsContainerResult]](nm).toValidationNel
         else  Validation.failure[Throwable, Seq[EventsContainerResult]](new ResourceItemNotFound(ws.assembly_id, "EventsContainer = nothing found.")).toValidationNel
       }
+    }
+  }
 
+  def delete(email: String): ValidationNel[Throwable, Option[EventsContainerResult]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[EventsContainerResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[EventsContainerResult]](none).toValidationNel
     }
   }
 

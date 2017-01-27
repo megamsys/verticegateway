@@ -119,6 +119,11 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
    def NilorNot(rip: String, bal: String): String = {
     rip == null match {
       case true => return bal
@@ -254,5 +259,11 @@ object Balances extends ConcreteBalances{
     }).head //return the folded element in the head.
   }
 
+  def delete(email: String): ValidationNel[Throwable, Option[BalancesResults]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[BalancesResults]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[BalancesResults]](none).toValidationNel
+    }
+  }
 
 }

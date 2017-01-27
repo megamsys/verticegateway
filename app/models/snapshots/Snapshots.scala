@@ -175,9 +175,9 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
   }
 
  def deleteRecord(acc_id: String, asm_id: String, id: String): ValidationNel[Throwable, ResultSet] = {
-val res = delete.where(_.account_id eqs acc_id).and(_.id eqs id).and(_.asm_id eqs asm_id).future()
-Await.result(res,5.seconds).successNel
-}
+   val res = delete.where(_.account_id eqs acc_id).and(_.id eqs id).and(_.asm_id eqs asm_id).future()
+   Await.result(res,5.seconds).successNel
+ }
 }
 
 object Snapshots extends ConcreteSnapshots {
@@ -241,7 +241,13 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
       else
         Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(accountID, "Snapshots = nothing found.")).toValidationNel
     }
+  }
 
+  def deleteByEmail(email: String): ValidationNel[Throwable, SnapshotsResult] = {
+    for {
+      sa <- (findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+      df <- deleteFound(email, sa)
+    } yield df
   }
 
   def findBySnapId(id: String, assembly_id: String, email: String): ValidationNel[Throwable, SnapshotsResult] = {
@@ -274,7 +280,7 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
     listAllRecords match {
       case Success(value) => Validation.success[Throwable, Seq[SnapshotsResult]](value).toValidationNel
       case Failure(err) => Validation.success[Throwable, Seq[SnapshotsResult]](List()).toValidationNel
-    }   
+    }
 
   }
 
@@ -287,8 +293,14 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
       else
         Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(id, "Snapshots = nothing found.")).toValidationNel
     }
-
   }
+
+  private def deleteFound(email: String, sn: Seq[SnapshotsResult]) = {
+      (sn.map { sas =>
+        play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Snapshots.delete success", Console.RESET))
+        dePub(email, sas)
+      }).head
+   }
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def atPub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {
