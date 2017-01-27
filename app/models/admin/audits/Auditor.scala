@@ -80,7 +80,7 @@ sealed class AuditLogSacks extends CassandraTable[AuditLogSacks, AuditLogResult]
 }
 
 abstract class ConcreteAuditLog extends AuditLogSacks with RootConnector {
-  override lazy val tableName = "events_for_billings"
+  override lazy val tableName = "audit_logs"
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 

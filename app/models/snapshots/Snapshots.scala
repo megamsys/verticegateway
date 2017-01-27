@@ -239,7 +239,7 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[SnapshotsResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[SnapshotsResult]](new ResourceItemNotFound(accountID, "Snapshots = nothing found.")).toValidationNel
+        Validation.success[Throwable, Seq[SnapshotsResult]](List[SnapshotsResult]()).toValidationNel
     }
   }
 
@@ -296,11 +296,17 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
   }
 
   private def deleteFound(email: String, sn: Seq[SnapshotsResult]) = {
-      (sn.map { sas =>
+      val output = (sn.map { sas =>
         play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Snapshots.delete success", Console.RESET))
         dePub(email, sas)
-      }).head
-   }
+      })
+
+      if (!output.isEmpty)
+         output.head
+      else
+        SnapshotsResult("","","","","","","", "", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
+  }
+
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def atPub(email: String, wa: SnapshotsResult): ValidationNel[Throwable, SnapshotsResult] = {

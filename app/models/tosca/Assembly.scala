@@ -259,7 +259,7 @@ object Assembly extends ConcreteAssembly {
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[AssemblyResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[AssemblyResult]](new ResourceItemNotFound(org_id, "Assembly = nothing found.")).toValidationNel
+        Validation.success[Throwable, Seq[AssemblyResult]](List[AssemblyResult]()).toValidationNel
     }
   }
 
@@ -314,13 +314,21 @@ object Assembly extends ConcreteAssembly {
   }
 
   private def deleteFound(email: String, an: Seq[AssemblyResult]) = {
-      (an.map { asa =>
+      val output = (an.map { asa =>
            if (!(STATUS_DESTROYED.contains(asa.status) ||
                  STATUS_DESTROYED.contains(asa.state)))
              dePub(email, asa)
           else
              asa.successNel[Throwable]
-      }).head
+      })
+
+      if (!output.isEmpty)
+         output.head
+      else
+        AssemblyResult("","","","", models.tosca.ComponentLinks.empty,"",
+          models.tosca.PoliciesList.empty, models.tosca.KeyValueList.empty,
+          models.tosca.KeyValueList.empty, "", "", "", DateHelper.now()).successNel
+
    }
 
   private def dePub(email: String, wa: AssemblyResult): ValidationNel[Throwable, AssemblyResult] = {
