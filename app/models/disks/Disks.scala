@@ -211,6 +211,14 @@ def initdel(email: String, asm_id: String, id: String): ValidationNel[Throwable,
   }
 }
 
+def deleteByEmail(email: String): ValidationNel[Throwable, DisksResult] = {
+  for {
+    wa <- (findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+    df <- deleteFound(email, wa)
+  } yield df
+}
+
+
 def update(email: String, input: String): ValidationNel[Throwable, DisksResult] = {
   val ripNel: ValidationNel[Throwable, DisksResult] = (Validation.fromTryCatchThrowable[DisksResult,Throwable] {
     parse(input).extract[DisksResult]
@@ -259,6 +267,14 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
         Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(id, "Disks = nothing found.")).toValidationNel
     }
   }
+
+  private def deleteFound(email: String, ds: Seq[DisksResult]) = {
+      (ds.map { was =>
+        play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete success", Console.RESET))
+        dePub(email, was)
+      }).head
+   }
+
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def atPub(email: String, wa: DisksResult): ValidationNel[Throwable, DisksResult] = {

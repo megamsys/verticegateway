@@ -31,7 +31,7 @@ CREATE TABLE assemblies (id text, org_id text, name text, assemblies list<text>,
 
 CREATE TABLE assembly (id text, org_id text, account_id text, name text, components list<text>, tosca_type text, policies list<text>, inputs list<text>, outputs list<text>, status text, state text, json_claz text, created_at timestamp, PRIMARY KEY ((org_id),created_at, id));
 
-CREATE TABLE components (id text, name text, tosca_type text, inputs list<text>, outputs list<text>, envs list<text>, artifacts text, related_components list<text>, operations list<text>, repo text, status text, state text, json_claz text, created_at timestamp, PRIMARY KEY (id));
+CREATE TABLE components (id text, org_id text, name text, tosca_type text, inputs list<text>, outputs list<text>, envs list<text>, artifacts text, related_components list<text>, operations list<text>, repo text, status text, state text, json_claz text, created_at timestamp, PRIMARY KEY ((org_id), id));
 
 CREATE TABLE organizations(id text, accounts_id text, name text, json_claz text, created_at  timestamp, PRIMARY KEY ((accounts_id), id));
 
@@ -39,8 +39,8 @@ CREATE TABLE domains (id text, org_id text,  name text, json_claz text, created_
 
 CREATE TABLE sshkeys (id text, org_id text, name text, privatekey text, publickey text, json_claz text, created_at timestamp, PRIMARY KEY((org_id), name));
 
-CREATE TABLE requests( id text, account_id text, cat_id text, cattype text,  name text,  action text, category text, created_at timestamp, PRIMARY KEY (id));
+CREATE TABLE requests( id text, account_id text, cat_id text, cattype text,  name text,  action text, category text, created_at timestamp, PRIMARY KEY ((account_id),id));
 
-CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  options list<text>, plans map <text, text>,  PRIMARY KEY ((settings_name), flavor) );
+CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  options list<text>, plans map <text, text>,  PRIMARY KEY ((settings_name), flavor));
 
 CREATE TABLE addons (id text, provider_id text, account_id text, provider_name text, options list<text>, json_claz text, created_at timestamp, PRIMARY KEY ((account_id), provider_name));
