@@ -33,7 +33,7 @@ class Scavenger(email: String) {
     for {
       orgs <-   myorgs leftMap { err: NonEmptyList[Throwable] ⇒ err }
       aal  <-   deployed(orgs)
-    } yield aal
+    } yield   aal
   }
 
   def nukeTelemetry = {
@@ -44,7 +44,7 @@ class Scavenger(email: String) {
       chd <- models.billing.Credits.delete(email)
       qud <- models.billing.Quotas.delete(email)
       qud <- models.tosca.Sensors.delete(email)
-    } yield "telemetry.done".some
+    } yield  "telemetry.done".some
   }
 
   def nukeWhitePebbles = {
@@ -52,13 +52,13 @@ class Scavenger(email: String) {
       hd  <- models.events.EventsBilling.delete(email)
       bhd <- models.events.EventsContainer.delete(email)
       bad <- models.events.EventsVm.delete(email)
-    } yield "whitepebbles.done".some
+    } yield  "whitepebbles.done".some
   }
 
   def nukeIdentity: ValidationNel[Throwable, Option[io.megam.auth.stack.AccountResult]] = {
     for {
       aal <-   delete
-    } yield aal
+    } yield  aal
   }
 
   private def littered = {

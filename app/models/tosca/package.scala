@@ -86,8 +86,12 @@ package object tosca {
     def empty: List[String] = emptyRR
   }
 
- type MetricsList = List[Metrics]
+  type MetricsList = List[Metrics]
+
   type PoliciesList = List[Policy]
+  object PoliciesList {
+    def empty: List[Policy] = List[Policy]()
+  }
 
   type MembersList = List[String]
 

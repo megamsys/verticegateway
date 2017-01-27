@@ -26,6 +26,7 @@ object Users {
 
   //An Admin can scavenge an user
   def delete(id: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    play.api.Logger.debug("%-20s -->[%s]".format("UD:", "delete ?" + id))
     for {
       nls <- models.admin.audits.Scavenger(id).nukeLittered
       nds <- models.admin.audits.Scavenger(id).nukeDeployed

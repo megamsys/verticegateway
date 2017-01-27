@@ -238,7 +238,7 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[DisksResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(accountID, "Disks = nothing found.")).toValidationNel
+        Validation.success[Throwable, Seq[DisksResult]](List[DisksResult]()).toValidationNel
     }
 
   }
@@ -269,10 +269,15 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
   }
 
   private def deleteFound(email: String, ds: Seq[DisksResult]) = {
-      (ds.map { was =>
+      val output = (ds.map { was =>
         play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete success", Console.RESET))
         dePub(email, was)
-      }).head
+      })
+
+      if (!output.isEmpty)
+         output.head
+      else
+        DisksResult("","","","","","","").successNel
    }
 
 
