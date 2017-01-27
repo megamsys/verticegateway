@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS events_for_billings (id text, event_type text, accoun
 
 CREATE TABLE IF NOT EXISTS events_for_storages (id text, event_type text, account_id text, data list<text>, json_claz text, created_at timestamp, PRIMARY KEY(account_id, created_at, event_type))WITH CLUSTERING ORDER BY(created_at desc, event_type desc);
 
-CREATE TABLE IF NOT EXISTS audit_logs (id text, audit_type text, account_id text, data list<text>, json_claz text, created_at timestamp, PRIMARY KEY(account_id, created_at, event_type))WITH CLUSTERING ORDER BY(created_at desc, audit_type desc);
+CREATE TABLE IF NOT EXISTS audit_logs (id text, audit_type text, account_id text, data list<text>, json_claz text, created_at timestamp, PRIMARY KEY(account_id, created_at, audit_type))WITH CLUSTERING ORDER BY(created_at desc, audit_type desc);
 
 CREATE TABLE IF NOT EXISTS subscriptions(id text, account_id text, model text, license text, trial_ends text, Json_claz text,created_at timestamp,PRIMARY KEY(account_id));
 
