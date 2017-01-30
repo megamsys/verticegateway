@@ -43,8 +43,9 @@ object Components extends Controller with controllers.stack.APIAuthElement {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Components wasn't funneled. Verify the header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          val org = freq.maybeOrg.getOrElse(throw new Error("Org not found (or) invalid."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-          models.tosca.Component.update(email, clientAPIBody) match {
+          models.tosca.Component.update(org, clientAPIBody) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.COMPONENTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ)))) //Ok(ComponentsResults.toJson(succ, true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
