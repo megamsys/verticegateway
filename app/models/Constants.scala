@@ -10,6 +10,7 @@ object Constants {
 
   val STATE           = "state"
   val CREATE          = "create"
+  val RESETPW         = "resetpassword"
   val DELETE          = "destroy"
 
   val CONTROL         = "control"
@@ -37,7 +38,7 @@ object Constants {
   val COLLABORATION     = "collaboration"
 
   val STATUS_DESTROYED            = List("destroyed", "preerror")
-  
+
   val REPORT_SALES                        = "sales"
   val REPORT_USRDOT                       = "userdot"
   val REPORT_LANDOT                       = "launchdot"
