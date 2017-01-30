@@ -205,7 +205,7 @@ abstract class ConcreteComponent extends ComponentSacks with RootConnector {
   }
 
   def updateRecord(org_id: String, rip: ComponentResult): ValidationNel[Throwable, ResultSet] = {
-    val res = update.where(_.id eqs rip.id)
+    val res = update.where(_.id eqs rip.id).and(_.org_id eqs org_id)
       .modify(_.name setTo rip.name)
       .and(_.tosca_type setTo rip.tosca_type)
       .and(_.inputs setTo rip.inputs)
