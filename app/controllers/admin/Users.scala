@@ -29,7 +29,7 @@ object Users extends Controller with APIAuthElement with PermissionElement {
           val org    = freq.maybeOrg.getOrElse(throw new CannotAuthenticateError("Org not found (or) invalid.", "Read docs.megam.io/api."))
           val admin  = canPermit(grabAuthBag).getOrElse(throw new PermissionNotThere("admin authority is required to access this resource.", "Read docs.megam.io/api."))
 
-          models.admin.Users.list match {
+          models.admin.Users.delete(id) match {
             case Success(succ) => {
               Ok(Results.resultset(models.Constants.ADMINUSERSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
              }

@@ -133,6 +133,11 @@ abstract class ConcreteBillingtransactions extends BillingtransactionsSacks with
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object Billingtransactions extends ConcreteBillingtransactions {
@@ -197,7 +202,13 @@ return a list of ValidationNel[List[BillinghistoriesResult]]
       else
         Validation.failure[Throwable, Seq[BillingtransactionsResult]](new ResourceItemNotFound(email, "Billingtransactions = nothing found.")).toValidationNel
     }
+  }
 
+  def delete(email: String): ValidationNel[Throwable, Option[BillingtransactionsResult]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[BillingtransactionsResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[BillingtransactionsResult]](none).toValidationNel
+    }
   }
 
 }

@@ -107,6 +107,11 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
   def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
       val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
       val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
@@ -177,6 +182,13 @@ object Billedhistories extends ConcreteBilledhistories {
     dateRangeFor(email, startdate, enddate) match {
       case Success(value) => Validation.success[Throwable, Seq[BilledhistoriesResult]](value).toValidationNel
       case Failure(err) => Validation.success[Throwable, Seq[BilledhistoriesResult]](List()).toValidationNel
+    }
+  }
+
+  def delete(email: String): ValidationNel[Throwable, Option[BilledhistoriesResult]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[BilledhistoriesResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[BilledhistoriesResult]](none).toValidationNel
     }
   }
 }

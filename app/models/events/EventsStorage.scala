@@ -114,6 +114,11 @@ abstract class ConcreteEventsStorage extends EventsStorageSacks with RootConnect
     val res = select.where(_.account_id eqs email).fetch()
     Await.result(res, 5.seconds).successNel
   }
+
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
 }
 
 object EventsStorage extends ConcreteEventsStorage {
@@ -155,6 +160,13 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Events
     }).toValidationNel.flatMap { nm: Seq[EventsStorageResult] =>
       if (!nm.isEmpty) Validation.success[Throwable, Seq[EventsStorageResult]](nm).toValidationNel
       else Validation.failure[Throwable, Seq[EventsStorageResult]](new ResourceItemNotFound(accountID, "EventsStorage = nothing found.")).toValidationNel
+    }
+  }
+
+  def delete(email: String): ValidationNel[Throwable, Option[EventsStorageResult]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[EventsStorageResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[EventsStorageResult]](none).toValidationNel
     }
   }
 }

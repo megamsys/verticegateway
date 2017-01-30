@@ -128,7 +128,13 @@ abstract class ConcreteEventsBilling extends EventsBillingSacks with RootConnect
      val times = DateHelper.toTimeRange(created_at)
      val res = select.allowFiltering().where(_.created_at gte times._1).and(_.created_at lte times._2).and(_.assembly_id eqs assembly_id).limit(count.toInt).fetch()
     Await.result(res, 5.seconds).successNel
-     }
+  }
+
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object EventsBilling extends ConcreteEventsBilling {
@@ -183,7 +189,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Events
 
   def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsBillingResult]] = {
    (mkEventsBillingSack(email, input) leftMap { err: NonEmptyList[Throwable] => err
-   }).flatMap {ws: EventsBillingResult =>
+   }).flatMap { ws: EventsBillingResult =>
     (getRecords(ws.created_at.withTimeAtStartOfDay(),ws.assembly_id, limit) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(ws.assembly_id, "Events = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[EventsBillingResult] =>
@@ -191,10 +197,14 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Events
         Validation.success[Throwable, Seq[EventsBillingResult]](nm).toValidationNel
        else
         Validation.failure[Throwable, Seq[EventsBillingResult]](new ResourceItemNotFound(ws.assembly_id, "EventsBilling = nothing found.")).toValidationNel
-
     }
-
   }
 }
 
+  def delete(email: String): ValidationNel[Throwable, Option[EventsBillingResult]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[EventsBillingResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[EventsBillingResult]](none).toValidationNel
+    }
+  }
 }

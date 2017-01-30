@@ -186,6 +186,11 @@ abstract class ConcreteAccounts extends AccountSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.email eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 
   def dbUpdate(email: String, rip: AccountResult, aor: Option[AccountResult]): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.email eqs NilorNot(email, aor.get.email))
@@ -434,6 +439,14 @@ object Accounts extends ConcreteAccounts {
       c.some
     }
   }
+
+  def delete(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[AccountResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[AccountResult]](none).toValidationNel
+    }
+  }
+
 
   def countAll: ValidationNel[Throwable, String] = dbCount.map(l => l.getOrElse(0L).toString)
 

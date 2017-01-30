@@ -16,25 +16,34 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import io.megam.auth.stack.Role.{ADMIN}
+import models.tosca.KeyValueList
+import models.admin.audits.Constants
 
 object Users {
 
   //An Admin can list all the users
   def list: ValidationNel[Throwable, Seq[AccountResult]] = models.base.Accounts.list
 
-  //An Admin can delete an user
-  //- delete billedhistories
-  //- delete billingtransactions
-  //- delete addons
-  //- delete the snapshots
-  //- delete disks
-  //- delete components
-  //- delete assembly
-  //- delete assemblies
-  //- delete organization
-  //- delete accounts
+  //An Admin can scavenge an user
   def delete(id: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    models.base.Accounts.update(id)
+    play.api.Logger.debug("%-20s -->[%s]".format("UD:", "delete ?" + id))
+    for {
+      nls <- models.admin.audits.Scavenger(id).nukeLittered
+      nds <- models.admin.audits.Scavenger(id).nukeDeployed
+      nts <- models.admin.audits.Scavenger(id).nukeTelemetry
+      nws <- models.admin.audits.Scavenger(id).nukeWhitePebbles
+      nis <- models.admin.audits.Scavenger(id).nukeIdentity
+    } yield {
+      models.admin.audits.AuditLog.createFrom(id,
+            models.admin.audits.AuditLogInput(id,  Constants.LOG_USER_DELETE,
+                                KeyValueList(Map(
+                                    Constants.KIND   -> Constants.DESTROYED_ALL,
+                                    Constants.STATUS -> Constants.SUCCESS
+                                  ))
+                                )
+                              )
+      nis
+    }
   }
 
   //Admin can suspend, impersonate, block, unblock, active users hack for 1.5.

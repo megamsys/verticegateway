@@ -54,6 +54,7 @@ case class Repo(rtype: String, source: String, oneclick: String, url: String, br
 
 case class ComponentResult(
     id: String,
+    org_id: String,
     name: String,
     tosca_type: String,
     inputs: models.tosca.KeyValueList,
@@ -73,7 +74,9 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
 
   implicit val formats = DefaultFormats
 
+  object org_id extends StringColumn(this) with PartitionKey[String]
   object id extends StringColumn(this) with PrimaryKey[String]
+
   object name extends StringColumn(this)
   object tosca_type extends StringColumn(this)
 
@@ -148,6 +151,7 @@ sealed class ComponentSacks extends CassandraTable[ComponentSacks, ComponentResu
   def fromRow(row: Row): ComponentResult = {
     ComponentResult(
       id(row),
+      org_id(row),
       name(row),
       tosca_type(row),
       inputs(row),
@@ -172,6 +176,7 @@ abstract class ConcreteComponent extends ComponentSacks with RootConnector {
 
   def insertNewRecord(ams: ComponentResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, ams.id)
+      .value(_.org_id, ams.org_id)
       .value(_.name, ams.name)
       .value(_.tosca_type, ams.tosca_type)
       .value(_.inputs, ams.inputs)
@@ -194,8 +199,13 @@ abstract class ConcreteComponent extends ComponentSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecords(org_id: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
   def updateRecord(org_id: String, rip: ComponentResult): ValidationNel[Throwable, ResultSet] = {
-    val res = update.where(_.id eqs rip.id)
+    val res = update.where(_.id eqs rip.id).and(_.org_id eqs org_id)
       .modify(_.name setTo rip.name)
       .and(_.tosca_type setTo rip.tosca_type)
       .and(_.inputs setTo rip.inputs)
@@ -278,7 +288,7 @@ object Component extends ConcreteComponent {
       com_collection <- (Component.findById(List(rip.id).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val com = com_collection.head
-      val json = ComponentResult(rip.id, com.get.name, com.get.tosca_type,  rip.inputs, rip.outputs, rip.envs, rip.artifacts, rip.related_components, rip.operations, rip.status, rip.state, rip.repo, com.get.json_claz, com.get.created_at)
+      val json = ComponentResult(rip.id, com.get.org_id, com.get.name, com.get.tosca_type,  rip.inputs, rip.outputs, rip.envs, rip.artifacts, rip.related_components, rip.operations, rip.status, rip.state, rip.repo, com.get.json_claz, com.get.created_at)
       json.some
     }
   }
@@ -291,6 +301,13 @@ object Component extends ConcreteComponent {
       play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Component.updated successfully", Console.RESET))
       List(gs)
 
+    }
+  }
+
+  def deleteByOrgId(org_id: String): ValidationNel[Throwable, Option[ComponentResult]] = {
+    deleteRecords(org_id) match {
+      case Success(value) => Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel
     }
   }
 
@@ -308,7 +325,7 @@ object ComponentsList extends ConcreteComponent {
     } yield {
       import models.tosca.KeyValueList._
 
-      val json = ComponentResult((uir.get._1 + uir.get._2), input.name, input.tosca_type, input.inputs, input.outputs,
+      val json = ComponentResult((uir.get._1 + uir.get._2), authBag.get.org_id, input.name, input.tosca_type, input.inputs, input.outputs,
         KeyValueList.merge(input.envs,
           Map(MKT_FLAG_EMAIL -> authBag.get.email,
             MKT_FLAG_APIKEY -> authBag.get.api_key,
@@ -340,5 +357,6 @@ object ComponentsList extends ConcreteComponent {
       nels(ogsi)
     }
   }
+
 
 }

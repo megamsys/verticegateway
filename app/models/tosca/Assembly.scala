@@ -143,7 +143,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
-  def listRecords(email: String, org: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+  def listRecords(org: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
     val res = select.allowFiltering().where(_.org_id eqs org).fetch()
     Await.result(res, 5.seconds).successNel
   }
@@ -173,6 +173,11 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
 
   def getRecord(id: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
     val res = select.allowFiltering().where(_.id eqs id).and(_.created_at lte DateHelper.now()).one()
+    Await.result(res, 5.seconds).successNel
+  }
+
+  def deleteRecords(org_id: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).future()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -216,7 +221,6 @@ case class AssemblyUpdateInput(id: String,
 }
 
 case class WrapAssemblyResult(thatGS: Option[AssemblyResult]) extends ImplicitJsonFormats  {
-
   val asm = thatGS.get
   val cattype = asm.tosca_type.split('.')(1)
   val domain = asm.inputs.find(_.key.equalsIgnoreCase(DOMAIN))
@@ -248,6 +252,17 @@ object Assembly extends ConcreteAssembly {
     }).head //return the folded element in the head.
   }
 
+  def findByOrgId(org_id: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+    (listRecords(org_id) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(org_id, "Assembly = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[AssemblyResult]](nm).toValidationNel
+      else
+        Validation.success[Throwable, Seq[AssemblyResult]](List[AssemblyResult]()).toValidationNel
+    }
+  }
+
   def listAll(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
      (listallRecords() leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Assembly = nothing found.")
@@ -272,6 +287,53 @@ object Assembly extends ConcreteAssembly {
       case Success(value) => Validation.success[Throwable, Seq[AssemblyResult]](value).toValidationNel
       case Failure(err) => Validation.success[Throwable, Seq[AssemblyResult]](List()).toValidationNel
     }
+  }
+
+  def update(org_id: String, input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
+    for {
+      gs <- (updateAssemblySack(org_id, input) leftMap { err: NonEmptyList[Throwable] => err })
+      set <- (updateRecord(org_id, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
+      gs
+    }
+  }
+
+  def hardDeleteByOrgId(org_id: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
+    deleteRecords(org_id) match {
+      case Success(value) => Validation.success[Throwable, Option[AssemblyResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[AssemblyResult]](none).toValidationNel
+    }
+  }
+
+  def softDeleteByOrgId(org_id: String): ValidationNel[Throwable, AssemblyResult] = {
+    for {
+      wa <- (findByOrgId(org_id) leftMap { t: NonEmptyList[Throwable] => t })
+      df <- deleteFound(org_id, wa)
+    } yield df
+  }
+
+  private def deleteFound(email: String, an: Seq[AssemblyResult]) = {
+      val output = (an.map { asa =>
+           if (!(STATUS_DESTROYED.contains(asa.status) ||
+                 STATUS_DESTROYED.contains(asa.state)))
+             dePub(email, asa)
+          else
+             asa.successNel[Throwable]
+      })
+
+      if (!output.isEmpty)
+         output.head
+      else
+        AssemblyResult("","","","", models.tosca.ComponentLinks.empty,"",
+          models.tosca.PoliciesList.empty, models.tosca.KeyValueList.empty,
+          models.tosca.KeyValueList.empty, "", "", "", DateHelper.now()).successNel
+
+   }
+
+  private def dePub(email: String, wa: AssemblyResult): ValidationNel[Throwable, AssemblyResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, wa.tosca_type, "", DELETE, STATE).json)
+    wa.successNel[Throwable]
   }
 
   private def updateAssemblySack(org_id: String, input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
@@ -301,16 +363,6 @@ object Assembly extends ConcreteAssembly {
     }
   }
 
-  def update(org_id: String, input: String): ValidationNel[Throwable, Option[AssemblyResult]] = {
-
-    for {
-      gs <- (updateAssemblySack(org_id, input) leftMap { err: NonEmptyList[Throwable] => err })
-      set <- (updateRecord(org_id, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
-    } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
-      gs
-    }
-  }
 }
 
 object AssemblysList extends ConcreteAssembly {
