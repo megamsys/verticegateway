@@ -77,7 +77,9 @@ case class RequestResult(id: String, account_id: String, cat_id: String, cattype
 
   //if its create, delete and cattype is a machine, drop it in nsqvms
   private def  inMachine(cat: String) =  {
-    (cat.toLowerCase.contains(CATTYPE_TORPEDO))
+    val DQACTIONS = Array[String](RESETPW)
+
+    (cat.toLowerCase.contains(CATTYPE_TORPEDO) && !DQACTIONS.contains(action))
   }
 
   private def inLifecycle(action: String) = {
