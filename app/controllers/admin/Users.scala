@@ -31,7 +31,7 @@ object Users extends Controller with APIAuthElement with PermissionElement {
 
           models.admin.Users.delete(id) match {
             case Success(succ) => {
-              Ok(Results.resultset(models.Constants.ADMINUSERSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+              Ok(Results.resultset(models.Constants.ACCOUNTCLAZ, compactRender(Extraction.decompose(succ))))
              }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
