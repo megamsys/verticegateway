@@ -32,7 +32,7 @@ class Launches(ri: ReportInput) extends Reporter {
     for {
      al <- (models.tosca.Assemblies.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
      as <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
-   } yield (al, as)
+   } yield (al, as )
   }
 
   def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = {
@@ -57,15 +57,12 @@ class Launches(ri: ReportInput) extends Reporter {
    for {
      ba <- (abt._1.map { asms => (asms.assemblies.map {x => (x, asms.id)})}).flatten.toMap.some
      la <-  LaunchesAggregate(abt._2, ba).some
-    } yield {
-      la.aggregate
-   }
+    } yield la.aggregate
   }
 
   private def subaggregate(olrt: Option[Seq[LaunchesResult]])  = {
-
   val lrt = olrt.getOrElse(List[LaunchesResult]())
-  val f: List[String] = REPORT_CATEGORYMAP.get(ri.category).getOrElse(List[String]("all"))
+  val f: List[String] = REPORT_CATEGORYMAP.get(ri.category).getOrElse(REPORT_CATEGORYMAP.get("all").getOrElse(List()))
   val g: List[String] = List(ri.group)
 
   for {
@@ -74,7 +71,7 @@ class Launches(ri: ReportInput) extends Reporter {
          (if (g.size > 2) (g.filter(x => a.status.contains(x)).size > 0) else  true)
       }
     }.some
-  } yield  ba
+  } yield  ba    
   }
 }
 
