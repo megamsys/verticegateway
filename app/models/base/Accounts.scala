@@ -442,7 +442,7 @@ object Accounts extends ConcreteAccounts {
 
   def delete(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
     deleteRecords(email) match {
-      case Success(value) => Validation.success[Throwable, Option[AccountResult]](none).toValidationNel
+      case Success(value) =>  Validation.success[Throwable, Option[AccountResult]](AccountResult("dum").some).toValidationNel
       case Failure(err) => Validation.success[Throwable, Option[AccountResult]](none).toValidationNel
     }
   }
