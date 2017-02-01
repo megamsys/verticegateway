@@ -96,6 +96,11 @@ abstract class ConcreteOrg extends SshKeysT with ScyllaConnector {
     val res = select.allowFiltering().where(_.name eqs id).one()
     Await.result(res, 5.seconds).successNel
   }
+
+  def deleteRecords(org_id: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).future()
+    Await.result(res, 5.seconds).successNel
+  }
 }
 
 
@@ -151,6 +156,13 @@ object SshKeys extends ConcreteOrg with ImplicitJsonFormats {
    } map {
      _.foldRight((SshKeysResults.empty).successNel[Throwable])(_ +++ _)
    }).head
+ }
+
+ def delete(org_id: String): ValidationNel[Throwable, Option[SshKeysResults]] = {
+   deleteRecords(org_id) match {
+     case Success(value) => Validation.success[Throwable, Option[SshKeysResults]](none).toValidationNel
+     case Failure(err) => Validation.success[Throwable, Option[SshKeysResults]](none).toValidationNel
+   }
  }
 
 }

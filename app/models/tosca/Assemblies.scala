@@ -180,6 +180,11 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecords(org_id: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[String, String]) extends  ImplicitJsonFormats {
@@ -262,6 +267,13 @@ object Assemblies extends ConcreteAssemblies {
     dateRangeByFor(email, org, startdate, enddate) match {
       case Success(value) => Validation.success[Throwable, Seq[AssembliesResult]](value).toValidationNel
       case Failure(err) => Validation.success[Throwable, Seq[AssembliesResult]](List()).toValidationNel
+    }
+  }
+
+  def deleteByOrgId(org_id: String): ValidationNel[Throwable, Option[AssembliesResult]] = {
+    deleteRecords(org_id) match {
+      case Success(value) => Validation.success[Throwable, Option[AssembliesResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[AssembliesResult]](none).toValidationNel
     }
   }
 

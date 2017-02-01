@@ -87,6 +87,11 @@ abstract class ConcreteOrg extends OrganizationsT with ScyllaConnector {
     Await.result(res, 5.seconds)
   }
 
+  def deleteRecords(email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.accounts_id eqs email).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object Organizations extends ConcreteOrg  with ImplicitJsonFormats {
@@ -125,6 +130,13 @@ object Organizations extends ConcreteOrg  with ImplicitJsonFormats {
     (Await.result(resp, 5.seconds)).successNel
   }
 
+  def delete(email: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
+    deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[OrganizationsResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[OrganizationsResult]](none).toValidationNel
+    }
+  }
+
   private def findById(id: String): ValidationNel[Throwable, Option[OrganizationsResult]] = {
     val resp = select.allowFiltering().where(_.id eqs id).one()
     (Await.result(resp, 5.second)).successNel
@@ -139,4 +151,5 @@ object Organizations extends ConcreteOrg  with ImplicitJsonFormats {
       insertNewRecord(org)
     }
   }
+
 }

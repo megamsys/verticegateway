@@ -10,6 +10,7 @@ object Constants {
 
   val STATE           = "state"
   val CREATE          = "create"
+  val RESETPW         = "resetpassword"
   val DELETE          = "destroy"
 
   val CONTROL         = "control"
@@ -36,6 +37,7 @@ object Constants {
   val ANALYTICS         = "analytics"
   val COLLABORATION     = "collaboration"
 
+  val STATUS_DESTROYED            = List("destroyed", "preerror")
 
   val REPORT_SALES                        = "sales"
   val REPORT_USRDOT                       = "userdot"
@@ -54,7 +56,7 @@ object Constants {
   val REPORT_CATEGORYMAP                  = Map(
     "all" -> (REPORT_FILTER_VM  ++ REPORT_FILTER_CUSTOMAPPS ++ REPORT_FILTER_BITNAMI_PREPACKAGED ++  REPORT_FILTER_VERTICE_PREPACKAGED
               ++ REPORT_FILTER_SERVICES ++ REPORT_FILTER_CONTAINERS),
-    "service" -> REPORT_FILTER_SERVICES,          
+    "service" -> REPORT_FILTER_SERVICES,
     "vm" -> REPORT_FILTER_VM,
     "application" -> (REPORT_FILTER_CUSTOMAPPS ++ REPORT_FILTER_BITNAMI_PREPACKAGED ++  REPORT_FILTER_VERTICE_PREPACKAGED),
     "container" -> REPORT_FILTER_CONTAINERS)
@@ -63,6 +65,7 @@ object Constants {
   val ADMINUSERSCLAZ                  = "Megam::Account"
   val ADMINUSERSCOLLECTIONCLAZ        = "Megam::AccountCollection"
   val ADMINLICENSECLAZ                = "Megam::License"
+  val ADMINAUDITLOGCLAZ               =  "Megam::AuditLog"
 
   val ASSEMBLIESCLAZ                  = "Megam::Assemblies"
   val ASSEMBLIESCOLLECTIONCLAZ        = "Megam::AssembliesCollection"

@@ -27,8 +27,12 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
           val email  = freq.maybeEmail.getOrElse(throw new CannotAuthenticateError("Email not found (or) invalid.", "Read docs.megam.io/api."))
           val org    = freq.maybeOrg.getOrElse(throw new CannotAuthenticateError("Org not found (or) invalid.", "Read docs.megam.io/api."))
 
+
           models.admin.Reports.createFor(email, org, input) match {
             case Success(succ) =>  {
+              play.api.Logger.debug("%-20s -->[%s]".format("REP:", 
+                  Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ))))))
+
               Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
             }
             case Failure(err) =>

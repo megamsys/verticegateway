@@ -64,18 +64,27 @@ case class RequestResult(id: String, account_id: String, cat_id: String, cattype
   def topicFunc(x: Unit): Option[String] = {
     val nsqcontainers = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.containers")
     val nsqvms = play.api.Play.application(play.api.Play.current).configuration.getString("nsq.topic.vms")
-    val DQACTIONS = Array[String](CREATE, DELETE)
-    val CSACTIONS = Array[String](START, STOP, REBOOT)
+
 
     if (cattype.toLowerCase.contains(CATTYPE_DOCKER)) {
       nsqcontainers
-    } else if (cattype.equalsIgnoreCase(CATTYPE_TORPEDO)) {
-      nsqvms
-    } else if (DQACTIONS.contains(action)) {
+    } else if (inMachine(cattype) || inLifecycle(action)) {
       nsqvms
     } else if (name.trim.length > 0) {
       name.some
     } else none
+  }
+
+  //if its create, delete and cattype is a machine, drop it in nsqvms
+  private def  inMachine(cat: String) =  {
+    val DQACTIONS = Array[String](RESETPW)
+
+    (cat.toLowerCase.contains(CATTYPE_TORPEDO) && !DQACTIONS.contains(action))
+  }
+
+  private def inLifecycle(action: String) = {
+    val DQACTIONS = Array[String](CREATE, DELETE)
+    DQACTIONS.contains(action)
   }
 }
 

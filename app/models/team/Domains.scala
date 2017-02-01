@@ -80,6 +80,11 @@ abstract class ConcreteDmn extends DomainsT with ScyllaConnector {
     (Await.result(resp, 5.seconds)).successNel
   }
 
+  def deleteRecords(org_id: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object Domains extends ConcreteDmn with ImplicitJsonFormats {
@@ -114,6 +119,13 @@ object Domains extends ConcreteDmn with ImplicitJsonFormats {
       new ResourceItemNotFound(authBag.get.email, "Domains = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[DomainsResult] =>
         Validation.success[Throwable, Seq[DomainsResult]](nm).toValidationNel
+    }
+  }
+
+  def delete(org_id: String): ValidationNel[Throwable, Option[DomainsResult]] = {
+    deleteRecords(org_id) match {
+      case Success(value) => Validation.success[Throwable, Option[DomainsResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[DomainsResult]](none).toValidationNel
     }
   }
 
