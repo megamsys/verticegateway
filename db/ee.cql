@@ -29,7 +29,11 @@ INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 -- Common collaboration software
 -- Apache2, PostgreSQL, MySQL, Cassandra, Riak, RabbitMQ, Redis
 -- Zarafa, OwnCloud, WordPress, Moodle, PrestaShop,MediaWiki
--- Ghost, Redmine, Discourse
+-- Ghost, Redmine, Discourse,Agenti,VestaCP
+
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'VestaCP', 'vestacp.png', '6', 'https://vestacp.com/', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"8083"}'], ['{"key":"oneclick", "value":"yes"}'], {'7':'The Vesta Control Panel is a free, open source website control panel with website, email, database, and DNS functionalities built in'});
+
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'Ajenti', 'ajenti.png', '6', 'https://ajanti.com/', 'Megam::MarketPlace' , ['{"key":"protocol", "value":"https"}', '{"key":"http-port", "value":"8000"}'], ['{"key":"oneclick", "value":"yes"}'], {'7.2':'Ajenti is an open source, web-based control panel that can be used for a large variety of server management tasks'});
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'SERVICE', 'Apache', 'apache.png', '3', 'http://www.apache.org/', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"80"}'], [], {'2.4.18':'Apache is the most widely used web server software. Developed and maintained by Apache Software Foundation.'});
 
@@ -47,7 +51,7 @@ INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'Zarafa', 'zarafa.png', '6', 'https://www.zarafa.com/', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"/webaccess"}','{"key":"path", "value":"/"}'], ['{"key":"oneclick", "value":"yes"}'], {'7.2':'Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite.'});
 
-INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'Owncloud', 'owncloud.png', '6', 'https://owncloud.org/', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"80"}','{"key":"path", "value":"/"}','{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}'], ['{"key":"oneclick", "value":"yes"}'], {'9.1':'Access your data from all your devices, on an open platform you can extend and modify.'});
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'Owncloud', 'owncloud.png', '6', 'https://owncloud.org/', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"80"}','{"key":"path", "value":"/"}','{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}'], ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}','{"key":"bitnami_password", "value":"team4megam"}','{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/MediaSharing/bitnami-owncloud-9.1.3-1-linux-x64-installer.run"}'], {'9.1':'Access your data from all your devices, on an open platform you can extend and modify.'});
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('bitnami', 'COLLABORATION', 'WordPress ',  'wordpress.png', '6', 'https://bitnami.com/stack/wordpress', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"80"}','{"key":"path", "value":"/"}'], ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}','{"key":"bitnami_password", "value":"team4megam"}','{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-wordpress-4.4.2-3-linux-x64-installer.run"}'], {'4.4.2':'WordPress is the web publishing platforms for building blogs and websites.'});
 
