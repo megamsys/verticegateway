@@ -29,7 +29,11 @@ INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 -- Common collaboration software
 -- Apache2, PostgreSQL, MySQL, Cassandra, Riak, RabbitMQ, Redis
 -- Zarafa, OwnCloud, WordPress, Moodle, PrestaShop,MediaWiki
--- Ghost, Redmine, Discourse
+-- Ghost, Redmine, Discourse,Agenti,VestaCP
+
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'VestaCP', 'vestacp.png', '6', 'https://vestacp.com/', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"8083"}'], ['{"key":"oneclick", "value":"yes"}'], {'7':'The Vesta Control Panel is a free, open source website control panel with website, email, database, and DNS functionalities built in'});
+
+INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'COLLABORATION', 'Ajenti', 'ajenti.png', '6', 'https://ajanti.com/', 'Megam::MarketPlace' , ['{"key":"protocol", "value":"https"}', '{"key":"http-port", "value":"8000"}'], ['{"key":"oneclick", "value":"yes"}'], {'7.2':'Ajenti is an open source, web-based control panel that can be used for a large variety of server management tasks'});
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'SERVICE', 'Apache', 'apache.png', '3', 'http://www.apache.org/', 'Megam::MarketPlace' , ['{"key":"http-port", "value":"80"}'], [], {'2.4.18':'Apache is the most widely used web server software. Developed and maintained by Apache Software Foundation.'});
 
