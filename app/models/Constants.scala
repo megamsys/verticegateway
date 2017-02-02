@@ -22,6 +22,10 @@ object Constants {
   val SNAPSHOT_CREATE = "snapcreate"  //action
   val SNAPSHOT_REMOVE = "snapremove"  //action
 
+  val BACKUP        = "backup"    //category
+  val BACKUP_CREATE = "backupcreate"  //action
+  val BACKUP_REMOVE = "backupremove"  //action
+
   val DISKS           = "disks"        //category
   val ATTACH_DISK     = "attachdisk"   //action
   val DETACH_DISK     = "detachdisk"   //action
@@ -119,6 +123,8 @@ object Constants {
   val SSHKEYCOLLECTIONCLAZ            = "Megam::SshKeyCollection"
   val SNAPSHOTSCLAZ                   = "Megam::Snapshots"
   val SNAPSHOTSCOLLECTIONCLAZ         = "Megam::SnapshotsCollection"
+  val BACKUPSCLAZ                   = "Megam::Backups"
+  val BACKUPSCOLLECTIONCLAZ         = "Megam::BackupsCollection"
   val DISKSCLAZ                       = "Megam::Disks"
   val DISKSCOLLECTIONCLAZ             = "Megam::DisksCollection"
   val SUBSCRIPTIONSCLAZ               = "Megam::Subscriptions"
