@@ -107,6 +107,14 @@ GET  /v2/snapshots/show/:id           controllers.Snapshots.get(id: String)
 POST /v2/snapshots/update             controllers.Snapshots.update
 DELETE /v2/snapshots/:assembly_id/:id    controllers.Snapshots.delete(assembly_id: String, id: String)
 
+# Backupvms
+POST /v2/backups/content            controllers.Backups.post
+GET  /v2/backups                    controllers.Backups.list
+GET  /v2/backups/:id                controllers.Backups.show(id: String)
+GET  /v2/backups/show/:id           controllers.Backups.get(id: String)
+POST /v2/backups/update             controllers.Backups.update
+DELETE /v2/backups/:assembly_id/:id    controllers.Backups.delete(assembly_id: String, id: String)
+
 # Disks (Block storage)
 POST   /v2/disks/content                  controllers.Disks.post
 GET    /v2/disks                          controllers.Disks.list

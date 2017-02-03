@@ -47,15 +47,18 @@ case class SnapshotsResult(
   account_id: String,
   name:   String,
   status: String,
-  image_id: String,
+  disk_id: String,
+  snap_id: String,
   tosca_type: String,
   inputs: models.tosca.KeyValueList,
   outputs: models.tosca.KeyValueList,
   json_claz: String,
-  created_at: DateTime)
+  created_at: DateTime,
+  updated_at: DateTime
+  )
 
 object SnapshotsResult {
-  def apply(id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, outputs, "Megam::Snapshots", DateTime.now())
+  def apply(id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, disk_id: String, snap_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(id, asm_id, org_id, account_id, name, status, disk_id, snap_id, tosca_type, inputs, outputs, "Megam::Snapshots", DateTime.now(),DateTime.now())
 }
 
 sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResult] with ImplicitJsonFormats {
@@ -66,7 +69,8 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
   object account_id extends StringColumn(this) with PrimaryKey[String]
   object name extends StringColumn(this)
   object status extends StringColumn(this)
-  object image_id extends StringColumn(this)
+  object disk_id extends StringColumn(this)
+  object snap_id extends StringColumn(this)
   object tosca_type extends StringColumn(this)
   object inputs extends JsonListColumn[SnapshotsSacks, SnapshotsResult, KeyValueField](this) {
     override def fromJson(obj: String): KeyValueField = {
@@ -88,6 +92,7 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
     }
   }
   object created_at extends DateTimeColumn(this)
+  object updated_at extends DateTimeColumn(this)
   object json_claz extends StringColumn(this)
 
   def fromRow(row: Row): SnapshotsResult = {
@@ -98,12 +103,14 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
       account_id(row),
       name(row),
       status(row),
-      image_id(row),
+      disk_id(row),
+      snap_id(row),
       tosca_type(row),
       inputs(row),
       outputs(row),
       json_claz(row),
-      created_at(row))
+      created_at(row),
+      updated_at(row))
   }
 }
 
@@ -120,12 +127,14 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
       .value(_.account_id, sps.account_id)
       .value(_.name, sps.name)
       .value(_.status, sps.status)
-      .value(_.image_id, sps.image_id)
+      .value(_.disk_id, sps.disk_id)
+      .value(_.snap_id, sps.snap_id)
       .value(_.tosca_type, sps.tosca_type)
       .value(_.inputs, sps.inputs)
       .value(_.outputs, sps.outputs)
       .value(_.json_claz, sps.json_claz)
       .value(_.created_at, sps.created_at)
+      .value(_.updated_at, sps.updated_at)
       .future()
     Await.result(res, 5.seconds).successNel
   }
@@ -134,16 +143,21 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
     val oldstatus  = aor.get.status
     val newstatus  = rip.status
 
-    val oldimage_id= aor.get.image_id
-    val newimage_id = rip.image_id
+    val olddisk_id= aor.get.disk_id
+    val newdisk_id = rip.disk_id
+
+    val oldsnap_id= aor.get.snap_id
+    val newsnap_id = rip.snap_id
 
     val res = update.where(_.id eqs rip.id)
         .and(_.account_id eqs email)
         .and(_.asm_id eqs rip.asm_id)
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
-      .and(_.image_id setTo StringStuff.NilOrNot(newimage_id, oldimage_id))
+      .and(_.disk_id setTo StringStuff.NilOrNot(newdisk_id, olddisk_id))
+      .and(_.snap_id setTo StringStuff.NilOrNot(newsnap_id, oldsnap_id))
       .and(_.inputs setTo rip.inputs)
       .and(_.outputs setTo rip.outputs)
+      .and(_.updated_at setTo DateHelper.now())
       .future()
       Await.result(res, 5.seconds).successNel
   }
@@ -193,7 +207,7 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
     val bvalue = Set(email)
-    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", snap.tosca_type, List(), List(), "Megam::Snapshots", DateHelper.now())
+    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", "",snap.tosca_type, List(), List(), "Megam::Snapshots", DateHelper.now(), DateHelper.now())
     json
   }
 }
@@ -304,7 +318,7 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
       if (!output.isEmpty)
          output.head
       else
-        SnapshotsResult("","","","","","","", "", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
+        SnapshotsResult("","","","","","","","","", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
   }
 
 
