@@ -53,10 +53,12 @@ case class SnapshotsResult(
   inputs: models.tosca.KeyValueList,
   outputs: models.tosca.KeyValueList,
   json_claz: String,
-  created_at: DateTime)
+  created_at: DateTime,
+  updated_at: DateTime
+  )
 
 object SnapshotsResult {
-  def apply(id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, disk_id: String, snap_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(id, asm_id, org_id, account_id, name, status, disk_id, snap_id, tosca_type, inputs, outputs, "Megam::Snapshots", DateTime.now())
+  def apply(id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, disk_id: String, snap_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new SnapshotsResult(id, asm_id, org_id, account_id, name, status, disk_id, snap_id, tosca_type, inputs, outputs, "Megam::Snapshots", DateTime.now(),DateTime.now())
 }
 
 sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResult] with ImplicitJsonFormats {
@@ -90,6 +92,7 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
     }
   }
   object created_at extends DateTimeColumn(this)
+  object updated_at extends DateTimeColumn(this)
   object json_claz extends StringColumn(this)
 
   def fromRow(row: Row): SnapshotsResult = {
@@ -106,7 +109,8 @@ sealed class SnapshotsSacks extends CassandraTable[SnapshotsSacks, SnapshotsResu
       inputs(row),
       outputs(row),
       json_claz(row),
-      created_at(row))
+      created_at(row),
+      updated_at(row))
   }
 }
 
@@ -130,6 +134,7 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
       .value(_.outputs, sps.outputs)
       .value(_.json_claz, sps.json_claz)
       .value(_.created_at, sps.created_at)
+      .value(_.updated_at, sps.updated_at)
       .future()
     Await.result(res, 5.seconds).successNel
   }
@@ -152,6 +157,7 @@ abstract class ConcreteSnapshots extends SnapshotsSacks with RootConnector {
       .and(_.snap_id setTo StringStuff.NilOrNot(newsnap_id, oldsnap_id))
       .and(_.inputs setTo rip.inputs)
       .and(_.outputs setTo rip.outputs)
+      .and(_.updated_at setTo DateHelper.now())
       .future()
       Await.result(res, 5.seconds).successNel
   }
@@ -201,7 +207,7 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
     val bvalue = Set(email)
-    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", "",snap.tosca_type, List(), List(), "Megam::Snapshots", DateHelper.now())
+    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", "",snap.tosca_type, List(), List(), "Megam::Snapshots", DateHelper.now(), DateHelper.now())
     json
   }
 }
