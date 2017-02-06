@@ -63,8 +63,8 @@ case class QuotasResult(
         allocated_to: String,
         inputs: models.tosca.KeyValueList,
         quota_type: String,
-        status: String,
-        created_at: String)
+        status: String
+        )
 
 sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with ImplicitJsonFormats {
 

@@ -392,7 +392,7 @@ object AssemblysList extends ConcreteAssembly {
 
   def atQuotaUpdate(email: String, asm: Assembly, asm_id: String): ValidationNel[Throwable, QuotasResult] = {
     val quota_id = asm.inputs.find(_.key.equalsIgnoreCase("quota_id")).getOrElse(models.tosca.KeyValueField.empty).value
-    val quo = QuotasUpdateInput(quota_id, email, null, asm_id, null, "", "", DateHelper.now().toString())
+    val quo = QuotasUpdateInput(quota_id, email, null, asm_id, null, "", "")
 
     if (quota_id != "") {
       models.billing.Quotas.update(email, compactRender(Extraction.decompose(quo)))
