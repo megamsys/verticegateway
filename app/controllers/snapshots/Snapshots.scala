@@ -43,7 +43,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.snapshots.Snapshots.findById(id,email) match {
+          models.snapshots.Snapshots.findByAssemblyId(id,email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -65,7 +65,7 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.snapshots.Snapshots.getById(id,email) match {
+          models.snapshots.Snapshots.findById(id,email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

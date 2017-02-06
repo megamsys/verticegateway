@@ -22,7 +22,9 @@ GET   /v2/admin/licenses/:id          controllers.admin.Licenses.show(id: String
 POST  /v2/admin/reports/content       controllers.admin.Reports.post
 
 # Assemblys
-GET   /v2/admin/assembly/:id          controllers.admin.Assembly.show(id: String)
+GET    /v2/admin/assembly/:id          controllers.admin.Assembly.show(id: String)
+DELETE /v2/admin/assembly/:asbs_id/:id controllers.admin.Assembly.delete(asbs_id: String, id: String)
+
 
 # Balances
 POST  /v2/admin/balances/update       controllers.admin.Balances.update

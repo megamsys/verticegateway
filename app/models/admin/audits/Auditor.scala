@@ -142,7 +142,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[AuditL
     wa <- (mkAuditLogSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "AuditLog.created success", Console.RESET))
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "AuditLog", "|+| ✔", Console.RESET))
     wa.some
   }
  }
