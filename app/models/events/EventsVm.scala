@@ -132,6 +132,11 @@ abstract class ConcreteEventsVm extends EventsVmSacks with RootConnector {
     val res = delete.where(_.account_id eqs email).future()
     Await.result(res, 5.seconds).successNel
   }
+
+  def deleteRecordsByAssembly(id: String, email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).and(_.assembly_id eqs id).future()
+    Await.result(res, 5.seconds).successNel
+  }
 }
 
 object EventsVm extends ConcreteEventsVm {
@@ -159,7 +164,7 @@ object EventsVm extends ConcreteEventsVm {
       wa <- (mkEventsVmSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsVm.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "EventsVM","|+| ✔", Console.RESET))
       wa.some
     }
   }
@@ -204,4 +209,10 @@ object EventsVm extends ConcreteEventsVm {
     }
   }
 
+  def deleteByAssembly(id: String, email: String): ValidationNel[Throwable, Option[EventsVmResult]] = {
+    deleteRecordsByAssembly(id, email) match {
+      case Success(value) => Validation.success[Throwable, Option[EventsVmResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[EventsVmResult]](none).toValidationNel
+    }
+  }
 }

@@ -137,7 +137,6 @@ abstract class ConcreteBillingtransactions extends BillingtransactionsSacks with
     val res = delete.where(_.account_id eqs email).future()
     Await.result(res, 5.seconds).successNel
   }
-
 }
 
 object Billingtransactions extends ConcreteBillingtransactions {
@@ -168,7 +167,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
       acc <- (atAccUpdate(email) leftMap { s: NonEmptyList[Throwable] => s })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Billingtransactions.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Billingtransactions","|+| ✔", Console.RESET))
       wa.some
     }
   }
@@ -210,5 +209,4 @@ return a list of ValidationNel[List[BillinghistoriesResult]]
       case Failure(err) => Validation.success[Throwable, Option[BillingtransactionsResult]](none).toValidationNel
     }
   }
-
 }

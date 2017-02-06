@@ -183,7 +183,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[DisksR
     wa <- (mkDisksSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.created success", Console.RESET))
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Disks","|+| ✔", Console.RESET))
     atPub(email, wa)
     wa.some
   }
@@ -195,7 +195,7 @@ def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, 
     wa <- (findByDiskAndAssemblyId(id, asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
     set <- (deleteRecord(email, asm_id, id) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete success", Console.RESET))
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Disks","|-| ✔", Console.RESET))
     wa
   }
 }
@@ -205,7 +205,6 @@ def initdel(email: String, asm_id: String, id: String): ValidationNel[Throwable,
   for {
     wa <- (findByDiskAndAssemblyId(id, asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete started", Console.RESET))
     dePub(email, wa)
     wa
   }
@@ -215,9 +214,21 @@ def deleteByEmail(email: String): ValidationNel[Throwable, DisksResult] = {
   for {
     wa <- (findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
     df <- deleteFound(email, wa)
-  } yield df
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Disks","|-| ✔", Console.RESET))
+    df
+  }
 }
 
+def deleteByAssembly(assemblyID: String, email: String): ValidationNel[Throwable, DisksResult] = {
+  for {
+    wa <- (findByAssemblyId(assemblyID, email) leftMap { t: NonEmptyList[Throwable] => t })
+    df <- deleteFound(email, wa)
+  } yield {
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Disks","|-| ✔", Console.RESET))
+    df
+  }
+}
 
 def update(email: String, input: String): ValidationNel[Throwable, DisksResult] = {
   val ripNel: ValidationNel[Throwable, DisksResult] = (Validation.fromTryCatchThrowable[DisksResult,Throwable] {
@@ -251,13 +262,11 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[DisksResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[DisksResult]](new ResourceItemNotFound(assemblyID, "Disks = nothing found.")).toValidationNel
+       Validation.success[Throwable, Seq[DisksResult]](List[DisksResult]()).toValidationNel
     }
   }
 
   def findById(id: String, email: String): ValidationNel[Throwable, Seq[DisksResult]] = {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks " + id, Console.RESET))
-
     (getDiskRecords(id, email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(id, "Disk = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[DisksResult] =>
@@ -269,10 +278,7 @@ def update(email: String, input: String): ValidationNel[Throwable, DisksResult] 
   }
 
   private def deleteFound(email: String, ds: Seq[DisksResult]) = {
-      val output = (ds.map { was =>
-        play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Disks.delete success", Console.RESET))
-        dePub(email, was)
-      })
+      val output = (ds.map { was =>  dePub(email, was) })
 
       if (!output.isEmpty)
          output.head

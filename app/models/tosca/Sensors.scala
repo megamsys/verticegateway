@@ -139,6 +139,11 @@ abstract class ConcreteSensors extends SensorsSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecordsByAssembly(id: String, email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).and(_.assembly_id eqs id).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object Sensors extends ConcreteSensors {
@@ -164,13 +169,20 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Sensor
     se <- (mkSensorsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
     set <- (insertNewRecord(se) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Sensors.created success", Console.RESET))
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Sensors","|+| ✔", Console.RESET))
     se.some
   }
 }
 
 def delete(email: String): ValidationNel[Throwable, Option[SensorsResult]] = {
   deleteRecords(email) match {
+    case Success(value) => Validation.success[Throwable, Option[SensorsResult]](none).toValidationNel
+    case Failure(err) => Validation.success[Throwable, Option[SensorsResult]](none).toValidationNel
+  }
+}
+
+def deleteByAssembly(id:String, email: String): ValidationNel[Throwable, Option[SensorsResult]] = {
+  deleteRecordsByAssembly(id, email) match {
     case Success(value) => Validation.success[Throwable, Option[SensorsResult]](none).toValidationNel
     case Failure(err) => Validation.success[Throwable, Option[SensorsResult]](none).toValidationNel
   }

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS billedhistories (id text, account_id text, assembly_i
 
 CREATE TABLE IF NOT EXISTS balances (id text, account_id text, credit text, json_claz text, created_at timestamp, updated_at timestamp, PRIMARY KEY((account_id)));
 
-CREATE TABLE IF NOT EXISTS sensors (id text,  account_id text, sensor_type text, assembly_id text, assembly_name text, assemblies_id text, node text, system text, status text, source text, message text, audit_period_beginning text, audit_period_ending text, audit_period_delta text, metrics list<text>, created_at timestamp,  PRIMARY KEY(account_id, created_at, assembly_id, sensor_type)) WITH CLUSTERING ORDER BY(created_at desc, assembly_id desc, sensor_type desc);
+CREATE TABLE IF NOT EXISTS sensors (id text,  account_id text, sensor_type text, assembly_id text, assembly_name text, assemblies_id text, node text, system text, status text, source text, message text, audit_period_beginning text, audit_period_ending text, audit_period_delta text, metrics list<text>, created_at timestamp,  PRIMARY KEY(account_id, assembly_id, sensor_type, created_at)) WITH CLUSTERING ORDER BY(assembly_id desc, sensor_type desc, created_at desc);
 
 CREATE TABLE IF NOT EXISTS snapshots (id text, asm_id text, org_id text, account_id text, name text, status text, disk_id text, snap_id text, tosca_type text, inputs list<text>, outputs list<text>, json_claz text, created_at timestamp, updated_at timestamp,PRIMARY KEY ((account_id), id, asm_id));
 

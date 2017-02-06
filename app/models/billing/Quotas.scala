@@ -192,7 +192,7 @@ object Quotas extends ConcreteQuotas {
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
       acc <- (atAccUpdate(email) leftMap { s: NonEmptyList[Throwable] => s })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Quotas.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Quotas","|+| ✔", Console.RESET))
       wa.some
     }
   }
