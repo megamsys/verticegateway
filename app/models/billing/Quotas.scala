@@ -41,7 +41,7 @@ import controllers.stack.ImplicitJsonFormats
  * @author rajthilak
  *
  */
-case class QuotasInput(name: String, account_id: String, allowed: KeyValueList, allocated_to: String, inputs: KeyValueList)
+case class QuotasInput(name: String, account_id: String, allowed: KeyValueList, allocated_to: String, inputs: KeyValueList, quota_type: String, status: String)
 
 case class QuotasResult(
     id: String,
@@ -50,6 +50,8 @@ case class QuotasResult(
     allowed: models.tosca.KeyValueList,
     allocated_to: String,
     inputs: models.tosca.KeyValueList,
+    quota_type: String,
+    status: String,
     json_claz: String,
     created_at: DateTime,
     updated_at: DateTime)
@@ -60,7 +62,9 @@ case class QuotasResult(
         allowed: models.tosca.KeyValueList,
         allocated_to: String,
         inputs: models.tosca.KeyValueList,
-        created_at: String)
+        quota_type: String,
+        status: String
+        )
 
 sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with ImplicitJsonFormats {
 
@@ -89,7 +93,8 @@ sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with 
       compactRender(Extraction.decompose(obj))
     }
   }
-
+  object quota_type extends StringColumn(this)
+  object status extends StringColumn(this)
   object json_claz extends StringColumn(this)
   object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object updated_at extends DateTimeColumn(this)
@@ -102,6 +107,8 @@ sealed class QuotasSacks extends CassandraTable[QuotasSacks, QuotasResult] with 
       allowed(row),
       allocated_to(row),
       inputs(row),
+      quota_type(row),
+      status(row),
       json_claz(row),
       created_at(row),
       updated_at(row))
@@ -121,6 +128,8 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
       .value(_.allowed, qs.allowed)
       .value(_.allocated_to, qs.allocated_to)
       .value(_.inputs, qs.inputs)
+      .value(_.quota_type, qs.quota_type)
+      .value(_.status, qs.status)
       .value(_.json_claz, qs.json_claz)
       .value(_.created_at, qs.created_at)
       .value(_.updated_at, qs.updated_at)
@@ -138,9 +147,11 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
     val res = update.where(_.account_id eqs email).and(_.created_at eqs aor.get.created_at).and(_.id eqs rip.id)
       .modify(_.allocated_to setTo NilorNot(newallocated_to, oldallocated_to))
 
-      //.and(_.allowed setTo rip.allowed)
+      .and(_.allowed setTo rip.allowed)
 
       //.and(_.inputs setTo rip.inputs)
+      //.and(_.quota_type setTo rip.quota_type)
+      .and(_.status setTo rip.status)
       .and(_.updated_at setTo DateHelper.now())
       .future()
       Await.result(res, 5.seconds).successNel
@@ -181,7 +192,7 @@ object Quotas extends ConcreteQuotas {
       quota <- quotasInput
       uir <- (UID("quo").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      new QuotasResult(uir.get._1 + uir.get._2, quota.name, email, quota.allowed, quota.allocated_to, quota.inputs, "Megam::Quotas", DateHelper.now(), DateHelper.now())
+      new QuotasResult(uir.get._1 + uir.get._2, quota.name, email, quota.allowed, quota.allocated_to, quota.inputs, quota.quota_type, quota.status, "Megam::Quotas", DateHelper.now(), DateHelper.now())
     }
   }
 

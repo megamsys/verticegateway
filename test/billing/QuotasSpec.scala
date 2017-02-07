@@ -38,6 +38,8 @@ class QuotasSpec extends Specification {
           "{\"key\":\"disk_type\",\"value\":\"SSD\"}" +
          "],"+
          "\"allocated_to\":\"\","+
+         "\"quota_type\":\"vm\","+
+         "\"status\":\"xxxx\","+
          "\"inputs\":[]" +
         "}"
 
