@@ -204,6 +204,12 @@ abstract class ConcreteComponent extends ComponentSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecordsById(org_id: String ,id: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).and(_.id eqs id).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
+
   def updateRecord(org_id: String, rip: ComponentResult): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.id eqs rip.id).and(_.org_id eqs org_id)
       .modify(_.name setTo rip.name)
@@ -264,7 +270,6 @@ object Component extends ConcreteComponent {
         }).toValidationNel.flatMap { xso: Option[ComponentResult] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Components."+asm_id + " successfully", Console.RESET))
               Validation.success[Throwable, ComponentResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
@@ -298,7 +303,7 @@ object Component extends ConcreteComponent {
       gs <- (updateComponentSack(input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (updateRecord(org_id, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Component.updated successfully", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.YELLOW, Console.BOLD, "Component","|÷| ✔", Console.RESET))
       List(gs)
 
     }
@@ -310,6 +315,20 @@ object Component extends ConcreteComponent {
       case Failure(err) => Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel
     }
   }
+
+  def deleteById(org_id: String, links: ComponentLinks): ValidationNel[Throwable, Option[ComponentResult]] = {
+    val output = (links.map{id => (deleteRecordsById(org_id, id) match {
+      case Success(value) => Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel
+    })})
+
+    if (!output.isEmpty)
+       output.head
+    else
+       Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel
+
+  }
+
 
 }
 
@@ -353,7 +372,7 @@ object ComponentsList extends ConcreteComponent {
       ogsi <- mkComponentSack(authBag, input, asm_id) leftMap { err: NonEmptyList[Throwable] => err }
       set <- (insertNewRecord(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Component.created successfully", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Component","|+| ✔", Console.RESET))
       nels(ogsi)
     }
   }

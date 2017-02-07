@@ -21,7 +21,7 @@ object Scavenger {
 
 class Scavenger(email: String) {
 
-  def myorgs = models.team.Organizations.findByEmail(email)
+  private def myorgs = models.team.Organizations.findByEmail(email)
 
   def nukeLittered: ValidationNel[Throwable, Option[String]] = {
     for {
@@ -52,6 +52,7 @@ class Scavenger(email: String) {
       hd  <- models.events.EventsBilling.delete(email)
       bhd <- models.events.EventsContainer.delete(email)
       bad <- models.events.EventsVm.delete(email)
+      bad <- models.events.EventsStorage.delete(email)
     } yield  "whitepebbles.done".some
   }
 
@@ -65,6 +66,7 @@ class Scavenger(email: String) {
    for {
      snps <- models.snapshots.Snapshots.deleteByEmail(email)
      diks <- models.disks.Disks.deleteByEmail(email)
+     bak  <- models.backups.Backups.deleteByEmail(email)
    } yield  "littered.done".some
   }
 

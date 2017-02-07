@@ -163,7 +163,7 @@ object Requests extends ConcreteRequests {
       ogsi <- mkRequestSack(input) leftMap { err: NonEmptyList[Throwable] => err }
       ogsr <- (insertNewRecord(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.BLUE, Console.BOLD, "Request.created successfully", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Request","|+| ✔",Console.RESET))
       new wash.PQd(ogsi.get.topicFunc, MessagePayLoad(Messages(ogsi.get.toMap.toList)).toJson(false)).some
     }
   }
@@ -189,11 +189,11 @@ object Requests extends ConcreteRequests {
     }).flatMap { pq: Option[wash.PQd] =>
       if (!MConfig.mute_emails.contains(email)) {
         new wash.AOneWasher(pq.get).wash flatMap { maybeGS: AMQPResponse =>
-          play.api.Logger.debug(("%-20s -->[%s]").format("Request.pub ✔", input))
+          play.api.Logger.debug(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Request.pub","|+| "+input+" ✔", Console.RESET))
           pq.successNel[Throwable]
         }
       } else {
-        play.api.Logger.debug(("%-20s").format("Request.pub ✗"))
+        play.api.Logger.debug(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Request.pub","|+| ✗", Console.RESET))
         wash.PQd.empty.some.successNel[Throwable]
       }
     }

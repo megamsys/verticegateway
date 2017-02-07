@@ -181,6 +181,11 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecordsById(org_id: String ,id: String, created_at: DateTime): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).and(_.created_at eqs created_at).and(_.id eqs id).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
   def updateRecord(org_id: String, rip: AssemblyResult): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.created_at eqs rip.created_at).and(_.id eqs rip.id).and(_.org_id eqs org_id)
       .modify(_.name setTo rip.name)
@@ -238,7 +243,6 @@ object Assembly extends ConcreteAssembly {
         }).toValidationNel.flatMap { xso: Option[AssemblyResult] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly."+asm_id + " successfully", Console.RESET))
               Validation.success[Throwable, AssemblyResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
@@ -294,7 +298,7 @@ object Assembly extends ConcreteAssembly {
       gs <- (updateAssemblySack(org_id, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (updateRecord(org_id, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.updated successfully", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.YELLOW, Console.BOLD, "Assembly","|÷| ✔", Console.RESET))
       gs
     }
   }
@@ -312,6 +316,26 @@ object Assembly extends ConcreteAssembly {
       df <- deleteFound(org_id, wa)
     } yield df
   }
+
+  def hardDeleteById(org_id: String, id: String, created_at: DateTime): ValidationNel[Throwable, Option[AssemblyResult]] = {
+    deleteRecordsById(org_id, id, created_at) match {
+      case Success(value) => {
+        play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Assembly","|-| ✔", Console.RESET))
+        Validation.success[Throwable, Option[AssemblyResult]](none).toValidationNel
+      }
+      case Failure(err) => Validation.success[Throwable, Option[AssemblyResult]](none).toValidationNel
+    }
+  }
+
+  def softDeleteById(id: String, email: String): ValidationNel[Throwable, AssemblyResult] = {
+    for {
+      wa <- (findById(List(id).some) leftMap { t: NonEmptyList[Throwable] => t })
+      df <- deleteFound(email, wa.map(_.get)) //TO-DO: chance for crashing ?
+    } yield {
+      df
+    }
+  }
+
 
   private def deleteFound(email: String, an: Seq[AssemblyResult]) = {
       val output = (an.map { asa =>
@@ -385,7 +409,7 @@ object AssemblysList extends ConcreteAssembly {
       ogsi <- mkAssemblySack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err }
       set <- (insertNewRecord(ogsi.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assembly.created successfully", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Assembly","|+| ✔", Console.RESET))
       nels(ogsi)
     }
   }

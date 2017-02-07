@@ -99,10 +99,7 @@ object MasterKeys extends ConcreteMasterKeys {
 
   def findById(id: String): ValidationNel[Throwable, Option[MasterKeyResult]] = {
     InMemory[ValidationNel[Throwable, Option[MasterKeyResult]]]({
-      name: String ⇒
-        {
-          play.api.Logger.debug(("%-20s -->[%s]").format("Master key id ->", id))
-          (getRecord(id) leftMap { t: NonEmptyList[Throwable] ⇒
+      name: String ⇒ { (getRecord(id) leftMap { t: NonEmptyList[Throwable] ⇒
             new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
           }).toValidationNel.flatMap { xso: Option[MasterKeyResult] ⇒
             xso match {

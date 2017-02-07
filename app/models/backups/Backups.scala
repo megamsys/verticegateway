@@ -204,7 +204,7 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Backup
     wa <- (mkBackupsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
     set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Backups.created success", Console.RESET))
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Backups","|+| ✔", Console.RESET))
     atPub(email, wa)
     wa.some
   }
@@ -212,10 +212,10 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Backup
 
 def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, BackupsResult] = {
   for {
-    wa <- (findByBackupId(id,asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    wa <- (findByIdAndAssemblyId(id,asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
     set <- (deleteRecord(email, asm_id, id) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Backups.delete success", Console.RESET))
+    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Backups","|-| ✔", Console.RESET))
     wa
 }
 }
@@ -225,7 +225,7 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
   for {
     rip <- ripNel
-    qor <- (Backups.findByBackupId(rip.id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+    qor <- (Backups.findByIdAndAssemblyId(rip.id, rip.asm_id, email) leftMap { t: NonEmptyList[Throwable] => t })
     set <- updateRecord(email, rip, qor.some)
   } yield {
     qor
@@ -250,7 +250,14 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
     } yield df
   }
 
-  def findByBackupId(id: String, assembly_id: String, email: String): ValidationNel[Throwable, BackupsResult] = {
+  def deleteByAssembly(assemblyID: String, email: String): ValidationNel[Throwable, BackupsResult] = {
+    for {
+      wa <- (findByAssemblyId(assemblyID, email) leftMap { t: NonEmptyList[Throwable] => t })
+      df <- deleteFound(email, wa)
+    } yield df
+  }
+
+  def findByIdAndAssemblyId(id: String, assembly_id: String, email: String): ValidationNel[Throwable, BackupsResult] = {
     (getRecord(id, assembly_id, email) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[BackupsResult] ⇒
@@ -263,14 +270,14 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
     }
   }
 
-  def findById(assemblyID: String, email: String): ValidationNel[Throwable, Seq[BackupsResult]] = {
+  def findByAssemblyId(assemblyID: String, email: String): ValidationNel[Throwable, Seq[BackupsResult]] = {
     (getRecords(assemblyID, email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(assemblyID, "Backups = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[BackupsResult] =>
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[BackupsResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[BackupsResult]](new ResourceItemNotFound(assemblyID, "Backups = nothing found.")).toValidationNel
+      Validation.success[Throwable, Seq[BackupsResult]](List[BackupsResult]()).toValidationNel
     }
 
   }
@@ -284,7 +291,7 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
 
   }
 
-  def getById(id: String, email: String): ValidationNel[Throwable, Seq[BackupsResult]] = {
+  def findById(id: String, email: String): ValidationNel[Throwable, Seq[BackupsResult]] = {
     (getBackupRecords(id, email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(id, "Backups = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[BackupsResult] =>
@@ -297,7 +304,7 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
 
   private def deleteFound(email: String, sn: Seq[BackupsResult]) = {
       val output = (sn.map { sas =>
-        play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Backups.delete success", Console.RESET))
+        play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Backups","|-| ✔", Console.RESET))
         dePub(email, sas)
       })
 

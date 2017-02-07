@@ -130,7 +130,7 @@ object Credits extends ConcreteCredits{
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
       acc <- (atAccUpdate(wa.account_id) leftMap { s: NonEmptyList[Throwable] => s })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Credits.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Credits","|+| ✔", Console.RESET))
       wa.some
     }
   }
@@ -148,8 +148,6 @@ object Credits extends ConcreteCredits{
   }
 
   def findById(email: String): ValidationNel[Throwable, Seq[CreditsResult]] = {
-    play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Credits " + email, Console.RESET))
-
     (getRecords(email) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(email, "Credits = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[CreditsResult] =>

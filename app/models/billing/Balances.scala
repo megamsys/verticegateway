@@ -157,7 +157,7 @@ object Balances extends ConcreteBalances{
       wa <- (mkBalancesSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Balances","|+| ✔", Console.RESET))
       wa.some
     }
   }
@@ -166,7 +166,6 @@ object Balances extends ConcreteBalances{
     for {
       wa <- (create(email, BalancesInput("0").json) leftMap { err: NonEmptyList[Throwable] => err })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Account Balance onboard. success", Console.RESET))
       wa
     }
   }
@@ -231,7 +230,7 @@ object Balances extends ConcreteBalances{
       gs <- (updateBalancesSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (updateRecord(email, gs.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Balances.updated successfully", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.YELLOW, Console.BOLD, "Balances","|÷| ✔", Console.RESET))
       gs
     }
   }
@@ -239,13 +238,11 @@ object Balances extends ConcreteBalances{
   def findByEmail(balancesID: Option[List[String]]): ValidationNel[Throwable, BalancesResults] = {
     (balancesID map {
       _.map { asm_id =>
-        play.api.Logger.debug(("%-20s -->[%s]").format("Balances Id", asm_id))
         (getRecord(asm_id) leftMap { t: NonEmptyList[Throwable] =>
           new ServiceUnavailableError(asm_id, (t.list.map(m => m.getMessage)).mkString("\n"))
         }).toValidationNel.flatMap { xso: Option[BalancesResult] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.debug(("%-20s -->[%s]").format("BalancesResult", xs))
               Validation.success[Throwable, BalancesResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
