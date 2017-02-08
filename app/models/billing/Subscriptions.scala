@@ -115,7 +115,7 @@ object Subscriptions extends ConcreteSubscriptions {
       wa <- (mkSubscriptionsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Subscriptions.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Subscriptions","|+| ✔", Console.RESET))
       wa.some
     }
   }

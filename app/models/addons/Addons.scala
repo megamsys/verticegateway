@@ -134,7 +134,7 @@ object Addons extends ConcreteAddons {
       wa <- (mkAddonsSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Addons.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Addons","|+| ✔", Console.RESET))
       wa.some
     }
   }
@@ -146,7 +146,7 @@ object Addons extends ConcreteAddons {
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[AddonsResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[AddonsResult]](new ResourceItemNotFound(name, "Addons = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[AddonsResult]]((new ResourceItemNotFound(name, "Addons = nothing found."))).toValidationNel
     }
   }
 

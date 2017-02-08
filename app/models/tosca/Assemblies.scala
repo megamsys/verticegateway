@@ -185,6 +185,11 @@ abstract class ConcreteAssemblies extends AssembliesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def deleteRecordsById(org_id: String ,id: String, created_at: DateTime): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.org_id eqs org_id).and(_.created_at eqs created_at).and(_.id eqs id).future()
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 case class WrapAssembliesResult(thatGS: Option[AssembliesResult], idPair: Map[String, String]) extends  ImplicitJsonFormats {
@@ -215,7 +220,7 @@ object Assemblies extends ConcreteAssemblies {
       wa <- (mkAssembliesSack(authBag, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa.thatGS.get) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.WHITE, Console.BOLD, "Assemblies.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Assemblies","|+| ✔", Console.RESET))
       pub(authBag.get.email, wa)
       wa.ams.get
     }
@@ -230,7 +235,6 @@ object Assemblies extends ConcreteAssemblies {
         }).toValidationNel.flatMap { xso: Option[AssembliesResult] =>
           xso match {
             case Some(xs) => {
-              play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "Assemblies."+asm_id + " successfully", Console.RESET))
               Validation.success[Throwable, AssembliesResults](List(xs.some)).toValidationNel //screwy kishore, every element in a list ?
             }
             case None => {
@@ -276,6 +280,38 @@ object Assemblies extends ConcreteAssemblies {
       case Failure(err) => Validation.success[Throwable, Option[AssembliesResult]](none).toValidationNel
     }
   }
+
+  def hardDeleteById(org_id: String, id: String): ValidationNel[Throwable, Option[AssembliesResult]] = {
+    for {
+      wa <- (findById(List(id).some) leftMap { t: NonEmptyList[Throwable] => t })
+      df <- deleteFound(org_id, wa) //TO-DO: chance for crashing ?
+    } yield df
+  }
+
+  private def deleteFound(org_id: String, an: Seq[Option[AssembliesResult]]) = {
+     val output = (an.map { asa =>
+        (asa match {
+          case Some(asao) => (deleteRecordsById(org_id, asao.id, asao.created_at) match {
+            case Success(value) => {
+              play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Assemblies","|-| ✔", Console.RESET))
+              Validation.success[Throwable, Option[AssembliesResult]](none).toValidationNel
+            }
+            case Failure(err) => Validation.success[Throwable, Option[AssembliesResult]](none).toValidationNel
+          })
+           case None => Validation.success[Throwable, Option[AssembliesResult]](none).toValidationNel
+         })
+      })
+
+      if (!output.isEmpty)
+         output.head
+      else
+        AssembliesResult("", org_id, "",
+          models.tosca.AssemblyLinks.empty,
+          models.tosca.KeyValueList.empty,
+          "Megam::Assemblies", DateHelper.now()).some.successNel
+
+   }
+
 
 
   /* Lets clean it up in 2.0 using Messageable  */

@@ -30,10 +30,7 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
 
           models.admin.Reports.createFor(email, org, input) match {
             case Success(succ) =>  {
-              play.api.Logger.debug("%-20s -->[%s]".format("REP:", 
-                  Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ))))))
-
-              Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
+                Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

@@ -36,6 +36,7 @@ object Users {
       models.admin.audits.AuditLog.createFrom(id,
             models.admin.audits.AuditLogInput(id,  Constants.LOG_USER_DELETE,
                                 KeyValueList(Map(
+                                    Constants.ACCOUNT_ID -> id,
                                     Constants.KIND   -> Constants.DESTROYED_ALL,
                                     Constants.STATUS -> Constants.SUCCESS
                                   ))

@@ -143,6 +143,11 @@ abstract class ConcreteEventsContainer extends EventsContainerSacks with RootCon
     val res = delete.where(_.account_id eqs email).future()
     Await.result(res, 5.seconds).successNel
   }
+
+  def deleteRecordsByAssembly(id: String, email: String): ValidationNel[Throwable, ResultSet] = {
+    val res = delete.where(_.account_id eqs email).and(_.assembly_id eqs id).future()
+    Await.result(res, 5.seconds).successNel
+  }
 }
 
 object EventsContainer extends ConcreteEventsContainer {
@@ -165,7 +170,7 @@ object EventsContainer extends ConcreteEventsContainer {
       wa <- (mkEventsContainerSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.warn(("%s%s%-20s%s").format(Console.GREEN, Console.BOLD, "EventsContainer.created success", Console.RESET))
+      play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "EventsContainer","|+| ✔", Console.RESET))
       wa.some
     }
   }
@@ -207,6 +212,13 @@ object EventsContainer extends ConcreteEventsContainer {
 
   def delete(email: String): ValidationNel[Throwable, Option[EventsContainerResult]] = {
     deleteRecords(email) match {
+      case Success(value) => Validation.success[Throwable, Option[EventsContainerResult]](none).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Option[EventsContainerResult]](none).toValidationNel
+    }
+  }
+
+  def deleteByAssembly(id: String, email: String): ValidationNel[Throwable, Option[EventsContainerResult]] = {
+    deleteRecordsByAssembly(id, email) match {
       case Success(value) => Validation.success[Throwable, Option[EventsContainerResult]](none).toValidationNel
       case Failure(err) => Validation.success[Throwable, Option[EventsContainerResult]](none).toValidationNel
     }

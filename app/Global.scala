@@ -48,7 +48,7 @@ object Global extends WithFilters(new GzipFilter(shouldGzip = (request, response
           c <- new db.CassandraChecker().check
           m <- utils.PlatformAppPrimer.masterkeys_prep
         } yield {
-          play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, "=> Configured master keys" ,Console.RESET))
+          play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, "Master keys ✔" ,Console.RESET))
       }
   }
 
