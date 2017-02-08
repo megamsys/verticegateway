@@ -38,7 +38,7 @@ import controllers.stack.ImplicitJsonFormats
  * @author ranjitha
  *
  */
-case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String)
+case class SnapshotsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String, inputs: models.tosca.KeyValueList)
 
 case class SnapshotsResult(
   id: String,
@@ -207,7 +207,7 @@ private def mkSnapshotsSack(email: String, input: String): ValidationNel[Throwab
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
     val bvalue = Set(email)
-    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", "",snap.tosca_type, List(), List(), "Megam::Snapshots", DateHelper.now(), DateHelper.now())
+    val json = new SnapshotsResult(uir.get._1 + uir.get._2, snap.asm_id, snap.org_id, email, snap.name + uname, snap.status, "", "",snap.tosca_type, snap.inputs, List(), "Megam::Snapshots", DateHelper.now(), DateHelper.now())
     json
   }
 }
