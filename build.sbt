@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := "verticegateway"
 
-version := "1.5.5"
+version := "1.5.6"
 
 scalaVersion := "2.11.8"
 
@@ -89,7 +89,7 @@ libraryDependencies ++= Seq(filters, cache,
   "org.yaml"          %  "snakeyaml" % "1.17",
   "io.megam"          %% "libcommon" % "1.9.2",
   "io.megam"          %% "newman" % "1.3.12",
-  "com.typesafe.akka" %% "akka-slf4j" % "2.4.8",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.4.16",
   "com.websudos"      %% "phantom-dsl"               % phantomV,
   "com.websudos"      %% "phantom-connectors"        % phantomV,
   "org.specs2"        %% "specs2-core" % "3.7.2-scalaz-7.1.7" % "test",
