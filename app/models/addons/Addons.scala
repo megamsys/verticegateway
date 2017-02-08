@@ -146,7 +146,7 @@ object Addons extends ConcreteAddons {
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[AddonsResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[AddonsResult]](new ResourceItemNotFound(name, "Addons = nothing found.")).toValidationNel
+        Validation.failure[Throwable, Seq[AddonsResult]]((new ResourceItemNotFound(name, "Addons = nothing found."))).toValidationNel
     }
   }
 

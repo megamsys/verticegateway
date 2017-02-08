@@ -31,9 +31,11 @@ object Assembly {
       //nts <- models.admin.audits.Trasher(asbs_id,id,email).nukeTelemetry
       //nws <- models.admin.audits.Trasher(asbs_id,id,email).nukeWhitePebbles
     } yield {
-      models.admin.audits.AuditLog.createFrom(id,
-            models.admin.audits.AuditLogInput(id,  Constants.LOG_ASSEMBLY_DELETE,
+      models.admin.audits.AuditLog.createFrom(email,
+            models.admin.audits.AuditLogInput(email,  Constants.LOG_ASSEMBLY_DELETE,
                                 KeyValueList(Map(
+                                    Constants.ASSEMBLY_ID -> id,
+                                    Constants.ASSEMBLIES_ID -> asbs_id,
                                     Constants.KIND   -> Constants.DESTROYED_ASSEMBLY,
                                     Constants.STATUS -> Constants.SUCCESS
                                   ))
