@@ -44,3 +44,5 @@ CREATE TABLE IF NOT EXISTS credits (id text, account_id text, credit text, json_
 ALTER TABLE quotas ADD  quota_type text;
 
 ALTER TABLE quotas ADD  status text;
+
+CREATE TABLE IF NOT EXISTS events_skews(id text, account_id text, cat_id text, event_type text, status text, inputs list<text>, outputs list<text>, actions  list<text>,json_claz text, created_at timestamp, updated_at timestamp, PRIMARY KEY(account_id, cat_id));
