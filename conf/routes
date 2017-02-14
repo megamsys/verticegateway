@@ -144,7 +144,7 @@ GET  /v2/billedhistories              controllers.billing.Billedhistories.list
 
 POST /v2/quotas/content	              controllers.billing.Quotas.post
 POST /v2/quotas/update                controllers.billing.Quotas.update
-GET  /v2/quotas/:name                 controllers.billing.Quotas.show(name: String)
+GET  /v2/quotas/:id                   controllers.billing.Quotas.show(id: String)
 GET  /v2/quotas                       controllers.billing.Quotas.list
 
 # Addons (external ids)
