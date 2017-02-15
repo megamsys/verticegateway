@@ -52,8 +52,8 @@ trait BaseContext {
   val defaultHeaderOpt = Map(Content_Type -> application_json,
 
 
-    X_Megam_EMAIL -> "cd@ss.co", X_Megam_APIKEY -> "1189a21d8965ee670536cbb61fd9f5afed8489c0",
-    X_Megam_ORG -> "ORG8385278424580953898",
+    X_Megam_EMAIL -> "bb@ss.co", X_Megam_APIKEY -> "313598704ffcc608b7cd7e5c03fcedbed91e886e",
+    X_Megam_ORG -> "ORG6260341867603079432",
     //X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
 
     //X_Megam_MASTERKEY -> "true", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",

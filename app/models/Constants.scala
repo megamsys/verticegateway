@@ -106,6 +106,8 @@ object Constants {
   val EVENTSCONTAINERCOLLECTIONCLAZ   = "Megam::EventsContainerCollection"
   val EVENTSBILLINGCLAZ               = "Megam::EventsBilling"
   val EVENTSBILLINGCOLLECTIONCLAZ     = "Megam::EventsBillingCollection"
+  val EVENTSSKEWSCLAZ                 = "Megam::Eventsskews"
+  val EVENTSSKEWSCOLLECTIONCLAZ       = "Megam::EventsSkewsCollection"
   val EVENTSSTORAGECLAZ               = "Megam::EventsStorage"
   val EVENTSSTORAGECOLLECTIONCLAZ     = "Megam::EventsStorageCollection"
   val ERRORCLAZ                       = "Megam::Error"
@@ -134,4 +136,6 @@ object Constants {
   val REPORTSCLAZ                     = "Megam::Reports"
   val QUOTASCOLLECTIONCLAZ            = "Megam::QuotasCollection"
   val QUOTASCLAZ                      = "Megam::Quotas"
+  val EXTERNALOBJECTSCOLLECTIONCLAZ   = "Megam::ExternalobjectsCollection"
+  val EXTERNALOBJECTSCLAZ             = "Megam::Externalobjects"
 }
