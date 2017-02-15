@@ -151,6 +151,9 @@ POST /v2/quotas/update                controllers.billing.Quotas.update
 GET  /v2/quotas/:id                   controllers.billing.Quotas.show(id: String)
 GET  /v2/quotas                       controllers.billing.Quotas.list
 
+POST /v2/external_objects/content     controllers.billing.Externalobjects.post
+GET  /v2/external_objects/:id         controllers.billing.Externalobjects.show(id: String)
+
 # Addons (external ids)
 POST /v2/addons/content               controllers.addons.Addons.post
 GET	 /v2/addons/:name                 controllers.addons.Addons.show(name: String)

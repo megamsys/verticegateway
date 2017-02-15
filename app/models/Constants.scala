@@ -136,4 +136,6 @@ object Constants {
   val REPORTSCLAZ                     = "Megam::Reports"
   val QUOTASCOLLECTIONCLAZ            = "Megam::QuotasCollection"
   val QUOTASCLAZ                      = "Megam::Quotas"
+  val EXTERNALOBJECTSCOLLECTIONCLAZ   = "Megam::ExternalobjectsCollection"
+  val EXTERNALOBJECTSCLAZ             = "Megam::Externalobjects"
 }
