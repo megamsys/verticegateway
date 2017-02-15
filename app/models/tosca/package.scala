@@ -159,6 +159,14 @@ package object tosca {
       nrec
     }
 
+    def filter(nres: KeyValueList, key: String): KeyValueList = {
+       nres.filter(x => x.key.equalsIgnoreCase(key) && x.value.trim.length > 0)
+    }
+
+    def filterNot(nres: KeyValueList, key: String): KeyValueList = {
+       nres.filterNot(_.key.equalsIgnoreCase(key))
+    }
+
     def apply(m: Map[String, String]): KeyValueList = m.toList.map { x => KeyValueField(x._1, x._2) }
 
     def apply(plansList: List[KeyValueField]): KeyValueList = plansList

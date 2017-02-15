@@ -41,7 +41,7 @@ object Constants {
   val ANALYTICS         = "analytics"
   val COLLABORATION     = "collaboration"
 
-  val STATUS_DESTROYED            = List("destroyed", "preerror")
+  val STATUS_DESTROYED                    = List("destroyed", "preerror")
 
   val REPORT_SALES                        = "sales"
   val REPORT_USRDOT                       = "userdot"
