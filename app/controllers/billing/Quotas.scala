@@ -36,7 +36,7 @@ object Quotas extends Controller with APIAuthElement  {
           models.billing.Quotas.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, "Your quota created successfully.", "Megam::Quotas").toJson(true))
+                FunnelResponse(CREATED, "[" + succ.get.id + "] Your quota created successfully.", "Megam::Quotas").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

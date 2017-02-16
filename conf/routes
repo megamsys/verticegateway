@@ -82,6 +82,10 @@ GET  /v2/eventsvm/:limit              controllers.EventsVm.list(limit: String)
 POST /v2/eventsvm/show/:limit         controllers.EventsVm.show(limit: String)
 GET  /v2/eventsvm                     controllers.EventsVm.index
 
+POST /v2/eventsskews/content         controllers.EventsSkews.post
+GET  /v2/eventsskews/:id             controllers.EventsSkews.show(id: String)
+GET /v2/eventsskews                  controllers.EventsSkews.list
+
 POST  /v2/eventscontainer/content     controllers.EventsContainer.post
 GET  /v2/eventscontainer/:limit       controllers.EventsContainer.list(limit: String)
 POST /v2/eventscontainer/show/:limit  controllers.EventsContainer.show(limit: String)
@@ -144,8 +148,11 @@ GET  /v2/billedhistories              controllers.billing.Billedhistories.list
 
 POST /v2/quotas/content	              controllers.billing.Quotas.post
 POST /v2/quotas/update                controllers.billing.Quotas.update
-GET  /v2/quotas/:name                 controllers.billing.Quotas.show(name: String)
+GET  /v2/quotas/:id                   controllers.billing.Quotas.show(id: String)
 GET  /v2/quotas                       controllers.billing.Quotas.list
+
+POST /v2/external_objects/content     controllers.billing.Externalobjects.post
+GET  /v2/external_objects/:id         controllers.billing.Externalobjects.show(id: String)
 
 # Addons (external ids)
 POST /v2/addons/content               controllers.addons.Addons.post
