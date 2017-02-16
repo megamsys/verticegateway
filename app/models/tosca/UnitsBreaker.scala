@@ -84,10 +84,16 @@ case class FieldSplitter(nos: Int, field: KeyValueField, kvs: KeyValueList) {
 
   val filterNot = KeyValueList.filterNot(kvs, FILTER_KEY)
 
-  val split  = (filter.map { x => x.value.split(COMMA).map(KeyValueField(VALUE_KEY, _)).toList }).flatten.zipWithIndex.map(x => List(x._1))
+  val split  = (filter.map { x =>
+    if(x.value.contains(COMMA)) {
+      x.value.split(COMMA).map(KeyValueField(VALUE_KEY, _)).toList
+    } else {
+      List(KeyValueField(VALUE_KEY, x.value)).toList
+    }}).flatten.zipWithIndex.map(x => List(x._1)
+)
 
   val merged: Map[Int, KeyValueList] = ({
-    if (split.isEmpty) {
+     if (split.isEmpty) {
       ((1 to nos).toList.map((_, filterNot)))
     } else {
        ((1 to nos).toList.zip(split.map(_  ++ filterNot)))
