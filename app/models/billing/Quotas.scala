@@ -146,12 +146,9 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
 
     val res = update.where(_.account_id eqs email).and(_.created_at eqs aor.get.created_at).and(_.id eqs rip.id)
       .modify(_.allocated_to setTo NilorNot(newallocated_to, oldallocated_to))
+      //.and(_.allowed setTo NilorNot(newallowed, oldallowed))
 
-      .and(_.allowed setTo rip.allowed)
-
-      //.and(_.inputs setTo rip.inputs)
-      //.and(_.quota_type setTo rip.quota_type)
-      .and(_.status setTo rip.status)
+      .and(_.status setTo NilorNot((if (rip.status != null && rip.status.trim.length >0) rip.status else null), aor.get.status))
       .and(_.updated_at setTo DateHelper.now())
       .future()
       Await.result(res, 5.seconds).successNel
