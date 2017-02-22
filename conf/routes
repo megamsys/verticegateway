@@ -71,6 +71,10 @@ POST /v2/components/update        	  controllers.camp.Components.update
 # Marketplaces
 GET  /v2/marketplaces                 controllers.MarketPlaces.list
 GET  /v2/marketplaces/:flavor         controllers.MarketPlaces.show(flavor: String)
+GET  /v2/marketplaces/show/:email     controllers.MarketPlaces.listBy(email: String)
+POST /v2/marketplaces/update        	controllers.MarketPlaces.update
+POST /v2/marketplaces/content         controllers.MarketPlaces.post
+DELETE /v2/marketplaces/:id           controllers.MarketPlaces.delete(id: String)
 
 # Requests
 POST /v2/requests/content            	controllers.Requests.post
@@ -130,6 +134,11 @@ GET    /v2/disks/delete/:assembly_id/:id  controllers.Disks.initdel(assembly_id:
 DELETE /v2/disks/:assembly_id/:id         controllers.Disks.delete(assembly_id: String, id: String)
 POST   /v2/disks/update                   controllers.Disks.update
 
+POST /v2/rawimages/content	              controllers.RawImages.post
+POST /v2/rawimages/update                controllers.RawImages.update
+GET  /v2/rawimages/:id                   controllers.RawImages.show(id: String)
+GET  /v2/rawimages                       controllers.RawImages.list
+
 # Billings
 # Called by the 3rd party billing (WHMCS or any others)
 POST /v2/balances/content			        controllers.billing.Balances.post
@@ -157,6 +166,8 @@ GET  /v2/external_objects/:id         controllers.billing.Externalobjects.show(i
 # Addons (external ids)
 POST /v2/addons/content               controllers.addons.Addons.post
 GET	 /v2/addons/:name                 controllers.addons.Addons.show(name: String)
+
+
 
 # User Reports
 POST  /v2/accounts/reports/content    controllers.Reports.post

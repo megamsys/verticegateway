@@ -41,6 +41,6 @@ CREATE TABLE sshkeys (id text, org_id text, name text, privatekey text, publicke
 
 CREATE TABLE requests( id text, account_id text, cat_id text, cattype text,  name text,  action text, category text, created_at timestamp, PRIMARY KEY ((account_id),id));
 
-CREATE TABLE marketplaces ( settings_name text,  cattype text, flavor text,  image text, catorder text, url text, json_claz text, envs list<text>,  options list<text>, plans map <text, text>,  PRIMARY KEY ((settings_name), flavor));
+CREATE TABLE marketplaces ( id text, account_id text, flavor text,  provided_by text, cattype text, catorder text,  status text, image text, url text, envs list<text>, options list<text>, inputs list<text>, outputs list<text>, acl_policies list<text>, plans list<text>, json_claz text, updated_at timestamp, created_at timestamp, PRIMARY KEY ((flavor),account_id, id));
 
 CREATE TABLE addons (id text, provider_id text, account_id text, provider_name text, options list<text>, json_claz text, created_at timestamp, PRIMARY KEY ((account_id), provider_name));
