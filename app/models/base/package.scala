@@ -7,12 +7,13 @@ package models
  */
 package object base {
 
-  type MarketPlaceResults = List[Option[MarketPlaceSack]]
+  type MarketPlaceResults = List[Option[MarketPlaceResult]]
 
   object MarketPlaceResults {
-    val emptyPC = List(Option.empty[MarketPlaceSack])
+    val emptyPC = List(Option.empty[MarketPlaceResult])
     def empty: MarketPlaceResults = List()
   }
+  
   type SshKeysResults = List[Option[SshKeysResult]]
 
   object SshKeysResults {

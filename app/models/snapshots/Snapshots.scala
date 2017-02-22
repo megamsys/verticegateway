@@ -257,6 +257,14 @@ def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResu
     }
   }
 
+  def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[SnapshotsResult]] = {
+    listAllRecords match {
+      case Success(value) => Validation.success[Throwable, Seq[SnapshotsResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[SnapshotsResult]](List()).toValidationNel
+    }
+  }
+
+
   def deleteByEmail(email: String): ValidationNel[Throwable, SnapshotsResult] = {
     for {
       sa <- (findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
