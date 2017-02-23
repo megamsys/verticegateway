@@ -26,7 +26,6 @@ case class InMemoryCache[A]() {
     new InMemoryCache[A]
   }
   def getAs(c: String): Option[Timestamped[A]] = {
-    play.api.Logger.debug("%-20s -->[%s]".format("MEMCACHE:", "getAs ?" + c))
     play.api.cache.Cache.getAs[Timestamped[A]](c)
   }
 }

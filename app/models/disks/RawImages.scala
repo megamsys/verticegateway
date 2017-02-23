@@ -278,12 +278,12 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
 
 
   private def atPub(email: String, wa: RawImagesResult): ValidationNel[Throwable, RawImagesResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_TORPEDO, "", SNAPSHOT_CREATE, SNAPSHOT).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", CREATE_RAWIMAGE, RAWIMAGES).json)
     wa.successNel[Throwable]
   }
 
   private def dePub(email: String, wa: RawImagesResult): ValidationNel[Throwable, RawImagesResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_TORPEDO, "", SNAPSHOT_REMOVE, SNAPSHOT).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", DELETE_RAWIMAGE, RAWIMAGES).json)
     wa.successNel[Throwable]
   }
 

@@ -22,7 +22,7 @@ object Constants {
   val SNAPSHOT_CREATE = "snapcreate"  //action
   val SNAPSHOT_REMOVE = "snapremove"  //action
 
-  val BACKUP        = "backup"    //category
+  val BACKUP        = "backup"        //category
   val BACKUP_CREATE = "backupcreate"  //action
   val BACKUP_REMOVE = "backupremove"  //action
 
@@ -30,12 +30,24 @@ object Constants {
   val ATTACH_DISK     = "attachdisk"   //action
   val DETACH_DISK     = "detachdisk"   //action
 
+  val RAWIMAGES       = "marketplaces.rawimages"   //category
+  val CREATE_RAWIMAGE = "rawimage.create"   //action
+  val DELETE_RAWIMAGE = "rawimage.delete"   //action
+
+  val LOCALSITE_MARKETPLACES    = "localsite.marketplaces"   //category
+  val INITIALIZE_MARKETPLACE    = "marketplace.initialize"   //action
+  val CREATE_MARKETPLACE        = "marketplace.create"   //action
+  val DELETE_MARKETPLACE        = "marketplace.delete"   //action
+
   val BIND            = "bind"
   val BUILD           = "build"
 
   val CATTYPE_DOCKER    = "container"
   val CATTYPE_TORPEDO   = "torpedo"
   val CATTYPE_CUSTOMAPP = "app"
+
+  val CATTYPE_MARKETPLACES      = "marketplaces"
+
   val CATTYPE_SERVICE   = "service"
   val BITNAMI           = "bitnami"
   val ANALYTICS         = "analytics"
