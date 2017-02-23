@@ -71,10 +71,10 @@ POST /v2/components/update        	  controllers.camp.Components.update
 # Marketplaces
 GET  /v2/marketplaces                 controllers.MarketPlaces.list
 GET  /v2/marketplaces/:flavor         controllers.MarketPlaces.show(flavor: String)
-GET  /v2/marketplaces/show/:email     controllers.MarketPlaces.listBy(email: String)
+GET  /v2/marketplaces/show/:provider  controllers.MarketPlaces.listBy(provider: String)
 POST /v2/marketplaces/update        	controllers.MarketPlaces.update
 POST /v2/marketplaces/content         controllers.MarketPlaces.post
-DELETE /v2/marketplaces/:id           controllers.MarketPlaces.delete(id: String)
+DELETE /v2/marketplaces/:flavor       controllers.MarketPlaces.delete(flavor: String)
 
 # Requests
 POST /v2/requests/content            	controllers.Requests.post
