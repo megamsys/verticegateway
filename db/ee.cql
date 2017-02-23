@@ -66,9 +66,6 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
 
 -- Common collaboration software
 -- Apache2, PostgreSQL, MySQL, Cassandra, Riak, RabbitMQ, Redis
--- Zarafa, OwnCloud, WordPress, Moodle, PrestaShop,MediaWiki
--- Ghost, Redmine, Discourse,Agenti,VestaCP
-
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
     ('Apache', 'vertice', 'SERVICE', '3',
@@ -116,6 +113,9 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
         'active' 'mysql.png', 'https://dev.mysql.com/', ['{"key":"port.tcp", "value":"3306"}', '{"key":"username", "value":"root"}', '{"key":"password", "value":"megam"}'],[],[],[],[],
         ['{"key":"5.x", "value": "MySQL, the most popular Open Source SQL database management system, is developed, distributed, and supported by Oracle Corporation."}'],
         'Megam::MarketPlace')
+
+-- Zarafa, OwnCloud, WordPress, Moodle, PrestaShop,MediaWiki
+-- Ghost, Redmine, Discourse, Agenti, VestaCP, ISPConfig, Webmin, Froxlor
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
         ('Zarafa', 'vertice', 'COLLABORATION', '6',
