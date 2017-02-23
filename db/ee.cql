@@ -4,7 +4,7 @@ use vertice;
 
 -- Nuke stuff that is there in marketplaces
 
-DELETE FROM marketplaces WHERE settings_name IN ('vertice', 'bitnami');
+DELETE FROM marketplaces WHERE provided_by IN ('vertice', 'bitnami');
 
 -- Machines
 -- Ubuntu, Fedora, CentOS,  CoreOS, Windows, DockerMachine
@@ -199,6 +199,7 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
    '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Forum/bitnami-discourse-1.4.6-0-linux-x64-installer.run"}'],
    [],[],[],
    ['{"key":"1.4.6", "value": "Discourse is the next-next-generation community forum platform. Discourse has a thoroughly modern design and is written in JavaScript."}'],
+   'Megam::MarketPlace')
 
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
@@ -308,7 +309,7 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
    '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Mobile+Development/bitnami-dreamfactory-2.1.1-2-linux-x64-installer.run"}'],
    [],[],[],
    ['{"key":"2.1.1", "value": "DreamFactory is an open source REST API platform for mobile, web, and IoT applications."}'],
-
+   'Megam::MarketPlace')
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
     ('Pimcore', 'bitnami', 'COLLABORATION', '6',
@@ -317,7 +318,7 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/CMS/bitnami-pimcore-3.1.1-2-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"3.1.1", "value": "Pimcore is a powerful multi-channel experience and engagement management (CEM/CXM) platform."}'],
-
+    'Megam::MarketPlace')
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
     ('Jenkins', 'bitnami', 'COLLABORATION', '6',
@@ -326,7 +327,7 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Continuous+Integration/bitnami-jenkins-1.655-0-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"1.655", "value": "It’s widely recognized as the most feature-rich CI available with easy configuration, continuous delivery and continuous integration support, easily test, build and stage your app, and more."}'],
-
+    'Megam::MarketPlace')
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
     ('eXo Platform', 'bitnami', 'COLLABORATION', '6',
@@ -335,6 +336,7 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Social+Networking/bitnami-exoplatform-4.3.0-1-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"4.3.0", "value": "eXo Platform combines collaboration, calendering, content and document management and other productivity tools with social features to provide a complete enterprise intranet."}'],
+    'Megam::MarketPlace')
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
     ('Gitlab', 'bitnami', 'COLLABORATION', '6',
@@ -343,6 +345,7 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Version+Control/bitnami-gitlab-8.5.7-0-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"8.5.7", "value": "The GitLab open source edition is a developer tool that allows users to collaborate on code, create new projects, manage repositories, and perform code reviews."}'],
+    'Megam::MarketPlace')
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
     ('Mautic', 'bitnami', 'COLLABORATION', '6',
@@ -351,6 +354,7 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Marketing+Automation/bitnami-mautic-1.3.1-0-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"1.3.1", "value": "Mautic is marketing automation software for everyone.Mautic is free and open source, and can be easily integrated with third-party applications through a REST API and web-hooks."}'],
+    'Megam::MarketPlace')
 
 INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz) values
     ('ProcessMaker Open Source Edition', 'bitnami', 'COLLABORATION', '6',
@@ -359,3 +363,4 @@ INSERT INTO marketplaces (flavor, provided_by, cattype, catorder, status, image,
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/BPM/bitnami-processmaker-3.0.1.7-0-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"3.0.1.7", "value": "ProcessMaker is an open source Business Process Management (BPM) platform designed to automate workflows and improve business efficiency"}'],
+    'Megam::MarketPlace')
