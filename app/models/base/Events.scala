@@ -58,13 +58,13 @@ class Events(evi: EventInput) {
           !MConfig.mute_events) {
         (new wash.AOneWasher(pq.get).wash).
           flatMap { maybeGS: AMQPResponse =>
-            play.api.Logger.debug(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Event","|+| ✔", Console.RESET))
+            play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Event","|+| ✔", Console.RESET))
             pq.successNel[Throwable]
           }
-          play.api.Logger.debug(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Event","|+| ✗", Console.RESET))
+          play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "Event","|+| ✗", Console.RESET))
           pq.successNel[Throwable]
       } else {
-        play.api.Logger.debug(("%s%s%-20s%s%s").format(Console.YELLOW, Console.BOLD, "Event","|+| ●", Console.RESET))
+        play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.YELLOW, Console.BOLD, "Event","|+| ●", Console.RESET))
         wash.PQd.empty.some.successNel[Throwable]
       }
     }

@@ -9,7 +9,12 @@ DELETE FROM marketplaces WHERE settings_name IN ('vertice', 'bitnami');
 -- Machines
 -- Ubuntu, Fedora, CentOS,  CoreOS, Windows, DockerMachine
 
-INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'Ubuntu', 'ubuntu.png', '1', 'http://www.ubuntu.com/server', 'Megam::MarketPlace' , [], [], {'14.04':'Ubuntu is a Debian-based Linux operating system. Trusty Tahr is the Ubuntu codename for version 14.04 LTS of the Ubuntu Linux-based operating system.', '16.04': 'Ubuntu is a Debian-based Linux operating system. Xenial Xerus is the Ubuntu codename for version 16.04 LTS of the Ubuntu Linux-based operating system.'});
+INSERT INTO marketplaces (id, account_id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, plans, json_claz) values
+    (uuid(), "admin@my.com", 'Ubuntu', 'vertice', 'TORPEDO', '1',
+   'active' 'ubuntu.png', 'http://www.ubuntu.com/server', [], [],[],[],[],
+    ['{"key":"14.04","value":"Ubuntu is a Debian-based Linux operating system. Trusty Tahr is the Ubuntu codename for version 14.04 LTS of the Ubuntu Linux-based operating system."}',
+    '{"key":"16.04", "value":"Ubuntu is a Debian-based Linux operating system. Xenial Xerus is the Ubuntu codename for version 16.04 LTS of the Ubuntu Linux-based operating system."}'],
+
 
 INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, json_claz, envs, options, plans) values ('vertice', 'TORPEDO', 'Debian', 'debian.png', '1', 'https://www.debian.org/releases/stable/', 'Megam::MarketPlace' , [], [], {'8.5':'Debian is a Unix-like computer operating system that is composed entirely of free software, most of which is under the GNU General Public License, and packaged by a group of individuals called the Debian Project. Jessie is the Debian codename for version 8.0.'});
 
