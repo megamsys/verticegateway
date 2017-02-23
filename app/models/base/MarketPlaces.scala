@@ -35,13 +35,11 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import controllers.stack.ImplicitJsonFormats
 
-case class MarketPlaceInput( org_id: String, account_id: String, flavor: String, provided_by: String, cattype: String,
-  catorder: String,   status: String, image: String, url: String, envs: KeyValueList,
+case class MarketPlaceInput( flavor: String, provided_by: String, cattype: String, catorder: String,
+  status: String, image: String, url: String, envs: KeyValueList,
   options: KeyValueList, inputs: KeyValueList, acl_policies: KeyValueList,  plans: KeyValueList)
 
 case class MarketPlaceResult(
-  id: String,
-  account_id: String,
   flavor: String,
   provided_by: String,
   cattype: String,
@@ -63,10 +61,7 @@ sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPla
 
   object flavor extends StringColumn(this) with PrimaryKey[String]
 
-  object id extends StringColumn(this) with PartitionKey[String]
-  object account_id extends StringColumn(this) with PartitionKey[String]
-
-  object provided_by extends StringColumn(this)
+  object provided_by extends StringColumn(this) with PartitionKey[String]
   object cattype extends StringColumn(this)
   object catorder extends StringColumn(this)
   object status extends StringColumn(this)
@@ -139,8 +134,6 @@ sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPla
 
   override def fromRow(r: Row): MarketPlaceResult = {
     MarketPlaceResult(
-      id(r),
-      account_id(r),
       flavor(r),
       provided_by(r),
       cattype(r),
@@ -175,8 +168,8 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
     Await.result(res, 5.seconds).successNel
   }
 
-  def listRecords(email: String): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
-    val res = select.where(_.account_id eqs email).fetch()
+  def listRecords(provided_by: String): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
+    val res = select.allowFiltering().where(_.provided_by eqs provided_by).fetch()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -186,9 +179,7 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
   }
 
   def insertNewRecord(mpr: MarketPlaceResult): ValidationNel[Throwable, ResultSet] = {
-    val res = insert.value(_.id, mpr.id)
-      .value(_.account_id, mpr.account_id)
-      .value(_.flavor, mpr.flavor)
+    val res = insert.value(_.flavor, mpr.flavor)
       .value(_.cattype, mpr.cattype)
       .value(_.catorder,mpr.catorder)
       .value(_.status, mpr.status)
@@ -211,8 +202,7 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
     val oldstatus  = aor.get.status
     val newstatus  = rip.status
 
-    val res = update.where(_.id eqs rip.id)
-        .and(_.account_id eqs email)
+    val res = update.where(_.flavor eqs rip.flavor)
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.outputs setTo rip.outputs)
       .and(_.updated_at setTo DateHelper.now())
@@ -236,9 +226,8 @@ object MarketPlaces extends ConcreteMarketPlaces {
 
     for {
       mkt <- mktsInput
-      uir <- (UID("mkt").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      (new MarketPlaceResult(uir.get._1 + uir.get._2, email, mkt.flavor, mkt.provided_by, mkt.cattype, mkt.catorder,
+      (new MarketPlaceResult(mkt.flavor, mkt.provided_by, mkt.cattype, mkt.catorder,
         mkt.status, mkt.image, mkt.url, mkt.envs, mkt.options, mkt.inputs, List(), mkt.acl_policies, mkt.plans, models.Constants.MARKETPLACECLAZ, DateHelper.now(),  DateHelper.now()))
     }
   }
@@ -290,9 +279,9 @@ object MarketPlaces extends ConcreteMarketPlaces {
     }
   }
 
-    def findByEmail(accountId: String): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
-      (listRecords(accountId) leftMap { t: NonEmptyList[Throwable] =>
-        new ResourceItemNotFound(accountId, "MarketPlaces = nothing found.")
+    def findByProvider(providedBy: String): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
+      (listRecords(providedBy) leftMap { t: NonEmptyList[Throwable] =>
+        new ResourceItemNotFound(providedBy, "MarketPlaces = nothing found.")
       }).toValidationNel.flatMap { nm: Seq[MarketPlaceResult] =>
         if (!nm.isEmpty)
           Validation.success[Throwable, Seq[MarketPlaceResult]](nm).toValidationNel
@@ -316,17 +305,17 @@ object MarketPlaces extends ConcreteMarketPlaces {
   }
 
   private def atPub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", INITIALIZE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", INITIALIZE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
   private def dePub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", CREATE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", CREATE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
   private def upPub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
