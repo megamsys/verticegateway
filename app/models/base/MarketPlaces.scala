@@ -40,6 +40,7 @@ case class MarketPlaceInput( flavor: String, provided_by: String, cattype: Strin
   options: KeyValueList, inputs: KeyValueList, acl_policies: KeyValueList,  plans: KeyValueList)
 
 case class MarketPlaceResult(
+  id: String,
   flavor: String,
   provided_by: String,
   cattype: String,
@@ -59,6 +60,7 @@ case class MarketPlaceResult(
 
 sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPlaceResult] with ImplicitJsonFormats  {
 
+  object id extends StringColumn(this)
   object flavor extends StringColumn(this) with PrimaryKey[String]
 
   object provided_by extends StringColumn(this) with PartitionKey[String]
@@ -134,6 +136,7 @@ sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPla
 
   override def fromRow(r: Row): MarketPlaceResult = {
     MarketPlaceResult(
+      id(r),
       flavor(r),
       provided_by(r),
       cattype(r),
@@ -179,7 +182,8 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
   }
 
   def insertNewRecord(mpr: MarketPlaceResult): ValidationNel[Throwable, ResultSet] = {
-    val res = insert.value(_.flavor, mpr.flavor)
+    val res = insert.value(_.id, mpr.id)
+      .value(_.flavor, mpr.flavor)
       .value(_.cattype, mpr.cattype)
       .value(_.catorder,mpr.catorder)
       .value(_.status, mpr.status)
@@ -226,8 +230,9 @@ object MarketPlaces extends ConcreteMarketPlaces {
 
     for {
       mkt <- mktsInput
+      uir <- (UID("MKT").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      (new MarketPlaceResult(mkt.flavor, mkt.provided_by, mkt.cattype, mkt.catorder,
+      (new MarketPlaceResult(uir.get._1 + uir.get._2, mkt.flavor, mkt.provided_by, mkt.cattype, mkt.catorder,
         mkt.status, mkt.image, mkt.url, mkt.envs, mkt.options, mkt.inputs, List(), mkt.acl_policies, mkt.plans, models.Constants.MARKETPLACECLAZ, DateHelper.now(),  DateHelper.now()))
     }
   }

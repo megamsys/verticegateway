@@ -21,8 +21,24 @@ package object disks {
   object DiskResults {
     val emptyNR = List(Option.empty[DisksResult])
     def apply(m: Option[DisksResult]) = List(m)
-  //  def apply(m: DisksResult): DisksResults = DisksResults(m.some)
-    def empty: DisksResults = List() //nel(emptyNR.head, emptyNR.tail)
+    def empty: DisksResults = List() 
+  }
+
+  type BackupsResults = List[Option[BackupsResult]]
+
+  object BackupsResults {
+    val emptyNR = List(Option.empty[BackupsResult])
+    def apply(m: Option[BackupsResult]) = List(m)
+    def apply(m: BackupsResult): BackupsResults = BackupsResults(m.some)
+    def empty: BackupsResults = List() //nel(emptyNR.head, emptyNR.tail)
+  }
+
+  type SnapshotsResults = List[Option[SnapshotsResult]]
+
+  object SnapshotsResults {
+    val emptyNR = List(Option.empty[SnapshotsResult])
+    def apply(m: Option[SnapshotsResult]) = List(m)
+    def apply(m: SnapshotsResult): SnapshotsResults = SnapshotsResults(m.some)
+    def empty: SnapshotsResults = List() //nel(emptyNR.head, emptyNR.tail)
   }
 }
-

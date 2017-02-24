@@ -53,9 +53,9 @@ class Trasher(asbs_id: String, id: String ,email: String) {
 
   private def littered = {
    for {
-     snps <- models.snapshots.Snapshots.deleteByAssembly(id, email)
+     snps <- models.disks.Snapshots.deleteByAssembly(id, email)
      diks <- models.disks.Disks.deleteByAssembly(id, email)
-     baks <- models.backups.Backups.deleteByAssembly(id, email)
+     baks <- models.disks.Backups.deleteByAssembly(id, email)
    } yield  "littered.done".some
   }
 

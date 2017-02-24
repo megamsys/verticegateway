@@ -1,4 +1,4 @@
-package models.snapshots
+package models.disks
 
 import scalaz._
 import Scalaz._

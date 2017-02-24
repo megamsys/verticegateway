@@ -10,7 +10,7 @@ import io.megam.auth.funnel.FunnelErrors._
 import play.api.mvc._
 import controllers.stack.Results
 
-object Snapshots extends Controller with controllers.stack.APIAuthElement {
+object Backups extends Controller with controllers.stack.APIAuthElement {
 
 
 def post = StackAction(parse.tolerantText) { implicit request =>
@@ -20,10 +20,10 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         val freq = succ.getOrElse(throw new Error("Invalid header."))
         val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
         val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
-        models.snapshots.Snapshots.create(email, clientAPIBody) match {
+        models.disks.Backups.create(email, clientAPIBody) match {
           case Success(succ) =>
             Status(CREATED)(
-              FunnelResponse(CREATED, "Snapshot created successfully.", "Megam::Snapshots").toJson(true))
+              FunnelResponse(CREATED, "Backups created successfully.", "Megam::Backups").toJson(true))
           case Failure(err) =>
             val rn: FunnelResponse = new HttpReturningError(err)
             Status(rn.code)(rn.toJson(true))
@@ -43,8 +43,8 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.snapshots.Snapshots.findByAssemblyId(id,email) match {
-            case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+          models.disks.Backups.findByAssemblyId(id,email) match {
+            case Success(succ) => Ok(Results.resultset(models.Constants.BACKUPSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -65,8 +65,8 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.snapshots.Snapshots.findById(id,email) match {
-            case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+          models.disks.Backups.findById(id,email) match {
+            case Success(succ) => Ok(Results.resultset(models.Constants.BACKUPSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -86,8 +86,8 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.snapshots.Snapshots.findByEmail(email) match {
-            case Success(succ) => Ok(Results.resultset(models.Constants.SNAPSHOTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+          models.disks.Backups.findByEmail(email) match {
+            case Success(succ) => Ok(Results.resultset(models.Constants.BACKUPSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -109,10 +109,10 @@ def post = StackAction(parse.tolerantText) { implicit request =>
           val email  = freq.maybeEmail.getOrElse(throw new CannotAuthenticateError("Email not found (or) invalid.", "Read docs.megam.io/api."))
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
 
-          models.snapshots.Snapshots.update(email, clientAPIBody) match {
+          models.disks.Backups.update(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, "Your snapshots updated successfully.", "Megam::Snapshots").toJson(true))
+                FunnelResponse(CREATED, "Your backups updated successfully.", "Megam::Backups").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -132,10 +132,10 @@ def post = StackAction(parse.tolerantText) { implicit request =>
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.snapshots.Snapshots.delete(email, asm_id, id) match {
+          models.disks.Backups.delete(email, asm_id, id) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, "Snapshot deleted successfully.", "Megam::Snapshots").toJson(true))
+                FunnelResponse(CREATED, "Backups deleted successfully.", "Megam::Backups").toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
