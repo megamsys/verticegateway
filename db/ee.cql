@@ -9,7 +9,7 @@ DELETE FROM marketplaces WHERE flavor in
  'Apache', 'CouchDB', 'PostgreSQL', 'MySQL', 'Riak', 'Redis', 'RabbitMQ', 'Zarafa', 'OwnCloud', 'WordPress', 'Moodle', 'PrestaShop',
  'Ghost','Discourse','Redmine','VestaCP','Ajenti',
  'Java','Rails','PHP', 'Play','Nodejs','CCPlus','Python',
- 'DockerContainer', 'Hadoop', , 'Spark', 'SparkNotebook',
+ 'DockerContainer', 'Hadoop', 'Spark', 'SparkNotebook',
  'DreamFactory','Pimcore','Jenkins','eXo Platform', 'Jenkins', 'Mautic', 'ProcessMaker Open Source Edition');
 
 -- Machines
