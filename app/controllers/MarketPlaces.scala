@@ -30,7 +30,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
             case Success(succ) =>
             Status(CREATED)(
               FunnelResponse(CREATED, """[%s] deployment submitted successfully.""".format(succ.get.id), MARKETPLACECLAZ).toJson(true)
-          )                
+          )
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -68,13 +68,36 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
     }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
   }
 
-  def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
+  def showById(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.base.MarketPlaces.findByFlavor(id, email) match {
+          models.base.MarketPlaces.findById(id, email) match {
+            case Success(succ) =>
+            Ok(Results.resultset(MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+            case Failure(err) =>
+              val rn: FunnelResponse = new HttpReturningError(err)
+              Status(rn.code)(rn.toJson(true))
+          }
+        }
+        case Failure(err) => {
+          val rn: FunnelResponse = new HttpReturningError(err)
+          Status(rn.code)(rn.toJson(true))
+        }
+      }
+    }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
+
+
+  def showByFlavor(flavor: String) = StackAction(parse.tolerantText) { implicit request =>
+    (Validation.fromTryCatchThrowable[Result, Throwable] {
+      reqFunneled match {
+        case Success(succ) => {
+          val freq = succ.getOrElse(throw new Error("Invalid header."))
+          val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+          models.base.MarketPlaces.findByFlavor(flavor, email) match {
             case Success(succ) =>
             Ok(Results.resultset(MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
