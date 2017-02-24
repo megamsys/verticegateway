@@ -145,8 +145,8 @@ object Constants {
   val BACKUPSCOLLECTIONCLAZ           = "Megam::BackupsCollection"
   val DISKSCLAZ                       = "Megam::Disks"
   val DISKSCOLLECTIONCLAZ             = "Megam::DisksCollection"
-  val RAWIMAGESCLAZ                  = "Megam::RawImages"
-  val RAWIMAGESCOLLECTIONCLAZ         = "Megam::RawImagesCollection"
+  val RAWIMAGESCLAZ                  = "Megam::Rawimages"
+  val RAWIMAGESCOLLECTIONCLAZ         = "Megam::RawimagesCollection"
 
   val SUBSCRIPTIONSCLAZ               = "Megam::Subscriptions"
   val SUBSCRIPTIONSCOLLECTIONCLAZ     = "Megam::SubscriptionsCollection"

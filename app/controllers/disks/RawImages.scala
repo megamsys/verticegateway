@@ -36,7 +36,7 @@ object RawImages extends Controller with APIAuthElement  {
           models.disks.RawImages.create(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, "[" + succ.get.id + "] Your rawimage created successfully.", "Megam::RawImages").toJson(true))
+                FunnelResponse(CREATED, "[" + succ.get.id + "] Your rawimage created successfully.",  models.Constants.RAWIMAGESCLAZ).toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
@@ -61,7 +61,7 @@ object RawImages extends Controller with APIAuthElement  {
           models.disks.RawImages.update(email, clientAPIBody) match {
             case Success(succ) =>
               Status(CREATED)(
-                FunnelResponse(CREATED, "Your rawimages updated successfully.", "Megam::RawImages").toJson(true))
+                FunnelResponse(CREATED, "Your rawimages updated successfully.",  models.Constants.RAWIMAGESCLAZ).toJson(true))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

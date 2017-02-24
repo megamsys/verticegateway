@@ -55,7 +55,7 @@ case class RawImagesResult(
   )
 
 object RawImagesResult {
-  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, "Megam::RawImages", DateTime.now(),DateTime.now())
+  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, models.Constants.RAWIMAGESCLAZ, DateTime.now(),DateTime.now())
 }
 
 sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResult] with ImplicitJsonFormats {
@@ -151,7 +151,7 @@ abstract class ConcreteRawImages extends RawImagesSacks with RootConnector {
   }
 
   def getRecord(id: String): ValidationNel[Throwable, Option[RawImagesResult]] = {
-    val res = select.allowFiltering().where(_.created_at lte DateHelper.now()).and(_.id eqs id).one()
+    val res = select.allowFiltering().where(_.id eqs id).one()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -173,11 +173,13 @@ private def mkRawImagesSack(email: String, input: String): ValidationNel[Throwab
     parse(input).extract[RawImagesInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
 
+  play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, rawimagesInput ,Console.RESET))
+
   for {
     raw <- rawimagesInput
     uir <- (UID("raw").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-    (new RawImagesResult(uir.get._1 + uir.get._2, raw.org_id, email, raw.name, raw.status, raw.repos, raw.inputs, List(), "Megam::RawImages", DateHelper.now(), DateHelper.now()))
+    (new RawImagesResult(uir.get._1 + uir.get._2, raw.org_id, email, raw.name, raw.status, raw.repos, raw.inputs, List(), models.Constants.RAWIMAGESCLAZ, DateHelper.now(), DateHelper.now()))
   }
 }
 
@@ -204,10 +206,10 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[RawIma
 def delete(email: String, id: String): ValidationNel[Throwable, RawImagesResult] = {
   for {
     wa <- (findById(id) leftMap { t: NonEmptyList[Throwable] => t })
-    set <- (deleteRecords(email) leftMap { t: NonEmptyList[Throwable] => t })
+    se <- (deleteRecords(email) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "RawImages","|-| ✔", Console.RESET))
-    wa
+    wa.head
   }
 }
 
@@ -218,9 +220,9 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
   for {
     rip <- ripNel
     qor <- (findById(rip.id) leftMap { t: NonEmptyList[Throwable] => t })
-    set <- updateRecord(email, rip, qor.some)
+    set <- updateRecord(email, rip, qor.head.some)
   } yield {
-    qor
+    qor.head
   }
 }
 
@@ -242,15 +244,15 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
     } yield df
   }
 
-  def findById(id: String): ValidationNel[Throwable, RawImagesResult] = {
+  def findById(id: String): ValidationNel[Throwable, Seq[RawImagesResult]] = {
     (getRecord(id) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(id, "RawImages = nothing found.")
     }).toValidationNel.flatMap { xso: Option[RawImagesResult] ⇒
       xso match {
         case Some(xs) ⇒ {
-          Validation.success[Throwable, RawImagesResult](xs).toValidationNel
+          Validation.success[Throwable, Seq[RawImagesResult]](List(xs)).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, RawImagesResult](new ResourceItemNotFound(id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, Seq[RawImagesResult]](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }
