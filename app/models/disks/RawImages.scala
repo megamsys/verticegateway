@@ -38,15 +38,15 @@ import controllers.stack.ImplicitJsonFormats
  * @author ranjitha
  *
  */
-case class RawImagesInput( org_id: String, account_id: String, region: String, status: String, repos: models.tosca.KeyValueList, inputs: models.tosca.KeyValueList)
+case class RawImagesInput( org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList)
 
 case class RawImagesResult(
   id: String,
   org_id: String,
   account_id: String,
-  region:   String,
+  name:   String,
   status: String,
-  repos: models.tosca.KeyValueList,
+  repos: String,
   inputs: models.tosca.KeyValueList,
   outputs: models.tosca.KeyValueList,
   json_claz: String,
@@ -55,7 +55,7 @@ case class RawImagesResult(
   )
 
 object RawImagesResult {
-  def apply(id: String, org_id: String, account_id: String, region: String, status: String, repos: models.tosca.KeyValueList, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new RawImagesResult(id, org_id, account_id, region, status, repos, inputs, outputs, "Megam::RawImages", DateTime.now(),DateTime.now())
+  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, "Megam::RawImages", DateTime.now(),DateTime.now())
 }
 
 sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResult] with ImplicitJsonFormats {
@@ -63,18 +63,10 @@ sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResu
   object id extends StringColumn(this) with  PartitionKey[String]
   object org_id extends StringColumn(this)
   object account_id extends StringColumn(this) with PrimaryKey[String]
-  object region extends StringColumn(this)
+  object name extends StringColumn(this)
   object status extends StringColumn(this)
+  object repos extends StringColumn(this)
 
-  object repos extends JsonListColumn[RawImagesSacks, RawImagesResult, KeyValueField](this) {
-    override def fromJson(obj: String): KeyValueField = {
-      JsonParser.parse(obj).extract[KeyValueField]
-    }
-
-    override def toJson(obj: KeyValueField): String = {
-      compactRender(Extraction.decompose(obj))
-    }
-  }
 
   object inputs extends JsonListColumn[RawImagesSacks, RawImagesResult, KeyValueField](this) {
     override def fromJson(obj: String): KeyValueField = {
@@ -105,7 +97,7 @@ sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResu
       id(row),
       org_id(row),
       account_id(row),
-      region(row),
+      name(row),
       status(row),
       repos(row),
       inputs(row),
@@ -126,7 +118,7 @@ abstract class ConcreteRawImages extends RawImagesSacks with RootConnector {
     val res = insert.value(_.id, sps.id)
       .value(_.org_id, sps.org_id)
       .value(_.account_id, sps.account_id)
-      .value(_.region, sps.region)
+      .value(_.name, sps.name)
       .value(_.status, sps.status)
       .value(_.repos, sps.repos)
       .value(_.inputs, sps.inputs)
@@ -185,7 +177,7 @@ private def mkRawImagesSack(email: String, input: String): ValidationNel[Throwab
     raw <- rawimagesInput
     uir <- (UID("raw").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-    (new RawImagesResult(uir.get._1 + uir.get._2, raw.org_id, email, raw.region, raw.status, raw.repos, raw.inputs, List(), "Megam::RawImages", DateHelper.now(), DateHelper.now()))
+    (new RawImagesResult(uir.get._1 + uir.get._2, raw.org_id, email, raw.name, raw.status, raw.repos, raw.inputs, List(), "Megam::RawImages", DateHelper.now(), DateHelper.now()))
   }
 }
 
@@ -272,7 +264,7 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
       if (!output.isEmpty)
          output.head
       else
-        RawImagesResult("","","","","", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
+        RawImagesResult("","","","","","", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
 
   }
 

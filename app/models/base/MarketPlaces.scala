@@ -60,7 +60,7 @@ case class MarketPlaceResult(
 
 sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPlaceResult] with ImplicitJsonFormats  {
 
-  object id extends StringColumn(this)
+  object id extends StringColumn(this) with PartitionKey[String]
   object flavor extends StringColumn(this) with PrimaryKey[String]
 
   object provided_by extends StringColumn(this) with PartitionKey[String]
@@ -165,8 +165,12 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
   override implicit def space: KeySpace = scyllaConnection.space
   override implicit def session: Session = scyllaConnection.session
 
+  def getRecordById(id: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
+    val res = select.allowFiltering().where(_.id eqs id).one()
+    Await.result(res, 5.seconds).successNel
+  }
 
-  def getRecord(flavor: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
+  def getRecordByFlavor(flavor: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
     val res = select.where(_.flavor eqs flavor).one()
     Await.result(res, 5.seconds).successNel
   }
@@ -206,7 +210,7 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
     val oldstatus  = aor.get.status
     val newstatus  = rip.status
 
-    val res = update.where(_.flavor eqs rip.flavor)
+    val res = update.where(_.flavor eqs rip.flavor).and(_.provided_by eqs rip.provided_by).and(_.id eqs rip.id)
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.outputs setTo rip.outputs)
       .and(_.updated_at setTo DateHelper.now())
@@ -293,11 +297,23 @@ object MarketPlaces extends ConcreteMarketPlaces {
         else
           Validation.success[Throwable, Seq[MarketPlaceResult]](List()).toValidationNel
       }
-    }
+  }
 
+  def findById(id: String, email: String): ValidationNel[Throwable, MarketPlaceResult] = {
+    (getRecordById(id) leftMap { t: NonEmptyList[Throwable] ⇒
+      new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
+    }).toValidationNel.flatMap { xso: Option[MarketPlaceResult] ⇒
+      xso match {
+        case Some(xs) ⇒ {
+          Validation.success[Throwable, MarketPlaceResult](xs).toValidationNel
+        }
+        case None ⇒ Validation.failure[Throwable, MarketPlaceResult](new ResourceItemNotFound(id, "")).toValidationNel
+      }
+    }
+  }
 
   def findByFlavor(mkpFlavor: String, email: String): ValidationNel[Throwable, MarketPlaceResult] = {
-    (getRecord(mkpFlavor) leftMap { t: NonEmptyList[Throwable] ⇒
+    (getRecordByFlavor(mkpFlavor) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(mkpFlavor, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[MarketPlaceResult] ⇒
       xso match {

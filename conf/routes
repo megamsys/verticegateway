@@ -70,8 +70,10 @@ POST /v2/components/update        	  controllers.camp.Components.update
 
 # Marketplaces
 GET  /v2/marketplaces                 controllers.MarketPlaces.list
-GET  /v2/marketplaces/:flavor         controllers.MarketPlaces.show(flavor: String)
-GET  /v2/marketplaces/show/:provider  controllers.MarketPlaces.listBy(provider: String)
+GET  /v2/marketplaces/:id             controllers.MarketPlaces.showById(id: String)
+GET  /v2/marketplaces/p/:provider     controllers.MarketPlaces.listBy(provider: String)
+GET  /v2/marketplaces/f/:flavor       controllers.MarketPlaces.showByFlavor(flavor: String)
+
 POST /v2/marketplaces/update        	controllers.MarketPlaces.update
 POST /v2/marketplaces/content         controllers.MarketPlaces.post
 DELETE /v2/marketplaces/:flavor       controllers.MarketPlaces.delete(flavor: String)

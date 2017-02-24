@@ -49,4 +49,4 @@ CREATE TABLE IF NOT EXISTS events_skews(id text, account_id text, cat_id text, e
 
 CREATE TABLE IF NOT EXISTS external_objects (id text, account_id text, object_id text, inputs list<text>, json_claz text, created_at timestamp,  PRIMARY KEY ((account_id), object_id));
 
-CREATE TABLE IF NOT EXISTS rawimages(id text, account_id text, org_id text, region text, status text, inputs list<text>, outputs list<text>, repos list<text>, created_at timestamp, json_claz text, PRIMARY KEY(account_id, created_at, id));
+CREATE TABLE IF NOT EXISTS rawimages(id text, account_id text, org_id text, name text, status text, inputs list<text>, outputs list<text>, repos text, created_at timestamp, json_claz text, PRIMARY KEY(account_id, created_at, id));
