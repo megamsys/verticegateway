@@ -22,7 +22,7 @@ object Constants {
   val SNAPSHOT_CREATE = "snapcreate"  //action
   val SNAPSHOT_REMOVE = "snapremove"  //action
 
-  val BACKUP        = "backup"    //category
+  val BACKUP        = "backup"        //category
   val BACKUP_CREATE = "backupcreate"  //action
   val BACKUP_REMOVE = "backupremove"  //action
 
@@ -30,12 +30,24 @@ object Constants {
   val ATTACH_DISK     = "attachdisk"   //action
   val DETACH_DISK     = "detachdisk"   //action
 
+  val RAWIMAGES       = "marketplaces.rawimages"   //category
+  val CREATE_RAWIMAGE = "rawimage.create"   //action
+  val DELETE_RAWIMAGE = "rawimage.delete"   //action
+
+  val LOCALSITE_MARKETPLACES    = "localsite.marketplaces"   //category
+  val INITIALIZE_MARKETPLACE    = "marketplace.initialize"   //action
+  val CREATE_MARKETPLACE        = "marketplace.create"   //action
+  val DELETE_MARKETPLACE        = "marketplace.delete"   //action
+
   val BIND            = "bind"
   val BUILD           = "build"
 
   val CATTYPE_DOCKER    = "container"
   val CATTYPE_TORPEDO   = "torpedo"
   val CATTYPE_CUSTOMAPP = "app"
+
+  val CATTYPE_MARKETPLACES      = "marketplaces"
+
   val CATTYPE_SERVICE   = "service"
   val BITNAMI           = "bitnami"
   val ANALYTICS         = "analytics"
@@ -44,10 +56,14 @@ object Constants {
   val STATUS_DESTROYED                    = List("destroyed", "preerror")
 
   val REPORT_SALES                        = "sales"
+  val REPORT_LAUNCHES                     = "launches"
+  val REPORT_BACKUPS                      = "backups"
+  val REPORT_SNAPSHOTS                    = "snapshots"
+
   val REPORT_USRDOT                       = "userdot"
   val REPORT_LANDOT                       = "launchdot"
-  val REPORT_LAUNCHES                     = "launches"
   val REPORT_NOOP                         = "noop"
+
   val REPORT_FILTER_VM                    = List(CATTYPE_TORPEDO)
   val REPORT_DEAD                         = List("destroying", "destroyed", "posterror")
   val REPORT_NOTINITED                    = List("preerror", "initializing")
@@ -58,12 +74,12 @@ object Constants {
   val REPORT_FILTER_CONTAINERS            = List(CATTYPE_DOCKER)
 
   val REPORT_CATEGORYMAP                  = Map(
-    "all" -> (REPORT_FILTER_VM  ++ REPORT_FILTER_CUSTOMAPPS ++ REPORT_FILTER_BITNAMI_PREPACKAGED ++  REPORT_FILTER_VERTICE_PREPACKAGED
+    "all"         -> (REPORT_FILTER_VM  ++ REPORT_FILTER_CUSTOMAPPS ++ REPORT_FILTER_BITNAMI_PREPACKAGED ++  REPORT_FILTER_VERTICE_PREPACKAGED
               ++ REPORT_FILTER_SERVICES ++ REPORT_FILTER_CONTAINERS),
-    "service" -> REPORT_FILTER_SERVICES,
-    "vm" -> REPORT_FILTER_VM,
+    "service"     -> REPORT_FILTER_SERVICES,
+    "vm"          -> REPORT_FILTER_VM,
     "application" -> (REPORT_FILTER_CUSTOMAPPS ++ REPORT_FILTER_BITNAMI_PREPACKAGED ++  REPORT_FILTER_VERTICE_PREPACKAGED),
-    "container" -> REPORT_FILTER_CONTAINERS)
+    "container"   -> REPORT_FILTER_CONTAINERS)
 
   val ACCOUNTCLAZ                     = "Megam::Account"
   val ADMINUSERSCLAZ                  = "Megam::Account"
@@ -125,10 +141,13 @@ object Constants {
   val SSHKEYCOLLECTIONCLAZ            = "Megam::SshKeyCollection"
   val SNAPSHOTSCLAZ                   = "Megam::Snapshots"
   val SNAPSHOTSCOLLECTIONCLAZ         = "Megam::SnapshotsCollection"
-  val BACKUPSCLAZ                   = "Megam::Backups"
-  val BACKUPSCOLLECTIONCLAZ         = "Megam::BackupsCollection"
+  val BACKUPSCLAZ                     = "Megam::Backups"
+  val BACKUPSCOLLECTIONCLAZ           = "Megam::BackupsCollection"
   val DISKSCLAZ                       = "Megam::Disks"
   val DISKSCOLLECTIONCLAZ             = "Megam::DisksCollection"
+  val RAWIMAGESCLAZ                  = "Megam::RawImages"
+  val RAWIMAGESCOLLECTIONCLAZ         = "Megam::RawImagesCollection"
+
   val SUBSCRIPTIONSCLAZ               = "Megam::Subscriptions"
   val SUBSCRIPTIONSCOLLECTIONCLAZ     = "Megam::SubscriptionsCollection"
   val MEGAM_PROMOSCLAZ                = "Megam::Promos"
@@ -136,6 +155,7 @@ object Constants {
   val REPORTSCLAZ                     = "Megam::Reports"
   val QUOTASCOLLECTIONCLAZ            = "Megam::QuotasCollection"
   val QUOTASCLAZ                      = "Megam::Quotas"
+
   val EXTERNALOBJECTSCOLLECTIONCLAZ   = "Megam::ExternalobjectsCollection"
   val EXTERNALOBJECTSCLAZ             = "Megam::Externalobjects"
 }

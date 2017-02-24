@@ -64,9 +64,9 @@ class Scavenger(email: String) {
 
   private def littered = {
    for {
-     snps <- models.snapshots.Snapshots.deleteByEmail(email)
+     snps <- models.disks.Snapshots.deleteByEmail(email)
      diks <- models.disks.Disks.deleteByEmail(email)
-     bak  <- models.backups.Backups.deleteByEmail(email)
+     bak  <- models.disks.Backups.deleteByEmail(email)
    } yield  "littered.done".some
   }
 

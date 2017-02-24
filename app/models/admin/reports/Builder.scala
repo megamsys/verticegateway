@@ -19,15 +19,19 @@ class Builder(ri: ReportInput) {
   //When a new report type is needed add a constant type here.
   val SALES         = "sales"
   val LAUNCHES      = "launches"
+  val BACKUPS       = "backups"
+  val SNAPSHOTS     = "snapshots"
 
   val USERDOT       = "userdot"
   val LAUNCHDOT     = "launchdot"
 
   //When a new report is needed add a class that will be a reporter.
   private val GLOBAL_REPORTS = Map(SALES         -> "models.admin.reports.Sales",
+                                   LAUNCHES      -> "models.admin.reports.Launches",
+                                   BACKUPS       -> "models.admin.reports.Backups",
+                                   SNAPSHOTS     -> "models.admin.reports.Snapshots",
                                    USERDOT       -> "models.admin.reports.UsersDot",
-                                   LAUNCHDOT     -> "models.admin.reports.LaunchesDot",
-                                   LAUNCHES      -> "models.admin.reports.Launches")
+                                   LAUNCHDOT     -> "models.admin.reports.LaunchesDot")
 
   private lazy val cls =  GLOBAL_REPORTS.get(ri.type_of).getOrElse("models.admin.reports.NoOp")
 
