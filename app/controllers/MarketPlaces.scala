@@ -28,7 +28,9 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
           val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
           models.base.MarketPlaces.create(email, clientAPIBody) match {
             case Success(succ) =>
-                Status(CREATED)(FunnelResponse(CREATED, "Marketplace created successfully.", MARKETPLACECLAZ).toJson(true))
+            Status(CREATED)(
+              FunnelResponse(CREATED, """[%s] deployment submitted successfully.""".format(succ.get.id), MARKETPLACECLAZ).toJson(true)
+          )                
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))

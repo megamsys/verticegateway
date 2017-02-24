@@ -29,9 +29,9 @@ class Snapshots(ri: ReportInput) extends Reporter {
   }
 
 
- def build(startdate: String, enddate: String): ValidationNel[Throwable, Seq[models.snapshots.SnapshotsResult]] = {
+ def build(startdate: String, enddate: String): ValidationNel[Throwable, Seq[models.disks.SnapshotsResult]] = {
     for {
-     a <- (models.snapshots.Snapshots.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+     a <- (models.disks.Snapshots.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
    } yield {
        a
       }
@@ -47,15 +47,15 @@ class Snapshots(ri: ReportInput) extends Reporter {
     }
   }
 
-  def buildFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[models.snapshots.SnapshotsResult]] = {
+  def buildFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[models.disks.SnapshotsResult]] = {
      for {
-      a <- (models.snapshots.Snapshots.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+      a <- (models.disks.Snapshots.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
     } yield {
         a
       }
    }
 
-  private def aggregate(bacs: Seq[models.snapshots.SnapshotsResult]) = {
+  private def aggregate(bacs: Seq[models.disks.SnapshotsResult]) = {
    for {
       la <-  SnapshotsAggregate(bacs).some
     } yield la.aggregate
@@ -63,7 +63,7 @@ class Snapshots(ri: ReportInput) extends Reporter {
 
 }
 
-case class SnapshotsAggregate(bacs: Seq[models.snapshots.SnapshotsResult]) {
+case class SnapshotsAggregate(bacs: Seq[models.disks.SnapshotsResult]) {
   lazy val aggregate: Seq[SnapshotsReportResult] = bacs.map(bac =>  {
     SnapshotsReportResult(bac.id, bac.asm_id, bac.account_id, bac.name, bac.status, bac.disk_id, bac.snap_id, bac.tosca_type,
       KeyValueList.toMap(bac.inputs), KeyValueList.toMap(bac.outputs), bac.created_at)
