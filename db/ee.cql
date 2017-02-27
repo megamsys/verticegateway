@@ -134,8 +134,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
       ('MKT000017', 'OwnCloud', 'vertice', 'COLLABORATION', '6',
       'active', 'owncloud.png', 'https://owncloud.org/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
       ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}',
-      '{"key":"bitnami_password", "value":"team4megam"}',
-      '{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}'
+      '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}',
       '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/MediaSharing/bitnami-owncloud-9.1.3-1-linux-x64-installer.run"}'],
       [],[],[],
       ['{"key":"9.1", "value": "Access your data from all your devices, on an open platform you can extend and modify."}'],
@@ -163,8 +162,8 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000020', 'PrestaShop', 'bitnami', 'COLLABORATION', '6',
       'active', 'prestashop.png', 'https://bitnami.com/stack/prestashop', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
-       '{"key":"bitnami_prestashop_site", "value":"127.0.0.1"}'
+      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}',
+       '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_prestashop_site", "value":"127.0.0.1"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/e-Commerce/bitnami-prestashop-1.6.1.4-0-linux-x64-installer.run"}'],
         [],[],[],
         ['{"key":"1.6.1.4", "value": "PrestaShop has perhaps the most unique and interesting out of the box experience of any ecommerce platform "}'],
