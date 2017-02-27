@@ -248,10 +248,7 @@ object MarketPlaces extends ConcreteMarketPlaces {
   }
 
   def listAll: ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
-    val a = listAllRecords()
-    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Marketplaces","|+| ✔ " + a , Console.RESET))
-
-    (a leftMap { t: NonEmptyList[Throwable] =>
+    (listAllRecords() leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Marketplace items = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[MarketPlaceResult] =>
       if (!nm.isEmpty) {
