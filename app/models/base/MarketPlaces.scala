@@ -186,12 +186,9 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
   }
 
   def listAllRecords(): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
-    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Marketplaces","|+| ✔ Entry " , Console.RESET))
     val res = select.consistencyLevel_=(ConsistencyLevel.ONE).fetch
 
-    val a =   Await.result(res, 5.seconds)
-    play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Marketplaces","|+| ✔ Entry 1 " + a , Console.RESET))
-    a.successNel
+    Await.result(res, 5.seconds).successNel
   }
 
   def insertNewRecord(mpr: MarketPlaceResult): ValidationNel[Throwable, ResultSet] = {
@@ -258,13 +255,9 @@ object MarketPlaces extends ConcreteMarketPlaces {
       new ResourceItemNotFound("", "Marketplace items = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[MarketPlaceResult] =>
       if (!nm.isEmpty) {
-        play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Marketplaces","|+| ✔" + nm, Console.RESET))
-
         Validation.success[Throwable, Seq[MarketPlaceResult]](nm).toValidationNel
 
       } else {
-        play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "XXX Marketplaces","|+| ✔" + nm, Console.RESET))
-
         Validation.failure[Throwable, Seq[MarketPlaceResult]](new ResourceItemNotFound("", "Marketplace = nothing found.")).toValidationNel
       }
     }
