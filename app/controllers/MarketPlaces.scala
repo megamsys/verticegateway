@@ -56,11 +56,15 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
               Ok(Results.resultset(models.Constants.MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             }
             case Failure(err) =>
+            play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Marketplaces","|+| ✔ lstrec 0" + err , Console.RESET))
+
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
           }
         }
         case Failure(err) => {
+          play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Marketplaces","|+| ✔ lstrec 1" + err , Console.RESET))
+
           val rn: FunnelResponse = new HttpReturningError(err)
           Status(rn.code)(rn.toJson(true))
         }
