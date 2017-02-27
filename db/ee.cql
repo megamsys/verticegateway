@@ -90,7 +90,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000011', 'PostgreSQL', 'vertice', 'SERVICE', '3',
      'active', 'postgres.png', 'https://postgresql.org', ['{"key":"port.tcp", "value":"5432"}', '{"key":"username", "value": "postgres"}',  '{"key":"password", "value":"megam"}'],[],[],[],[],
-     ['{"key":"9.5", "value": "PostgreSQL (pronounced "post-gress-Q-L") is an open source relational database management system ( DBMS ) developed by a worldwide team of volunteers."}'],
+     ['{"key":"9.5", "value": "PostgreSQL (pronounced 'post-gress-Q-L') is an open source relational database management system ( DBMS ) developed by a worldwide team of volunteers."}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
