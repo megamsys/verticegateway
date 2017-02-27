@@ -125,16 +125,17 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
         ('MKT000016', 'Zarafa', 'vertice', 'COLLABORATION', '6',
-        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"yes"}'],[],[],[],
+        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"yes"}'],[],[],[],
         ['{"key":"7.2", "value": "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."}'],
         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000017', 'OwnCloud', 'vertice', 'COLLABORATION', '6',
-      'active', 'owncloud.png', 'https://owncloud.org/', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}',
-      '{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+      'active', 'owncloud.png', 'https://owncloud.org/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
+      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}',
+      '{"key":"bitnami_password", "value":"team4megam"}',
+      '{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}'
       '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/MediaSharing/bitnami-owncloud-9.1.3-1-linux-x64-installer.run"}'],
       [],[],[],
       ['{"key":"9.1", "value": "Access your data from all your devices, on an open platform you can extend and modify."}'],
@@ -143,7 +144,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000018', 'WordPress', 'bitnami', 'COLLABORATION', '6',
-      'active', 'wordpress.png', 'https://bitnami.com/stack/wordpress', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+      'active', 'wordpress.png', 'https://bitnami.com/stack/wordpress', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
       ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
       '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-wordpress-4.4.2-3-linux-x64-installer.run"}'],
       [],[],[],
@@ -152,7 +153,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000019', 'Moodle', 'bitnami', 'COLLABORATION', '6',
-      'active', 'moodle.png', 'https://bitnami.com/stack/moodle', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+      'active', 'moodle.png', 'https://bitnami.com/stack/moodle', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
        ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/eLearning/bitnami-moodle-3.0.3-0-linux-x64-installer.run"}'],
         [],[],[],
@@ -161,8 +162,9 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000020', 'PrestaShop', 'bitnami', 'COLLABORATION', '6',
-      'active', 'prestashop.png', 'https://bitnami.com/stack/prestashop', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}', '{"key":"bitnami_prestashop_site", "value":"127.0.0.1"}'],
+      'active', 'prestashop.png', 'https://bitnami.com/stack/prestashop', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
       ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+       '{"key":"bitnami_prestashop_site", "value":"127.0.0.1"}'
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/e-Commerce/bitnami-prestashop-1.6.1.4-0-linux-x64-installer.run"}'],
         [],[],[],
         ['{"key":"1.6.1.4", "value": "PrestaShop has perhaps the most unique and interesting out of the box experience of any ecommerce platform "}'],
@@ -171,7 +173,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000021', 'MediaWiki', 'bitnami', 'COLLABORATION', '6',
-      'active', 'mediawiki.png', 'https://bitnami.com/stack/mediawiki', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+      'active', 'mediawiki.png', 'https://bitnami.com/stack/mediawiki', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
       ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Wiki/bitnami-mediawiki-1.26.2-1-linux-x64-installer.run"}'],
         [],[],[],
@@ -181,7 +183,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000022', 'Ghost', 'bitnami', 'COLLABORATION', '6',
-    'active', 'ghost.png', 'https://bitnami.com/stack/ghost', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    'active', 'ghost.png', 'https://bitnami.com/stack/ghost', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-ghost-0.7.8-0-linux-x64-installer.run"}'],
     [],[],[],
@@ -191,7 +193,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000023', 'Redmine', 'bitnami', 'COLLABORATION', '6',
-    'active', 'redmine.png', 'https://bitnami.com/stack/redmine', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    'active', 'redmine.png', 'https://bitnami.com/stack/redmine', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Bug+Tracking/bitnami-redmine-3.2.1-0-linux-x64-installer.run"}'],
     [],[],[],
@@ -200,7 +202,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
    ('MKT000024', 'Discourse', 'bitnami', 'COLLABORATION', '6',
-   'active', 'discourse.png', 'https://bitnami.com/stack/discourse', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+   'active', 'discourse.png', 'https://bitnami.com/stack/discourse', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Forum/bitnami-discourse-1.4.6-0-linux-x64-installer.run"}'],
    [],[],[],
@@ -258,7 +260,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
      ('MKT000031', 'PHP', 'vertice', 'APP', '2',
-     'active', 'php.png', 'https://secure.php.net', ['{"key":"port.http", "value":"80"}','{"key":"url.append", "value":"/current"}' ],[],[],[],[],
+     'active', 'php.png', 'https://secure.php.net', ['{"key":"port.http", "value":"80"}','{"key":"url.suffix", "value":"/current"}' ],[],[],[],[],
       ['{"key":"5.x", "value": "PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used open source general-purpose scripting language that is especially suited for web development and can be embedded into HTML"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -316,7 +318,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
    ('MKT000038', 'DreamFactory', 'bitnami', 'COLLABORATION', '6',
-   'active', 'dreamfactory.png', 'https://bitnami.com/stack/dreamfactory', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+   'active', 'dreamfactory.png', 'https://bitnami.com/stack/dreamfactory', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_database_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Mobile+Development/bitnami-dreamfactory-2.1.1-2-linux-x64-installer.run"}'],
    [],[],[],
@@ -325,7 +327,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000039', 'Pimcore', 'bitnami', 'COLLABORATION', '6',
-    'active', 'pimcore.png', 'https://bitnami.com/stack/pimcore', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    'active', 'pimcore.png', 'https://bitnami.com/stack/pimcore', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/CMS/bitnami-pimcore-3.1.1-2-linux-x64-installer.run"}'],
     [],[],[],
@@ -334,7 +336,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000040', 'Jenkins', 'bitnami', 'COLLABORATION', '6',
-    'active', 'jenkins.png', 'https://bitnami.com/stack/jenkins', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    'active', 'jenkins.png', 'https://bitnami.com/stack/jenkins', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Continuous+Integration/bitnami-jenkins-1.655-0-linux-x64-installer.run"}'],
     [],[],[],
@@ -343,7 +345,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000041', 'eXo Platform', 'bitnami', 'COLLABORATION', '6',
-    'active', 'exoplatform.png', 'https://bitnami.com/stack/exo-platform-community', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    'active', 'exoplatform.png', 'https://bitnami.com/stack/exo-platform-community', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Social+Networking/bitnami-exoplatform-4.3.0-1-linux-x64-installer.run"}'],
     [],[],[],
@@ -352,7 +354,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000042', 'Gitlab', 'bitnami', 'COLLABORATION', '6',
-    'active', 'gitlab.png', 'https://bitnami.com/stack/gitlab', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    'active', 'gitlab.png', 'https://bitnami.com/stack/gitlab', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Version+Control/bitnami-gitlab-8.5.7-0-linux-x64-installer.run"}'],
     [],[],[],
@@ -361,7 +363,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000043', 'Mautic', 'bitnami', 'COLLABORATION', '6',
-    'active', 'mautic.png', 'https://bitnami.com/stack/mautic', ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    'active', 'mautic.png', 'https://bitnami.com/stack/mautic', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Marketing+Automation/bitnami-mautic-1.3.1-0-linux-x64-installer.run"}'],
     [],[],[],
@@ -371,7 +373,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000044', 'ProcessMaker Open Source Edition', 'bitnami', 'COLLABORATION', '6',
     'active', 'processmaker.png', 'https://bitnami.com/stack/processmaker',
-    ['{"key":"port.http", "value":"80"}', '{"key":"url.append", "value":"/"}'],
+    ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
     ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/BPM/bitnami-processmaker-3.0.1.7-0-linux-x64-installer.run"}'],
     [],[],[],
