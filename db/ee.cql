@@ -280,7 +280,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
          ('MKT000034', 'DockerContainer', 'vertice', 'CONTAINERS', '4',
          'active', 'dockercontainer.png', 'https://www.docker.com', [],[],[],[],[],
-          ['{"key":"1.12.x"}', '{"value": "Package your application into a standardized unit for software development. Docker containers wrap a piece of software in a complete filesystem that contains everything needed to run: code, runtime, system tools, system libraries – anything that can be installed on a server."}'],
+          ['{"key":"1.12.x", "value": "Package your application into a standardized unit for software development. Docker containers wrap a piece of software in a complete filesystem that contains everything needed to run: code, runtime, system tools, system libraries – anything that can be installed on a server."}'],
         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
