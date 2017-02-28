@@ -55,7 +55,10 @@ case class RawImagesResult(
   )
 
 object RawImagesResult {
-  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, models.Constants.RAWIMAGESCLAZ, DateTime.now(),DateTime.now())
+  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String,
+    inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) =
+    new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, models.Constants.RAWIMAGESCLAZ,
+      DateHelper.now(),DateHelper.now())
 }
 
 sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResult] with ImplicitJsonFormats {
@@ -173,7 +176,6 @@ private def mkRawImagesSack(email: String, input: String): ValidationNel[Throwab
     parse(input).extract[RawImagesInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
 
-  play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, rawimagesInput ,Console.RESET))
 
   for {
     raw <- rawimagesInput
