@@ -63,7 +63,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
   object org_id extends StringColumn(this) with PartitionKey[String]
   object id extends StringColumn(this) with PrimaryKey[String]
   object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
-    object account_id extends StringColumn(this)
+  object account_id extends StringColumn(this)
   object name extends StringColumn(this)
   object components extends ListColumn[AssemblySacks, AssemblyResult, String](this)
   object tosca_type extends StringColumn(this)

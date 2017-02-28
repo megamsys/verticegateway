@@ -1,5 +1,6 @@
 package models.disks
 
+
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
@@ -10,9 +11,9 @@ import scalaz.syntax.SemigroupOps
 
 import cache._
 import db._
-import models.base.RequestInput
-import models.tosca.{ KeyValueField, KeyValueList}
 import models.Constants._
+import models.tosca.KeyValueField
+import models.base.RequestInput
 import io.megam.auth.funnel.FunnelErrors._
 
 import com.datastax.driver.core.{ ResultSet, Row }
@@ -22,7 +23,7 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import utils.{DateHelper, StringStuff}
+import utils.{ DateHelper, StringStuff }
 import io.megam.util.Time
 import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
@@ -55,14 +56,19 @@ case class RawImagesResult(
   )
 
 object RawImagesResult {
-  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, models.Constants.RAWIMAGESCLAZ, DateTime.now(),DateTime.now())
+  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String,
+    inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) =
+    new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, models.Constants.RAWIMAGESCLAZ,
+      DateHelper.now(),DateHelper.now())
 }
 
 sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResult] with ImplicitJsonFormats {
 
-  object id extends StringColumn(this) with  PartitionKey[String]
+  object id extends StringColumn(this) with  PrimaryKey[String]
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
+  object account_id extends StringColumn(this) with PartitionKey[String]
+
   object org_id extends StringColumn(this)
-  object account_id extends StringColumn(this) with PrimaryKey[String]
   object name extends StringColumn(this)
   object status extends StringColumn(this)
   object repos extends StringColumn(this)
@@ -88,7 +94,6 @@ sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResu
     }
   }
 
-  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object updated_at extends DateTimeColumn(this)
   object json_claz extends StringColumn(this)
 
@@ -173,7 +178,6 @@ private def mkRawImagesSack(email: String, input: String): ValidationNel[Throwab
     parse(input).extract[RawImagesInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
 
-  play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, rawimagesInput ,Console.RESET))
 
   for {
     raw <- rawimagesInput

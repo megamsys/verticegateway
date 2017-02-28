@@ -156,10 +156,7 @@ private def mkDisksSack(email: String, input: String): ValidationNel[Throwable, 
     dsk <- DiskInput
     uir <- (UID("dsk").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-
-    val bvalue = Set(email)
-    val json = new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.size, dsk.status,  DISKSCLAZ, DateHelper.now())
-    json
+     new DisksResult(uir.get._1 + uir.get._2, dsk.asm_id, dsk.org_id, email, "", dsk.size, dsk.status,  DISKSCLAZ, DateHelper.now())
   }
 }
 

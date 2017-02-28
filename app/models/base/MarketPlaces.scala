@@ -67,8 +67,8 @@ sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPla
 
   object id extends StringColumn(this) with PartitionKey[String]
   object flavor extends StringColumn(this) with PrimaryKey[String]
-
   object provided_by extends StringColumn(this) with PartitionKey[String]
+
   object cattype extends StringColumn(this)
   object catorder extends StringColumn(this)
   object status extends StringColumn(this)
@@ -194,6 +194,7 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
   def insertNewRecord(mpr: MarketPlaceResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, mpr.id)
       .value(_.flavor, mpr.flavor)
+      .value(_.provided_by, mpr.provided_by)
       .value(_.cattype, mpr.cattype)
       .value(_.catorder,mpr.catorder)
       .value(_.status, mpr.status)

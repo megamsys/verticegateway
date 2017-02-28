@@ -29,7 +29,7 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
           models.base.MarketPlaces.create(email, clientAPIBody) match {
             case Success(succ) =>
             Status(CREATED)(
-              FunnelResponse(CREATED, """[%s] deployment submitted successfully.""".format(succ.get.id), MARKETPLACECLAZ).toJson(true)
+              FunnelResponse(CREATED, """[%s]  submitted successfully.""".format(succ.get.id), MARKETPLACECLAZ).toJson(true)
           )
             case Failure(err) => {
               val rn: FunnelResponse = new HttpReturningError(err)
