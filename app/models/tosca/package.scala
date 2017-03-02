@@ -93,35 +93,6 @@ package object tosca {
     def empty: List[Policy] = List[Policy]()
   }
 
-  type MembersList = List[String]
-
-  object MembersList {
-    val emptyRR = List("")
-    def toJValue(nres: MembersList): JValue = {
-
-      import net.liftweb.json.scalaz.JsonScalaz.toJSON
-      import models.json.tosca.carton.MembersListSerialization.{ writer => MembersListWriter }
-      toJSON(nres)(MembersListWriter)
-    }
-
-    def fromJValue(jValue: JValue)(implicit charset: Charset = UTF8Charset): Result[MembersList] = {
-      import net.liftweb.json.scalaz.JsonScalaz.fromJSON
-      import models.json.tosca.carton.MembersListSerialization.{ reader => MembersListReader }
-      fromJSON(jValue)(MembersListReader)
-    }
-
-    def toJson(nres: MembersList, prettyPrint: Boolean = false): String = if (prettyPrint) {
-      prettyRender(toJValue(nres))
-    } else {
-      compactRender(toJValue(nres))
-    }
-
-    def apply(plansList: List[String]): MembersList = plansList
-
-    def empty: List[String] = emptyRR
-
-  }
-
   type KeyValueList = List[KeyValueField]
 
   object KeyValueList {

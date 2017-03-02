@@ -9,5 +9,6 @@ trait ImplicitJsonFormats {
     private val default: DefaultFormats with Object {def dateFormatter: SimpleDateFormat} = new DefaultFormats {
         override def dateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
     }
+
     implicit val liftJsonFormats = default ++ JodaTimeSerializers.all
 }

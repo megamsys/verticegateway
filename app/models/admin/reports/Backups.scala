@@ -7,6 +7,8 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scala.collection.immutable.ListMap
+
 import models.tosca.KeyValueList
 import net.liftweb.json._
 import io.megam.util.Time
@@ -71,14 +73,14 @@ case class BackupsAggregate(bacs: Seq[models.disks.BackupsResult]) {
 }
 
 
-case class BackupsReportResult(id: String, asms_id: String, account_id: String, name: String, status: String,
+case class BackupsReportResult(id: String, asm_id: String, account_id: String, name: String, status: String,
                         image_id: String, tosca_type: String, inputProps: Map[String, String],
                         outputProps: Map[String, String], created_at: DateTime) {
     val X = "x"
     val Y = "y"
 
     val ID   = "id"
-    val ASMS_ID = "asms_id"
+    val ASM_ID = "asm_id"
     val ACCOUNT_ID = "account_id"
     val NAME = "name"
     val STATUS = "status"
@@ -104,17 +106,15 @@ case class BackupsReportResult(id: String, asms_id: String, account_id: String, 
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-    Map((X -> created_at.toString),
+    ListMap((X -> created_at.toString),
         (Y -> "1"),
         (ID -> id),
-        (ASMS_ID -> asms_id),
+        (ASM_ID -> asm_id),
         (ACCOUNT_ID -> account_id),
         (NAME -> name),
         (STATUS -> status),
         (IMAGE_ID -> image_id),
         (TOSCA_TYPE -> tosca_type),
-        (INPUTPROPS -> inputProps.map(pair => pair._1+"="+pair._2).mkString("",",",",")),
-        (OUTPUTPROPS -> outputProps.map(pair => pair._1+"="+pair._2).mkString("",",",",")),
         (CREATED_AT -> created_at.toString),
         (NUMBER_OF_HOURS -> calculateHours)))
 }
