@@ -12,7 +12,7 @@ import scalaz.syntax.SemigroupOps
 import cache._
 import db._
 import models.Constants._
-import models.tosca.KeyValueField
+import models.tosca.{ KeyValueField, KeyValueList}
 import models.base.RequestInput
 import io.megam.auth.funnel.FunnelErrors._
 
@@ -39,7 +39,7 @@ import controllers.stack.ImplicitJsonFormats
  * @author ranjitha
  *
  */
-case class RawImagesInput( org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList)
+case class RawImagesInput( org_id: String, account_id: String, name: String, status: String, repos: String, inputs: KeyValueList)
 
 case class RawImagesResult(
   id: String,
@@ -55,20 +55,11 @@ case class RawImagesResult(
   updated_at: DateTime
   )
 
-object RawImagesResult {
-  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String,
-    inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) =
-    new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, models.Constants.RAWIMAGESCLAZ,
-      DateHelper.now(),DateHelper.now())
-}
-
 sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResult] with ImplicitJsonFormats {
 
   object id extends StringColumn(this) with  PrimaryKey[String]
-  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
-  object account_id extends StringColumn(this) with PartitionKey[String]
-
   object org_id extends StringColumn(this)
+  object account_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
   object status extends StringColumn(this)
   object repos extends StringColumn(this)
@@ -94,8 +85,10 @@ sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResu
     }
   }
 
-  object updated_at extends DateTimeColumn(this)
   object json_claz extends StringColumn(this)
+  object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
+  object updated_at extends DateTimeColumn(this)
+
 
   def fromRow(row: Row): RawImagesResult = {
     RawImagesResult(
@@ -234,9 +227,9 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
     (listRecords(accountId) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountId, "RawImages = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[RawImagesResult] =>
-      if (!nm.isEmpty)
+      if (!nm.isEmpty) {
         Validation.success[Throwable, Seq[RawImagesResult]](nm).toValidationNel
-      else
+      } else
         Validation.success[Throwable, Seq[RawImagesResult]](List[RawImagesResult]()).toValidationNel
     }
   }
@@ -270,7 +263,7 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
       if (!output.isEmpty)
          output.head
       else
-        RawImagesResult("","","","","","", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
+        new RawImagesResult("","","","","","", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty, models.Constants.RAWIMAGESCLAZ, DateHelper.now(), DateHelper.now()).successNel
 
   }
 
