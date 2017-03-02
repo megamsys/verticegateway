@@ -7,6 +7,8 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scala.collection.immutable.ListMap
+
 import models.tosca.KeyValueList
 import net.liftweb.json._
 import io.megam.util.Time
@@ -71,7 +73,7 @@ class Launches(ri: ReportInput) extends Reporter {
          (if (g.size > 2) (g.filter(x => a.status.contains(x)).size > 0) else  true)
       }
     }.some
-  } yield  ba    
+  } yield  ba
   }
 }
 
@@ -115,7 +117,7 @@ case class LaunchesResult(id: String, asms_id: String, name: String, account_id:
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-    Map((X -> created_at.toString),
+    ListMap((X -> created_at.toString),
         (Y -> "1"),
         (ID -> id),
         (ASMS_ID -> asms_id),
@@ -124,8 +126,6 @@ case class LaunchesResult(id: String, asms_id: String, name: String, account_id:
         (STATE -> status),
         (STATUS -> state),
         (TOSCA_TYPE -> tosca_type),
-        (INPUTPROPS -> inputProps.map(pair => pair._1+"="+pair._2).mkString("",",",",")),
-        (OUTPUTPROPS -> outputProps.map(pair => pair._1+"="+pair._2).mkString("",",",",")),
         (CREATED_AT -> created_at.toString),
         (NUMBER_OF_HOURS -> calculateHours)))
 }

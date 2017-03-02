@@ -11,7 +11,6 @@ import scalaz.syntax.SemigroupOps
 import cache._
 import db._
 import models.json.tosca._
-import models.json.tosca.carton._
 import models.Constants._
 import io.megam.auth.funnel.FunnelErrors._
 import models.base._

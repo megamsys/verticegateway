@@ -7,6 +7,8 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scala.collection.immutable.ListMap
+
 import net.liftweb.json._
 import io.megam.util.Time
 import org.joda.time.{DateTime, Period}
@@ -112,11 +114,9 @@ case class SalesResult( asm_id: String, asm_name: String, status: String, state:
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-    Map((X -> startdate),
+    ListMap((X -> startdate),
         (Y -> cost),
         (NAME -> asm_name),
-        (STATUS -> status),
-        (START_DATE -> startdate),
-        (END_DATE -> enddate),
-        (NUMBER_OF_HOURS -> calculateHours)))
+        (NUMBER_OF_HOURS -> calculateHours),
+        (STATUS -> status)))
 }

@@ -11,7 +11,6 @@ import cache._
 import db._
 import models.Constants._
 import models.json.tosca._
-import models.json.tosca.carton._
 import io.megam.auth.funnel.FunnelErrors._
 
 import com.datastax.driver.core.{ ResultSet, Row }
