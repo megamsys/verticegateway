@@ -84,12 +84,8 @@ object Quotas extends Controller with APIAuthElement  {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
 
           models.billing.Quotas.findById(id) match {
-            case Success(succ) => {
-            play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, "=>" +succ  ,Console.RESET))
-            play.api.Logger.info(("%s%s%-20s%s").format(Console.BLUE, Console.BOLD, "=>" + Extraction.decompose(succ),Console.RESET))
-
+            case Success(succ) =>
             Ok(Results.resultset(models.Constants.QUOTASCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
-          }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
               Status(rn.code)(rn.toJson(true))
