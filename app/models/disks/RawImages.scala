@@ -132,8 +132,9 @@ abstract class ConcreteRawImages extends RawImagesSacks with RootConnector {
     val oldstatus  = aor.get.status
     val newstatus  = rip.status
 
-    val res = update.where(_.id eqs rip.id)
+    val res = update.where(_.id eqs rip.id).and(_.created_at eqs aor.get.created_at)
         .and(_.account_id eqs email)
+
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.repos setTo rip.repos)
       .and(_.inputs setTo rip.inputs)
