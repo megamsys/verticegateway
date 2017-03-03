@@ -28,6 +28,7 @@ object Results {
 
  def resultset(jsonclaz: String, result: String): String = {
     val res = JsonParser.parse(result)
+
     prettyRender(JObject(JField(JSONClazKey, JString(jsonclaz)) :: JField(ResultsKey, res) :: Nil))
   }
 

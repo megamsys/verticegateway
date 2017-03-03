@@ -21,7 +21,7 @@ package object disks {
   object DiskResults {
     val emptyNR = List(Option.empty[DisksResult])
     def apply(m: Option[DisksResult]) = List(m)
-    def empty: DisksResults = List() 
+    def empty: DisksResults = List()
   }
 
   type BackupsResults = List[Option[BackupsResult]]

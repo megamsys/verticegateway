@@ -14,7 +14,6 @@ import cache._
 import db._
 import models.Constants._
 import models.json.tosca._
-import models.json.tosca.carton._
 import models.base.RequestInput
 import io.megam.auth.funnel.FunnelErrors._
 import models.billing.{ QuotasResult, QuotasUpdateInput }
@@ -63,7 +62,7 @@ sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]
   object org_id extends StringColumn(this) with PartitionKey[String]
   object id extends StringColumn(this) with PrimaryKey[String]
   object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
-    object account_id extends StringColumn(this)
+  object account_id extends StringColumn(this)
   object name extends StringColumn(this)
   object components extends ListColumn[AssemblySacks, AssemblyResult, String](this)
   object tosca_type extends StringColumn(this)
@@ -197,12 +196,14 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
       .and(_.status setTo rip.status)
       .and(_.state setTo rip.state)
       .future()
+
     Await.result(res, 5.seconds).successNel
   }
 
 }
 
-case class Policy(name: String, ptype: String, members: models.tosca.MembersList)
+case class Policy(name: String, ptype: String, resources: KeyValueList, rules: KeyValueList, properties: KeyValueList, status: String,
+                 created_at: DateTime, updated_at: DateTime)
 
 case class Assembly(name: String,
                     components: models.tosca.ComponentsList,

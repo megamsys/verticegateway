@@ -9,31 +9,36 @@ import scalaz.NonEmptyList._
 
 import cache._
 import db._
-import models.Constants._
-import models.json.tosca._
-import models.json.tosca.carton._
 import io.megam.auth.funnel.FunnelErrors._
-import models.tosca.{ KeyValueField, KeyValueList}
 
+import io.megam.common.uid.UID
+import io.megam.util.Time
+import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+import java.nio.charset.Charset
+
+import java.util.UUID
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.dsl._
 import scala.concurrent.{ Future => ScalaFuture }
 import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.annotation.tailrec
 
+import models.tosca.{ KeyValueField, KeyValueList}
 
-import utils.{DateHelper, StringStuff}
-import io.megam.util.Time
 import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
-import utils.DateHelper
 
-import io.megam.common.uid.UID
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import controllers.stack.ImplicitJsonFormats
+
+import models.Constants._;
+import utils.{DateHelper, StringStuff}
+
 
 case class MarketPlaceInput( flavor: String, provided_by: String, cattype: String, catorder: String,
   status: String, image: String, url: String, envs: KeyValueList,
@@ -62,8 +67,8 @@ sealed class MarketPlaceSacks extends CassandraTable[MarketPlaceSacks, MarketPla
 
   object id extends StringColumn(this) with PartitionKey[String]
   object flavor extends StringColumn(this) with PrimaryKey[String]
-
   object provided_by extends StringColumn(this) with PartitionKey[String]
+
   object cattype extends StringColumn(this)
   object catorder extends StringColumn(this)
   object status extends StringColumn(this)
@@ -176,18 +181,20 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
   }
 
   def listRecords(provided_by: String): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
-    val res = select.allowFiltering().where(_.provided_by eqs provided_by).fetch()
+    val res = select.allowFiltering().where(_.provided_by eqs provided_by).fetch
     Await.result(res, 5.seconds).successNel
   }
 
-  def listAllRecords: ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
-    val res = select.fetch()
+  def listAllRecords(): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
+    val res = select.consistencyLevel_=(ConsistencyLevel.ONE).fetch
+
     Await.result(res, 5.seconds).successNel
   }
 
   def insertNewRecord(mpr: MarketPlaceResult): ValidationNel[Throwable, ResultSet] = {
     val res = insert.value(_.id, mpr.id)
       .value(_.flavor, mpr.flavor)
+      .value(_.provided_by, mpr.provided_by)
       .value(_.cattype, mpr.cattype)
       .value(_.catorder,mpr.catorder)
       .value(_.status, mpr.status)
@@ -215,7 +222,7 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
       .and(_.outputs setTo rip.outputs)
       .and(_.updated_at setTo DateHelper.now())
       .future()
-      Await.result(res, 5.seconds).successNel
+      scala.concurrent.Await.result(res, 5.seconds).successNel
   }
 
   def deleteRecord(account_id: String, flavor: String): ValidationNel[Throwable, ResultSet] = {
@@ -242,13 +249,15 @@ object MarketPlaces extends ConcreteMarketPlaces {
   }
 
   def listAll: ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
-    (listAllRecords leftMap { t: NonEmptyList[Throwable] =>
+    (listAllRecords() leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Marketplace items = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[MarketPlaceResult] =>
-      if (!nm.isEmpty)
+      if (!nm.isEmpty) {
         Validation.success[Throwable, Seq[MarketPlaceResult]](nm).toValidationNel
-      else
+
+      } else {
         Validation.failure[Throwable, Seq[MarketPlaceResult]](new ResourceItemNotFound("", "Marketplace = nothing found.")).toValidationNel
+      }
     }
   }
 

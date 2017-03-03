@@ -1,5 +1,6 @@
 package models.disks
 
+
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
@@ -10,9 +11,9 @@ import scalaz.syntax.SemigroupOps
 
 import cache._
 import db._
-import models.base.RequestInput
-import models.tosca.{ KeyValueField, KeyValueList}
 import models.Constants._
+import models.tosca.{ KeyValueField, KeyValueList}
+import models.base.RequestInput
 import io.megam.auth.funnel.FunnelErrors._
 
 import com.datastax.driver.core.{ ResultSet, Row }
@@ -22,7 +23,7 @@ import com.websudos.phantom.connectors.{ ContactPoint, KeySpaceDef }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import utils.{DateHelper, StringStuff}
+import utils.{ DateHelper, StringStuff }
 import io.megam.util.Time
 import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat,ISODateTimeFormat}
@@ -38,7 +39,7 @@ import controllers.stack.ImplicitJsonFormats
  * @author ranjitha
  *
  */
-case class RawImagesInput( org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList)
+case class RawImagesInput( org_id: String, account_id: String, name: String, status: String, repos: String, inputs: KeyValueList)
 
 case class RawImagesResult(
   id: String,
@@ -54,15 +55,11 @@ case class RawImagesResult(
   updated_at: DateTime
   )
 
-object RawImagesResult {
-  def apply(id: String, org_id: String, account_id: String, name: String, status: String, repos: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new RawImagesResult(id, org_id, account_id, name, status, repos, inputs, outputs, "Megam::RawImages", DateTime.now(),DateTime.now())
-}
-
 sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResult] with ImplicitJsonFormats {
 
-  object id extends StringColumn(this) with  PartitionKey[String]
+  object id extends StringColumn(this) with  PrimaryKey[String]
   object org_id extends StringColumn(this)
-  object account_id extends StringColumn(this) with PrimaryKey[String]
+  object account_id extends StringColumn(this) with PartitionKey[String]
   object name extends StringColumn(this)
   object status extends StringColumn(this)
   object repos extends StringColumn(this)
@@ -88,9 +85,10 @@ sealed class RawImagesSacks extends CassandraTable[RawImagesSacks, RawImagesResu
     }
   }
 
+  object json_claz extends StringColumn(this)
   object created_at extends DateTimeColumn(this) with PrimaryKey[DateTime]
   object updated_at extends DateTimeColumn(this)
-  object json_claz extends StringColumn(this)
+
 
   def fromRow(row: Row): RawImagesResult = {
     RawImagesResult(
@@ -134,8 +132,9 @@ abstract class ConcreteRawImages extends RawImagesSacks with RootConnector {
     val oldstatus  = aor.get.status
     val newstatus  = rip.status
 
-    val res = update.where(_.id eqs rip.id)
+    val res = update.where(_.id eqs rip.id).and(_.created_at eqs aor.get.created_at)
         .and(_.account_id eqs email)
+
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.repos setTo rip.repos)
       .and(_.inputs setTo rip.inputs)
@@ -151,7 +150,7 @@ abstract class ConcreteRawImages extends RawImagesSacks with RootConnector {
   }
 
   def getRecord(id: String): ValidationNel[Throwable, Option[RawImagesResult]] = {
-    val res = select.allowFiltering().where(_.created_at lte DateHelper.now()).and(_.id eqs id).one()
+    val res = select.allowFiltering().where(_.id eqs id).one()
     Await.result(res, 5.seconds).successNel
   }
 
@@ -173,11 +172,12 @@ private def mkRawImagesSack(email: String, input: String): ValidationNel[Throwab
     parse(input).extract[RawImagesInput]
   } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
 
+
   for {
     raw <- rawimagesInput
     uir <- (UID("raw").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
-    (new RawImagesResult(uir.get._1 + uir.get._2, raw.org_id, email, raw.name, raw.status, raw.repos, raw.inputs, List(), "Megam::RawImages", DateHelper.now(), DateHelper.now()))
+    (new RawImagesResult(uir.get._1 + uir.get._2, raw.org_id, email, raw.name, raw.status, raw.repos, raw.inputs, List(), models.Constants.RAWIMAGESCLAZ, DateHelper.now(), DateHelper.now()))
   }
 }
 
@@ -204,10 +204,10 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[RawIma
 def delete(email: String, id: String): ValidationNel[Throwable, RawImagesResult] = {
   for {
     wa <- (findById(id) leftMap { t: NonEmptyList[Throwable] => t })
-    set <- (deleteRecords(email) leftMap { t: NonEmptyList[Throwable] => t })
+    se <- (deleteRecords(email) leftMap { t: NonEmptyList[Throwable] => t })
   } yield {
     play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.RED, Console.BOLD, "RawImages","|-| ✔", Console.RESET))
-    wa
+    wa.head
   }
 }
 
@@ -218,9 +218,9 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
   for {
     rip <- ripNel
     qor <- (findById(rip.id) leftMap { t: NonEmptyList[Throwable] => t })
-    set <- updateRecord(email, rip, qor.some)
+    set <- updateRecord(email, rip, qor.head.some)
   } yield {
-    qor
+    qor.head
   }
 }
 
@@ -228,9 +228,9 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
     (listRecords(accountId) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(accountId, "RawImages = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[RawImagesResult] =>
-      if (!nm.isEmpty)
+      if (!nm.isEmpty) {
         Validation.success[Throwable, Seq[RawImagesResult]](nm).toValidationNel
-      else
+      } else
         Validation.success[Throwable, Seq[RawImagesResult]](List[RawImagesResult]()).toValidationNel
     }
   }
@@ -242,15 +242,15 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
     } yield df
   }
 
-  def findById(id: String): ValidationNel[Throwable, RawImagesResult] = {
+  def findById(id: String): ValidationNel[Throwable, Seq[RawImagesResult]] = {
     (getRecord(id) leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound(id, "RawImages = nothing found.")
     }).toValidationNel.flatMap { xso: Option[RawImagesResult] ⇒
       xso match {
         case Some(xs) ⇒ {
-          Validation.success[Throwable, RawImagesResult](xs).toValidationNel
+          Validation.success[Throwable, Seq[RawImagesResult]](List(xs)).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, RawImagesResult](new ResourceItemNotFound(id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, Seq[RawImagesResult]](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }
@@ -264,7 +264,7 @@ def update(email: String, input: String): ValidationNel[Throwable, RawImagesResu
       if (!output.isEmpty)
          output.head
       else
-        RawImagesResult("","","","","","", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
+        new RawImagesResult("","","","","","", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty, models.Constants.RAWIMAGESCLAZ, DateHelper.now(), DateHelper.now()).successNel
 
   }
 
