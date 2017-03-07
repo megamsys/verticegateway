@@ -255,7 +255,8 @@ object Assemblies extends ConcreteAssemblies {
       if (!nm.isEmpty)
         Validation.success[Throwable, Seq[AssembliesResult]](nm).toValidationNel
       else
-        Validation.failure[Throwable, Seq[AssembliesResult]](new ResourceItemNotFound(email, "Assemblies = nothing found.")).toValidationNel
+        //Validation.failure[Throwable, Seq[AssembliesResult]](new ResourceItemNotFound(email, "Assemblies = nothing found.")).toValidationNel
+        Validation.success[Throwable, Seq[AssembliesResult]](List()).toValidationNel
     }
   }
 
