@@ -55,7 +55,11 @@ case class AssemblyResult(id: String,
                           status: String,
                           state: String,
                           json_claz: String,
-                          created_at: DateTime)
+                          created_at: DateTime) {
+
+    def isInvisible =   (STATUS_DESTROYED.contains(status) || STATUS_DESTROYED.contains(state))
+
+                          }
 
 sealed class AssemblySacks extends CassandraTable[AssemblySacks, AssemblyResult]  with ImplicitJsonFormats {
 
@@ -314,7 +318,7 @@ object Assembly extends ConcreteAssembly {
   def softDeleteByOrgId(org_id: String): ValidationNel[Throwable, AssemblyResult] = {
     for {
       wa <- (findByOrgId(org_id) leftMap { t: NonEmptyList[Throwable] => t })
-      df <- deleteFound(org_id, wa)
+      df <- deleteFound(org_id, "", wa)
     } yield df
   }
 
@@ -328,21 +332,20 @@ object Assembly extends ConcreteAssembly {
     }
   }
 
-  def softDeleteById(id: String, email: String): ValidationNel[Throwable, AssemblyResult] = {
+  def softDeleteById(id: String, asbs_id: String, email: String): ValidationNel[Throwable, AssemblyResult] = {
     for {
       wa <- (findById(List(id).some) leftMap { t: NonEmptyList[Throwable] => t })
-      df <- deleteFound(email, wa.map(_.get)) //TO-DO: chance for crashing ?
+      df <- deleteFound(email, asbs_id, wa.map(_.get)) //TO-DO: chance for crashing ?
     } yield {
       df
     }
   }
 
 
-  private def deleteFound(email: String, an: Seq[AssemblyResult]) = {
+  private def deleteFound(email: String, asbs_id: String, an: Seq[AssemblyResult]) = {
       val output = (an.map { asa =>
-           if (!(STATUS_DESTROYED.contains(asa.status) ||
-                 STATUS_DESTROYED.contains(asa.state)))
-             dePub(email, asa)
+           if (!asa.isInvisible)
+             dePub(email, asbs_id, asa)
           else
              asa.successNel[Throwable]
       })
@@ -356,8 +359,8 @@ object Assembly extends ConcreteAssembly {
 
    }
 
-  private def dePub(email: String, wa: AssemblyResult): ValidationNel[Throwable, AssemblyResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, wa.tosca_type, "", DELETE, STATE).json)
+  private def dePub(email: String, asbs_id: String,  wa: AssemblyResult): ValidationNel[Throwable, AssemblyResult] = {
+    models.base.Requests.createAndPub(email, RequestInput(email, asbs_id, wa.tosca_type, "", DELETE, STATE).json)
     wa.successNel[Throwable]
   }
 

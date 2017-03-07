@@ -7,6 +7,8 @@ import scalaz.EitherT._
 import scalaz.Validation
 import scalaz.Validation.FlatMap._
 import scalaz.NonEmptyList._
+import scalaz.syntax.SemigroupOps
+
 import models.tosca.KeyValueList
 import net.liftweb.json._
 import io.megam.util.Time
@@ -73,22 +75,38 @@ class Scavenger(email: String) {
   private def deployed(orgs: Seq[models.team.OrganizationsResult]) = {
       (orgs.map { org =>  {
         for {
-         asm  <-  models.tosca.Assembly.softDeleteByOrgId(org.id)
-         asm  <-  models.tosca.Assembly.hardDeleteByOrgId(org.id)
-         comp <-  models.tosca.Component.deleteByOrgId(org.id)
-         asms <-  models.tosca.Assemblies.deleteByOrgId(org.id)
-         ssh  <-  models.base.SshKeys.delete(org.id)
-         dod  <- models.team.Domains.delete(org.id)
+         asms  <- models.tosca.Assemblies.findByEmail(email, org.id)
+         amnk  <- mkTrashers(asms)
+         aenk  <- invokeTrashers(amnk)
+         ssh   <- models.base.SshKeys.delete(org.id)
+         dod   <- models.team.Domains.delete(org.id)
        } yield "deployed.done".some
       }
     }).head
   }
 
-  private def delete = {
-    for {
-      add <- models.addons.Addons.delete(email)
-      ord <- models.team.Organizations.delete(email)
-      acd <- models.base.Accounts.delete(email)
-  } yield acd
- }
+    private def delete = {
+      for {
+        add <- models.addons.Addons.delete(email)
+        ord <- models.team.Organizations.delete(email)
+        acd <- models.base.Accounts.delete(email)
+      } yield acd
+    }
+
+    private def mkTrashers(ars :Seq[models.tosca.AssembliesResult]) = {
+      (ars.map { ar =>
+          ar.assemblies.map(models.admin.audits.Trasher(ar.id, _, email))
+      }).flatten.successNel
+    }
+
+    private def invokeTrashers(trs :Seq[models.admin.audits.Trasher])  = {
+      val n = trs.map(_.nukeDeployed)
+
+      if (!n.isEmpty) {  n.head  } else {
+        models.tosca.AssemblyResult("","","","", models.tosca.ComponentLinks.empty,"",
+          models.tosca.PoliciesList.empty, models.tosca.KeyValueList.empty,
+          models.tosca.KeyValueList.empty, "", "", "", utils.DateHelper.now()).successNel
+      }
+    }
+
 }

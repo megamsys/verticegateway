@@ -315,7 +315,7 @@ object Component extends ConcreteComponent {
     }
   }
 
-  def deleteById(org_id: String, links: ComponentLinks): ValidationNel[Throwable, Option[ComponentResult]] = {
+  def hardDeleteById(org_id: String, links: ComponentLinks): ValidationNel[Throwable, Option[ComponentResult]] = {
     val output = (links.map{id => (deleteRecordsById(org_id, id) match {
       case Success(value) => Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel
       case Failure(err) => Validation.success[Throwable, Option[ComponentResult]](none).toValidationNel

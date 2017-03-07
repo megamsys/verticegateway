@@ -53,7 +53,8 @@ object Constants {
   val ANALYTICS         = "analytics"
   val COLLABORATION     = "collaboration"
 
-  val STATUS_DESTROYED                    = List("destroyed", "preerror")
+ //I don't like this, but in 2.0 we can do better using level based state machine as opposed to edge based,
+  val STATUS_DESTROYED                    = List("destroyed", "preerror","posterror", "parked", "initializing")
 
   val REPORT_SALES                        = "sales"
   val REPORT_LAUNCHES                     = "launches"
