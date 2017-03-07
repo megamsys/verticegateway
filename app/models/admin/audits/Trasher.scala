@@ -21,8 +21,6 @@ object Trasher {
 
 class Trasher(asbs_id: String, id: String ,email: String) {
 
-  private def myorgs = models.team.Organizations.findByEmail(email)
-
   def nukeLittered: ValidationNel[Throwable, Option[String]] = {
     for {
       aal <- littered
@@ -31,8 +29,7 @@ class Trasher(asbs_id: String, id: String ,email: String) {
 
   def nukeDeployed: ValidationNel[Throwable, Option[AssemblyResult]] = {
     for {
-      orgs <-   myorgs leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      aal  <-   deployed(orgs)
+      aal  <-   deployed
     } yield aal
   }
 
@@ -59,12 +56,24 @@ class Trasher(asbs_id: String, id: String ,email: String) {
    } yield  "littered.done".some
   }
 
-  private def deployed(orgs: Seq[models.team.OrganizationsResult]) = {
+  //This is not the correct fix, as we'll move to level based state machine
+  private def deployed = {
      for {
-       asm  <-  models.tosca.Assembly.softDeleteById(id, email)
-       ahm  <-  models.tosca.Assembly.hardDeleteById(asm.org_id, id, asm.created_at)
-       comp <-  models.tosca.Component.deleteById(asm.org_id, asm.components)
-       asms <-  models.tosca.Assemblies.hardDeleteById(asm.org_id, asbs_id)
-     } yield ahm
+       asm  <-  models.tosca.Assembly.softDeleteById(id, asbs_id, email)
+     } yield {
+       if (asm.isInvisible) wipeOut(asm)
+
+       asm.some
+     }
+  }
+
+  private def wipeOut(asm: AssemblyResult) = {
+    for {
+      ahm  <-  models.tosca.Assembly.hardDeleteById(asm.org_id, asm.id, asm.created_at)
+      comp <-  models.tosca.Component.hardDeleteById(asm.org_id, asm.components)
+      asms <-  models.tosca.Assemblies.hardDeleteById(asm.org_id, asbs_id)
+    } yield {
+      ahm
+    }
   }
 }
