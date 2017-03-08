@@ -444,13 +444,11 @@ object Accounts extends ConcreteAccounts {
     for {
       a  <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
-      play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, "ACCT0 ✔" + a.get + ",", Console.RESET))
+      val suspended = (if (a.get.suspend.suspended !=null && (a.get.suspend.suspended.trim.length > 0))  a.get.suspend.suspended.toBoolean else false)
 
-      val hasSuspended = (if (a.get.suspend.suspended !=null && (a.get.suspend.suspended.trim.length > 0))  a.get.suspend.suspended.toBoolean else false)
+      val blocked   = (if (a.get.states.blocked !=null && (a.get.states.blocked.trim.length > 0))  a.get.states.blocked.toBoolean else false)
 
-     play.api.Logger.info(("%s%s%-20s%s").format(Console.MAGENTA, Console.BOLD, "ACCT1 ✔" + hasSuspended + ",", Console.RESET))
-
-      if (hasSuspended) { deleteRecords(email) }
+      if (suspended || blocked) { deleteRecords(email) }
 
       AccountResult("dum").some
     }
