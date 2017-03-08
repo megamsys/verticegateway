@@ -38,17 +38,22 @@ class Scavenger(email: String) extends controllers.stack.ImplicitJsonFormats {
       orgs <-   myorgs leftMap { err: NonEmptyList[Throwable] ⇒ err }
       aal  <-   deployed(orgs)
     } yield   aal
+
+    "nuked".some.successNel[Throwable] //we keep moving to the next step
   }
 
   def nukeTelemetry = {
-    for {
+    val t = (for {
       hd  <- models.billing.Billedhistories.delete(email)
       bhd <- models.billing.Billingtransactions.delete(email)
       bad <- models.billing.Balances.delete(email)
       chd <- models.billing.Credits.delete(email)
       qud <- models.billing.Quotas.delete(email)
       qud <- models.tosca.Sensors.delete(email)
-    } yield  "telemetry.done".some
+    } yield  "nuked".some)
+
+    "nuked".some.successNel[Throwable] //we keep moving to the next step
+
   }
 
   def nukeWhitePebbles = {
@@ -84,7 +89,9 @@ class Scavenger(email: String) extends controllers.stack.ImplicitJsonFormats {
          dod   <- models.team.Domains.delete(org.id)
        } yield "deployed.done".some
       }
-    }).head
+    })
+
+    "nuked.deployed".some.successNel[Throwable] //we keep moving to the next step
   }
 
     private def delete = {
@@ -109,6 +116,6 @@ class Scavenger(email: String) extends controllers.stack.ImplicitJsonFormats {
           models.tosca.PoliciesList.empty, models.tosca.KeyValueList.empty,
           models.tosca.KeyValueList.empty, "", "", "", utils.DateHelper.now()).successNel
       }
-    }    
+    }
 
 }
