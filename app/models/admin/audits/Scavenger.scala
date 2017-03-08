@@ -11,6 +11,8 @@ import scalaz.syntax.SemigroupOps
 
 import models.tosca.KeyValueList
 import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+
 import io.megam.util.Time
 import org.joda.time.{DateTime, Period}
 import org.joda.time.format.DateTimeFormat
@@ -21,7 +23,7 @@ object Scavenger {
   def apply(email: String): Scavenger = new Scavenger(email)
 }
 
-class Scavenger(email: String) {
+class Scavenger(email: String) extends controllers.stack.ImplicitJsonFormats {
 
   private def myorgs = models.team.Organizations.findByEmail(email)
 
@@ -89,8 +91,8 @@ class Scavenger(email: String) {
       for {
         add <- models.addons.Addons.delete(email)
         ord <- models.team.Organizations.delete(email)
-        acd <- models.base.Accounts.delete(email)
-      } yield acd
+        dcd <- models.base.Accounts.delete(email)
+      } yield dcd
     }
 
     private def mkTrashers(ars :Seq[models.tosca.AssembliesResult]) = {
@@ -107,6 +109,6 @@ class Scavenger(email: String) {
           models.tosca.PoliciesList.empty, models.tosca.KeyValueList.empty,
           models.tosca.KeyValueList.empty, "", "", "", utils.DateHelper.now()).successNel
       }
-    }
+    }    
 
 }
