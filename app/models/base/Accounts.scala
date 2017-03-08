@@ -441,10 +441,18 @@ object Accounts extends ConcreteAccounts {
   }
 
   def delete(email: String): ValidationNel[Throwable, Option[AccountResult]] = {
-    deleteRecords(email) match {
-      case Success(value) =>  Validation.success[Throwable, Option[AccountResult]](AccountResult("dum").some).toValidationNel
-      case Failure(err) => Validation.success[Throwable, Option[AccountResult]](none).toValidationNel
+    for {
+      a  <- (Accounts.findByEmail(email) leftMap { t: NonEmptyList[Throwable] => t })
+    } yield {
+      val suspended = (if (a.get.suspend.suspended !=null && (a.get.suspend.suspended.trim.length > 0))  a.get.suspend.suspended.toBoolean else false)
+
+      val blocked   = (if (a.get.states.blocked !=null && (a.get.states.blocked.trim.length > 0))  a.get.states.blocked.toBoolean else false)
+
+      if (suspended || blocked) { deleteRecords(email) }
+
+      AccountResult("dum").some
     }
+
   }
 
 

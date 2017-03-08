@@ -11,6 +11,8 @@ import scalaz.syntax.SemigroupOps
 
 import models.tosca.KeyValueList
 import net.liftweb.json._
+import net.liftweb.json.scalaz.JsonScalaz._
+
 import io.megam.util.Time
 import org.joda.time.{DateTime, Period}
 import org.joda.time.format.DateTimeFormat
@@ -21,7 +23,7 @@ object Scavenger {
   def apply(email: String): Scavenger = new Scavenger(email)
 }
 
-class Scavenger(email: String) {
+class Scavenger(email: String) extends controllers.stack.ImplicitJsonFormats {
 
   private def myorgs = models.team.Organizations.findByEmail(email)
 
@@ -36,17 +38,22 @@ class Scavenger(email: String) {
       orgs <-   myorgs leftMap { err: NonEmptyList[Throwable] ⇒ err }
       aal  <-   deployed(orgs)
     } yield   aal
+
+    "nuked".some.successNel[Throwable] //we keep moving to the next step
   }
 
   def nukeTelemetry = {
-    for {
+    val t = (for {
       hd  <- models.billing.Billedhistories.delete(email)
       bhd <- models.billing.Billingtransactions.delete(email)
       bad <- models.billing.Balances.delete(email)
       chd <- models.billing.Credits.delete(email)
       qud <- models.billing.Quotas.delete(email)
       qud <- models.tosca.Sensors.delete(email)
-    } yield  "telemetry.done".some
+    } yield  "nuked".some)
+
+    "nuked".some.successNel[Throwable] //we keep moving to the next step
+
   }
 
   def nukeWhitePebbles = {
@@ -82,15 +89,17 @@ class Scavenger(email: String) {
          dod   <- models.team.Domains.delete(org.id)
        } yield "deployed.done".some
       }
-    }).head
+    })
+
+    "nuked.deployed".some.successNel[Throwable] //we keep moving to the next step
   }
 
     private def delete = {
       for {
         add <- models.addons.Addons.delete(email)
         ord <- models.team.Organizations.delete(email)
-        acd <- models.base.Accounts.delete(email)
-      } yield acd
+        dcd <- models.base.Accounts.delete(email)
+      } yield dcd
     }
 
     private def mkTrashers(ars :Seq[models.tosca.AssembliesResult]) = {
