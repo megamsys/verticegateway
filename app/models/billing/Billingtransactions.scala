@@ -148,7 +148,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
 
     for {
       bill <- billInput
-      set <- (atBalUpdate(email, bill.amountin, bill.inputs) leftMap { s: NonEmptyList[Throwable] => s })
+    //  set <- (atBalUpdate(email, bill.amountin, bill.inputs) leftMap { s: NonEmptyList[Throwable] => s })
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(email)

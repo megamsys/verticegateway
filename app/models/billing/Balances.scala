@@ -106,6 +106,17 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
       Await.result(res, 5.seconds).successNel
   }
 
+  def creditDeductRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldbal = aor.get.credit.toFloat
+    val newbal = rip.credit.toFloat
+    val updatecredit = oldbal - newbal
+    val res = update.where(_.account_id eqs email)
+      .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))
+      .and(_.updated_at setTo DateHelper.now())
+      .future()
+      Await.result(res, 5.seconds).successNel
+  }
+
   def updateRecord(email: String, rip: BalancesResult): ValidationNel[Throwable, ResultSet] = {
     val res = update.where(_.account_id eqs email)
       .modify(_.credit setTo rip.credit)
@@ -180,6 +191,16 @@ object Balances extends ConcreteBalances{
       val json = BalancesResult(bor.id, email, bor.credit,
          "", DateTime.parse(bor.created_at), DateTime.parse(bor.updated_at))
       json
+    }
+  }
+
+  def deduct(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
+    for {
+      rip <- (mkUpdateWithAmount(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      bor <- (Balances.findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- creditDeductRecord(email, rip, bor.head)
+    } yield {
+      bor
     }
   }
 
