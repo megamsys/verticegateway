@@ -58,6 +58,8 @@ object Billings {
   val HOSTING = "Hosting"
   val ITEM = "Item"
   val ADDFUNDS = "AddFunds"
+  val OFFLINECC = "offlinecc"
+  val PAID = "Paid"
 
   def create(email: String, input: String): ValidationNel[Throwable, Option[BillingsInput]] = {
     val billingsInput: ValidationNel[Throwable, BillingsInput] = (Validation.fromTryCatchThrowable[BillingsInput, Throwable] {
@@ -100,6 +102,7 @@ object Billings {
     for {
       quota <- (models.billing.Quotas.findById(quota_id) leftMap { ut: NonEmptyList[Throwable] => ut })
       qpd <- (models.billing.Quotas.update(email, compactRender(Extraction.decompose(QuotasUpdateInput(quota_id, email, balance.allowed, quota(0).get.allocated_to, quota(0).get.inputs, quota(0).get.quota_type, balance.status)))) leftMap { ut: NonEmptyList[Throwable] => ut })
+      qpdb <- (atQuotaPaidUpdate(email, balance, quota(0).get) leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       balance.some
     }
@@ -129,8 +132,20 @@ object Billings {
             Validation.failure[Throwable, Option[BillingsInput]](new ResourceItemNotFound(balance.name, "")).toValidationNel
           }
         }
-      }   
+      }
+  }
 
+  def atQuotaPaidUpdate(email: String, balance: BillingsInput, quota: QuotasResult): ValidationNel[Throwable, Option[BillingsInput]] = {
+    if(balance.status == PAID && balance.gateway == OFFLINECC) {
+      val bal_input = BalancesUpdateInput("", balance.amount, DateHelper.now().toString(), DateHelper.now().toString())
+      for {
+        bal <- (models.billing.Balances.deduct_with_biller(email, compactRender(Extraction.decompose(bal_input))) leftMap { ut: NonEmptyList[Throwable] => ut })
+      } yield {
+        balance.some
+      }
+    } else{
+      Validation.success[Throwable, Option[BillingsInput]](none).toValidationNel
+    }
   }
 
   def atBalUpdate(email: String, balance: BillingsInput): ValidationNel[Throwable, Option[BillingsInput]] = {
@@ -149,7 +164,7 @@ object Billings {
   }
 
   def atBalDeduct(email: String, balance: BillingsInput): ValidationNel[Throwable, Option[BillingsInput]] = {
-    if(balance.key == ITEM) {
+    if(balance.key == ITEM && balance.gateway == OFFLINECC) {
       val bal_input = BalancesUpdateInput("", balance.amount, DateHelper.now().toString(), DateHelper.now().toString())
       for {
         bal <- (models.billing.Balances.deduct(email, compactRender(Extraction.decompose(bal_input))) leftMap { ut: NonEmptyList[Throwable] => ut })

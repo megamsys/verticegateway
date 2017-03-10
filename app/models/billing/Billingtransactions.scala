@@ -180,7 +180,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
       if  (!quota) {
         models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
       } else {
-        val dummy = BalancesResult("", email, amount, "", DateHelper.now(), DateHelper.now())
+        val dummy = BalancesResult("", email, amount, "", "", DateHelper.now(), DateHelper.now())
         List(dummy.some).successNel
       }
   }
