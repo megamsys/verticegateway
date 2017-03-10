@@ -53,6 +53,7 @@ case class BalancesResult(
     id: String,
     account_id: String,
     credit: String,
+    biller_credit: String,
     json_claz: String,
     created_at: DateTime,
     updated_at: DateTime) {
@@ -63,6 +64,7 @@ sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult]
   object id extends StringColumn(this) with PrimaryKey[String]
   object account_id extends StringColumn(this) with PartitionKey[String]
   object credit extends StringColumn(this)
+  object biller_credit extends StringColumn(this)
   object json_claz extends StringColumn(this)
   object created_at extends DateTimeColumn(this)
   object updated_at extends DateTimeColumn(this)
@@ -72,6 +74,7 @@ sealed class BalancesSacks extends CassandraTable[BalancesSacks, BalancesResult]
       id(row),
       account_id(row),
       credit(row),
+      biller_credit(row),
       json_claz(row),
       created_at(row),
       updated_at(row))
@@ -88,6 +91,7 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
     val res = insert.value(_.id, ams.id)
       .value(_.account_id, ams.account_id)
       .value(_.credit, ams.credit)
+      .value(_.biller_credit, ams.biller_credit)
       .value(_.json_claz, ams.json_claz)
       .value(_.created_at, ams.created_at)
       .value(_.updated_at, ams.updated_at)
@@ -97,10 +101,38 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
 
   def creditRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
     val oldbal = aor.get.credit.toFloat
+    val oldbilbal = aor.get.biller_credit.toFloat
     val newbal = rip.credit.toFloat
     val updatecredit = oldbal + newbal
+    val updatebillercredit = oldbilbal + newbal
     val res = update.where(_.account_id eqs email)
       .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))
+      .and(_.biller_credit setTo NilorNot(updatebillercredit.toString, aor.get.biller_credit))
+      .and(_.updated_at setTo DateHelper.now())
+      .future()
+      Await.result(res, 5.seconds).successNel
+  }
+
+  def creditDeductRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldbilbal = aor.get.biller_credit.toFloat
+    val newbal = rip.credit.toFloat
+    val updatebillercredit = oldbilbal - newbal
+    val res = update.where(_.account_id eqs email)
+      .modify(_.biller_credit setTo NilorNot(updatebillercredit.toString, aor.get.biller_credit))
+      .and(_.updated_at setTo DateHelper.now())
+      .future()
+      Await.result(res, 5.seconds).successNel
+  }
+
+  def creditDeductWithBillerRecord(email: String, rip: BalancesResult, aor: Option[BalancesResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldbal = aor.get.credit.toFloat
+    val oldbilbal = aor.get.biller_credit.toFloat
+    val newbal = rip.credit.toFloat
+    val updatecredit = oldbal - newbal
+    val updatebillercredit = oldbilbal - newbal
+    val res = update.where(_.account_id eqs email)
+      .modify(_.credit setTo NilorNot(updatecredit.toString, aor.get.credit))
+      .and(_.biller_credit setTo NilorNot(updatebillercredit.toString, aor.get.biller_credit))
       .and(_.updated_at setTo DateHelper.now())
       .future()
       Await.result(res, 5.seconds).successNel
@@ -146,7 +178,7 @@ object Balances extends ConcreteBalances{
     } yield {
 
       val bvalue = Set(email)
-      val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, "Megam::Balances", DateHelper.now(), DateHelper.now())
+      val json = new BalancesResult(uir.get._1 + uir.get._2, email, balance.credit, balance.credit, "Megam::Balances", DateHelper.now(), DateHelper.now())
       json
     }
   }
@@ -177,9 +209,29 @@ object Balances extends ConcreteBalances{
     for {
       bor <- ripNel
     } yield {
-      val json = BalancesResult(bor.id, email, bor.credit,
+      val json = BalancesResult(bor.id, email, bor.credit, "",
          "", DateTime.parse(bor.created_at), DateTime.parse(bor.updated_at))
       json
+    }
+  }
+
+  def deduct(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
+    for {
+      rip <- (mkUpdateWithAmount(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      bor <- (Balances.findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- creditDeductRecord(email, rip, bor.head)
+    } yield {
+      bor
+    }
+  }
+
+  def deduct_with_biller(email: String, input: String): ValidationNel[Throwable, BalancesResults] = {
+    for {
+      rip <- (mkUpdateWithAmount(email, input) leftMap { err: NonEmptyList[Throwable] => err })
+      bor <- (Balances.findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- creditDeductWithBillerRecord(email, rip, bor.head)
+    } yield {
+      bor
     }
   }
 
@@ -216,7 +268,7 @@ object Balances extends ConcreteBalances{
       bor_collection <- (findByEmail(List(email).some) leftMap { t: NonEmptyList[Throwable] => t })
     } yield {
       val bor = bor_collection.head
-      val json = BalancesResult(bor.get.id, bor.get.account_id, rip.credit,
+      val json = BalancesResult(bor.get.id, bor.get.account_id, rip.credit, "",
          bor.get.json_claz,
          bor.get.created_at,
          bor.get.updated_at)

@@ -17,7 +17,7 @@ class ExternalobjectsSpec extends Specification {
   ExternalobjectsSpec is the implementation that calls the megam_play API server with the /external_objects url
   """ ^ end ^
       "The Client Should" ^
-      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+    //  "Correctly do POST  requests with an valid datas" ! create.succeeds ^
       "Correctly do GET  requests with an valid valid email id" ! Get.succeeds ^
       end
 
@@ -48,7 +48,7 @@ class ExternalobjectsSpec extends Specification {
   }
 
   case object Get extends Context {
-      protected override def urlSuffix: String ="external_objects/12345"
+      protected override def urlSuffix: String ="external_objects/4445"
 
       protected def headersOpt: Option[Map[String, String]] = None
       private val get = GET(url)(httpClient)
