@@ -148,7 +148,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
 
     for {
       bill <- billInput
-      set <- (atBalUpdate(email, bill.amountin, bill.inputs) leftMap { s: NonEmptyList[Throwable] => s })
+    //  set <- (atBalUpdate(email, bill.amountin, bill.inputs) leftMap { s: NonEmptyList[Throwable] => s })
       uir <- (UID("bhs").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
       val bvalue = Set(email)
@@ -180,7 +180,7 @@ object Billingtransactions extends ConcreteBillingtransactions {
       if  (!quota) {
         models.billing.Balances.update(email, compactRender(Extraction.decompose(bal)))
       } else {
-        val dummy = BalancesResult("", email, amount, "", DateHelper.now(), DateHelper.now())
+        val dummy = BalancesResult("", email, amount, "", "", DateHelper.now(), DateHelper.now())
         List(dummy.some).successNel
       }
   }

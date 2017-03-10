@@ -17,10 +17,10 @@ class BalancesSpec extends Specification {
   BalancesSpec is the implementation that calls the megam_play API server with the /balances url
   """ ^ end ^
       "The Client Should" ^
-    //  "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
       //"Correctly do POST requests with an invalid key" ! PostInvalidUrl.succeeds ^
       //"Correctly do POST requests with an invalid body" ! PostInvalidBody.succeeds ^
-      "Correctly do POST  update requests with an valid datas" ! update.succeeds ^
+      //"Correctly do POST  update requests with an valid datas" ! update.succeeds ^
       //"Correctly do GET  requests with an valid valid email id" ! Get.succeeds ^
       end
 
@@ -30,7 +30,7 @@ class BalancesSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"credit\":\"456436\"" +
+        "\"credit\":\"100\"" +
         "}"
 
       Some(new String(contentToEncode))
