@@ -222,3 +222,30 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
      'active', 'ajenti.png', 'https://ajenti.com', ['{"key":"port.https", "value":"8000"}'],['{"key":"oneclick", "value":"yes"}'],[],[],[],
      ['{"key":"7.2", "value": "Ajenti is an open source, web-based control panel that can be used for a large variety of server management tasks"}'],
      'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+         ('MKT000027','Webmin','vertice', 'COLLABORATION', '6',
+         'active', 'webmin.png', 'http://webmin.com/',
+         ['{"key":"port.https", "value":"10000"}', '{"key":"url.suffix", "value":"/"}'],
+         ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+         ['{"key":"1.831", "value": "Webmin is a web-based interface for system administration for Unix. Using any browser that supports tables and forms, you can setup user accounts, Apache, DNS, file sharing and so on."}'],
+         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+         ('MKT000028','ISPConfig','vertice', 'COLLABORATION', '6',
+         'active', 'ispconfig.png', 'https://ispconfig.org/',
+         ['{"key":"port.https", "value":"8080"}', '{"key":"url.suffix", "value":"/"}'],
+         ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+         ['{"key":"3.1.2", "value": "ISPConfig is a control panel for your server that allows you to easily configure domains, email addresses, site configurations, and user accounts."}'],
+         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+         ('MKT000029','Froxlor','vertice', 'COLLABORATION', '6',
+         'active', 'froxlor.png', 'https://froxlor.org/',
+         ['{"key":"port.http", "value":"80"}','{"key":"url.suffix", "value":"/froxlor"}'],
+         ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+          ['{"key":"0.9.38.7", "value": "Froxlor is a server management panel used to manage multiple-users services. It can be used to manage domain services, email accounts or web server etc."}'],
+          'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
