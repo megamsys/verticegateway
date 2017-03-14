@@ -225,7 +225,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
-         ('MKT000045','Webmin','vertice', 'COLLABORATION', '6',
+         ('MKT000027','Webmin','vertice', 'COLLABORATION', '6',
          'active', 'webmin.png', 'http://webmin.com/',
          ['{"key":"port.https", "value":"10000"}', '{"key":"url.suffix", "value":"/"}'],
          ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
@@ -234,7 +234,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
-         ('MKT000046','ISPConfig','vertice', 'COLLABORATION', '6',
+         ('MKT000028','ISPConfig','vertice', 'COLLABORATION', '6',
          'active', 'ispconfig.png', 'https://ispconfig.org/',
          ['{"key":"port.https", "value":"8080"}', '{"key":"url.suffix", "value":"/"}'],
          ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
@@ -243,7 +243,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
-         ('MKT000047','Froxlor','vertice', 'COLLABORATION', '6',
+         ('MKT000029','Froxlor','vertice', 'COLLABORATION', '6',
          'active', 'froxlor.png', 'https://froxlor.org/',
          ['{"key":"port.http", "value":"80"}','{"key":"url.suffix", "value":"/froxlor"}'],
          ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
