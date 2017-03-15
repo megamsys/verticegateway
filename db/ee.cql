@@ -125,13 +125,14 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
         ('MKT000016', 'Zarafa', 'vertice', 'COLLABORATION', '6',
-        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"yes"}','{"key":"username", "value":"megam"}',
+        '{"key":"password", "value":"megam"}'],['{"key":"os", "value":"centos"}'],[],[],
         ['{"key":"7.2", "value": "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."}'],
         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
-      ('MKT000017', 'OwnCloud', 'vertice', 'COLLABORATION', '6',
+      ('MKT000017', 'OwnCloud', 'bitnami', 'COLLABORATION', '6',
       'active', 'owncloud.png', 'https://owncloud.org/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
       ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}',
       '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}',
@@ -211,14 +212,14 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000025', 'VestaCP', 'vertice', 'COLLABORATION', '6',
-     'active', 'vestacp.png', 'https://vestacp.com', ['{"key":"port.http", "value":"8083"}'],['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'vestacp.png', 'https://vestacp.com', ['{"key":"port.http", "value":"8083"}'],['{"key":"oneclick", "value":"yes"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
      ['{"key":"7", "value": "The Vesta Control Panel is a free, open source website control panel with website, email, database, and DNS functionalities built in"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000026', 'Ajenti', 'vertice', 'COLLABORATION', '6',
-     'active', 'ajenti.png', 'https://ajenti.com', ['{"key":"port.https", "value":"8000"}'],['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'ajenti.png', 'https://ajenti.com', ['{"key":"port.https", "value":"8000"}'],['{"key":"oneclick", "value":"yes"}','{"key":"username", "value":"root"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
      ['{"key":"7.2", "value": "Ajenti is an open source, web-based control panel that can be used for a large variety of server management tasks"}'],
      'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -378,3 +379,30 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"3.0.1.7", "value": "ProcessMaker is an open source Business Process Management (BPM) platform designed to automate workflows and improve business efficiency"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+    ('MKT000045','Webmin','vertice', 'COLLABORATION', '6',
+    'active', 'webmin.png', 'http://webmin.com/',
+    ['{"key":"port.https", "value":"10000"}', '{"key":"url.suffix", "value":"/"}'],
+    ['{"key":"oneclick", "value":"yes"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
+    ['{"key":"1.831", "value": "Webmin is a web-based interface for system administration for Unix. Using any browser that supports tables and forms, you can setup user accounts, Apache, DNS, file sharing and so on."}'],
+    'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+    ('MKT000046','ISPConfig','vertice', 'COLLABORATION', '6',
+    'active', 'ispconfig.png', 'https://ispconfig.org/',
+    ['{"key":"port.https", "value":"8080"}', '{"key":"url.suffix", "value":"/"}'],
+    ['{"key":"oneclick", "value":"yes"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
+    ['{"key":"3.1.2", "value": "ISPConfig is a control panel for your server that allows you to easily configure domains, email addresses, site configurations, and user accounts."}'],
+    'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+    ('MKT000047','Froxlor','vertice', 'COLLABORATION', '6',
+    'active', 'froxlor.png', 'https://froxlor.org/',
+    ['{"key":"port.http", "value":"80"}','{"key":"url.suffix", "value":"/froxlor"}'],
+    ['{"key":"oneclick", "value":"yes"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
+     ['{"key":"0.9.38.7", "value": "Froxlor is a server management panel used to manage multiple-users services. It can be used to manage domain services, email accounts or web server etc."}'],
+     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
