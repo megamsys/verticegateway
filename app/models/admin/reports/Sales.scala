@@ -36,8 +36,8 @@ class Sales(ri: ReportInput) extends Reporter {
      a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
      b <- (models.billing.Billedhistories.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
    } yield {
-       (a, b)
-      }
+     (a, b)
+   }
   }
 
 
@@ -61,6 +61,7 @@ class Sales(ri: ReportInput) extends Reporter {
    }
 
   def aggregate(abt: Tuple2[Seq[models.tosca.AssemblyResult], Seq[models.billing.BilledhistoriesResult]]) = {
+
    for {
      ba <- (abt._2.groupBy(_.assembly_id).map { case (k,v) => (k -> BillingAggregate(k,v)) }).some
      sa <-  SalesAggregate(abt._1, ba).some

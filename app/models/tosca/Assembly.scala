@@ -161,8 +161,10 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
       val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
       val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
 
+
      val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
-    Await.result(res, 5.seconds).successNel
+
+    Await.result(res, 15.seconds).successNel
   }
 
 
