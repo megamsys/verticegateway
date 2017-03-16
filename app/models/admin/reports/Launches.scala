@@ -97,32 +97,33 @@ case class LaunchesAggregate(als: Seq[models.tosca.AssemblyResult],
 
 case class LaunchesResult(id: String, asms_id: String, name: String, account_id: String, state: String, status: String, tosca_type: String,
                          inputs: KeyValueList, outputs: KeyValueList, created_at: DateTime) {
-    val X = "x"
-    val Y = "y"
+  val X = "x"
+  val Y = "y"
 
-    val ID   = "id"
-    val ASMS_ID = "asms_id"
-    val NAME = "name"
-    val ACCOUNT_ID = "account_id"
-    val STATE = "state"
-    val STATUS = "status"
-    val TOSCA_TYPE = "type"
-    val CREATED_AT = "created_at"
-
-    val NUMBER_OF_HOURS = "number_of_hours"
+  val ID   = "id"
+  val ASMS_ID = "asms_id"
+  val NAME = "name"
+  val ACCOUNT_ID = "account_id"
+  val STATE = "state"
+  val STATUS = "status"
+  val TOSCA_TYPE = "type"
+  val CREATED_AT = "created_at"
+  val NUMBER_OF_HOURS = "number_of_hours"
 
   def isEmpty(x: String) = Option(x).forall(_.isEmpty)
 
-  def shouldZero = isEmpty(created_at.toString)
+  lazy val shouldZero = isEmpty(created_at.toString)
 
-  def calculateHours =   if (shouldZero) {  "0" }
-                         else  {
+  lazy val calculateHours =   if (shouldZero) {  "0" } else  {
                              val  hoursObject = org.joda.time.Hours.hoursBetween(
                              DateTime.parse(created_at.toString), new DateTime())
                              hoursObject.getHours.toString
                        }
 
-
+  lazy val  shortenedCreatedAt =  {
+    val dt =  DateTime.parse(created_at.toString)
+    dt.monthOfYear.getAsText + "-" + dt.dayOfMonth.getAsText
+  }
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
     ListMap((X -> created_at.toString),
