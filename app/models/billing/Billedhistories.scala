@@ -121,8 +121,9 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
       val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
       val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
 
+
      val res = select.allowFiltering().where(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
-    Await.result(res, 5.seconds).successNel
+    Await.result(res, 15.seconds).successNel
   }
 
   def dateRangeFor(email: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
@@ -130,7 +131,7 @@ abstract class ConcreteBilledhistories extends BilledhistoriesSacks with RootCon
      val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
 
      val res = select.allowFiltering().where(_.account_id eqs email).and(_.created_at gte starttime).and(_.created_at lte endtime).fetch()
-       Await.result(res, 5.seconds).successNel
+       Await.result(res, 15.seconds).successNel
    }
 
 }
@@ -177,10 +178,11 @@ object Billedhistories extends ConcreteBilledhistories {
   }
 
   def findByDateRange(startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {
-    dateRangeBy(startdate, enddate) match {
-      case Success(value) => Validation.success[Throwable, Seq[BilledhistoriesResult]](value).toValidationNel
-      case Failure(err) => Validation.success[Throwable, Seq[BilledhistoriesResult]](List()).toValidationNel
+    val d = dateRangeBy(startdate, enddate) match {
+        case Success(value) => Validation.success[Throwable, Seq[BilledhistoriesResult]](value).toValidationNel
+        case Failure(err) => Validation.success[Throwable, Seq[BilledhistoriesResult]](List()).toValidationNel
     }
+    d
   }
 
   def findByDateRangeFor(email: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[BilledhistoriesResult]] = {

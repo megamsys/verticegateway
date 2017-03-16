@@ -36,8 +36,8 @@ class Sales(ri: ReportInput) extends Reporter {
      a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
      b <- (models.billing.Billedhistories.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
    } yield {
-       (a, b)
-      }
+     (a, b)
+   }
   }
 
 
@@ -61,6 +61,7 @@ class Sales(ri: ReportInput) extends Reporter {
    }
 
   def aggregate(abt: Tuple2[Seq[models.tosca.AssemblyResult], Seq[models.billing.BilledhistoriesResult]]) = {
+
    for {
      ba <- (abt._2.groupBy(_.assembly_id).map { case (k,v) => (k -> BillingAggregate(k,v)) }).some
      sa <-  SalesAggregate(abt._1, ba).some
@@ -93,21 +94,27 @@ case class BillingAggregate(aid: String, b:  Seq[models.billing.BilledhistoriesR
 }
 
 case class SalesResult( asm_id: String, asm_name: String, status: String, state: String,startdate: String, enddate: String, cost: String) {
-    val X = "x"
-    val Y = "y"
-    val NAME = "name"
-    val STATUS = "status"
-    val START_DATE = "start_date"
-    val END_DATE = "end_date"
-    val NUMBER_OF_HOURS = "number_of_hours"
+  val X = "x"
+  val Y = "y"
+  val NAME = "name"
+  val STATUS = "status"
+  val START_DATE = "start_date"
+  val END_DATE = "end_date"
+  val NUMBER_OF_HOURS = "number_of_hours"
 
   def isEmpty(x: String) = Option(x).forall(_.isEmpty)
 
-  def shouldZero = isEmpty(startdate) || isEmpty(enddate)
+  lazy val shouldZero = isEmpty(startdate) || isEmpty(enddate)
 
-  def calculateHours =   if (shouldZero) {  "0" }
+  lazy val shortenedStartDate =  {
+    val dt =  DateTime.parse(startdate)
+    dt.monthOfYear.getAsText + "-" + dt.dayOfMonth.getAsText
+  }
+
+  lazy val calculateHours =   if (shouldZero) {  "0" }
                          else  {
-                           val runningTime =  (new Period(DateTime.parse(startdate), DateTime.parse(enddate))).toStandardDuration.getStandardMinutes
+                           val runningTime =  (new Period(DateTime.parse(startdate),
+                           DateTime.parse(enddate))).toStandardDuration.getStandardMinutes
                            (runningTime.toFloat/60).toString
                        }
 
