@@ -340,12 +340,12 @@ object MarketPlaces extends ConcreteMarketPlaces {
   }
 
   private def dePub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", CREATE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
   private def upPub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", CREATE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
