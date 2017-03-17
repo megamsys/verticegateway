@@ -67,15 +67,13 @@ class Snapshots(ri: ReportInput) extends Reporter {
 
 case class SnapshotsAggregate(bacs: Seq[models.disks.SnapshotsResult]) {
   lazy val aggregate: Seq[SnapshotsReportResult] = bacs.map(bac =>  {
-    SnapshotsReportResult(bac.id, bac.asm_id, bac.account_id, bac.name, bac.status, bac.disk_id, bac.snap_id, bac.tosca_type,
-      KeyValueList.toMap(bac.inputs), KeyValueList.toMap(bac.outputs), bac.created_at)
+    SnapshotsReportResult(bac.id, bac.asm_id, bac.account_id, bac.name, bac.status, bac.disk_id, bac.snap_id, bac.tosca_type, bac.created_at)
    })
 }
 
 
 case class SnapshotsReportResult(id: String, asm_id: String, account_id: String, name: String, status: String,
-                        disk_id: String, snap_id: String, tosca_type: String, inputProps: Map[String, String],
-                        outputProps: Map[String, String], created_at: DateTime) {
+                        disk_id: String, snap_id: String, tosca_type: String, created_at: DateTime) {
     val X = "x"
     val Y = "y"
 
@@ -88,8 +86,6 @@ case class SnapshotsReportResult(id: String, asm_id: String, account_id: String,
     val SNAP_ID  = "snap_id"
     val TOSCA_TYPE = "type"
     val NUMBER_OF_HOURS = "number_of_hours"
-    val INPUTPROPS = "inputprops"
-    val OUTPUTPROPS = "outputprops"
     val CREATED_AT = "created_at"
 
 
@@ -98,12 +94,12 @@ case class SnapshotsReportResult(id: String, asm_id: String, account_id: String,
 
   def shouldZero = isEmpty(created_at.toString)
 
-  def calculateHours =   if (shouldZero) {  "0" }
-                         else  {
-                           val runningTime =  (new Period(DateTime.parse(created_at.toString), new DateTime())).toStandardDuration.getStandardMinutes
-                           (runningTime.toFloat/60).toString
-                       }
 
+  lazy val calculateHours =  if (shouldZero) {  "0" } else  {
+                              val  hoursObject = org.joda.time.Hours.hoursBetween(
+                               DateTime.parse(created_at.toString), new DateTime())
+                               hoursObject.getHours.toString
+                            }
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(

@@ -114,11 +114,11 @@ case class LaunchesResult(id: String, asms_id: String, name: String, account_id:
 
   lazy val shouldZero = isEmpty(created_at.toString)
 
-  lazy val calculateHours =   if (shouldZero) {  "0" } else  {
+  lazy val calculateHours =  if (shouldZero) {  "0" } else  {
                              val  hoursObject = org.joda.time.Hours.hoursBetween(
                              DateTime.parse(created_at.toString), new DateTime())
                              hoursObject.getHours.toString
-                       }
+                            }
 
   lazy val  shortenedCreatedAt =  {
     val dt =  DateTime.parse(created_at.toString)

@@ -111,13 +111,13 @@ case class SalesResult( asm_id: String, asm_name: String, status: String, state:
     dt.monthOfYear.getAsText + "-" + dt.dayOfMonth.getAsText
   }
 
-  lazy val calculateHours =   if (shouldZero) {  "0" }
-                         else  {
-                           val runningTime =  (new Period(DateTime.parse(startdate),
-                           DateTime.parse(enddate))).toStandardDuration.getStandardMinutes
-                           (runningTime.toFloat/60).toString
-                       }
-
+  lazy val calculateHours = {
+                            if (shouldZero) {  "0" } else  {
+                                   val  hoursObject = org.joda.time.Hours.hoursBetween(
+                                   DateTime.parse(startdate), new DateTime(enddate))
+                                   hoursObject.getHours.toString
+                                  }
+                            }
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
