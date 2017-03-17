@@ -34,9 +34,7 @@ class Backups(ri: ReportInput) extends Reporter {
  def build(startdate: String, enddate: String): ValidationNel[Throwable, Seq[models.disks.BackupsResult]] = {
     for {
      a <- (models.disks.Backups.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
-   } yield {
-       a
-      }
+   } yield  a
   }
 
 
@@ -67,15 +65,13 @@ class Backups(ri: ReportInput) extends Reporter {
 
 case class BackupsAggregate(bacs: Seq[models.disks.BackupsResult]) {
   lazy val aggregate: Seq[BackupsReportResult] = bacs.map(bac =>  {
-    BackupsReportResult(bac.id, bac.asm_id, bac.account_id, bac.name, bac.status, bac.image_id, bac.tosca_type,
-      KeyValueList.toMap(bac.inputs), KeyValueList.toMap(bac.outputs), bac.created_at)
+    BackupsReportResult(bac.id, bac.asm_id, bac.account_id, bac.name, bac.status, bac.image_id, bac.tosca_type, bac.created_at)
    })
 }
 
 
 case class BackupsReportResult(id: String, asm_id: String, account_id: String, name: String, status: String,
-                        image_id: String, tosca_type: String, inputProps: Map[String, String],
-                        outputProps: Map[String, String], created_at: DateTime) {
+                        image_id: String, tosca_type: String, created_at: DateTime) {
     val X = "x"
     val Y = "y"
 
@@ -87,8 +83,6 @@ case class BackupsReportResult(id: String, asm_id: String, account_id: String, n
     val IMAGE_ID = "image_id"
     val TOSCA_TYPE = "type"
     val NUMBER_OF_HOURS = "number_of_hours"
-    val INPUTPROPS = "inputprops"
-    val OUTPUTPROPS = "outputprops"
     val CREATED_AT = "created_at"
 
 
@@ -97,14 +91,14 @@ case class BackupsReportResult(id: String, asm_id: String, account_id: String, n
 
   def shouldZero = isEmpty(created_at.toString)
 
-  def calculateHours =   if (shouldZero) {  "0" }
-                         else  {
-                           val runningTime =  (new Period(DateTime.parse(created_at.toString), new DateTime())).toStandardDuration.getStandardMinutes
-                           (runningTime.toFloat/60).toString
-                       }
 
+  lazy val calculateHours =  if (shouldZero) {  "0" } else  {
+                              val  hoursObject = org.joda.time.Hours.hoursBetween(
+                              DateTime.parse(created_at.toString), new DateTime())
+                               hoursObject.getHours.toString
+                              }
 
-
+  
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
     ListMap((X -> created_at.toString),
         (Y -> "1"),

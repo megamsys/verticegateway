@@ -67,6 +67,8 @@ object PatternConstants {
 
 class PatternedLabelReplacer(pl: PatternedLabel) {
 
+  play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, pl,Console.RESET))
+
   lazy val pls =   Map[String,PatternLabelerCondition](
     PatternConstants.PROFILE       ->  new ProfileLabler(pl.pattern),
     PatternConstants.REGION        ->  new RegionNameLabler(pl.pattern),
