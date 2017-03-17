@@ -63,6 +63,10 @@ object Constants {
 
   val REPORT_USRDOT                       = "userdot"
   val REPORT_LANDOT                       = "launchdot"
+  val REPORT_POPDOT                       = "populardot"
+  val REPORT_POPAPPDOT                    = "popularappsdot"
+  val REPORT_RECENTLAUNCHESDOT            = "recentlaunches"
+  val REPORT_RECENTSIGNUPSDOT             = "recentsignups"
   val REPORT_NOOP                         = "noop"
 
   val REPORT_FILTER_VM                    = List(CATTYPE_TORPEDO)
