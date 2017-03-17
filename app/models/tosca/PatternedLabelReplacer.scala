@@ -50,16 +50,16 @@ case class PatternedLabel(kv: KeyValueList, email: String, org_id: String) {
 }
 
 object PatternConstants {
-  val LAB_PATTERN = "user.launch.patternname"
-  val LAB_REGION  = " user.launch.region"
+  val LAB_PATTERN = "user_launch_patternname"
+  val LAB_REGION  = " user_launch_region"
 
-  val LAB_NAME    = "user.launch.labeledname"
+  val LAB_NAME    = "user_launch_labeledname"
 
   val PROFILE     = "{{profile}}"
   val REGION      = "{{region}}"
 
   val PLUS_PLUS   = "{{++}}"
-  val A_PLUS_PLUS = "{{a++}}"
+  val S_PLUS_PLUS = "{{s++}}"
   val R_PLUS_PLUS = "{{r++}}"
 
   val ZERO:Long = 0
@@ -71,7 +71,7 @@ class PatternedLabelReplacer(pl: PatternedLabel) {
     PatternConstants.PROFILE       ->  new ProfileLabler(pl.pattern),
     PatternConstants.REGION        ->  new RegionNameLabler(pl.pattern),
     PatternConstants.PLUS_PLUS     ->  new GlobalIncrementedLabler(pl.pattern),
-    PatternConstants.A_PLUS_PLUS   ->  new SeriesIncrementedLabler(pl.pattern),
+    PatternConstants.S_PLUS_PLUS   ->  new SeriesIncrementedLabler(pl.pattern),
     PatternConstants.R_PLUS_PLUS   ->  new RandomPatternLabler(pl.pattern))
 
 
@@ -79,11 +79,15 @@ class PatternedLabelReplacer(pl: PatternedLabel) {
     for {
       m <- pls.filter( x =>   x._2.pmatch).some
     } yield {
+      play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, m,Console.RESET))
+
       (PatternConstants.LAB_NAME, replace(m.values.toList, pl.pattern))
     }
   }
 
   private def replace(pxs: List[PatternLabelerCondition], optReplaced: Option[String]): Option[String] = {
+    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, optReplaced,Console.RESET))
+
     optReplaced match {
       case Some(succ) => {
         if (pxs.isEmpty) optReplaced
@@ -106,7 +110,12 @@ class ProfileLabler(fp: Option[String]) extends PatternLabelerCondition {
 
   def pmatch = fp.map(_.contains(PATTERN)).getOrElse(false)
 
-  def apply(newfp: Option[String], pl: PatternedLabel) = newfp.map(_.r.replaceAllIn(PATTERN, pl.profile))
+  def apply(newfp: Option[String], pl: PatternedLabel) = {
+    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, "profile:"+ newfp,Console.RESET))
+    val a = newfp.map(_.r.replaceAllIn(PATTERN, pl.profile))
+    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, a,Console.RESET))
+    a
+  }
 }
 
 
@@ -137,19 +146,24 @@ class GlobalIncrementedLabler(fp: Option[String]) extends PatternLabelerConditio
 }
 
 class SeriesIncrementedLabler(fp: Option[String]) extends PatternLabelerCondition {
-  private val PATTERN = PatternConstants.A_PLUS_PLUS
+  private val PATTERN = PatternConstants.S_PLUS_PLUS
 
   def pmatch = fp.map(_.contains(PATTERN)).getOrElse(false)
 
   def apply(newfp: Option[String],pl: PatternedLabel) = {
+    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, "series:"+ newfp,Console.RESET))
+
     val optSerinc = (Assembly.countByOrgId(pl.org_id) match {
       case Success(succ) => succ
       case Failure(err)  => None
     })
+    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, optSerinc,Console.RESET))
 
     val serinc =optSerinc.getOrElse(PatternConstants.ZERO)
 
-    newfp.map(_.r.replaceAllIn(PATTERN, serinc.toString))
+    val a = newfp.map(_.r.replaceAllIn(PATTERN, serinc.toString))
+    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, a,Console.RESET))
+    a
   }
 }
 

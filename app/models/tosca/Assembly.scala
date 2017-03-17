@@ -178,8 +178,7 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
     Await.result(res, 15.seconds).successNel
   }
 
-
-  def dateRangeByFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+    def dateRangeByFor(email: String, org: String, startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
       val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
       val endtime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(enddate);
 
