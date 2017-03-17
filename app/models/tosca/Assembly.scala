@@ -152,10 +152,21 @@ abstract class ConcreteAssembly extends AssemblySacks with RootConnector {
   }
 
   //Grand dump of all.
-  def listallRecords(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
+  def listAllRecords(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
      val res = select.fetch()
     Await.result(res, 5.seconds).successNel
    }
+
+   def countRecords(org: String): ValidationNel[Throwable, Option[Long]] = {
+     val res = select.count.allowFiltering().where(_.org_id eqs org).one
+      Await.result(res, 5.seconds).successNel
+   }
+
+   //Grand dump of all.
+   def countAllRecords: ValidationNel[Throwable, Option[Long]] = {
+      val res = select.count.one
+     Await.result(res, 5.seconds).successNel
+    }
 
   def dateRangeBy(startdate: String, enddate: String): ValidationNel[Throwable, Seq[AssemblyResult]] = {
       val starttime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC).parseDateTime(startdate);
@@ -274,8 +285,30 @@ object Assembly extends ConcreteAssembly {
     }
   }
 
+  def countAll: ValidationNel[Throwable, Option[Long]] = {
+    (countAllRecords leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("", "Assembly = nothing found.")
+    }).toValidationNel.flatMap { nm: Option[Long] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable,Option[Long]](nm).toValidationNel
+      else
+        Validation.success[Throwable, Option[Long]](None).toValidationNel
+    }
+  }
+
+  def countByOrgId(org_id: String): ValidationNel[Throwable, Option[Long]] = {
+    (countRecords(org_id) leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound(org_id, "Assembly = nothing found.")
+    }).toValidationNel.flatMap { nm: Option[Long] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Option[Long]](nm).toValidationNel
+      else
+        Validation.success[Throwable, Option[Long]](None).toValidationNel
+    }
+  }
+
   def listAll(): ValidationNel[Throwable, Seq[AssemblyResult]] = {
-     (listallRecords() leftMap { t: NonEmptyList[Throwable] =>
+     (listAllRecords leftMap { t: NonEmptyList[Throwable] =>
       new ResourceItemNotFound("", "Assembly = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[AssemblyResult] =>
       if (!nm.isEmpty)
