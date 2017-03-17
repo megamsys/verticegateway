@@ -30,6 +30,10 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
 
           models.admin.Reports.create(input) match {
             case Success(succ) =>  {
+              play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD,
+Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ))))
+                 ,Console.RESET))
+
               Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
             }
             case Failure(err) =>
