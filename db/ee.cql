@@ -58,7 +58,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
      ('MKT000007','DockerMachine', 'vertice', 'TORPEDO', '1',
-     'active', 'dockermachine.png', 'https://docs.docker.com/machine/overview', ['{"key":"port.tcp", "value":"2376"}'], [], ['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'dockermachine.png', 'https://docs.docker.com/machine/overview', ['{"key":"port.tcp", "value":"2376"}'], [], ['{"key":"os", "value":"dockermachine"}'],[],[],
      ['{"key":"1.12", "value": "Install Docker Engine on virtual hosts, and manage the hosts with docker-machine"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -110,7 +110,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
        ('MKT000014', 'RabbitMQ', 'vertice', 'SERVICE', '3',
-        'active', 'rabbitmq.png', 'https://www.rabbitmq.com', ['{"key":"port.http", "value":"15672"}'],['{"key":"username", "value":"guest"}', '{"key":"password", "value":"guest"}'],['{"key":"os", "value":"centos"}'],[],[],
+        'active', 'rabbitmq.png', 'https://www.rabbitmq.com', ['{"key":"port.http", "value":"15672"}'],['{"key":"username", "value":"VirtEngine"}', '{"key":"password", "value":"VirtEngine"}'],['{"key":"os", "value":"centos"}'],[],[],
         ['{"key":"3.5.x", "value": "RabbitMQ is open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)."}'],
         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 

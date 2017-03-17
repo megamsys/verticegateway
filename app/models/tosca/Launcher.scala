@@ -18,7 +18,7 @@ class Launcher(authBag: Option[io.megam.auth.stack.AuthBag]) {
 
 
   def launch(clubbed: String): ValidationNel[Throwable, AssembliesResults] = {
-   ((new UnitsBreaker(clubbed).break) map {
+   ((new UnitsBreaker(clubbed, authBag).break) map {
        _.map { unit =>
        (Assemblies.create(authBag, unit) leftMap { t: NonEmptyList[Throwable] =>
        new ServiceUnavailableError("Not launched", (t.list.map(m => m.getMessage)).mkString("\n"))

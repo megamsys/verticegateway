@@ -25,7 +25,7 @@ class Launches(ri: ReportInput) extends Reporter {
       aal <-   aggregate(abt).successNel
       fal <-   subaggregate(aal).successNel
     } yield {
-      ReportResult(REPORT_LAUNCHES, fal.map(_.map(_.toKeyList)), REPORTSCLAZ, Time.now.toString).some
+        ReportResult(REPORT_LAUNCHES, fal.map(_.map(_.toKeyList)), REPORTSCLAZ, Time.now.toString).some
     }
   }
 
@@ -34,7 +34,9 @@ class Launches(ri: ReportInput) extends Reporter {
     for {
      al <- (models.tosca.Assemblies.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
      as <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
-   } yield (al, as )
+   } yield {
+      (al, as )
+    }
   }
 
   def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = {
@@ -59,62 +61,69 @@ class Launches(ri: ReportInput) extends Reporter {
    for {
      ba <- (abt._1.map { asms => (asms.assemblies.map {x => (x, asms.id)})}).flatten.toMap.some
      la <-  LaunchesAggregate(abt._2, ba).some
-    } yield la.aggregate
+   } yield {
+     la.aggregate
+   }
   }
 
   private def subaggregate(olrt: Option[Seq[LaunchesResult]])  = {
   val lrt = olrt.getOrElse(List[LaunchesResult]())
+
   val f: List[String] = REPORT_CATEGORYMAP.get(ri.category).getOrElse(REPORT_CATEGORYMAP.get("all").getOrElse(List()))
   val g: List[String] = List(ri.group)
 
   for {
       ba <- lrt.filter { a => {
+
          (f.filter(x => a.tosca_type.contains(x)).size > 0) &&
          (if (g.size > 2) (g.filter(x => a.status.contains(x)).size > 0) else  true)
       }
     }.some
-  } yield  ba
+  } yield  {
+    ba
+  }
   }
 }
 
 
 case class LaunchesAggregate(als: Seq[models.tosca.AssemblyResult],
                              tal: Map[String, String]) {
+
   lazy val aggregate: Seq[LaunchesResult] = als.map(al =>  {
     LaunchesResult(al.id, tal.get(al.id).getOrElse(""), al.name, al.account_id, al.state, al.status, al.tosca_type,
-      KeyValueList.toMap(al.inputs), KeyValueList.toMap(al.outputs), al.created_at)
+      al.inputs, al.outputs, al.created_at)
    })
 }
 
 case class LaunchesResult(id: String, asms_id: String, name: String, account_id: String, state: String, status: String, tosca_type: String,
-                         inputProps: Map[String, String], outputProps: Map[String, String], created_at: DateTime) {
-    val X = "x"
-    val Y = "y"
+                         inputs: KeyValueList, outputs: KeyValueList, created_at: DateTime) {
+  val X = "x"
+  val Y = "y"
 
-    val ID   = "id"
-    val ASMS_ID = "asms_id"
-    val NAME = "name"
-    val ACCOUNT_ID = "account_id"
-    val STATE = "state"
-    val STATUS = "status"
-    val TOSCA_TYPE = "type"
-    val CREATED_AT = "created_at"
-    val INPUTPROPS = "inputprops"
-    val OUTPUTPROPS = "outputprops"
-
-    val NUMBER_OF_HOURS = "number_of_hours"
+  val ID   = "id"
+  val ASMS_ID = "asms_id"
+  val NAME = "name"
+  val ACCOUNT_ID = "account_id"
+  val STATE = "state"
+  val STATUS = "status"
+  val TOSCA_TYPE = "type"
+  val CREATED_AT = "created_at"
+  val NUMBER_OF_HOURS = "number_of_hours"
 
   def isEmpty(x: String) = Option(x).forall(_.isEmpty)
 
-  def shouldZero = isEmpty(created_at.toString)
+  lazy val shouldZero = isEmpty(created_at.toString)
 
-  def calculateHours =   if (shouldZero) {  "0" }
-                         else  {
-                           val runningTime =  (new Period(DateTime.parse(created_at.toString), new DateTime())).toStandardDuration.getStandardMinutes
-                           (runningTime.toFloat/60).toString
+  lazy val calculateHours =   if (shouldZero) {  "0" } else  {
+                             val  hoursObject = org.joda.time.Hours.hoursBetween(
+                             DateTime.parse(created_at.toString), new DateTime())
+                             hoursObject.getHours.toString
                        }
 
-
+  lazy val  shortenedCreatedAt =  {
+    val dt =  DateTime.parse(created_at.toString)
+    dt.monthOfYear.getAsText + "-" + dt.dayOfMonth.getAsText
+  }
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
     ListMap((X -> created_at.toString),
@@ -128,4 +137,5 @@ case class LaunchesResult(id: String, asms_id: String, name: String, account_id:
         (TOSCA_TYPE -> tosca_type),
         (CREATED_AT -> created_at.toString),
         (NUMBER_OF_HOURS -> calculateHours)))
+
 }
