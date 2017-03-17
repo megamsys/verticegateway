@@ -344,12 +344,8 @@ object ComponentsList extends ConcreteComponent {
       import models.tosca.KeyValueList._
 
       val json = ComponentResult((uir.get._1 + uir.get._2), authBag.get.org_id, input.name, input.tosca_type, input.inputs, input.outputs,
-        KeyValueList.merge(input.envs,
-          Map(MKT_FLAG_EMAIL -> authBag.get.email,
-            MKT_FLAG_APIKEY -> authBag.get.api_key,
-            MKT_FLAG_ASSEMBLY_ID -> asm_id,
-            MKT_FLAG_COMP_ID -> (uir.get._1 + uir.get._2))), input.artifacts,
-        input.related_components, input.operations, input.status, input.state, input.repo, "Megam::Components", DateHelper.now())
+      input.envs, input.artifacts, input.related_components,
+      input.operations, input.status, input.state, input.repo, "Megam::Components", DateHelper.now())
       json.some
     }
   }

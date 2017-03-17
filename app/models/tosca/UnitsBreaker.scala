@@ -20,7 +20,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
 
-class UnitsBreaker(input: String) {
+class UnitsBreaker(input: String, authBag: Option[io.megam.auth.stack.AuthBag] ) {
 
   implicit val formats = DefaultFormats
 
@@ -61,7 +61,9 @@ class UnitsBreaker(input: String) {
       too <- toObject
     } yield {
         val changed = too.assemblies.map { ai =>
-        val decompkvs = FieldSplitter(till, KeyValueField("quota_ids", "quota_id"), ai.inputs).merged
+        val scrubInputs = PatternLabeler(ai.inputs, authBag).labeled
+
+        val decompkvs = FieldSplitter(till, KeyValueField("quota_ids", "quota_id"), scrubInputs).merged
         Assembly(nameOfUnit(i, ai.name), ai.components, ai.tosca_type,
                                         ai.policies, decompkvs.get(i).get, ai.outputs, ai.status, ai.state)
         }
@@ -69,6 +71,23 @@ class UnitsBreaker(input: String) {
       List(AssembliesInput(too.name, too.org_id, changed, too.inputs))
     }
   }
+}
+
+case class PatternLabeler(inputs: KeyValueList, authBag: Option[io.megam.auth.stack.AuthBag]) {
+
+  lazy val email  = authBag.get.email
+  lazy val org_id = authBag.get.org_id
+
+  lazy val pi   = PatternedLabel(inputs, email, org_id)
+  lazy val name = (new PatternedLabelReplacer(pi)).name
+
+  def labeled = {
+      name match {
+        case Some(succ) => KeyValueList.merge(inputs,Map(succ._1 -> succ._2.getOrElse("")))
+        case None       => inputs
+      }
+  }
+
 }
 
 case class FieldSplitter(nos: Int, field: KeyValueField, kvs: KeyValueList) {
