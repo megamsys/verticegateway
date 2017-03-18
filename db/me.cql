@@ -125,7 +125,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
         ('MKT000016', 'Zarafa', 'vertice', 'COLLABORATION', '6',
-        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"yes"}'],[],[],[],
+        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"true"}'],[],[],[],
         ['{"key":"7.2", "value": "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."}'],
         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -133,7 +133,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000017', 'OwnCloud', 'vertice', 'COLLABORATION', '6',
       'active', 'owncloud.png', 'https://owncloud.org/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}',
+      ['{"key":"oneclick", "value":"true"}','{"key":"bitnami_username", "value":"team4megam"}',
       '{"key":"bitnami_password", "value":"team4megam"}',
       '{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}'
       '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/MediaSharing/bitnami-owncloud-9.1.3-1-linux-x64-installer.run"}'],
@@ -145,7 +145,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000018', 'WordPress', 'bitnami', 'COLLABORATION', '6',
       'active', 'wordpress.png', 'https://bitnami.com/stack/wordpress', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+      ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
       '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-wordpress-4.4.2-3-linux-x64-installer.run"}'],
       [],[],[],
       ['{"key":"4.4.2", "value": "WordPress is the web publishing platforms for building blogs and websites."}'],
@@ -154,7 +154,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000019', 'Moodle', 'bitnami', 'COLLABORATION', '6',
       'active', 'moodle.png', 'https://bitnami.com/stack/moodle', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-       ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+       ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/eLearning/bitnami-moodle-3.0.3-0-linux-x64-installer.run"}'],
         [],[],[],
         ['{"key":"3.0.3", "value": "Moodle is a very popular open source learning management solution (LMS) for the delivery of elearning courses and programs."}'],
@@ -163,7 +163,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000020', 'PrestaShop', 'bitnami', 'COLLABORATION', '6',
       'active', 'prestashop.png', 'https://bitnami.com/stack/prestashop', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+      ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
        '{"key":"bitnami_prestashop_site", "value":"127.0.0.1"}'
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/e-Commerce/bitnami-prestashop-1.6.1.4-0-linux-x64-installer.run"}'],
         [],[],[],
@@ -174,7 +174,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000021', 'MediaWiki', 'bitnami', 'COLLABORATION', '6',
       'active', 'mediawiki.png', 'https://bitnami.com/stack/mediawiki', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+      ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Wiki/bitnami-mediawiki-1.26.2-1-linux-x64-installer.run"}'],
         [],[],[],
         ['{"key":"1.26.2", "value": "MediaWiki is the engine behind Wikipedia, the behemoth website with millions of articles written by millions of users and translated into dozens of languages."}'],
@@ -184,7 +184,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000022', 'Ghost', 'bitnami', 'COLLABORATION', '6',
     'active', 'ghost.png', 'https://bitnami.com/stack/ghost', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-ghost-0.7.8-0-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"0.7.8", "value": "Ghost is built on Node.js and is extremely easy to configure and customize."}'],
@@ -194,7 +194,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000023', 'Redmine', 'bitnami', 'COLLABORATION', '6',
     'active', 'redmine.png', 'https://bitnami.com/stack/redmine', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"oneclick", "value":"true"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Bug+Tracking/bitnami-redmine-3.2.1-0-linux-x64-installer.run"}'],
     [],[],[],
     ['{"key":"3.2.1", "value": "Redmine is a very popular Rails-based open source bug tracker to help you manage issues and tasks for multiple projects."}'],
@@ -203,7 +203,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
    ('MKT000024', 'Discourse', 'bitnami', 'COLLABORATION', '6',
    'active', 'discourse.png', 'https://bitnami.com/stack/discourse', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-   ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+   ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Forum/bitnami-discourse-1.4.6-0-linux-x64-installer.run"}'],
    [],[],[],
    ['{"key":"1.4.6", "value": "Discourse is the next-next-generation community forum platform. Discourse has a thoroughly modern design and is written in JavaScript."}'],
@@ -212,14 +212,14 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000025', 'VestaCP', 'vertice', 'COLLABORATION', '6',
-     'active', 'vestacp.png', 'https://vestacp.com', ['{"key":"port.http", "value":"8083"}'],['{"key":"oneclick", "value":"yes"}'],[],[],[],
+     'active', 'vestacp.png', 'https://vestacp.com', ['{"key":"port.http", "value":"8083"}'],['{"key":"oneclick", "value":"true"}'],[],[],[],
      ['{"key":"7", "value": "The Vesta Control Panel is a free, open source website control panel with website, email, database, and DNS functionalities built in"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000026', 'Ajenti', 'vertice', 'COLLABORATION', '6',
-     'active', 'ajenti.png', 'https://ajenti.com', ['{"key":"port.https", "value":"8000"}'],['{"key":"oneclick", "value":"yes"}'],[],[],[],
+     'active', 'ajenti.png', 'https://ajenti.com', ['{"key":"port.https", "value":"8000"}'],['{"key":"oneclick", "value":"true"}'],[],[],[],
      ['{"key":"7.2", "value": "Ajenti is an open source, web-based control panel that can be used for a large variety of server management tasks"}'],
      'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -228,7 +228,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
          ('MKT000027','Webmin','vertice', 'COLLABORATION', '6',
          'active', 'webmin.png', 'http://webmin.com/',
          ['{"key":"port.https", "value":"10000"}', '{"key":"url.suffix", "value":"/"}'],
-         ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+         ['{"key":"oneclick", "value":"true"}'],['{"key":"os", "value":"centos"}'],[],[],
          ['{"key":"1.831", "value": "Webmin is a web-based interface for system administration for Unix. Using any browser that supports tables and forms, you can setup user accounts, Apache, DNS, file sharing and so on."}'],
          'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -237,7 +237,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
          ('MKT000028','ISPConfig','vertice', 'COLLABORATION', '6',
          'active', 'ispconfig.png', 'https://ispconfig.org/',
          ['{"key":"port.https", "value":"8080"}', '{"key":"url.suffix", "value":"/"}'],
-         ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+         ['{"key":"oneclick", "value":"true"}'],['{"key":"os", "value":"centos"}'],[],[],
          ['{"key":"3.1.2", "value": "ISPConfig is a control panel for your server that allows you to easily configure domains, email addresses, site configurations, and user accounts."}'],
          'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -246,6 +246,6 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
          ('MKT000029','Froxlor','vertice', 'COLLABORATION', '6',
          'active', 'froxlor.png', 'https://froxlor.org/',
          ['{"key":"port.http", "value":"80"}','{"key":"url.suffix", "value":"/froxlor"}'],
-         ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+         [],['{"key":"os", "value":"centos"}'],[],[],
           ['{"key":"0.9.38.7", "value": "Froxlor is a server management panel used to manage multiple-users services. It can be used to manage domain services, email accounts or web server etc."}'],
           'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
