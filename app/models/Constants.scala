@@ -6,7 +6,10 @@ object Constants {
 
   val JSON_CLAZ       = "json_claz"
 
-  val DOMAIN            = "domain"
+  val DOMAIN          = "domain"
+
+  val ACTIVE          = "Active"
+  val NOT_ACTIVE      = "Not Active(pending in billing)"
 
   val STATE           = "state"
   val CREATE          = "create"
