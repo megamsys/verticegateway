@@ -61,9 +61,9 @@ class UnitsBreaker(input: String, authBag: Option[io.megam.auth.stack.AuthBag] )
       too <- toObject
     } yield {
         val changed = too.assemblies.map { ai =>
-        val scrubInputs = PatternLabeler(ai.inputs, authBag).labeled
+        val labelledInputs = PatternLabeler(ai.inputs, authBag).labeled
 
-        val decompkvs = FieldSplitter(till, KeyValueField("quota_ids", "quota_id"), scrubInputs).merged
+        val decompkvs = FieldSplitter(till, KeyValueField("quota_ids", "quota_id"), labelledInputs).merged
         Assembly(nameOfUnit(i, ai.name), ai.components, ai.tosca_type,
                                         ai.policies, decompkvs.get(i).get, ai.outputs, ai.status, ai.state)
         }
@@ -80,11 +80,15 @@ case class PatternLabeler(inputs: KeyValueList, authBag: Option[io.megam.auth.st
 
   lazy val pi   = PatternedLabel(inputs, email, org_id)
   lazy val name = (new PatternedLabelReplacer(pi)).name
+  lazy val nameAsMap = name match {
+    case Some(succ) => Map(succ._1 -> succ._2.getOrElse("")).filter(x => x._2.length > 0)
+    case None => Map[String, String]()
+  }
 
   def labeled = {
       name match {
-        case Some(succ) => KeyValueList.merge(inputs,Map(succ._1 -> succ._2.getOrElse("")))
-        case None       => inputs
+        case Some(succ) =>  KeyValueList(KeyValueList.toMap(inputs) ++ nameAsMap)
+        case None       =>    inputs
       }
   }
 
