@@ -106,9 +106,11 @@ case class SalesResult( asm_id: String, asm_name: String, status: String, state:
 
   lazy val shouldZero = isEmpty(startdate) || isEmpty(enddate)
 
-  lazy val shortenedStartDate =  {
-    val dt =  DateTime.parse(startdate)
-    dt.monthOfYear.getAsText + "-" + dt.dayOfMonth.getAsText
+  lazy val  shortenedDate =  {
+      if (startdate.length > 0) {
+          val dt =  DateTime.parse(startdate)
+          dt.monthOfYear.getAsText + "-" + dt.dayOfMonth.getAsText
+      } else { startdate }
   }
 
   lazy val calculateHours = {
@@ -121,7 +123,7 @@ case class SalesResult( asm_id: String, asm_name: String, status: String, state:
 
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-    ListMap((X -> startdate),
+    ListMap((X -> shortenedDate),
         (Y -> cost),
         (NAME -> asm_name),
         (NUMBER_OF_HOURS -> calculateHours),

@@ -124,6 +124,11 @@ package object tosca {
       nrec
     }
 
+    def find(nres: KeyValueList, key: String) = {
+      val kvl = KeyValueList.filter(nres, key).some
+      kvl.map(_.map(_.value))
+    }
+
     def filter(nres: KeyValueList, key: String): KeyValueList = {
        nres.filter(x => x.key.equalsIgnoreCase(key) && x.value.trim.length > 0)
     }

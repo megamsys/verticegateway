@@ -55,13 +55,12 @@ case class RecentSignupsCounted(popularMap: Option[ListMap[_ <: String, Seq[io.m
   private val X = "x"
   private val Y = "y"
 
-  private lazy val upto = { if (popularMap.size >=5) 5  else popularMap.size }
+  private lazy val upto = { if (popularMap.size >=5) 5  else (if (popularMap.size > 0) (popularMap.size - 1) else  0)  }
+
 
   private val RECENT  = popularMap.getOrElse(ListMap.empty).drop(upto).map(x => x._2).toSeq.flatten.map(y =>
             (y.email, y.states.active + "," + y.dates.created_at)
   )
 
-  def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-              (Map((X -> "recentsignups" ), (Y -> "nos")) ++ RECENT)
-    )
+  def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(RECENT.toMap)
 }

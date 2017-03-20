@@ -58,11 +58,11 @@ case class PopularXyzCounted(popularMap: Option[ListMap[_ <: String, Int]]) {
   private val X = "x"
   private val Y = "y"
 
-  private lazy val upto = { if (popularMap.size >=5) 5  else popularMap.size }
+  private lazy val upto = { if (popularMap.size >5) 5  else (if (popularMap.size > 0) (popularMap.size - 1) else  0)  }
 
   private val POPULAR  = popularMap.getOrElse(ListMap.empty).drop(upto).map(x => (x._1, x._2.toString))
 
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-              (Map((X -> "popularapps" ), (Y -> "nos")) ++ POPULAR)
+              (Map[String,String]() ++ POPULAR)
     )
 }

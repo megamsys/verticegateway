@@ -56,14 +56,11 @@ case class RecentLaunchesCounted(recentMap: Option[ListMap[_ <: String,  Seq[mod
   private val X = "x"
   private val Y = "y"
 
-  private lazy val upto = { if (recentMap.size >=5) 5  else recentMap.size }
-
+  private lazy val upto = { if (recentMap.size >=5) 5  else (if (recentMap.size > 0) (recentMap.size - 1) else  0)  }
 
   private val RECENT  = recentMap.getOrElse(ListMap.empty).drop(upto).map(x => x._2).toSeq.flatten.map(y =>
     (y.name, y.status + "," + y.account_id +"," + y.created_at)
     )
 
-  def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
-              (Map((X -> "recentlaunches" ), (Y -> "nos")) ++ RECENT)
-    )
+  def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(RECENT.toMap)
 }
