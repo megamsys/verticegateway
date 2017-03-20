@@ -35,9 +35,8 @@ import controllers.stack.ImplicitJsonFormats
 
 case class PatternedLabel(kv: KeyValueList, email: String, org_id: String) {
 
-  def find(setKey: String) = {
-    val kvl = KeyValueList.filter(kv, setKey).some
-    kvl.map(_.map(_.value))
+  private def find(setKey: String) = {
+   KeyValueList.find(kv, setKey)
   }
 
   lazy val pattern    = find(PatternConstants.LAB_PATTERN).map(_.mkString)
@@ -55,19 +54,17 @@ object PatternConstants {
 
   val LAB_NAME    = "user_launch_labeledname"
 
-  val PROFILE     = "{{profile}}"
-  val REGION      = "{{region}}"
+  val PROFILE     = "<profile>"
+  val REGION      = "<region>"
 
-  val PLUS_PLUS   = "{{++}}"
-  val S_PLUS_PLUS = "{{s++}}"
-  val R_PLUS_PLUS = "{{r++}}"
+  val PLUS_PLUS   = "<globinc>"
+  val S_PLUS_PLUS = "<seriesinc>"
+  val R_PLUS_PLUS = "<random>"
 
   val ZERO:Long = 0
 }
 
 class PatternedLabelReplacer(pl: PatternedLabel) {
-
-  play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, pl,Console.RESET))
 
   lazy val pls =   Map[String,PatternLabelerCondition](
     PatternConstants.PROFILE       ->  new ProfileLabler(pl.pattern),
@@ -80,16 +77,10 @@ class PatternedLabelReplacer(pl: PatternedLabel) {
   def name: Option[Tuple2[String, Option[String]]]  = {
     for {
       m <- pls.filter( x =>   x._2.pmatch).some
-    } yield {
-      play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, m,Console.RESET))
-
-      (PatternConstants.LAB_NAME, replace(m.values.toList, pl.pattern))
-    }
+    } yield (PatternConstants.LAB_NAME, replace(m.values.toList, pl.pattern))
   }
 
   private def replace(pxs: List[PatternLabelerCondition], optReplaced: Option[String]): Option[String] = {
-    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, optReplaced,Console.RESET))
-
     optReplaced match {
       case Some(succ) => {
         if (pxs.isEmpty) optReplaced
@@ -112,12 +103,7 @@ class ProfileLabler(fp: Option[String]) extends PatternLabelerCondition {
 
   def pmatch = fp.map(_.contains(PATTERN)).getOrElse(false)
 
-  def apply(newfp: Option[String], pl: PatternedLabel) = {
-    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, "profile:"+ newfp,Console.RESET))
-    val a = newfp.map(_.r.replaceAllIn(PATTERN, pl.profile))
-    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, a,Console.RESET))
-    a
-  }
+  def apply(newfp: Option[String], pl: PatternedLabel) = newfp.map(_.replaceAll(PATTERN, pl.profile))
 }
 
 
@@ -126,7 +112,7 @@ class RegionNameLabler(fp: Option[String]) extends PatternLabelerCondition {
 
   def pmatch = fp.map(_.contains(PATTERN)).getOrElse(false)
 
-  def apply(newfp: Option[String], pl: PatternedLabel) = newfp.map(_.r.replaceAllIn(PATTERN, pl.region))
+  def apply(newfp: Option[String], pl: PatternedLabel) = newfp.map(_.replaceAll(PATTERN, pl.region))
 }
 
 
@@ -143,7 +129,7 @@ class GlobalIncrementedLabler(fp: Option[String]) extends PatternLabelerConditio
 
     val gloinc = optGloinc.getOrElse(PatternConstants.ZERO)
 
-    newfp.map(_.r.replaceAllIn(PATTERN, gloinc.toString))
+    newfp.map(_.replaceAll(PATTERN, gloinc.toString))
   }
 }
 
@@ -153,19 +139,14 @@ class SeriesIncrementedLabler(fp: Option[String]) extends PatternLabelerConditio
   def pmatch = fp.map(_.contains(PATTERN)).getOrElse(false)
 
   def apply(newfp: Option[String],pl: PatternedLabel) = {
-    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, "series:"+ newfp,Console.RESET))
-
     val optSerinc = (Assembly.countByOrgId(pl.org_id) match {
       case Success(succ) => succ
       case Failure(err)  => None
     })
-    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, optSerinc,Console.RESET))
 
     val serinc =optSerinc.getOrElse(PatternConstants.ZERO)
 
-    val a = newfp.map(_.r.replaceAllIn(PATTERN, serinc.toString))
-    play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, a,Console.RESET))
-    a
+    newfp.map(_.replaceAll(PATTERN, serinc.toString))
   }
 }
 
@@ -175,5 +156,5 @@ class RandomPatternLabler(fp: Option[String]) extends PatternLabelerCondition {
   def pmatch = fp.map(_.contains(PATTERN)).getOrElse(false)
 
 
-  def apply(newfp: Option[String],pl: PatternedLabel) = newfp.map(_.r.replaceAllIn(PATTERN, scala.util.Random.nextString(4)))
+  def apply(newfp: Option[String],pl: PatternedLabel) = newfp.map(_.replaceAll(PATTERN, scala.util.Random.nextString(4)))
 }

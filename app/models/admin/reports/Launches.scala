@@ -125,17 +125,18 @@ case class LaunchesResult(id: String, asms_id: String, name: String, account_id:
     dt.monthOfYear.getAsText + "-" + dt.dayOfMonth.getAsText
   }
 
+  lazy val labelledName = models.tosca.KeyValueList.find(inputs,models.tosca.PatternConstants.LAB_NAME).map(_.mkString)
   def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(
     ListMap((X -> created_at.toString),
         (Y -> "1"),
         (ID -> id),
         (ASMS_ID -> asms_id),
-        (NAME -> name),
+        (NAME -> labelledName.getOrElse(name)),
         (ACCOUNT_ID -> account_id),
         (STATE -> status),
         (STATUS -> state),
         (TOSCA_TYPE -> tosca_type),
-        (CREATED_AT -> created_at.toString),
+        (CREATED_AT -> shortenedCreatedAt),
         (NUMBER_OF_HOURS -> calculateHours)))
 
 }
