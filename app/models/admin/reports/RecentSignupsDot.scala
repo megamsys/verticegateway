@@ -52,15 +52,14 @@ class RecentSignupsDot(ri: ReportInput) extends Reporter {
 
 
 case class RecentSignupsCounted(popularMap: Option[ListMap[_ <: String, Seq[io.megam.auth.stack.AccountResult]]]) {
-  private val X = "x"
-  private val Y = "y"
 
-  private lazy val upto = { if (popularMap.size >=5) 5  else (if (popularMap.size > 0) (popularMap.size - 1) else  0)  }
+  private val RECENT  = popularMap.getOrElse(ListMap.empty)
 
+  private lazy val upto = { if (RECENT.size >=5) 5  else RECENT.size  }
 
-  private val RECENT  = popularMap.getOrElse(ListMap.empty).drop(upto).map(x => x._2).toSeq.flatten.map(y =>
-            (y.email, y.states.active + "," + y.dates.created_at)
-  )
+  private val recent  = RECENT.take(upto).map(x => x._2).toSeq.flatten.map(y =>
+            (y.email, y.states.active + "," + y.dates.created_at))
 
-  def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(RECENT.toMap)
+  def toKeyList: models.tosca.KeyValueList = models.tosca.KeyValueList(recent.toMap)
+
 }
