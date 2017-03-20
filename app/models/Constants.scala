@@ -9,7 +9,7 @@ object Constants {
   val DOMAIN          = "domain"
 
   val ACTIVE          = "Active"
-  val NOT_ACTIVE      = "Not Active(pending in billing)"
+  val NOT_ACTIVE      = "Not Active"
 
   val STATE           = "state"
   val CREATE          = "create"
