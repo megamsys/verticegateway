@@ -53,10 +53,10 @@ trait BaseContext {
 
 
     //X_Megam_EMAIL -> "rajthilak@megam.io", X_Megam_APIKEY -> "bffe1a08a3294eb88d06d4361bfceac1a52039e6",
-    X_Megam_ORG -> "ORG6031611746425399422",
+    X_Megam_ORG -> "ORG6121284762420561738",
     //X_Megam_EMAIL -> "megam@megam.io", X_Megam_APIKEY -> "IamAtlas{74}NobodyCanSeeME#07",
 
-    X_Megam_MASTERKEY -> "true", X_Megam_EMAIL -> "rajthilak@megam.io", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",
+    X_Megam_MASTERKEY -> "true", X_Megam_EMAIL -> "pseagamereg@gmail.com", X_Megam_MASTER_KEY -> "3b8eb672aa7c8db82e5d34a0744740b20ed59e1f6814cfb63364040b0994ee3f",
   //X_Megam_PUTTUSAVI -> "true",  X_Megam_EMAIL -> "test@megam.io", X_Megam_PASSWORD -> "YWJj",
     X_Megam_DATE -> currentDate, Accept -> application_vnd_megam_json)
 
@@ -145,7 +145,7 @@ trait Context extends BaseContext {
   protected def urlSuffix: String
   protected def bodyToStick: Option[String] = Some(new String())
   protected def headersOpt: Option[Map[String, String]]
-  lazy val url = new URL("http://localhost:9000/v2/" + urlSuffix)
+  lazy val url = new URL("http://213.32.30.57:9000/v2/" + urlSuffix)
   play.api.Logger.debug("<---------------------------------------->")
   play.api.Logger.debug("%-20s -->[%s]".format("MYURL", url))
   play.api.Logger.debug("%-20s -->[%s]".format("MYBODY", bodyToStick))

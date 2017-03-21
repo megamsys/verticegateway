@@ -17,8 +17,8 @@ class ExternalobjectsSpec extends Specification {
   ExternalobjectsSpec is the implementation that calls the megam_play API server with the /external_objects url
   """ ^ end ^
       "The Client Should" ^
-    //  "Correctly do POST  requests with an valid datas" ! create.succeeds ^
-      "Correctly do GET  requests with an valid valid email id" ! Get.succeeds ^
+      "Correctly do POST  requests with an valid datas" ! create.succeeds ^
+    //  "Correctly do GET  requests with an valid valid email id" ! Get.succeeds ^
       end
 
   case object create extends Context {
@@ -27,9 +27,9 @@ class ExternalobjectsSpec extends Specification {
 
     protected override def bodyToStick: Option[String] = {
       val contentToEncode = "{" +
-        "\"object_id\":\"4445\"," +
+        "\"object_id\":\"252\"," +
         "\"inputs\":["+
-          "{\"key\":\"quota_id\",\"value\":\"QU00000\"}" +
+          "{\"key\":\"quota_id\",\"value\":\"QUO7082472355020869597\"}" +
          "],"+
         "}"
 
