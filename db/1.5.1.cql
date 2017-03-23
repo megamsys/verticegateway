@@ -11,8 +11,7 @@ ALTER TABLE balances ADD biller_credit text;
 
 CREATE TABLE IF NOT EXISTS events_for_marketplaces (id text, event_type text,  account_id text, marketplace_id text, data list<text>, json_claz text, created_at timestamp, PRIMARY KEY(account_id, created_at, marketplace_id, event_type))WITH CLUSTERING ORDER BY(created_at desc, marketplace_id desc, event_type desc);
 
-CREATE TABLE IF NOT EXISTS launchptr (id text, account_id text, ptr long, created_at timestamp, PRIMARY KEY(account_id, id))
+CREATE TABLE IF NOT EXISTS launchptr (id text, account_id text, ptr long, created_at timestamp, PRIMARY KEY(account_id, id));
 
-CREATE TABLE IF NOT EXISTS flavors (id text, name text, cpu text, ram text, disk text, regions list<text>, price text, properties list<text>, status text, json_claz text, created_at timestamp, updated_at timestamp, PRIMARY KEY(name, id))
+CREATE TABLE IF NOT EXISTS flavors (id text, name text, cpu text, ram text, disk text, regions list<text>, price text, properties list<text>, status text, json_claz text, created_at timestamp, updated_at timestamp, PRIMARY KEY(name, id));
 
-CREATE TABLE assemblies (id text, org_id text, name text, assemblies list<text>, inputs list<text>, json_claz text, created_at timestamp, PRIMARY KEY ((org_id),created_at, id));
