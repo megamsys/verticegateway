@@ -54,7 +54,16 @@ case class QuotasResult(
     status: String,
     json_claz: String,
     created_at: DateTime,
-    updated_at: DateTime)
+    updated_at: DateTime) {
+
+    val ALLOWED = List("snapshot")
+
+    val  moveApproval =  (Option(quota_type) match {
+      case Some(succ) => ((succ.trim.length >0) && !ALLOWED.contains(succ.trim))
+      case None       => false
+    })
+
+}
 
   case class QuotasUpdateInput(
         id: String,
@@ -198,8 +207,9 @@ object Quotas extends ConcreteQuotas {
     for {
       wa <- (mkQuotasSack(email, input) leftMap { err: NonEmptyList[Throwable] => err })
       set <- (insertNewRecord(wa) leftMap { t: NonEmptyList[Throwable] => t })
-      acc <- (atAccUpdate(email) leftMap { s: NonEmptyList[Throwable] => s })
     } yield {
+      if(wa.moveApproval) atAccUpdate(email)
+
       play.api.Logger.warn(("%s%s%-20s%s%s").format(Console.GREEN, Console.BOLD, "Quotas","|+| ✔", Console.RESET))
       wa.some
     }
