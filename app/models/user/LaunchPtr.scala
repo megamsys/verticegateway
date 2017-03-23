@@ -78,7 +78,7 @@ abstract class ConcreteLaunchesPtr extends LaunchPtrSacks with RootConnector {
   }
 
   def updateRecord(account_id: String, rip: LaunchesPtrResult): ValidationNel[Throwable, ResultSet] = {
-    val res = update.where(_.account_id eqs rip.account_id)
+    val res = update.where(_.account_id eqs rip.account_id).and(_.id eqs rip.id)
       .modify(_.ptr setTo rip.ptr)
       .future()
 
