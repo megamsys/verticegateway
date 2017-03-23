@@ -229,7 +229,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000027', 'Java', 'vertice', 'APP', '2',
-     'active', 'java.png', 'http://www.oracle.com/technetwork/java/javaee/overview/index.html', ['{"key":"port.http", "value":"8080"}','{"key":"tomcat_username", "value":"megam"}', '{"key":"tomcat_password", "value":"megam"}'],[],['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'java.png', 'http://www.oracle.com/technetwork/java/javaee/overview/index.html', ['{"key":"port.http", "value":"8080"}','{"key":"username", "value":"megam"}', '{"key":"password", "value":"megam"}'],[],['{"key":"os", "value":"centos"}'],[],[],
      ['{"key":"8.x", "value": "The Apache Tomcat® software is an open source implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies."}',
       '{"key":"8.5", "value": "The Apache Tomcat® software is an open source implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies."}',
       '{"key":"9.0", "value": "The Apache Tomcat® software is an open source implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies."}'],
