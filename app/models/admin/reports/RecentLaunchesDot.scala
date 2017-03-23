@@ -44,7 +44,7 @@ class RecentLaunchesDot(ri: ReportInput) extends Reporter {
      for {
        ba <- (abt.groupBy(_.created_at.toString).map { case (k,v) => (k.toString -> v) }).some
      } yield {
-       if (!ba.isEmpty) ListMap(ba.toSeq.sortWith(_._1 > _._1):_*) else ListMap()
+       if (!ba.isEmpty) ListMap(ba.toSeq.sortWith(_._1 < _._1):_*) else ListMap()
      }
     }
 

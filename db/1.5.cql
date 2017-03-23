@@ -1,4 +1,4 @@
--- 1.5 upgradee only.
+-- 1.5 upgrade only.
 -- base.cql should be run already
 
 use system_auth;
