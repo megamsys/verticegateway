@@ -57,7 +57,7 @@ case class EventsMarketplaceResult(
   json_claz: String)
 
 object EventsMarketplaceResult {
-  def apply(id: String, account_id: String, created_at: DateTime, marketplace_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsMarketplaceResult(id, account_id, created_at, marketplace_id, event_type, data, "Megam::EventsMarketplaces")
+  def apply(id: String, account_id: String, created_at: DateTime, marketplace_id: String, event_type: String, data: models.tosca.KeyValueList) = new EventsMarketplaceResult(id, account_id, created_at, marketplace_id, event_type, data, models.Constants.EVENTSMARKETPLACECLAZ)
 }
 
 sealed class EventsMarketplaceSacks extends CassandraTable[EventsMarketplaceSacks, EventsMarketplaceResult] with ImplicitJsonFormats {
@@ -138,7 +138,7 @@ abstract class ConcreteEventsMarketplaces extends EventsMarketplaceSacks with Ro
   }
 }
 
-object EventsMarketplaces extends ConcreteEventsMarketplaces {
+object EventsMarketplace extends ConcreteEventsMarketplaces {
 
 
   private def mkEventsMarketplacesSack(email: String, input: String): ValidationNel[Throwable, EventsMarketplaceResult] = {
@@ -152,7 +152,7 @@ object EventsMarketplaces extends ConcreteEventsMarketplaces {
     } yield {
 
       val bvalue = Set(email)
-      val json = new EventsMarketplaceResult(uir.get._1 + uir.get._2, email, DateHelper.now(), vm.marketplace_id, vm.event_type, vm.data, "Megam::EventsMarketplaces")
+      val json = new EventsMarketplaceResult(uir.get._1 + uir.get._2, email, DateHelper.now(), vm.marketplace_id, vm.event_type, vm.data, models.Constants.EVENTSMARKETPLACECLAZ)
       json
     }
   }
@@ -190,6 +190,8 @@ object EventsMarketplaces extends ConcreteEventsMarketplaces {
   def findById(email: String, input: String, limit: String): ValidationNel[Throwable, Seq[EventsMarketplaceResult]] = {
     (mkEventsMarketplacesSack(email, input) leftMap { err: NonEmptyList[Throwable] ⇒ err
     }).flatMap { ws: EventsMarketplaceResult ⇒
+      play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, "=> *>" + ws ,Console.RESET))
+
       (getRecords(email, ws.created_at.withTimeAtStartOfDay(), ws.marketplace_id, limit) leftMap { t: NonEmptyList[Throwable] ⇒
         new ResourceItemNotFound(ws.marketplace_id, "Events = nothing found.")
       }).toValidationNel.flatMap { nm: Seq[EventsMarketplaceResult] ⇒
