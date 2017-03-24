@@ -78,6 +78,13 @@ POST /v2/marketplaces/update        	controllers.MarketPlaces.update
 POST /v2/marketplaces/content         controllers.MarketPlaces.post
 DELETE /v2/marketplaces/:flavor       controllers.MarketPlaces.delete(flavor: String)
 
+# Flavors
+GET  /v2/flavors                      controllers.admin.Flavors.list
+GET  /v2/flavors/:name                controllers.admin.Flavors.showByName(name: String)
+POST /v2/flavors/update              	controllers.admin.Flavors.update
+POST /v2/flavors/content              controllers.admin.Flavors.post
+DELETE /v2/flavors/:name              controllers.admin.Flavors.delete(name: String)
+
 # Requests
 POST /v2/requests/content            	controllers.Requests.post
 GET   /v2/requests/:id                controllers.Requests.show(id: String)
@@ -105,6 +112,11 @@ GET  /v2/eventsbilling                controllers.EventsBilling.index
 POST  /v2/eventsstorage/content       controllers.EventsStorage.post
 GET  /v2/eventsstorage/:limit         controllers.EventsStorage.list(limit: String)
 GET  /v2/eventsstorage                controllers.EventsStorage.index
+
+POST  /v2/eventsmarketplace/content     controllers.EventsMarketplace.post
+GET  /v2/eventsmarketplace/:limit       controllers.EventsMarketplace.list(limit: String)
+POST /v2/eventsmarketplace/show/:limit  controllers.EventsMarketplace.show(limit: String)
+GET  /v2/eventsmarketplace              controllers.EventsMarketplace.index
 
 # SSH
 POST /v2/sshkeys/content              controllers.SshKeys.post

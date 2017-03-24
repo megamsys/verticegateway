@@ -139,7 +139,7 @@ class SeriesIncrementedLabler(fp: Option[String]) extends PatternLabelerConditio
   def pmatch = fp.map(_.contains(PATTERN)).getOrElse(false)
 
   def apply(newfp: Option[String],pl: PatternedLabel) = {
-    val optSerinc = (Assembly.countByOrgId(pl.org_id) match {
+    val optSerinc = (models.user.LaunchPtr.count(pl.email) match {
       case Success(succ) => succ
       case Failure(err)  => None
     })

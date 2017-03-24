@@ -22,7 +22,7 @@ class PopularXyzDot(ri: ReportInput) extends Reporter {
   def report: ValidationNel[Throwable, Option[ReportResult]] = {
     for {
       alt <-   build(ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      pdt <-   popular(alt).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      pdt <-   popular(alt.map(_.get)).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
     } yield {
       ReportResult(REPORT_POPAPPDOT,
           new PopularXyzCounted(pdt).toKeyList.asInstanceOf[Seq[models.tosca.KeyValueList]].some,
@@ -31,19 +31,20 @@ class PopularXyzDot(ri: ReportInput) extends Reporter {
     }
   }
 
-  def build(startdate: String, enddate: String): ValidationNel[Throwable,Seq[models.tosca.AssemblyResult]] = {
+  def build(startdate: String, enddate: String): ValidationNel[Throwable, List[Option[models.tosca.ComponentResult]]] = {
      for {
       a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
+      c <- (models.tosca.Component.findById(Option(a.foldRight(List[String]())(_.components ++ _))))
     } yield {
       val f = REPORT_CATEGORYMAP.get(ri.category).getOrElse(REPORT_CATEGORYMAP.get("application").getOrElse(List()))
-      a.filter { af => (f.filter(x => af.tosca_type.contains(x)).size > 0) }
+      c.filter { cf => (f.filter(x => cf.map(_.tosca_type.contains(x)).getOrElse(false)).size > 0) }
     }
    }
 
    def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = none.successNel
 
 
-  private def popular(abt: Seq[models.tosca.AssemblyResult]) = {
+  private def popular(abt: List[models.tosca.ComponentResult]) = {
     for {
       ba <- (abt.groupBy(_.tosca_type).map { case (k,v) => (k -> v.size.toInt) }).some
     } yield {

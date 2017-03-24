@@ -134,7 +134,12 @@ object Constants {
   val EVENTSSKEWSCOLLECTIONCLAZ       = "Megam::EventsSkewsCollection"
   val EVENTSSTORAGECLAZ               = "Megam::EventsStorage"
   val EVENTSSTORAGECOLLECTIONCLAZ     = "Megam::EventsStorageCollection"
+  val EVENTSMARKETPLACECLAZ           = "Megam::EventsMarketplace"
+  val EVENTSMARKETPLACECOLLECTIONCLAZ = "Megam::EventsMarketplaceCollection"
+
   val ERRORCLAZ                       = "Megam::Error"
+  val FLAVORCLAZ                      = "Megam::Flavors"
+  val FLAVORCOLLECTIONCLAZ            = "Megam::FlavorsCollection"
   val INVOICESCOLLECTIONCLAZ          = "Megam::InvoicesCollection"
   val INVOICESCLAZ                    = "Megam::Invoices"
   val MARKETPLACECLAZ                 = "Megam::MarketPlace"

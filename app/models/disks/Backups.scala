@@ -329,7 +329,7 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
 
   //We support attaching disks for a VM. When we do containers we need to rethink.
   private def dePub(email: String, wa: BackupsResult): ValidationNel[Throwable, BackupsResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_TORPEDO, "", BACKUP_REMOVE, SNAPSHOT).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_TORPEDO, "", BACKUP_REMOVE, BACKUP).json)
     wa.successNel[Throwable]
   }
 
