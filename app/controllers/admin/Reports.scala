@@ -30,7 +30,7 @@ object Reports extends Controller with APIAuthElement with PermissionElement {
 
           models.admin.Reports.create(input) match {
             case Success(succ) =>  {
-              Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
+                  Ok(Results.resultset(models.Constants.REPORTSCOLLECTIONCLAZ, compactRender(Extraction.decompose(List(succ)))))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

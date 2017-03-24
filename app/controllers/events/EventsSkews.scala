@@ -42,7 +42,7 @@ def post = StackAction(parse.tolerantText) {  implicit request =>
         case Success(succ) => {
           val freq = succ.getOrElse(throw new Error("Invalid header."))
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
-          models.events.EventsSkews.findById(email, id ) match {
+          models.events.EventsSkews.findById(id, email) match {
             case Success(succ) => Ok(Results.resultset(models.Constants.EVENTSSKEWSCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)

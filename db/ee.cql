@@ -58,7 +58,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
      ('MKT000007','DockerMachine', 'vertice', 'TORPEDO', '1',
-     'active', 'dockermachine.png', 'https://docs.docker.com/machine/overview', ['{"key":"port.tcp", "value":"2376"}'], [], ['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'dockermachine.png', 'https://docs.docker.com/machine/overview', ['{"key":"port.tcp", "value":"2376"}'], [], ['{"key":"os", "value":"dockermachine"}'],[],[],
      ['{"key":"1.12", "value": "Install Docker Engine on virtual hosts, and manage the hosts with docker-machine"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -110,7 +110,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
        ('MKT000014', 'RabbitMQ', 'vertice', 'SERVICE', '3',
-        'active', 'rabbitmq.png', 'https://www.rabbitmq.com', ['{"key":"port.http", "value":"15672"}'],['{"key":"username", "value":"guest"}', '{"key":"password", "value":"guest"}'],['{"key":"os", "value":"centos"}'],[],[],
+        'active', 'rabbitmq.png', 'https://www.rabbitmq.com', ['{"key":"port.http", "value":"15672"}'],['{"key":"username", "value":"VirtEngine"}', '{"key":"password", "value":"VirtEngine"}'],['{"key":"os", "value":"centos"}'],[],[],
         ['{"key":"3.5.x", "value": "RabbitMQ is open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)."}'],
         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -125,15 +125,16 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
         ('MKT000016', 'Zarafa', 'vertice', 'COLLABORATION', '6',
-        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+        'active', 'zarafa.png', 'https://www.zarafa.com/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/webaccess"}'], ['{"key":"oneclick", "value":"true"}','{"key":"username", "value":"megam"}',
+        '{"key":"password", "value":"megam"}'],['{"key":"os", "value":"centos"}'],[],[],
         ['{"key":"7.2", "value": "Zarafa gives you the tools that help boost your day-to-day communication. File sharing, web meetings and business apps like email and calendar are integrated in one suite."}'],
         'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
-      ('MKT000017', 'OwnCloud', 'vertice', 'COLLABORATION', '6',
+      ('MKT000017', 'OwnCloud', 'bitnami', 'COLLABORATION', '6',
       'active', 'owncloud.png', 'https://owncloud.org/', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}',
+      ['{"key":"bitnami_username", "value":"team4megam"}',
       '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_owncloud_site", "value":"127.0.0.1"}',
       '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/MediaSharing/bitnami-owncloud-9.1.3-1-linux-x64-installer.run"}'],
       ['{"key":"os", "value":"centos"}'],[],[],
@@ -144,7 +145,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000018', 'WordPress', 'bitnami', 'COLLABORATION', '6',
       'active', 'wordpress.png', 'https://bitnami.com/stack/wordpress', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+      ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
       '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-wordpress-4.4.2-3-linux-x64-installer.run"}'],
       ['{"key":"os", "value":"centos"}'],[],[],
       ['{"key":"4.4.2", "value": "WordPress is the web publishing platforms for building blogs and websites."}'],
@@ -153,7 +154,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000019', 'Moodle', 'bitnami', 'COLLABORATION', '6',
       'active', 'moodle.png', 'https://bitnami.com/stack/moodle', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-       ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+       ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/eLearning/bitnami-moodle-3.0.3-0-linux-x64-installer.run"}'],
         ['{"key":"os", "value":"centos"}'],[],[],
         ['{"key":"3.0.3", "value": "Moodle is a very popular open source learning management solution (LMS) for the delivery of elearning courses and programs."}'],
@@ -162,7 +163,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000020', 'PrestaShop', 'bitnami', 'COLLABORATION', '6',
       'active', 'prestashop.png', 'https://bitnami.com/stack/prestashop', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}',
+      ['{"key":"bitnami_username", "value":"team4megam"}',
        '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_prestashop_site", "value":"127.0.0.1"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/e-Commerce/bitnami-prestashop-1.6.1.4-0-linux-x64-installer.run"}'],
         ['{"key":"os", "value":"centos"}'],[],[],
@@ -173,7 +174,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
       ('MKT000021', 'MediaWiki', 'bitnami', 'COLLABORATION', '6',
       'active', 'mediawiki.png', 'https://bitnami.com/stack/mediawiki', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-      ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+      ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
        '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Wiki/bitnami-mediawiki-1.26.2-1-linux-x64-installer.run"}'],
         ['{"key":"os", "value":"centos"}'],[],[],
         ['{"key":"1.26.2", "value": "MediaWiki is the engine behind Wikipedia, the behemoth website with millions of articles written by millions of users and translated into dozens of languages."}'],
@@ -183,7 +184,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000022', 'Ghost', 'bitnami', 'COLLABORATION', '6',
     'active', 'ghost.png', 'https://bitnami.com/stack/ghost', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Blog/bitnami-ghost-0.7.8-0-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"0.7.8", "value": "Ghost is built on Node.js and is extremely easy to configure and customize."}'],
@@ -193,7 +194,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000023', 'Redmine', 'bitnami', 'COLLABORATION', '6',
     'active', 'redmine.png', 'https://bitnami.com/stack/redmine', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value":"https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Bug+Tracking/bitnami-redmine-3.2.1-0-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"3.2.1", "value": "Redmine is a very popular Rails-based open source bug tracker to help you manage issues and tasks for multiple projects."}'],
@@ -202,7 +203,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
    ('MKT000024', 'Discourse', 'bitnami', 'COLLABORATION', '6',
    'active', 'discourse.png', 'https://bitnami.com/stack/discourse', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-   ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+   ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Forum/bitnami-discourse-1.4.6-0-linux-x64-installer.run"}'],
    ['{"key":"os", "value":"centos"}'],[],[],
    ['{"key":"1.4.6", "value": "Discourse is the next-next-generation community forum platform. Discourse has a thoroughly modern design and is written in JavaScript."}'],
@@ -211,14 +212,14 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000025', 'VestaCP', 'vertice', 'COLLABORATION', '6',
-     'active', 'vestacp.png', 'https://vestacp.com', ['{"key":"port.http", "value":"8083"}'],['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'vestacp.png', 'https://vestacp.com', ['{"key":"port.http", "value":"8083"}'],['{"key":"oneclick", "value":"true"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
      ['{"key":"7", "value": "The Vesta Control Panel is a free, open source website control panel with website, email, database, and DNS functionalities built in"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000026', 'Ajenti', 'vertice', 'COLLABORATION', '6',
-     'active', 'ajenti.png', 'https://ajenti.com', ['{"key":"port.https", "value":"8000"}'],['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'ajenti.png', 'https://ajenti.com', ['{"key":"port.https", "value":"8000"}'],['{"key":"oneclick", "value":"true"}','{"key":"username", "value":"root"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
      ['{"key":"7.2", "value": "Ajenti is an open source, web-based control panel that can be used for a large variety of server management tasks"}'],
      'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -290,14 +291,14 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000035', 'Hadoop', 'vertice', 'ANALYTICS', '5',
-     'active', 'hadoop.png', 'https://hadoop.apache.org', ['{"key":"port.http", "value":"50070"}'],['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+     'active', 'hadoop.png', 'https://hadoop.apache.org', ['{"key":"port.http", "value":"50070"}'],['{"key":"oneclick", "value":"true"}'],['{"key":"os", "value":"centos"}'],[],[],
      ['{"key":"2.6.0", "value": "Apache Hadoop is an open-source software framework for distributed storage and distributed processing of very large data sets on computer clusters built from commodity hardware."}'],
      'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
      ('MKT000036', 'Spark', 'vertice', 'ANALYTICS', '5',
-      'active', 'spark.png', 'https://spark.apache.org', ['{"key":"port.http", "value":"9004"}'],['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+      'active', 'spark.png', 'https://spark.apache.org', ['{"key":"port.http", "value":"9004"}'],['{"key":"oneclick", "value":"true"}'],['{"key":"os", "value":"centos"}'],[],[],
       ['{"key":"1.5.0", "value": "Apache® Spark™ is a powerful open source processing engine built around speed, ease of use, and sophisticated analytics."}',
        '{"key":"2.0", "value": "Apache® Spark™ is a powerful open source processing engine built around speed, ease of use, and sophisticated analytics."}'],
       'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
@@ -305,7 +306,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
      ('MKT000037', 'SparkNotebook', 'vertice', 'ANALYTICS', '5',
-      'active', 'sparknotebook.png', 'http://spark-notebook.io', ['{"key":"port.http", "value":"9000"}'],['{"key":"oneclick", "value":"yes"}'],['{"key":"os", "value":"centos"}'],[],[],
+      'active', 'sparknotebook.png', 'http://spark-notebook.io', ['{"key":"port.http", "value":"9000"}'],['{"key":"oneclick", "value":"true"}'],['{"key":"os", "value":"centos"}'],[],[],
       ['{"key":"0.6.x", "value": "Use Apache Spark straight from the Browser. "}'],
       'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
 
@@ -318,7 +319,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
    ('MKT000038', 'DreamFactory', 'bitnami', 'COLLABORATION', '6',
    'active', 'dreamfactory.png', 'https://bitnami.com/stack/dreamfactory', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-   ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_database_password", "value":"team4megam"}',
+   ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}', '{"key":"bitnami_database_password", "value":"team4megam"}',
    '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Mobile+Development/bitnami-dreamfactory-2.1.1-2-linux-x64-installer.run"}'],
    ['{"key":"os", "value":"centos"}'],[],[],
    ['{"key":"2.1.1", "value": "DreamFactory is an open source REST API platform for mobile, web, and IoT applications."}'],
@@ -327,7 +328,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000039', 'Pimcore', 'bitnami', 'COLLABORATION', '6',
     'active', 'pimcore.png', 'https://bitnami.com/stack/pimcore', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/CMS/bitnami-pimcore-3.1.1-2-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"3.1.1", "value": "Pimcore is a powerful multi-channel experience and engagement management (CEM/CXM) platform."}'],
@@ -336,7 +337,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000040', 'Jenkins', 'bitnami', 'COLLABORATION', '6',
     'active', 'jenkins.png', 'https://bitnami.com/stack/jenkins', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Continuous+Integration/bitnami-jenkins-1.655-0-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"1.655", "value": "It’s widely recognized as the most feature-rich CI available with easy configuration, continuous delivery and continuous integration support, easily test, build and stage your app, and more."}'],
@@ -345,7 +346,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000041', 'eXo Platform', 'bitnami', 'COLLABORATION', '6',
     'active', 'exoplatform.png', 'https://bitnami.com/stack/exo-platform-community', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Social+Networking/bitnami-exoplatform-4.3.0-1-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"4.3.0", "value": "eXo Platform combines collaboration, calendering, content and document management and other productivity tools with social features to provide a complete enterprise intranet."}'],
@@ -354,7 +355,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000042', 'Gitlab', 'bitnami', 'COLLABORATION', '6',
     'active', 'gitlab.png', 'https://bitnami.com/stack/gitlab', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Version+Control/bitnami-gitlab-8.5.7-0-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"8.5.7", "value": "The GitLab open source edition is a developer tool that allows users to collaborate on code, create new projects, manage repositories, and perform code reviews."}'],
@@ -363,7 +364,7 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
 INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
     ('MKT000043', 'Mautic', 'bitnami', 'COLLABORATION', '6',
     'active', 'mautic.png', 'https://bitnami.com/stack/mautic', ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/Marketing+Automation/bitnami-mautic-1.3.1-0-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"1.3.1", "value": "Mautic is marketing automation software for everyone.Mautic is free and open source, and can be easily integrated with third-party applications through a REST API and web-hooks."}'],
@@ -373,8 +374,35 @@ INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, im
     ('MKT000044', 'ProcessMaker Open Source Edition', 'bitnami', 'COLLABORATION', '6',
     'active', 'processmaker.png', 'https://bitnami.com/stack/processmaker',
     ['{"key":"port.http", "value":"80"}', '{"key":"url.suffix", "value":"/"}'],
-    ['{"key":"oneclick", "value":"yes"}','{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
+    ['{"key":"bitnami_username", "value":"team4megam"}', '{"key":"bitnami_password", "value":"team4megam"}',
     '{"key":"bitnami_url", "value": "https://s3-ap-southeast-1.amazonaws.com/megampub/bitnami/BPM/bitnami-processmaker-3.0.1.7-0-linux-x64-installer.run"}'],
     ['{"key":"os", "value":"centos"}'],[],[],
     ['{"key":"3.0.1.7", "value": "ProcessMaker is an open source Business Process Management (BPM) platform designed to automate workflows and improve business efficiency"}'],
     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+    ('MKT000045','Webmin','vertice', 'COLLABORATION', '6',
+    'active', 'webmin.png', 'http://webmin.com/',
+    ['{"key":"port.https", "value":"10000"}', '{"key":"url.suffix", "value":"/"}'],
+    ['{"key":"oneclick", "value":"true"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
+    ['{"key":"1.831", "value": "Webmin is a web-based interface for system administration for Unix. Using any browser that supports tables and forms, you can setup user accounts, Apache, DNS, file sharing and so on."}'],
+    'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+    ('MKT000046','ISPConfig','vertice', 'COLLABORATION', '6',
+    'active', 'ispconfig.png', 'https://ispconfig.org/',
+    ['{"key":"port.https", "value":"8080"}', '{"key":"url.suffix", "value":"/"}'],
+    ['{"key":"oneclick", "value":"true"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
+    ['{"key":"3.1.2", "value": "ISPConfig is a control panel for your server that allows you to easily configure domains, email addresses, site configurations, and user accounts."}'],
+    'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));
+
+
+INSERT INTO marketplaces (id, flavor, provided_by, cattype, catorder, status, image, url, envs, options, inputs, outputs, acl_policies, plans, json_claz, created_at, updated_at) values
+    ('MKT000047','Froxlor','vertice', 'COLLABORATION', '6',
+    'active', 'froxlor.png', 'https://froxlor.org/',
+    ['{"key":"port.http", "value":"80"}','{"key":"url.suffix", "value":"/froxlor"}'],
+    ['{"key":"oneclick", "value":"true"}','{"key":"username", "value":"admin"}', '{"key":"password", "value":"AtomDeploy"}'],['{"key":"os", "value":"centos"}'],[],[],
+     ['{"key":"0.9.38.7", "value": "Froxlor is a server management panel used to manage multiple-users services. It can be used to manage domain services, email accounts or web server etc."}'],
+     'Megam::MarketPlace', toTimestamp(now()), toTimestamp(now()));

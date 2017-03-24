@@ -6,7 +6,10 @@ object Constants {
 
   val JSON_CLAZ       = "json_claz"
 
-  val DOMAIN            = "domain"
+  val DOMAIN          = "domain"
+
+  val ACTIVE          = "Active"
+  val NOT_ACTIVE      = "Not Active"
 
   val STATE           = "state"
   val CREATE          = "create"
@@ -31,11 +34,11 @@ object Constants {
   val DETACH_DISK     = "detachdisk"   //action
 
   val RAWIMAGES       = "marketplaces.rawimages"   //category
-  val CREATE_RAWIMAGE = "rawimage.create"   //action
-  val DELETE_RAWIMAGE = "rawimage.delete"   //action
+  val CREATE_RAWIMAGE = "rawimage.iso.create" //action
+  val DELETE_RAWIMAGE = "rawimage.iso.delete"   //action
 
   val LOCALSITE_MARKETPLACES    = "localsite.marketplaces"   //category
-  val INITIALIZE_MARKETPLACE    = "marketplace.initialize"   //action
+  val INITIALIZE_MARKETPLACE    = "marketplaces.initialize"   //action
   val CREATE_MARKETPLACE        = "marketplace.create"   //action
   val DELETE_MARKETPLACE        = "marketplace.delete"   //action
 
@@ -63,6 +66,10 @@ object Constants {
 
   val REPORT_USRDOT                       = "userdot"
   val REPORT_LANDOT                       = "launchdot"
+  val REPORT_POPDOT                       = "populardot"
+  val REPORT_POPAPPDOT                    = "popularappsdot"
+  val REPORT_RECENTLAUNCHESDOT            = "recentlaunches"
+  val REPORT_RECENTSIGNUPSDOT             = "recentsignups"
   val REPORT_NOOP                         = "noop"
 
   val REPORT_FILTER_VM                    = List(CATTYPE_TORPEDO)

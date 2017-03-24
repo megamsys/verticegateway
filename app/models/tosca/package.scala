@@ -96,12 +96,6 @@ package object tosca {
   type KeyValueList = List[KeyValueField]
 
   object KeyValueList {
-    val MKT_FLAG_EMAIL        = "<email>"
-    val MKT_FLAG_APIKEY       = "<api_key>"
-    val MKT_FLAG_ASSEMBLY_ID  = "<assembly_id>"
-    val MKT_FLAG_COMP_ID      = "<component_id>"
-    val MKT_FLAG_HOST         = "<host>"
-
     val emptyRR = List(KeyValueField.empty)
 
     def toJValue(nres: KeyValueList): JValue = {
@@ -128,6 +122,11 @@ package object tosca {
     def merge(nres: KeyValueList, flagsMap: Map[String, String] = Map()): KeyValueList = {
       val nrec = nres.map { x => KeyValueField(x.key, flagsMap.get(x.value).getOrElse(x.value)) }
       nrec
+    }
+
+    def find(nres: KeyValueList, key: String) = {
+      val kvl = KeyValueList.filter(nres, key).some
+      kvl.map(_.map(_.value))
     }
 
     def filter(nres: KeyValueList, key: String): KeyValueList = {
