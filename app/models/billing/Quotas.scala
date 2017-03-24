@@ -155,7 +155,7 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
 
     val res = update.where(_.account_id eqs email).and(_.created_at eqs aor.get.created_at).and(_.id eqs rip.id)
       .modify(_.allocated_to setTo NilorNot(newallocated_to, oldallocated_to))
-      //.and(_.allowed setTo NilorNot(newallowed, oldallowed))
+      .and(_.allowed setTo NilorNotKVs(newallowed, oldallowed))
 
       .and(_.status setTo NilorNot((if (rip.status != null && rip.status.trim.length >0) rip.status else null), aor.get.status))
       .and(_.updated_at setTo DateHelper.now())
@@ -184,6 +184,13 @@ abstract class ConcreteQuotas extends QuotasSacks with RootConnector {
       case false => return rip
     }
   }
+
+  def NilorNotKVs(rip: KeyValueList, bal: KeyValueList): KeyValueList = {
+   rip == null match {
+     case true => return bal
+     case false => return rip
+   }
+ }
 }
 
 object Quotas extends ConcreteQuotas {
