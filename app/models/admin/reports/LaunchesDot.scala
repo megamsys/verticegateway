@@ -22,14 +22,14 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
   def report: ValidationNel[Throwable, Option[ReportResult]] = {
     for {
       alt <-   build(ri.start_date, ri.end_date)  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      vdt <-   aggregate(alt, REPORT_FILTER_VM).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      ddt <-   subaggregate(alt, REPORT_FILTER_VM, REPORT_DEAD).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      fdt <-   subaggregate(alt, REPORT_FILTER_VM, REPORT_NOTINITED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      edt <-   aggregate(alt, REPORT_FILTER_VERTICE_PREPACKAGED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      bdt <-   aggregate(alt, REPORT_FILTER_BITNAMI_PREPACKAGED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      cut <-   aggregate(alt, REPORT_FILTER_CUSTOMAPPS).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      cdt <-   aggregate(alt, REPORT_FILTER_CONTAINERS).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
-      pdt <-   popular(alt).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      vdt <-   aggregate(alt._1, REPORT_FILTER_VM).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      ddt <-   subaggregate(alt._1, REPORT_FILTER_VM, REPORT_DEAD).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      fdt <-   subaggregate(alt._1, REPORT_FILTER_VM, REPORT_NOTINITED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      edt <-   appAggregate(alt._2, REPORT_FILTER_VERTICE_PREPACKAGED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      bdt <-   appAggregate(alt._2, REPORT_FILTER_BITNAMI_PREPACKAGED).successNel  leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      cut <-   appAggregate(alt._2, REPORT_FILTER_CUSTOMAPPS).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      cdt <-   aggregate(alt._1, REPORT_FILTER_CONTAINERS).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
+      pdt <-   popular(alt._1).successNel leftMap { err: NonEmptyList[Throwable] ⇒ err }
     } yield {
       ReportResult(REPORT_LANDOT,
           new LaunchCounted(vdt, ddt, fdt, edt, bdt, cut, cdt, pdt).toKeyList.asInstanceOf[Seq[models.tosca.KeyValueList]].some,
@@ -38,11 +38,14 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
     }
   }
 
-  def build(startdate: String, enddate: String): ValidationNel[Throwable,Seq[models.tosca.AssemblyResult]] = {
+  def build(startdate: String, enddate: String): ValidationNel[Throwable,Tuple2[Seq[models.tosca.AssemblyResult],
+  List[Option[models.tosca.ComponentResult]]]] = {
      for {
       a <- (models.tosca.Assembly.findByDateRange(startdate, enddate) leftMap { err: NonEmptyList[Throwable] ⇒ err })
-    } yield a
+      c <- (models.tosca.Component.findById(Option(a.foldRight(List[String]())(_.components ++ _))))
+    } yield (a,c)
    }
+
 
    def reportFor(email: String, org: String): ValidationNel[Throwable, Option[ReportResult]] = none.successNel
 
@@ -50,6 +53,12 @@ class LaunchesDot(ri: ReportInput) extends Reporter {
    private def aggregate(abt: Seq[models.tosca.AssemblyResult], f: List[String]) = {
     for {
       ba <- abt.filter { a => (f.filter(x => a.tosca_type.contains(x)).size > 0) }.some
+    } yield  ba.size.toString
+   }
+
+   private def appAggregate(abt: List[Option[models.tosca.ComponentResult]], f: List[String]) = {
+    for {
+      ba <- abt.filter { cf => (f.filter(x => cf.map(_.tosca_type.contains(x)).getOrElse(false)).size > 0) }.some
     } yield  ba.size.toString
    }
 
