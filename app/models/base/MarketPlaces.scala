@@ -335,17 +335,17 @@ object MarketPlaces extends ConcreteMarketPlaces {
   }
 
   private def atPub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", INITIALIZE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", INITIALIZE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
   private def dePub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
   private def upPub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", CREATE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", CREATE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
