@@ -40,7 +40,7 @@ import models.Constants._;
 import utils.{DateHelper, StringStuff}
 
 case class FlavorInput( name: String, cpu: String, ram: String, disk: String,
-      regions: List[String], price: String, properties: KeyValueList, status: String)
+      regions: List[String], price: KeyValueList, properties: KeyValueList, status: String)
 
 case class FlavorResult(
   id: String,
@@ -49,7 +49,7 @@ case class FlavorResult(
   ram: String,
   disk: String,
   regions: List[String],
-  price: String,
+  price: KeyValueList,
   properties: KeyValueList,
   status: String,
   json_claz: String,
@@ -67,7 +67,15 @@ sealed class FlavorSacks extends CassandraTable[FlavorSacks, FlavorResult] with 
 
   object regions extends ListColumn[FlavorSacks, FlavorResult, String](this)
 
-  object price extends StringColumn(this)
+  object price extends JsonListColumn[FlavorSacks, FlavorResult, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
+    }
+
+    override def toJson(obj: KeyValueField): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
 
   object properties extends JsonListColumn[FlavorSacks, FlavorResult, KeyValueField](this) {
     override def fromJson(obj: String): KeyValueField = {
