@@ -53,7 +53,7 @@ object Flavors extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.admin.Flavors.listAll match {
             case Success(succ) => {
-              Ok(Results.resultset(models.Constants.MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
+              Ok(Results.resultset(models.Constants.FLAVORCOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             }
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
