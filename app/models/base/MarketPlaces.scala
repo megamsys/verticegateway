@@ -172,7 +172,7 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
 
   def getRecordById(id: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
     val res = select.allowFiltering().where(_.id eqs id).one()
-    Await.result(res, 5.seconds).successNel
+   Await.result(res, 5.seconds).successNel
   }
 
   def getRecordByFlavor(flavor: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
@@ -307,15 +307,15 @@ object MarketPlaces extends ConcreteMarketPlaces {
       }
   }
 
-  def findById(id: String, email: String): ValidationNel[Throwable, MarketPlaceResult] = {
+  def findById(id: String, email: String): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
     (getRecordById(id) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[MarketPlaceResult] ⇒
       xso match {
         case Some(xs) ⇒ {
-          Validation.success[Throwable, MarketPlaceResult](xs).toValidationNel
+          Validation.success[Throwable, Seq[MarketPlaceResult]](List(xs)).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, MarketPlaceResult](new ResourceItemNotFound(id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, Seq[MarketPlaceResult]](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }

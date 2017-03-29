@@ -39,7 +39,7 @@ import controllers.stack.ImplicitJsonFormats
 import models.Constants._;
 import utils.{DateHelper, StringStuff}
 
-case class FlavorInput( name: String, cpu: String, ram: String, disk: String,
+case class FlavorInput( name: String, cpu: String, ram: String, disk: String, category: String,
       regions: List[String], price: KeyValueList, properties: KeyValueList, status: String)
 
 case class FlavorResult(
@@ -48,6 +48,7 @@ case class FlavorResult(
   cpu: String,
   ram: String,
   disk: String,
+  category: String,
   regions: List[String],
   price: KeyValueList,
   properties: KeyValueList,
@@ -64,6 +65,7 @@ sealed class FlavorSacks extends CassandraTable[FlavorSacks, FlavorResult] with 
   object cpu extends StringColumn(this)
   object ram extends StringColumn(this)
   object disk extends StringColumn(this)
+  object category extends StringColumn(this)
 
   object regions extends ListColumn[FlavorSacks, FlavorResult, String](this)
 
@@ -101,6 +103,7 @@ sealed class FlavorSacks extends CassandraTable[FlavorSacks, FlavorResult] with 
       cpu(r),
       ram(r),
       disk(r),
+      category(r),
       regions(r),
       price(r),
       properties(r),
@@ -142,6 +145,7 @@ abstract class ConcreteFlavors extends FlavorSacks with  RootConnector {
       .value(_.cpu, mpr.cpu)
       .value(_.ram, mpr.ram)
       .value(_.disk,mpr.disk)
+      .value(_.category,mpr.category)
       .value(_.regions, mpr.regions)
       .value(_.price, mpr.price)
       .value(_.properties, mpr.properties)
@@ -182,7 +186,7 @@ object Flavors extends ConcreteFlavors {
       mkt <- mktsInput
       uir <- (UID("FLV").get leftMap { ut: NonEmptyList[Throwable] => ut })
     } yield {
-      (new FlavorResult(uir.get._1 + uir.get._2, mkt.name, mkt.cpu, mkt.ram, mkt.disk,
+      (new FlavorResult(uir.get._1 + uir.get._2, mkt.name, mkt.cpu, mkt.ram, mkt.disk, mkt.category,
         mkt.regions, mkt.price, mkt.properties, mkt.status, models.Constants.FLAVORCLAZ, DateHelper.now(),  DateHelper.now()))
     }
   }
@@ -233,15 +237,15 @@ object Flavors extends ConcreteFlavors {
     }
   }
 
- def findById(id: String, email: String): ValidationNel[Throwable, FlavorResult] = {
+ def findById(id: String): ValidationNel[Throwable, Seq[FlavorResult]] = {
     (getRecordById(id) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[FlavorResult] ⇒
       xso match {
         case Some(xs) ⇒ {
-          Validation.success[Throwable, FlavorResult](xs).toValidationNel
+          Validation.success[Throwable, Seq[FlavorResult]](List(xs)).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, FlavorResult](new ResourceItemNotFound(id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, Seq[FlavorResult]](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }
