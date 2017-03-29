@@ -39,7 +39,7 @@ import controllers.stack.ImplicitJsonFormats
 import models.Constants._;
 import utils.{DateHelper, StringStuff}
 
-case class FlavorInput( name: String, cpu: String, ram: String, disk: String, category: String,
+case class FlavorInput( name: String, cpu: String, ram: String, disk: String, category: List[String],
       regions: List[String], price: KeyValueList, properties: KeyValueList, status: String)
 
 case class FlavorResult(
@@ -48,7 +48,7 @@ case class FlavorResult(
   cpu: String,
   ram: String,
   disk: String,
-  category: String,
+  category: List[String],
   regions: List[String],
   price: KeyValueList,
   properties: KeyValueList,
@@ -65,7 +65,7 @@ sealed class FlavorSacks extends CassandraTable[FlavorSacks, FlavorResult] with 
   object cpu extends StringColumn(this)
   object ram extends StringColumn(this)
   object disk extends StringColumn(this)
-  object category extends StringColumn(this)
+  object category extends ListColumn[FlavorSacks, FlavorResult, String](this)
 
   object regions extends ListColumn[FlavorSacks, FlavorResult, String](this)
 
