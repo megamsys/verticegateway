@@ -172,7 +172,7 @@ abstract class ConcreteMarketPlaces extends MarketPlaceSacks with  RootConnector
 
   def getRecordById(id: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
     val res = select.allowFiltering().where(_.id eqs id).one()
-    Await.result(res, 5.seconds).successNel
+   Await.result(res, 5.seconds).successNel
   }
 
   def getRecordByFlavor(flavor: String): ValidationNel[Throwable, Option[MarketPlaceResult]] = {
@@ -292,7 +292,6 @@ object MarketPlaces extends ConcreteMarketPlaces {
       wa  <- (findByFlavor(rip.flavor, email) leftMap { t: NonEmptyList[Throwable] => t })
       set <- updateRecord(email, rip, wa.some)
     } yield {
-      upPub(email, wa)
       wa
     }
   }
@@ -308,15 +307,15 @@ object MarketPlaces extends ConcreteMarketPlaces {
       }
   }
 
-  def findById(id: String, email: String): ValidationNel[Throwable, MarketPlaceResult] = {
+  def findById(id: String, email: String): ValidationNel[Throwable, Seq[MarketPlaceResult]] = {
     (getRecordById(id) leftMap { t: NonEmptyList[Throwable] ⇒
       new ServiceUnavailableError(id, (t.list.map(m ⇒ m.getMessage)).mkString("\n"))
     }).toValidationNel.flatMap { xso: Option[MarketPlaceResult] ⇒
       xso match {
         case Some(xs) ⇒ {
-          Validation.success[Throwable, MarketPlaceResult](xs).toValidationNel
+          Validation.success[Throwable, Seq[MarketPlaceResult]](List(xs)).toValidationNel
         }
-        case None ⇒ Validation.failure[Throwable, MarketPlaceResult](new ResourceItemNotFound(id, "")).toValidationNel
+        case None ⇒ Validation.failure[Throwable, Seq[MarketPlaceResult]](new ResourceItemNotFound(id, "")).toValidationNel
       }
     }
   }
@@ -335,17 +334,12 @@ object MarketPlaces extends ConcreteMarketPlaces {
   }
 
   private def atPub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", INITIALIZE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", INITIALIZE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 
   private def dePub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
-    wa.successNel[Throwable]
-  }
-
-  private def upPub(email: String, wa: MarketPlaceResult): ValidationNel[Throwable, MarketPlaceResult] = {
-    models.base.Requests.createAndPub(email, RequestInput(email, wa.flavor, CATTYPE_MARKETPLACES, "", CREATE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
+    models.base.Requests.createAndPub(email, RequestInput(email, wa.id, CATTYPE_MARKETPLACES, "", DELETE_MARKETPLACE, LOCALSITE_MARKETPLACES).json)
     wa.successNel[Throwable]
   }
 

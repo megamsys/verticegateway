@@ -76,6 +76,8 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.MarketPlaces.findById(id, email) match {
             case Success(succ) =>
+            play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, Results.resultset(MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))) ,Console.RESET))
+
             Ok(Results.resultset(MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
@@ -99,6 +101,8 @@ object MarketPlaces extends Controller with controllers.stack.APIAuthElement {
           val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
           models.base.MarketPlaces.findByFlavor(flavor, email) match {
             case Success(succ) =>
+            play.api.Logger.info(("%s%s%-20s%s").format(Console.CYAN, Console.BOLD, Results.resultset(MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))) ,Console.RESET))
+
             Ok(Results.resultset(MARKETPLACECOLLECTIONCLAZ, compactRender(Extraction.decompose(succ))))
             case Failure(err) =>
               val rn: FunnelResponse = new HttpReturningError(err)
