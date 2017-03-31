@@ -80,7 +80,7 @@ DELETE /v2/marketplaces/:flavor       controllers.MarketPlaces.delete(flavor: St
 
 # Flavors
 GET  /v2/flavors                      controllers.admin.Flavors.list
-GET  /v2/flavors/:name                controllers.admin.Flavors.showByName(name: String)
+GET  /v2/flavors/:id                  controllers.admin.Flavors.show(id: String)
 POST /v2/flavors/update              	controllers.admin.Flavors.update
 POST /v2/flavors/content              controllers.admin.Flavors.post
 DELETE /v2/flavors/:name              controllers.admin.Flavors.delete(name: String)

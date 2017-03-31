@@ -1,7 +1,9 @@
 VirtEngine Gateway
 ================
 
-API server for "[VirtEngine](https://virtengine.com)".
+API server for "[VirtEngine](https://virtengine.com)"  `1.5.x or < 2.0`.
+
+API server for 2.0 is based on rust and will be release shortly.
 
 The API server protects the RESTful resources using
 
@@ -59,10 +61,13 @@ After you have forked a copy of https://github.com/VirtEngine/gateway.git
 
 * cqlsh -f 1.5.cql
 
+* cqlsh -f 1.5.1.cql
+
+* cqlsh -f 1.5.2.cql
+
 * cqlsh -f ee.cql
 
 * cqlsh -f me.cql
-
 
 ```
 
@@ -74,7 +79,11 @@ Create a home directory to store configuration files for MegamVertice
 
 $ cd ~
 
+<<<<<<< HEAD
 $ mkdir -p detio/virtenginegateway
+=======
+$ mkdir -p megam/home/verticegateway
+>>>>>>> origin/1.5.2
 
 ```
 
@@ -84,7 +93,11 @@ In your .bashrc file add the following line
 
 ```
 
+<<<<<<< HEAD
 export MEGAM_HOME=$HOME/detio
+=======
+export MEGAM_HOME=$HOME/megam/home
+>>>>>>> origin/1.5.2
 
 ```
 
@@ -131,6 +144,7 @@ You'll see this in your browser.
 ```json
 {
   "status" : {
+    "casssandra" : "up",
     "nsq" : "down"
   },
   "runtime" : {
@@ -147,7 +161,9 @@ Now you are all set.
 
 # API Documentation
 
-Update the vertice.raml
+Refer [docs](https://docs.megam.io] and we'll publish vertice.raml shortly.
+
+To generate the html docs.
 
 ```
 
@@ -173,4 +189,8 @@ MIT
 
 # Authors
 
+<<<<<<< HEAD
 VirtEngine Humans <hello@virtengine.com>
+=======
+Megam - Humans (<humans@megam.io>)
+>>>>>>> origin/1.5.2
