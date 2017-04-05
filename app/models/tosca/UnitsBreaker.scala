@@ -20,7 +20,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
 
-class UnitsBreaker(input: String, authBag: Option[io.megam.auth.stack.AuthBag] ) {
+class UnitsBreaker(input: String, profileName: String, authBag: Option[io.megam.auth.stack.AuthBag] ) {
 
   implicit val formats = DefaultFormats
 
@@ -61,7 +61,7 @@ class UnitsBreaker(input: String, authBag: Option[io.megam.auth.stack.AuthBag] )
       too <- toObject
     } yield {
         val changed = too.assemblies.map { ai =>
-        val labelledInputs = PatternLabeler(ai.inputs, authBag).labeled
+        val labelledInputs = PatternLabeler(ai.inputs, profileName, authBag).labeled
 
         val decompkvs = FieldSplitter(till, KeyValueField("quota_ids", "quota_id"), labelledInputs).merged
         Assembly(nameOfUnit(i, ai.name), ai.components, ai.tosca_type,
@@ -73,12 +73,12 @@ class UnitsBreaker(input: String, authBag: Option[io.megam.auth.stack.AuthBag] )
   }
 }
 
-case class PatternLabeler(inputs: KeyValueList, authBag: Option[io.megam.auth.stack.AuthBag]) {
+case class PatternLabeler(inputs: KeyValueList, profileName: String,  authBag: Option[io.megam.auth.stack.AuthBag]) {
 
   lazy val email  = authBag.get.email
   lazy val org_id = authBag.get.org_id
 
-  lazy val pi   = PatternedLabel(inputs, email, org_id)
+  lazy val pi   = PatternedLabel(inputs, profileName, email, org_id)
   lazy val name = (new PatternedLabelReplacer(pi)).name
   lazy val nameAsMap = name match {
     case Some(succ) => Map(succ._1 -> succ._2.getOrElse("")).filter(x => x._2.length > 0)

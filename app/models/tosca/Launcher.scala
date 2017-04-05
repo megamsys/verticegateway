@@ -16,9 +16,14 @@ import models.base._
 
 class Launcher(authBag: Option[io.megam.auth.stack.AuthBag]) {
 
+  val profileName = models.base.Accounts.findByEmail(authBag.get.email) match {
+    case Success(suc) => suc.get.name.first_name
+    case Failure(err) => ""
+  }
+
 
   def launch(clubbed: String): ValidationNel[Throwable, AssembliesResults] = {
-   ((new UnitsBreaker(clubbed, authBag).break) map {
+   ((new UnitsBreaker(clubbed, profileName, authBag).break) map {
        _.map { unit =>
        (Assemblies.create(authBag, unit) leftMap { t: NonEmptyList[Throwable] =>
        new ServiceUnavailableError("Not launched", (t.list.map(m => m.getMessage)).mkString("\n"))

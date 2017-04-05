@@ -33,7 +33,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import controllers.stack.ImplicitJsonFormats
 
-case class PatternedLabel(kv: KeyValueList, email: String, org_id: String) {
+case class PatternedLabel(kv: KeyValueList, profileName: String,  email: String, org_id: String) {
 
   private def find(setKey: String) = {
    KeyValueList.find(kv, setKey)
@@ -44,8 +44,7 @@ case class PatternedLabel(kv: KeyValueList, email: String, org_id: String) {
   lazy val regionOpt  = find(PatternConstants.LAB_REGION).map(_.mkString)
   lazy val region     = regionOpt.getOrElse("")
 
-  lazy val profileOpt = "([A-Za-z]+)".r.findFirstIn(email)
-  lazy val profile    = profileOpt.getOrElse("")
+  lazy val profile    = profileName
 }
 
 object PatternConstants {
