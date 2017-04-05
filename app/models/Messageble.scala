@@ -22,7 +22,6 @@ import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 
-//for our 1.0 rewrite of gwy.
 trait Messageble {
 
   /**
