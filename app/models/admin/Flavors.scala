@@ -196,7 +196,7 @@ object Flavors extends ConcreteFlavors {
       new ResourceItemNotFound("", "Flavor items = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[FlavorResult] =>
       if (!nm.isEmpty) {
-        Validation.success[Throwable, Seq[FlavorResult]](nm.sortWith(_.name < _.name).sortWith(_.cpu < _.cpu)).toValidationNel
+        Validation.success[Throwable, Seq[FlavorResult]](nm.sortWith(_.cpu.toInt < _.cpu.toInt).sortWith(_.ram.toInt < _.ram.toInt).sortWith(_.disk.toInt < _.disk.toInt)).toValidationNel
 
       } else {
         Validation.failure[Throwable, Seq[FlavorResult]](new ResourceItemNotFound("", "Flavor = nothing found.")).toValidationNel
