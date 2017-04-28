@@ -92,6 +92,11 @@ abstract class ConcreteOrg extends OrganizationsT with ScyllaConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def dbSelectAll: ValidationNel[Throwable, Seq[OrganizationsResult]] = {
+    val res = select.fetch
+    Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object Organizations extends ConcreteOrg  with ImplicitJsonFormats {
@@ -134,6 +139,18 @@ object Organizations extends ConcreteOrg  with ImplicitJsonFormats {
     deleteRecords(email) match {
       case Success(value) => Validation.success[Throwable, Option[OrganizationsResult]](none).toValidationNel
       case Failure(err) => Validation.success[Throwable, Option[OrganizationsResult]](none).toValidationNel
+    }
+  }
+
+  //Admin authority can list users hack for 1.5.
+  def list: ValidationNel[Throwable, Seq[OrganizationsResult]] = {
+    (dbSelectAll leftMap { t: NonEmptyList[Throwable] =>
+      new ResourceItemNotFound("Admin", "Organizations = nothing found.")
+    }).toValidationNel.flatMap { nm: Seq[OrganizationsResult] =>
+      if (!nm.isEmpty)
+        Validation.success[Throwable, Seq[OrganizationsResult]](nm).toValidationNel
+      else
+        Validation.failure[Throwable, Seq[OrganizationsResult]](new ResourceItemNotFound("Admin", "Users = nothing found.")).toValidationNel
     }
   }
 
