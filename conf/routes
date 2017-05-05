@@ -15,7 +15,7 @@ DELETE  /v2/admin/accounts/:id        controllers.admin.Users.delete(id: String)
 POST    /v2/admin/accounts/update     controllers.admin.Users.update
 
 ### Organization (Astimp temp fix) as 2.0 we are not going to use this.
-GET     /v2/admin/accounts            controllers.admin.Organizations.list
+GET     /v2/admin/organizations       controllers.admin.Organizations.list
 
 # Licenses
 POST  /v2/admin/licenses/content      controllers.admin.Licenses.post
