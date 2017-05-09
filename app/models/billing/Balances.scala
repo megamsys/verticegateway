@@ -156,6 +156,12 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def listAllRecords: ValidationNel[Throwable, Seq[BalancesResult]] = {
+    val res = select.fetch
+    Await.result(res, 5.seconds).successNel
+  }
+
+
    def NilorNot(rip: String, bal: String): String = {
     rip == null match {
       case true => return bal
@@ -314,5 +320,6 @@ object Balances extends ConcreteBalances{
       case Failure(err) => Validation.success[Throwable, Option[BalancesResults]](none).toValidationNel
     }
   }
+
 
 }

@@ -34,6 +34,7 @@ POST  /v2/admin/balances/update       controllers.admin.Balances.update
 
 # Snapshots
 GET   /v2/admin/snapshots             controllers.admin.Snapshots.list
+GET   /v2/admin/backups                controllers.admin.Backups.list
 
 ### ADMIN ROUTES : END
 
@@ -99,6 +100,7 @@ POST /v2/eventsvm/show/:limit         controllers.EventsVm.show(limit: String)
 GET  /v2/eventsvm                     controllers.EventsVm.index
 
 POST /v2/eventsskews/content         controllers.EventsSkews.post
+POST /v2/eventsskews/update          controllers.EventsSkews.update
 GET  /v2/eventsskews/:id             controllers.EventsSkews.show(id: String)
 GET /v2/eventsskews                  controllers.EventsSkews.list
 

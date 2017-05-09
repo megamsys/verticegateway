@@ -36,6 +36,31 @@ def post = StackAction(parse.tolerantText) {  implicit request =>
   }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
  }
 
+
+ def update = StackAction(parse.tolerantText) {  implicit request =>
+   (Validation.fromTryCatchThrowable[Result,Throwable] {
+     reqFunneled match {
+       case Success(succ) => {
+         val freq = succ.getOrElse(throw new Error("Invalid header."))
+         val email = freq.maybeEmail.getOrElse(throw new Error("Email not found (or) invalid."))
+         val clientAPIBody = freq.clientAPIBody.getOrElse(throw new Error("Body not found (or) invalid."))
+         models.events.EventsSkews.update(email, clientAPIBody) match {
+           case Success(succ) =>
+             Status(CREATED)(
+               FunnelResponse(CREATED, "EventsSkews record created successfully.", "Megam::EventsSkews").toJson(true))
+           case Failure(err) =>
+             val rn: FunnelResponse = new HttpReturningError(err)
+             Status(rn.code)(rn.toJson(true))
+         }
+       }
+       case Failure(err) => {
+         val rn: FunnelResponse = new HttpReturningError(err)
+         Status(rn.code)(rn.toJson(true))
+       }
+     }
+   }).fold(succ = { a: Result => a }, fail = { t: Throwable => Status(BAD_REQUEST)(t.getMessage) })
+  }
+
   def show(id: String) = StackAction(parse.tolerantText) { implicit request =>
     (Validation.fromTryCatchThrowable[Result, Throwable] {
       reqFunneled match {
