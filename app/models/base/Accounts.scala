@@ -344,7 +344,7 @@ object Accounts extends ConcreteAccounts {
       org <- Organizations.findByEmail(p.email)
       res <- mkOrgIfEmpty(p.email, org, ast)
       bal <- Balances.onboardAccountBalance(p.email)
-      evn <- Events(ast.id, EVENTUSER, Events.ONBOARD, Map(EVTEMAIL -> ast.email, EVTPASSWORD_HASH -> ast.password.password_hash)).createAndPub()
+      evn <- Events(ast.id, EVENTUSER, Events.ONBOARD, Map(EVTEMAIL -> ast.email, EVTPASSWORD_HASH -> p.password.password_hash)).createAndPub()
     } yield {
       res
     }
