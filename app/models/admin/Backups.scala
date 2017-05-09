@@ -11,14 +11,14 @@ import db._
 import io.megam.auth.funnel.FunnelErrors._
 import controllers.Constants._
 
-import models.billing.{BalancesResults}
+import models.disks.BackupsResult
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
 import java.nio.charset.Charset
 import io.megam.auth.stack.Role.{ADMIN}
 
-object Balances {
+object Backups {
 
-  def update(input: String): ValidationNel[Throwable, BalancesResults] =  models.billing.Balances.update(input)
+  def list: ValidationNel[Throwable, Seq[BackupsResult]] = models.disks.Backups.list
 
 }

@@ -321,12 +321,5 @@ object Balances extends ConcreteBalances{
     }
   }
 
-  //Admin authority can list all backups for 1.5.2
-  def list: ValidationNel[Throwable, Seq[BalancesResult]] = {
-    listAllRecords match {
-      case Success(value) => Validation.success[Throwable, Seq[BalancesResult]](value).toValidationNel
-      case Failure(err) => Validation.success[Throwable, Seq[BalancesResult]](List()).toValidationNel
-    }
-  }
 
 }
