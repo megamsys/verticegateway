@@ -14,6 +14,8 @@ import db._
 import models.tosca._
 import models.json.tosca._
 import models.Constants._
+import utils.{StringStuff}
+
 import io.megam.auth.funnel.FunnelErrors._
 import models.base._
 import wash._
@@ -149,6 +151,21 @@ abstract class ConcreteEventsSkews extends EventsSkewsSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def updateRecord(email: String, rip: EventsSkewsResult, aor: Option[EventsSkewsResult]): ValidationNel[Throwable, ResultSet] = {
+    val oldstatus  = aor.get.status
+    val newstatus  = rip.status
+
+  val res = update.where(_.account_id eqs email)
+        .and(_.cat_id eqs rip.cat_id)
+      .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
+      .and(_.inputs setTo rip.inputs)
+      .and(_.outputs setTo rip.outputs)
+      .and(_.actions setTo rip.actions)
+      .and(_.updated_at setTo DateHelper.now())
+      .future()
+      Await.result(res, 5.seconds).successNel
+  }
+
 }
 
 object EventsSkews extends ConcreteEventsSkews {
@@ -197,7 +214,20 @@ def create(email: String, input: String): ValidationNel[Throwable, Option[Events
       else
       Validation.success[Throwable, Seq[EventsSkewsResult]](List[EventsSkewsResult]()).toValidationNel
     }
+  }
 
+  def update(email: String, input: String): ValidationNel[Throwable, EventsSkewsResult] = {
+    val ripNel: ValidationNel[Throwable, EventsSkewsResult] = (Validation.fromTryCatchThrowable[EventsSkewsResult,Throwable] {
+      parse(input).extract[EventsSkewsResult]
+    } leftMap { t: Throwable => new MalformedBodyError(input, t.getMessage) }).toValidationNel
+
+    for {
+      rip <- ripNel
+      qor <- (EventsSkews.findById(rip.cat_id, email) leftMap { t: NonEmptyList[Throwable] => t })
+      set <- updateRecord(email, rip, qor.head.some)
+    } yield {
+      qor.head
+    }
   }
 
 }

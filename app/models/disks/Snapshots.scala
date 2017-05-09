@@ -233,6 +233,7 @@ def delete(email: String, asm_id: String, id: String): ValidationNel[Throwable, 
     wa
 }
 }
+
 def update(email: String, input: String): ValidationNel[Throwable, SnapshotsResult] = {
   val ripNel: ValidationNel[Throwable, SnapshotsResult] = (Validation.fromTryCatchThrowable[SnapshotsResult,Throwable] {
     parse(input).extract[SnapshotsResult]

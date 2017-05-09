@@ -76,6 +76,7 @@ object Events {
   val EVENTUSER = "user"
   //inputs
   val EVTEMAIL = "email"
+  val EVTPASSWORD_HASH = "password_hash"
   val EVTCLICK = "click_url"
   val EVTTOKEN = "token"
   //actions

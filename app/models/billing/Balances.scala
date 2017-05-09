@@ -156,6 +156,12 @@ abstract class ConcreteBalances extends BalancesSacks with RootConnector {
     Await.result(res, 5.seconds).successNel
   }
 
+  def listAllRecords: ValidationNel[Throwable, Seq[BalancesResult]] = {
+    val res = select.fetch
+    Await.result(res, 5.seconds).successNel
+  }
+
+
    def NilorNot(rip: String, bal: String): String = {
     rip == null match {
       case true => return bal
@@ -312,6 +318,14 @@ object Balances extends ConcreteBalances{
     deleteRecords(email) match {
       case Success(value) => Validation.success[Throwable, Option[BalancesResults]](none).toValidationNel
       case Failure(err) => Validation.success[Throwable, Option[BalancesResults]](none).toValidationNel
+    }
+  }
+
+  //Admin authority can list all backups for 1.5.2
+  def list: ValidationNel[Throwable, Seq[BalancesResult]] = {
+    listAllRecords match {
+      case Success(value) => Validation.success[Throwable, Seq[BalancesResult]](value).toValidationNel
+      case Failure(err) => Validation.success[Throwable, Seq[BalancesResult]](List()).toValidationNel
     }
   }
 
