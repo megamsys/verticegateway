@@ -30,6 +30,7 @@ DELETE /v2/admin/assembly/:asbs_id/:id controllers.admin.Assembly.delete(asbs_id
 
 
 # Balances
+GET   /v2/admin/balances              controllers.admin.Balances.list
 POST  /v2/admin/balances/update       controllers.admin.Balances.update
 
 # Snapshots

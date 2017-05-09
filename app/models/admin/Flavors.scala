@@ -161,10 +161,27 @@ abstract class ConcreteFlavors extends FlavorSacks with  RootConnector {
     val oldstatus  = aor.get.status
     val newstatus  = rip.status
 
+    val oldcpu     = aor.get.cpu
+    val newcpu     = rip.cpu
+
+    val oldram     = aor.get.ram
+    val newram     = rip.ram
+
+    val olddisk    = aor.get.disk
+    val newdisk    = rip.disk
+
     val res = update.where(_.name eqs rip.name).and(_.id eqs rip.id)
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
+      .and(_.cpu setTo StringStuff.NilOrNot(newcpu, oldcpu))
+      .and(_.ram setTo StringStuff.NilOrNot(newram, oldram))
+      .and(_.disk setTo StringStuff.NilOrNot(newdisk, olddisk))
+      .and(_.category setTo rip.category)
+      .and(_.regions setTo rip.regions)
+      .and(_.price setTo rip.price)
+      .and(_.properties setTo rip.properties)
       .and(_.updated_at setTo DateHelper.now())
       .future()
+      
       scala.concurrent.Await.result(res, 5.seconds).successNel
   }
 
