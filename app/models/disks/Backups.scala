@@ -38,7 +38,8 @@ import controllers.stack.ImplicitJsonFormats
  * @author ranjitha
  *
  */
-case class BackupsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String)
+case class BackupsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String,
+                         inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList)
 
 case class BackupsResult(
   id: String,
@@ -192,7 +193,7 @@ private def mkBackupsSack(email: String, input: String): ValidationNel[Throwable
     uir <- (UID("BAK").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
-    val json = new BackupsResult(uir.get._1 + uir.get._2, back.asm_id, back.org_id, email, back.name + uname, back.status, "", back.tosca_type, List(), List(), "Megam::Backups", DateHelper.now())
+    val json = new BackupsResult(uir.get._1 + uir.get._2, back.asm_id, back.org_id, email, back.name + uname, back.status, "", back.tosca_type, back.inputs, back.outputs, "Megam::Backups", DateHelper.now())
     json
   }
 }
