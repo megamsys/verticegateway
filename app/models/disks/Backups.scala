@@ -39,7 +39,7 @@ import controllers.stack.ImplicitJsonFormats
  *
  */
 case class BackupsInput( asm_id: String, org_id: String, account_id: String, name: String, status: String, tosca_type: String,
-                         inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList)
+                         inputs: models.tosca.KeyValueList, labels: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList)
 
 case class BackupsResult(
   id: String,
@@ -52,14 +52,19 @@ case class BackupsResult(
   tosca_type: String,
   inputs: models.tosca.KeyValueList,
   outputs: models.tosca.KeyValueList,
+  labels: models.tosca.KeyValueList,
   json_claz: String,
   created_at: DateTime)
 
 object BackupsResult {
-  def apply(id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new BackupsResult(id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, outputs, "Megam::Backups", DateTime.now())
+  def apply(id: String, asm_id: String, org_id: String, account_id: String, name: String, status: String, image_id: String, tosca_type: String, inputs: models.tosca.KeyValueList, labels: models.tosca.KeyValueList, outputs: models.tosca.KeyValueList) = new BackupsResult(id, asm_id, org_id, account_id, name, status, image_id, tosca_type, inputs, labels, outputs, "Megam::Backups", DateTime.now())
 }
 
 sealed class BackupsSacks extends CassandraTable[BackupsSacks, BackupsResult] with ImplicitJsonFormats {
+
+  val EMAIL = "email"
+  val SHARED_WITH = "shared_with"
+  val PUBLICLY_SHARED = "public"
 
   object id extends StringColumn(this) with  PartitionKey[String]
   object asm_id extends StringColumn(this) with PrimaryKey[String]
@@ -70,6 +75,16 @@ sealed class BackupsSacks extends CassandraTable[BackupsSacks, BackupsResult] wi
   object image_id extends StringColumn(this)
   object tosca_type extends StringColumn(this)
   object inputs extends JsonListColumn[BackupsSacks, BackupsResult, KeyValueField](this) {
+    override def fromJson(obj: String): KeyValueField = {
+      JsonParser.parse(obj).extract[KeyValueField]
+    }
+
+    override def toJson(obj: KeyValueField): String = {
+      compactRender(Extraction.decompose(obj))
+    }
+  }
+
+  object labels extends JsonListColumn[BackupsSacks, BackupsResult, KeyValueField](this) {
     override def fromJson(obj: String): KeyValueField = {
       JsonParser.parse(obj).extract[KeyValueField]
     }
@@ -102,6 +117,7 @@ sealed class BackupsSacks extends CassandraTable[BackupsSacks, BackupsResult] wi
       image_id(row),
       tosca_type(row),
       inputs(row),
+      labels(row),
       outputs(row),
       json_claz(row),
       created_at(row))
@@ -124,6 +140,7 @@ abstract class ConcreteBackups extends BackupsSacks with RootConnector {
       .value(_.image_id, sps.image_id)
       .value(_.tosca_type, sps.tosca_type)
       .value(_.inputs, sps.inputs)
+      .value(_.labels, sps.labels)
       .value(_.outputs, sps.outputs)
       .value(_.json_claz, sps.json_claz)
       .value(_.created_at, sps.created_at)
@@ -144,12 +161,22 @@ abstract class ConcreteBackups extends BackupsSacks with RootConnector {
       .modify(_.status setTo StringStuff.NilOrNot(newstatus, oldstatus))
       .and(_.image_id setTo StringStuff.NilOrNot(newimage_id, oldimage_id))
       .and(_.inputs setTo rip.inputs)
+      .and(_.labels setTo rip.labels)
       .and(_.outputs setTo rip.outputs)
       .future()
       Await.result(res, 5.seconds).successNel
   }
 
-  def listRecords(email: String): ValidationNel[Throwable, Seq[BackupsResult]] = {
+  def listRecords(email: String) = for {
+      lst <- listAllRecords
+      lmy <- listMyRecords(email)
+  } yield {
+      lmy ++
+      lst.filter{ x => (KeyValueList.filter(x.inputs, SHARED_WITH).filter(_.value.contains(PUBLICLY_SHARED))).length > 0   } ++
+      lst.filter{ y => (KeyValueList.filter(y.labels, EMAIL).filter(_.value.contains(email))).length > 0  }
+  }
+
+  def listMyRecords(email: String): ValidationNel[Throwable, Seq[BackupsResult]] = {
     val res = select.allowFiltering().where(_.account_id eqs email).fetch()
     Await.result(res, 5.seconds).successNel
   }
@@ -193,7 +220,7 @@ private def mkBackupsSack(email: String, input: String): ValidationNel[Throwable
     uir <- (UID("BAK").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
-    val json = new BackupsResult(uir.get._1 + uir.get._2, back.asm_id, back.org_id, email, back.name + uname, back.status, "", back.tosca_type, back.inputs, back.outputs, "Megam::Backups", DateHelper.now())
+    val json = new BackupsResult(uir.get._1 + uir.get._2, back.asm_id, back.org_id, email, back.name + uname, back.status, "", back.tosca_type, back.inputs, back.labels, back.outputs, "Megam::Backups", DateHelper.now())
     json
   }
 }
@@ -289,7 +316,6 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
 
   }
 
-  //Admin authority can list all snapshots for 1.5.
   def list: ValidationNel[Throwable, Seq[BackupsResult]] = {
     listAllRecords match {
       case Success(value) => Validation.success[Throwable, Seq[BackupsResult]](value).toValidationNel
@@ -318,7 +344,7 @@ def update(email: String, input: String): ValidationNel[Throwable, BackupsResult
       if (!output.isEmpty)
          output.head
       else
-        BackupsResult("","","","","","","", "", models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
+        BackupsResult("","","","","","","", "", models.tosca.KeyValueList.empty,models.tosca.KeyValueList.empty, models.tosca.KeyValueList.empty).successNel
   }
 
 

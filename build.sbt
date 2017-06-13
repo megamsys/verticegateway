@@ -6,7 +6,7 @@ name := "verticegateway"
 
 version := "1.5.6"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.11"
 
 ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
