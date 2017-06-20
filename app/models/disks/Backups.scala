@@ -220,7 +220,7 @@ private def mkBackupsSack(email: String, input: String): ValidationNel[Throwable
     uir <- (UID("BAK").get leftMap { ut: NonEmptyList[Throwable] => ut })
   } yield {
     val uname =  uir.get._2.toString.substring(0, 5)
-    val json = new BackupsResult(uir.get._1 + uir.get._2, back.asm_id, back.org_id, email, back.name + uname, back.status, "", back.tosca_type, back.inputs, back.labels, back.outputs, "Megam::Backups", DateHelper.now())
+    val json = new BackupsResult(uir.get._1 + uir.get._2, back.asm_id, back.org_id, email, back.name + "-" + uname, back.status, "", back.tosca_type, back.inputs, back.labels, back.outputs, "Megam::Backups", DateHelper.now())
     json
   }
 }
