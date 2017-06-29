@@ -1,17 +1,21 @@
 Vertice Gateway
 ================
 
-API server for "[MegamVertice](https://www.megam.io)" `1.5.x or < 2.0`.
+This is our API server for [MegamVertice](https://www.megam.io) `1.5.x or < 2.0 release`.
 
-API server for 2.0 is based on rust and will be release shortly.
+# Roadmap for 2.0
 
-The API server protects the RESTful resources using
+API server for 2.0 is based on [rust](https://www.rust-lang.org/en-US/) connecting to [cockroachdb](https://www.cockroachlabs.com/docs/secure-a-cluster.html). 
 
-- [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
-- PASSWORD based on PBKDF2
-- AuthAuth using a master key
+## Where is the code for 2.0
 
-## Requirements
+We have moved the development to private gitlab as it will have enterprise features.
+
+## When can i get it in my anxious hands
+
+`2.0` will be released on `Sep 30 2017` or less.
+
+## Requirements to compile from source
 
 
 1. [SBT 0.13.11 >](https://scala-sbt.org)
@@ -19,6 +23,11 @@ The API server protects the RESTful resources using
 3. [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
 4. [Cassandra 3 +](http://apache.cassandra.org)
 
+The API server protects the RESTful resources using
+
+- [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
+- PASSWORD based on PBKDF2
+- Master key
 
 ## Compile from source
 
