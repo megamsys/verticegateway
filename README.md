@@ -3,15 +3,19 @@ VirtEngine Gateway
 
 API server for "[VirtEngine](https://virtengine.com)"  `1.5.x or < 2.0`.
 
-API server for 2.0 is based on rust and will be release shortly.
+# Roadmap for 2.0
 
-The API server protects the RESTful resources using
+API server for 2.0 is based on [rust](https://www.rust-lang.org/en-US/) connecting to [cockroachdb](https://www.cockroachlabs.com/docs/secure-a-cluster.html).
 
-- [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
-- PASSWORD based on PBKDF2
-- AuthAuth using a master key
+## Where is the code for 2.0
 
-## Requirements
+We have moved the development to private gitlab as it will have enterprise features.
+
+## When can i get it in my anxious hands
+
+`2.0` will be released on `Sep 30 2017` or less.
+
+## Requirements to compile from source
 
 
 1. [SBT 0.13.11 >](https://scala-sbt.org)
@@ -19,6 +23,11 @@ The API server protects the RESTful resources using
 3. [OpenJDK 8.0](http://openjdk.java.net/install/index.html)
 4. [Cassandra 3 +](http://apache.cassandra.org)
 
+The API server protects the RESTful resources using
+
+- [HMAC](http://www.ietf.org/rfc/rfc2104.txt) based authorization.
+- PASSWORD based on PBKDF2
+- Master key
 
 ## Compile from source
 
@@ -79,11 +88,7 @@ Create a home directory to store configuration files for MegamVertice
 
 $ cd ~
 
-<<<<<<< HEAD
 $ mkdir -p detio/virtenginegateway
-=======
-$ mkdir -p megam/home/verticegateway
->>>>>>> origin/1.5.2
 
 ```
 
@@ -93,11 +98,7 @@ In your .bashrc file add the following line
 
 ```
 
-<<<<<<< HEAD
 export MEGAM_HOME=$HOME/detio
-=======
-export MEGAM_HOME=$HOME/megam/home
->>>>>>> origin/1.5.2
 
 ```
 
@@ -189,8 +190,4 @@ MIT
 
 # Authors
 
-<<<<<<< HEAD
 VirtEngine Humans <hello@virtengine.com>
-=======
-Megam - Humans (<humans@megam.io>)
->>>>>>> origin/1.5.2
