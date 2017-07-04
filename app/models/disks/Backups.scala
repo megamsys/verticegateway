@@ -117,8 +117,8 @@ sealed class BackupsSacks extends CassandraTable[BackupsSacks, BackupsResult] wi
       image_id(row),
       tosca_type(row),
       inputs(row),
-      labels(row),
       outputs(row),
+      labels(row),      
       json_claz(row),
       created_at(row))
   }
