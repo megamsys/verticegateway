@@ -1,11 +1,11 @@
-Vertice Gateway
+VirtEngine Gateway
 ================
 
-This is our API server for [MegamVertice](https://www.megam.io) `1.5.x or < 2.0 release`.
+API server for "[VirtEngine](https://virtengine.com)"  `1.5.x or < 2.0`.
 
 # Roadmap for 2.0
 
-API server for 2.0 is based on [rust](https://www.rust-lang.org/en-US/) connecting to [cockroachdb](https://www.cockroachlabs.com/docs/secure-a-cluster.html). 
+API server for 2.0 is based on [rust](https://www.rust-lang.org/en-US/) connecting to [cockroachdb](https://www.cockroachlabs.com/docs/secure-a-cluster.html).
 
 ## Where is the code for 2.0
 
@@ -35,15 +35,15 @@ You'll need `sbt` build tool. and `OpenJDK8.0`
 
 ### Fork
 
-After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
+After you have forked a copy of https://github.com/VirtEngine/gateway.git
 
 ### Steps
 
 ```
 
-* git clone https://github.com/<your_github_id>/vertice_gateway.git
+* git clone https://github.com/<your_github_id>/gateway.git
 
-* cd vertice_gateway
+* cd gateway
 
 * sbt
 
@@ -64,7 +64,7 @@ After you have forked a copy of https://github.com/megamsys/vertice_gateway.git
 ## Setup cassandra keyspace
 
 ```
-* cd vertice_gateway/db
+* cd gateway/db
 
 * cqlsh -f base.cql
 
@@ -88,7 +88,7 @@ Create a home directory to store configuration files for MegamVertice
 
 $ cd ~
 
-$ mkdir -p megam/home/verticegateway
+$ mkdir -p detio/virtenginegateway
 
 ```
 
@@ -98,7 +98,7 @@ In your .bashrc file add the following line
 
 ```
 
-export MEGAM_HOME=$HOME/megam/home
+export MEGAM_HOME=$HOME/detio
 
 ```
 
@@ -108,15 +108,15 @@ After this enter save the .bashrc file.Use the following command
 
 ## Configuration
 
-Copy configuration files to $MEGAM_HOME/verticegateway
+Copy configuration files to $MEGAM_HOME/virtenginegateway
 
 ```
 
-$ cd vertice_gateway (your cloned location)
+$ cd virtenginegateway (your cloned location)
 
-$ cp conf/gateway.conf $MEGAM_HOME/verticegateway
+$ cp conf/gateway.conf $MEGAM_HOME/virtenginegateway
 
-$ cp conf/logger.xml $MEGAM_HOME/verticegateway
+$ cp conf/logger.xml $MEGAM_HOME/virtenginegateway
 
 
 ```
@@ -124,7 +124,7 @@ $ cp conf/logger.xml $MEGAM_HOME/verticegateway
 ## Start Vertice Gateway
 
 ```
-* cd vertice_gateway
+* cd gateway
 
 * sbt
 
@@ -181,7 +181,7 @@ As this is heavy on memory, we have a work in progress 2.0 code which is based o
 
 # Documentation
 
-For [documentation] (http://docs.megam.io)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
+For [documentation] (http://docs.virtengine.com)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
 
 # License
 
@@ -190,4 +190,4 @@ MIT
 
 # Authors
 
-Megam - Humans (<humans@megam.io>)
+VirtEngine Humans <hello@virtengine.com>

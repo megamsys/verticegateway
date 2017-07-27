@@ -1,18 +1,18 @@
 #!/bin/sh
 
-if [ -d "/usr/share/megam/verticegateway" ]; then
-  rm -r /usr/share/megam/verticegateway
+if [ -d "/usr/share/detio/virtenginegateway" ]; then
+  rm -r /usr/share/detio/virtenginegateway
 fi
 
-if [ -d "/var/lib/megam/verticegateway" ]; then
-  rm -r /var/lib/megam/verticegateway
+if [ -d "/var/lib/detio/virtenginegateway" ]; then
+  rm -r /var/lib/detio/virtenginegateway
 fi
 
-if [ -d "/var/log/megam/verticegateway" ]; then
-  rm -r /var/log/megam/verticegateway
+if [ -d "/var/log/detio/virtenginegateway" ]; then
+  rm -r /var/log/detio/virtenginegateway
 fi
 
 
-if [ -d "/var/run/megam/verticegateway" ]; then
-  rm -r /var/run/megam/verticegateway
+if [ -d "/var/run/detio/virtenginegateway" ]; then
+  rm -r /var/run/detio/virtenginegateway
 fi

@@ -2,7 +2,7 @@ import sbt._
 import Process._
 import com.typesafe.sbt.packager.archetypes.ServerLoader
 
-name := "verticegateway"
+name := "virtenginegateway"
 
 version := "1.5.6"
 
@@ -10,21 +10,19 @@ scalaVersion := "2.11.11"
 
 ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
-organization := "Megam Systems"
+homepage := Some(url("https://virtengine.com"))
 
-homepage := Some(url("https://www.megam.io"))
-
-description := """Vertice Gateway : RESTful API gateway for Megam Vertice using HMAC authentication
-Vertice gateway connects to an opensource database ScyllaDB or,
+description := """VirtEngine Gateway : RESTful API gateway for VirtEngine using HMAC authentication
+VirtEngine gateway connects to an opensource database ScyllaDB or,
 compatible cassandra 3.x. A messaging layer via Nsqd (nsq.io) provides an
 extra layer of decoupling from the virtualization or container platforms.
 .
-Vertice extends the benefits of OpenNebula virtualization platform to allow
+VirtEngine extends the benefits of OpenNebula virtualization platform to allow
 single click launch of application, high availability using ceph, autoscaling
 and billing integrated.
 .
 This package contains playframework based API server managing cassandra for
-Megam Vertice."""
+VirtEngine."""
 
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
@@ -39,14 +37,14 @@ javaOptions ++= Seq("-Dconfig.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val gwconfPath = Path(home)
-  val gwconf = gwconfPath / "verticegateway" /  "gateway.conf"
+  val gwconf = gwconfPath / "virtenginegateway" /  "gateway.conf"
   gwconf.toString
 },
 "-Dlogger.file=" + {
   val home  = System getenv "MEGAM_HOME"
   if (home == null || home.length <=0) sys.error("Must define MEGAM_HOME")
   val logconfPath = Path(home)
-  val logconf = logconfPath / "verticegateway" /  "logger.xml"
+  val logconf = logconfPath / "virtenginegateway" /  "logger.xml"
   logconf.toString
 })
 
@@ -101,9 +99,9 @@ enablePlugins(DebianPlugin)
 
 enablePlugins(RpmPlugin)
 
-NativePackagerKeys.defaultLinuxInstallLocation := "/usr/share/megam/"
+NativePackagerKeys.defaultLinuxInstallLocation := "/usr/share/detio/"
 
-NativePackagerKeys.defaultLinuxLogsLocation := "/var/log/megam"
+NativePackagerKeys.defaultLinuxLogsLocation := "/var/log/detio/"
 
 version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
       val nums = (v split "[^\\d]")
@@ -111,25 +109,25 @@ version in Debian <<= (version, sbt.Keys.version) apply { (v, sv) =>
 }
 
 
-maintainer in Linux := "Megam Humans <info@megam.io>"
+maintainer in Linux := "VirtEngine Humans <hello@virtengine.com>"
 
-packageSummary in Linux := "VerticeGateway is a REST API server."
+packageSummary in Linux := "VirtengineGateway is a REST API server."
 
-packageDescription in Linux := "REST based API server which acts as the Gateway server for Megam vertice."
+packageDescription in Linux := "REST based API server which acts as the Gateway server for VirtEngine."
 
-daemonUser in Linux := "root" // user which will execute the application
+daemonUser in Linux := "virtengine" // user which will execute the application
 
-daemonGroup in Linux := "root"    // group which will execute the application
+daemonGroup in Linux := "virtengine"    // group which will execute the application
 
-debianPackageDependencies in Debian ++= Seq("curl", "verticecommon")
+debianPackageDependencies in Debian ++= Seq("curl", "virtenginecommon")
 
 linuxPackageMappings <+= (normalizedName, daemonUser in Linux, daemonGroup in Linux) map { (name, user, group) =>
-      packageTemplateMapping("/var/run/megam/" + name)() withUser user withGroup group withPerms "755"
+      packageTemplateMapping("/var/run/detio/" + name)() withUser user withGroup group withPerms "755"
 }
 
-rpmVendor := "megam"
+rpmVendor := "DET.io"
 
-rpmUrl := Some("https://docs.megam.io")
+rpmUrl := Some("https://docs.virtengine.com")
 
 rpmLicense := Some("MIT")
 
