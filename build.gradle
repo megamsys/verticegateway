@@ -33,7 +33,7 @@ dependencies {
     play      "com.websudos:phantom-testkit:1.16.0"
     play      "com.websudos:phantom-connectors:1.16.0"
     play      "com.typesafe.akka:akka-slf4j:2.4.1"
-    play      "io.megam:libcommon_2.11:0.39"
+    play      "io.megam:libcommon_2.11:1.9.3"
     playTest  "io.megam:newman_2.11:1.3.12"
     playTest  "org.specs2:specs2-core:3.7-scalaz-7.1.6"
     playTest  "org.specs2:specs2-matcher-extra:3.7-scalaz-7.1.6"

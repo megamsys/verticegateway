@@ -12,7 +12,6 @@ import play.api.mvc._
 import controllers.stack.Results
 import models.Constants.{FLAVORCLAZ, FLAVORCOLLECTIONCLAZ}
 
-
 /**
  * @author rajthilak
  *
