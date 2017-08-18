@@ -181,7 +181,7 @@ abstract class ConcreteFlavors extends FlavorSacks with  RootConnector {
       .and(_.properties setTo rip.properties)
       .and(_.updated_at setTo DateHelper.now())
       .future()
-      
+
       scala.concurrent.Await.result(res, 5.seconds).successNel
   }
 
@@ -190,7 +190,6 @@ abstract class ConcreteFlavors extends FlavorSacks with  RootConnector {
     Await.result(res,5.seconds).successNel
   }
  }
-
 
 object Flavors extends ConcreteFlavors {
 
@@ -213,7 +212,7 @@ object Flavors extends ConcreteFlavors {
       new ResourceItemNotFound("", "Flavor items = nothing found.")
     }).toValidationNel.flatMap { nm: Seq[FlavorResult] =>
       if (!nm.isEmpty) {
-        Validation.success[Throwable, Seq[FlavorResult]](nm.sortWith(_.cpu.toInt < _.cpu.toInt).sortWith(_.ram.toInt < _.ram.toInt).sortWith(_.disk.toInt < _.disk.toInt)).toValidationNel
+        Validation.success[Throwable, Seq[FlavorResult]](nm.sortWith(_.cpu.toFloat < _.cpu.toFloat).sortWith(_.ram.toFloat < _.ram.toFloat).sortWith(_.disk.toFloat < _.disk.toFloat)).toValidationNel
 
       } else {
         Validation.failure[Throwable, Seq[FlavorResult]](new ResourceItemNotFound("", "Flavor = nothing found.")).toValidationNel
