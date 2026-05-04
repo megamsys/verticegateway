@@ -181,7 +181,7 @@ As this is heavy on memory, we have a work in progress 2.0 code which is based o
 
 # Documentation
 
-For [documentation] (https://megam.io)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
+For [documentation] (https://megam.io)
 
 # License
 
@@ -190,4 +190,4 @@ MIT
 
 # Authors
 
-Megam - Humans (<humans@megam.io>)
+Megam - Kishore (<nkishore@megam.io>)
