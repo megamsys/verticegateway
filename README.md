@@ -162,7 +162,7 @@ Now you are all set.
 
 # API Documentation
 
-Refer [docs](https://docs.megam.io] and we'll publish vertice.raml shortly.
+Refer [docs](https://megam.io) and we'll publish vertice.raml shortly.
 
 To generate the html docs.
 
@@ -181,7 +181,7 @@ As this is heavy on memory, we have a work in progress 2.0 code which is based o
 
 # Documentation
 
-For [documentation] (http://docs.megam.io)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
+For [documentation] (https://megam.io)  [devkit] (https://github.com/megamsys/vertice_dev_kit)
 
 # License
 
